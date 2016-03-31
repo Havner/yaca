@@ -26,44 +26,44 @@
 #include "key_p.h"
 
 // Sanity check on key
-inline void key_sanity_check(const crypto_key_h key)
+static inline void key_sanity_check(const owl_key_h key)
 {
 	assert(key->length);
 	assert(key->length % 8 == 0);
 }
 
-int crypto_key_get_length(const crypto_key_h key)
+int owl_key_get_length(const owl_key_h key)
 {
 	if (!key)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 	key_sanity_check(key);
 
 	return key->length;
 }
 
-int crypto_key_import(crypto_key_h *key,
-		      crypto_key_fmt_e key_fmt,
-		      crypto_key_type_e key_type,
-		      const char *data,
-		      size_t data_len)
+int owl_key_import(owl_key_h *key,
+		   owl_key_fmt_e key_fmt,
+		   owl_key_type_e key_type,
+		   const char *data,
+		   size_t data_len)
 {
-	crypto_key_h nk = NULL;
+	owl_key_h nk = NULL;
 
 	if (!key || !data || !data_len)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
-	if (key_type != CRYPTO_KEY_TYPE_SYMMETRIC)
-		return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	if (key_type != OWL_KEY_TYPE_SYMMETRIC)
+		return OWL_ERROR_NOT_IMPLEMENTED;
 
-	if (key_fmt != CRYPTO_KEY_FORMAT_RAW)
-		return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	if (key_fmt != OWL_KEY_FORMAT_RAW)
+		return OWL_ERROR_NOT_IMPLEMENTED;
 
-	if (sizeof(struct __crypto_key_s) + data_len < data_len)
-		return CRYPTO_ERROR_TOO_BIG_ARGUMENT;
+	if (sizeof(struct __owl_key_s) + data_len < data_len)
+		return OWL_ERROR_TOO_BIG_ARGUMENT;
 
-	nk = crypto_alloc(sizeof(struct __crypto_key_s) + data_len);
+	nk = owl_alloc(sizeof(struct __owl_key_s) + data_len);
 	if (!nk)
-		return CRYPTO_ERROR_OUT_OF_MEMORY;
+		return OWL_ERROR_OUT_OF_MEMORY;
 
 	memcpy(nk->d, data, data_len);
 	nk->length = data_len * 8;
@@ -73,87 +73,87 @@ int crypto_key_import(crypto_key_h *key,
 	return 0;
 }
 
-int crypto_key_export(const crypto_key_h key,
-		      crypto_key_fmt_e key_fmt,
-		      char **data,
-		      size_t *data_len)
+int owl_key_export(const owl_key_h key,
+		   owl_key_fmt_e key_fmt,
+		   char **data,
+		   size_t *data_len)
 {
 	int byte_len;
 
 	if (!key || !data || !data_len)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
-	if (key->type != CRYPTO_KEY_TYPE_SYMMETRIC)
-		return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	if (key->type != OWL_KEY_TYPE_SYMMETRIC)
+		return OWL_ERROR_NOT_IMPLEMENTED;
 
-	if (key_fmt != CRYPTO_KEY_FORMAT_RAW)
-		return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	if (key_fmt != OWL_KEY_FORMAT_RAW)
+		return OWL_ERROR_NOT_IMPLEMENTED;
 
 	key_sanity_check(key);
 
 	byte_len = key->length / 8;
-	*data = crypto_alloc(byte_len);
+	*data = owl_alloc(byte_len);
 	memcpy(*data, key->d, byte_len);
 	*data_len = byte_len;
 
 	return 0;
 }
 
-int crypto_key_gen(crypto_key_h *sym_key,
-		   crypto_key_type_e key_type,
-		   size_t key_len)
+int owl_key_gen(owl_key_h *sym_key,
+		owl_key_type_e key_type,
+		size_t key_len)
 {
-	if (!sym_key || key_type != CRYPTO_KEY_TYPE_SYMMETRIC)
+	if (!sym_key || key_type != OWL_KEY_TYPE_SYMMETRIC)
 		return -1;
 
-	*sym_key = crypto_alloc(sizeof(struct __crypto_key_s) + key_len);
+	*sym_key = owl_alloc(sizeof(struct __owl_key_s) + key_len);
 	if (!*sym_key)
 		return -1;
 
 	(*sym_key)->length = key_len;
 	(*sym_key)->type = key_type;
-	return crypto_rand_bytes((*sym_key)->d, key_len);
+	return owl_rand_bytes((*sym_key)->d, key_len);
 }
 
-int crypto_key_gen_pair(crypto_key_h *prv_key,
-			crypto_key_h *pub_key,
-			crypto_key_type_e key_type,
-			size_t key_len)
+int owl_key_gen_pair(owl_key_h *prv_key,
+		     owl_key_h *pub_key,
+		     owl_key_type_e key_type,
+		     size_t key_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-void crypto_key_free(crypto_key_h key)
+void owl_key_free(owl_key_h key)
 {
 	if (!key)
 		return;
 
-	crypto_free(key);
+	owl_free(key);
 }
 
-int crypto_key_derive_dh(const crypto_key_h prv_key,
-			 const crypto_key_h pub_key,
-			 crypto_key_h *sym_key)
+int owl_key_derive_dh(const owl_key_h prv_key,
+		      const owl_key_h pub_key,
+		      owl_key_h *sym_key)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_key_derive_kea(const crypto_key_h prv_key,
-			  const crypto_key_h pub_key,
-			  const crypto_key_h prv_key_auth,
-			  const crypto_key_h pub_key_auth,
-			  crypto_key_h *sym_key)
+int owl_key_derive_kea(const owl_key_h prv_key,
+		       const owl_key_h pub_key,
+		       const owl_key_h prv_key_auth,
+		       const owl_key_h pub_key_auth,
+		       owl_key_h *sym_key)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_key_derive_pbkdf2(const char *password,
-			     const char *salt,
-			     size_t salt_len,
-			     int iter,
-			     crypto_digest_algo_e algo,
-			     crypto_key_len_e key_len,
-			     crypto_key_h *key)
+int owl_key_derive_pbkdf2(const char *password,
+			  const char *salt,
+			  size_t salt_len,
+			  int iter,
+			  owl_digest_algo_e algo,
+			  owl_key_len_e key_len,
+			  owl_key_h *key)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }

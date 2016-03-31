@@ -24,44 +24,44 @@
 #include <crypto/crypto.h>
 #include <crypto/error.h>
 
-int crypto_sign_init(crypto_ctx_h *ctx,
-		     crypto_digest_algo_e algo,
-		     const crypto_key_h key)
+int owl_sign_init(owl_ctx_h *ctx,
+		  owl_digest_algo_e algo,
+		  const owl_key_h key)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_sign_update(crypto_ctx_h ctx,
-		       const char *data,
-		       size_t data_len)
+int owl_sign_update(owl_ctx_h ctx,
+		    const char *data,
+		    size_t data_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_sign_final(crypto_ctx_h ctx,
-		      char *mac,
-		      size_t *mac_len)
+int owl_sign_final(owl_ctx_h ctx,
+		   char *mac,
+		   size_t *mac_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_verify_init(crypto_ctx_h *ctx,
-		       crypto_digest_algo_e algo,
-		       const crypto_key_h key)
+int owl_verify_init(owl_ctx_h *ctx,
+		    owl_digest_algo_e algo,
+		    const owl_key_h key)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_verify_update(crypto_ctx_h ctx,
-			 const char *data,
-			 size_t data_len)
+int owl_verify_update(owl_ctx_h ctx,
+		      const char *data,
+		      size_t data_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_verify_final(crypto_ctx_h ctx,
-			const char *mac,
-			size_t mac_len)
+int owl_verify_final(owl_ctx_h ctx,
+		     const char *mac,
+		     size_t mac_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }

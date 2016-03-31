@@ -26,8 +26,8 @@
  * @brief Private header for key.c
  */
 
-struct __crypto_key_s {
-	crypto_key_type_e type;
+struct __owl_key_s {
+	owl_key_type_e type;
 	size_t length;
 	char d[0];
 };

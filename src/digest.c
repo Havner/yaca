@@ -27,82 +27,81 @@
 
 #include "ctx_p.h"
 
-typedef struct __crypto_digest_ctx {
-	struct __crypto_ctx_s ctx;
+typedef struct __owl_digest_ctx {
+	struct __owl_ctx_s ctx;
 
 	const EVP_MD *md;
 	EVP_MD_CTX *mdctx;
-} crypto_digest_ctx;
+} owl_digest_ctx;
 
-static crypto_digest_ctx *get_ctx(crypto_ctx_h ctx)
+static owl_digest_ctx *get_ctx(owl_ctx_h ctx)
 {
 	if (!ctx)
 		return NULL;
-	if (ctx->type != CRYPTO_CTX_DIGEST)
+	if (ctx->type != OWL_CTX_DIGEST)
 		return NULL;
-	return (crypto_digest_ctx *)ctx;
+	return (owl_digest_ctx *)ctx;
 }
 
-static int get_digest_output_length(const crypto_ctx_h ctx, size_t input_len)
+static int get_digest_output_length(const owl_ctx_h ctx, size_t input_len)
 {
-	crypto_digest_ctx *c = get_ctx(ctx);
+	owl_digest_ctx *c = get_ctx(ctx);
 
 	if (!c)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
 	return EVP_MD_size(c->md);
 }
 
-
-int crypto_digest_init(crypto_ctx_h *ctx, crypto_digest_algo_e algo)
+int owl_digest_init(owl_ctx_h *ctx, owl_digest_algo_e algo)
 {
-	crypto_digest_ctx *nc;
+	owl_digest_ctx *nc;
 	int ret;
 
 	if (!ctx)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
-	nc = crypto_alloc(sizeof(struct __crypto_digest_ctx));
+	nc = owl_alloc(sizeof(struct __owl_digest_ctx));
 	if (!nc)
-		return CRYPTO_ERROR_OUT_OF_MEMORY;
+		return OWL_ERROR_OUT_OF_MEMORY;
 
-	nc->ctx.type = CRYPTO_CTX_DIGEST;
+	nc->ctx.type = OWL_CTX_DIGEST;
 	nc->ctx.get_output_length = get_digest_output_length;
 
 	switch (algo)
 	{
-	case CRYPTO_DIGEST_MD5:
+	case OWL_DIGEST_MD5:
 		nc->md = EVP_md5();
 		break;
-	case CRYPTO_DIGEST_SHA1:
+	case OWL_DIGEST_SHA1:
 		nc->md = EVP_sha1();
 		break;
-	case CRYPTO_DIGEST_SHA224:
+	case OWL_DIGEST_SHA224:
 		nc->md = EVP_sha224();
 		break;
-	case CRYPTO_DIGEST_SHA256:
+	case OWL_DIGEST_SHA256:
 		nc->md = EVP_sha256();
 		break;
-	case CRYPTO_DIGEST_SHA384:
+	case OWL_DIGEST_SHA384:
 		nc->md = EVP_sha384();
 		break;
-	case CRYPTO_DIGEST_SHA512:
+	case OWL_DIGEST_SHA512:
 		nc->md = EVP_sha512();
 		break;
 	default:
-		crypto_free(nc);
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		owl_free(nc);
+		return OWL_ERROR_INVALID_ARGUMENT;
 	}
 
 	if (!nc->md) {
-		crypto_free(nc);
-		return CRYPTO_ERROR_OPENSSL_FAILURE;
+		owl_free(nc);
+		return OWL_ERROR_OPENSSL_FAILURE;
 	}
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (!nc->mdctx) {
-		crypto_free(nc);
-		return CRYPTO_ERROR_OPENSSL_FAILURE;
+		owl_free(nc);
+		return OWL_ERROR_OPENSSL_FAILURE;
 	}
 
 	ret = EVP_DigestInit(nc->mdctx, nc->md);
@@ -112,43 +111,43 @@ int crypto_digest_init(crypto_ctx_h *ctx, crypto_digest_algo_e algo)
 	}
 
 	EVP_MD_CTX_destroy(nc->mdctx);
-	crypto_free(nc);
+	owl_free(nc);
 
-	return CRYPTO_ERROR_OPENSSL_FAILURE;
+	return OWL_ERROR_OPENSSL_FAILURE;
 }
 
-int crypto_digest_update(crypto_ctx_h ctx, const char *data, size_t data_len)
+int owl_digest_update(owl_ctx_h ctx, const char *data, size_t data_len)
 {
-	crypto_digest_ctx *c = get_ctx(ctx);
+	owl_digest_ctx *c = get_ctx(ctx);
 	int ret;
 
 	if (!c || !data || !data_len)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestUpdate(c->mdctx, data, data_len);
 
 	if (ret == 1)
 		return 0;
 
-	return CRYPTO_ERROR_OPENSSL_FAILURE;
+	return OWL_ERROR_OPENSSL_FAILURE;
 }
 
-int crypto_digest_final(crypto_ctx_h ctx, char *digest, size_t *digest_len)
+int owl_digest_final(owl_ctx_h ctx, char *digest, size_t *digest_len)
 {
-	crypto_digest_ctx *c = get_ctx(ctx);
+	owl_digest_ctx *c = get_ctx(ctx);
 	int ret;
 	unsigned len = 0;
 
 	if (!c || !digest || !digest_len)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
 	if (*digest_len == 0 || *digest_len > UINT_MAX) // DigestFinal accepts uint
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestFinal_ex(c->mdctx, (unsigned char*)digest, &len);
 	*digest_len = len;
 	if (ret == 1)
 		return 0;
 
-	return CRYPTO_ERROR_OPENSSL_FAILURE;
+	return OWL_ERROR_OPENSSL_FAILURE;
 }

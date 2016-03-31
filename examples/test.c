@@ -8,16 +8,16 @@
 
 int main(int argc, char* argv[])
 {
-	crypto_key_h key;
+	owl_key_h key;
 	char *k;
 	size_t kl;
 	int ret;
 
 	printf("Generating key using CryptoAPI.. ");
-	ret = crypto_key_gen(&key, CRYPTO_KEY_TYPE_SYMMETRIC, CRYPTO_KEY_UNSAFE_128BIT);
+	ret = owl_key_gen(&key, OWL_KEY_TYPE_SYMMETRIC, OWL_KEY_UNSAFE_128BIT);
 	printf("done (%d)\n", ret);
 	printf("Exporting key using CryptoAPI.. ");
-	ret = crypto_key_export(key, CRYPTO_KEY_FORMAT_RAW, &k, &kl);
+	ret = owl_key_export(key, OWL_KEY_FORMAT_RAW, &k, &kl);
 	printf("done (%d)\n", ret);
 	dump_hex(k, kl, "%zu-bit key: \n", kl);
 	return 0;

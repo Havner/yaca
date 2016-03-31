@@ -27,7 +27,7 @@
 
 #include "ctx_p.h"
 
-int crypto_init(void)
+int owl_init(void)
 {
 	OPENSSL_init();
 	OpenSSL_add_all_digests();
@@ -35,63 +35,63 @@ int crypto_init(void)
 	return 0;
 }
 
-void crypto_exit(void)
+void owl_exit(void)
 {
 }
 
-void *crypto_alloc(size_t size)
+void *owl_alloc(size_t size)
 {
 	return OPENSSL_malloc(size);
 }
 
-void crypto_free(void *ptr)
+void owl_free(void *ptr)
 {
 	OPENSSL_free(ptr);
 }
 
-int crypto_rand_bytes(char *data, size_t data_len)
+int owl_rand_bytes(char *data, size_t data_len)
 {
 	int ret;
 
 	if (!data || data_len == 0)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 
 	ret = RAND_bytes((unsigned char *)data, data_len);
 	if (ret == -1)
-		return CRYPTO_ERROR_NOT_SUPPORTED;
+		return OWL_ERROR_NOT_SUPPORTED;
 	if (ret == 1)
 		return 0;
 
-	return CRYPTO_ERROR_OPENSSL_FAILURE;
+	return OWL_ERROR_OPENSSL_FAILURE;
 }
 
-int crypto_ctx_set_param(crypto_ctx_h ctx, crypto_ex_param_e param,
-			 const void *value, size_t value_len)
+int owl_ctx_set_param(owl_ctx_h ctx, owl_ex_param_e param,
+		      const void *value, size_t value_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int crypto_ctx_get_param(const crypto_ctx_h ctx, crypto_ex_param_e param,
-			 void **value, size_t *value_len)
+int owl_ctx_get_param(const owl_ctx_h ctx, owl_ex_param_e param,
+		      void **value, size_t *value_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-void crypto_ctx_free(crypto_ctx_h ctx)
+void owl_ctx_free(owl_ctx_h ctx)
 {
-	crypto_free(ctx);
+	owl_free(ctx);
 }
 
-int crypto_get_output_length(const crypto_ctx_h ctx, size_t input_len)
+int owl_get_output_length(const owl_ctx_h ctx, size_t input_len)
 {
 	if (!ctx)
-		return CRYPTO_ERROR_INVALID_ARGUMENT;
+		return OWL_ERROR_INVALID_ARGUMENT;
 	return ctx->get_output_length(ctx, input_len);
 }
 
-int crypto_get_iv_length(crypto_enc_algo_e algo,
-			 crypto_block_cipher_mode_e bcm,
-			 size_t key_len)
+int owl_get_iv_length(owl_enc_algo_e algo,
+		      owl_block_cipher_mode_e bcm,
+		      size_t key_len)
 {
-	return CRYPTO_ERROR_NOT_IMPLEMENTED;
+	return OWL_ERROR_NOT_IMPLEMENTED;
 }

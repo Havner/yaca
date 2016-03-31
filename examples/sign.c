@@ -46,7 +46,7 @@ size_t read_data(char* buffer, size_t size)
 	return i;
 }
 
-int sign(crypto_ctx_h ctx, char** signature, size_t* signature_len)
+int sign(owl_ctx_h ctx, char** signature, size_t* signature_len)
 {
 	char buffer[SIZE];
 
@@ -56,23 +56,23 @@ int sign(crypto_ctx_h ctx, char** signature, size_t* signature_len)
 		if(read == 0)
 			break;
 
-		if(crypto_sign_update(ctx, buffer, read))
+		if(owl_sign_update(ctx, buffer, read))
 			return -1;
 	}
 
 	// TODO: is it a size in bytes or length in characters?
-	*signature_len = crypto_get_digest_length(ctx);
-	*signature = (char*)crypto_alloc(*signature_len);
+	*signature_len = owl_get_digest_length(ctx);
+	*signature = (char*)owl_alloc(*signature_len);
 
-	// TODO: crypto_get_digest_length() returns int but crypto_sign_final accepts size_t. Use common type.
-	if(crypto_sign_final(ctx, *signature, signature_len))
+	// TODO: owl_get_digest_length() returns int but owl_sign_final accepts size_t. Use common type.
+	if(owl_sign_final(ctx, *signature, signature_len))
 		return -1;
 
 	dump_hex(*signature, *signature_len, "Message signature: ");
 	return 0;
 }
 
-int verify(crypto_ctx_h ctx, const char* signature, size_t signature_len)
+int verify(owl_ctx_h ctx, const char* signature, size_t signature_len)
 {
 	char buffer[SIZE];
 
@@ -82,12 +82,12 @@ int verify(crypto_ctx_h ctx, const char* signature, size_t signature_len)
 		if(read == 0)
 			break;
 
-		if(crypto_verify_update(ctx, buffer, read))
+		if(owl_verify_update(ctx, buffer, read))
 			return -1;
 	}
 
 	// TODO: use int or size_t for output sizes
-	if(crypto_verify_final(ctx, signature, (size_t)signature_len))
+	if(owl_verify_final(ctx, signature, (size_t)signature_len))
 		return -1;
 
 	printf("Verification succeeded\n");
@@ -100,50 +100,50 @@ void sign_verify_rsa(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	crypto_ctx_h ctx = NULL;
-	crypto_key_h prv = NULL, pub = NULL;
-	crypto_padding_e padding = CRYPTO_PADDING_PKCS1;
+	owl_ctx_h ctx = NULL;
+	owl_key_h prv = NULL, pub = NULL;
+	owl_padding_e padding = OWL_PADDING_PKCS1;
 
 
 	// GENERATE
 
-	if(crypto_key_gen_pair(&prv, &pub, CRYPTO_KEY_4096BIT, CRYPTO_KEY_TYPE_PAIR_RSA))
+	if(owl_key_gen_pair(&prv, &pub, OWL_KEY_4096BIT, OWL_KEY_TYPE_PAIR_RSA))
 		return;
 
 
 	// SIGN
 
-	if(crypto_sign_init(&ctx, CRYPTO_DIGEST_SHA512, prv))
+	if(owl_sign_init(&ctx, OWL_DIGEST_SHA512, prv))
 		goto finish;
 
-	// TODO: crypto_ctx_set_param should take void* not char*
-	if(crypto_ctx_set_param(ctx, CRYPTO_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+	// TODO: owl_ctx_set_param should take void* not char*
+	if(owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
 		goto finish;
 
 	if(sign(ctx, &signature, &signature_len))
 		goto finish;
 
 	// TODO: is this necessary or will next ctx init handle it?
-	crypto_ctx_free(ctx);
+	owl_ctx_free(ctx);
 	ctx = NULL;
 
 
 	// VERIFY
 
-	if(crypto_verify_init(&ctx, CRYPTO_DIGEST_SHA512, pub))
+	if(owl_verify_init(&ctx, OWL_DIGEST_SHA512, pub))
 		goto finish;
 
-	if(crypto_ctx_set_param(ctx, CRYPTO_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+	if(owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
 		goto finish;
 
 	if(verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
-	crypto_free(signature);
-	crypto_key_free(prv);
-	crypto_key_free(pub);
-	crypto_ctx_free(ctx);
+	owl_free(signature);
+	owl_key_free(prv);
+	owl_key_free(pub);
+	owl_ctx_free(ctx);
 }
 
 void sign_verify_hmac(void)
@@ -151,18 +151,18 @@ void sign_verify_hmac(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	crypto_ctx_h ctx = NULL;
-	crypto_key_h key = NULL;
+	owl_ctx_h ctx = NULL;
+	owl_key_h key = NULL;
 
 
 	// GENERATE
 
-	if(crypto_key_gen(&key, CRYPTO_KEY_256BIT, CRYPTO_KEY_TYPE_SYMMETRIC))
+	if(owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
 		return;
 
 	// SIGN
 
-	if(crypto_sign_init(&ctx, CRYPTO_DIGEST_SHA512, key))
+	if(owl_sign_init(&ctx, OWL_DIGEST_SHA512, key))
 		goto finish;
 
 	if(sign(ctx, &signature, &signature_len))
@@ -171,16 +171,16 @@ void sign_verify_hmac(void)
 
 	// VERIFY
 
-	if(crypto_verify_init(&ctx, CRYPTO_DIGEST_SHA512, key))
+	if(owl_verify_init(&ctx, OWL_DIGEST_SHA512, key))
 		goto finish;
 
 	if(verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
-	crypto_free(signature);
-	crypto_key_free(key);
-	crypto_ctx_free(ctx);
+	owl_free(signature);
+	owl_key_free(key);
+	owl_ctx_free(ctx);
 }
 
 void sign_verify_cmac(void)
@@ -188,18 +188,18 @@ void sign_verify_cmac(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	crypto_ctx_h ctx = NULL;
-	crypto_key_h key = NULL;
+	owl_ctx_h ctx = NULL;
+	owl_key_h key = NULL;
 
 
 	// GENERATE
 
-	if(crypto_key_gen(&key, CRYPTO_KEY_256BIT, CRYPTO_KEY_TYPE_SYMMETRIC))
+	if(owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
 		return;
 
 	// SIGN
 	// TODO: CMAC must extract the key length to select the proper evp (EVP_aes_XXX_cbc()) it should be documented
-	if(crypto_sign_init(&ctx, CRYPTO_DIGEST_CMAC, key))
+	if(owl_sign_init(&ctx, OWL_DIGEST_CMAC, key))
 		goto finish;
 
 	if(sign(ctx, &signature, &signature_len))
@@ -208,23 +208,23 @@ void sign_verify_cmac(void)
 
 	// VERIFY
 
-	if(crypto_verify_init(&ctx, CRYPTO_DIGEST_CMAC, key))
+	if(owl_verify_init(&ctx, OWL_DIGEST_CMAC, key))
 		goto finish;
 
 	if(verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
-	crypto_free(signature);
-	crypto_key_free(key);
-	crypto_ctx_free(ctx);
+	owl_free(signature);
+	owl_key_free(key);
+	owl_ctx_free(ctx);
 }
 
 
 int main()
 {
 	int ret = 0;
-	if ((ret = crypto_init()))
+	if ((ret = owl_init()))
 		return ret;
 
 	// TODO simple?
@@ -233,6 +233,6 @@ int main()
 	sign_verify_hmac();
 	sign_verify_cmac();
 
-	crypto_exit(); // TODO: what about handing of return value from exit??
+	owl_exit(); // TODO: what about handing of return value from exit??
 	return ret;
 }

@@ -34,7 +34,7 @@ void digest_simple(void)
 	char *digest;
 	size_t digest_len;
 
-	ret = crypto_digest_calc(CRYPTO_DIGEST_SHA256,
+	ret = owl_digest_calc(OWL_DIGEST_SHA256,
 				 lorem1024,
 				 1024, &digest, &digest_len);
 	if (ret < 0)
@@ -42,48 +42,48 @@ void digest_simple(void)
 
 	dump_hex(digest, digest_len, "Message digest: ");
 
-	crypto_free(digest);
+	owl_free(digest);
 }
 
 void digest_advanced(void)
 {
 	int ret = 0;
 
-	crypto_ctx_h ctx;
-	ret = crypto_digest_init(&ctx, CRYPTO_DIGEST_SHA256);
+	owl_ctx_h ctx;
+	ret = owl_digest_init(&ctx, OWL_DIGEST_SHA256);
 	if (ret) return;
 
-	ret = crypto_digest_update(ctx, lorem1024, 1024);
+	ret = owl_digest_update(ctx, lorem1024, 1024);
 	if (ret) goto exit_ctx;
 
-	// TODO: rename to crypto_digest_get_length??
+	// TODO: rename to owl_digest_get_length??
 	size_t digest_len;
-	digest_len = crypto_get_digest_length(ctx);
+	digest_len = owl_get_digest_length(ctx);
 	if (digest_len <= 0) goto exit_ctx;
 
 	{
 		char digest[digest_len];
 
-		ret = crypto_digest_final(ctx, digest, &digest_len);
+		ret = owl_digest_final(ctx, digest, &digest_len);
 		if (ret < 0) goto exit_ctx;
 
 		dump_hex(digest, digest_len, "Message digest: ");
 	}
 
 exit_ctx:
-	crypto_ctx_free(ctx);
+	owl_ctx_free(ctx);
 }
 
 int main()
 {
 	int ret = 0;
-	if ((ret = crypto_init()))
+	if ((ret = owl_init()))
 		return ret;
 
 	digest_simple();
 
 	digest_advanced();
 
-	crypto_exit(); // TODO: what about handing of return value from exit??
+	owl_exit(); // TODO: what about handing of return value from exit??
 	return ret;
 }

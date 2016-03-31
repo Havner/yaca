@@ -39,23 +39,23 @@ extern "C" {
  * @{
  */
 
-#define CRYPTO_KEY_NULL ((crypto_key_h) NULL)
+#define OWL_KEY_NULL ((owl_key_h) NULL)
 
-// TODO: We need a way to import keys encrypted with hw (or other) keys. New function like crypto_key_load or sth??
+// TODO: We need a way to import keys encrypted with hw (or other) keys. New function like owl_key_load or sth??
 
 /**
- * @brief crypto_key_get_length  Get key's length.
+ * @brief owl_key_get_length  Get key's length.
  *
  * @param[in] key  Key which length we return.
  *
  * @return negative on error (@see error.h) or key length.
  */
-int crypto_key_get_length(const crypto_key_h key);
+int owl_key_get_length(const owl_key_h key);
 
 /**
- * @brief crypto_key_import  Imports a key from the arbitrary format.
+ * @brief owl_key_import  Imports a key from the arbitrary format.
  *
- * @param[out] key       Returned key (must be freed with @see crypto_key_free).
+ * @param[out] key       Returned key (must be freed with @see owl_key_free).
  * @param[in]  key_fmt   Format of the key.
  * @param[in]  key_type  Type of the key.
  * @param[in]  data      Blob containing the key.
@@ -63,65 +63,65 @@ int crypto_key_get_length(const crypto_key_h key);
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int crypto_key_import(crypto_key_h *key,
-		      crypto_key_fmt_e key_fmt,
-		      crypto_key_type_e key_type,
-		      const char *data,
-		      size_t data_len);
+int owl_key_import(owl_key_h *key,
+		   owl_key_fmt_e key_fmt,
+		   owl_key_type_e key_type,
+		   const char *data,
+		   size_t data_len);
 
 /**
- * @brief crypto_key_export  Exports a key to arbitrary format. Export may fail if key is HW-based.
+ * @brief owl_key_export  Exports a key to arbitrary format. Export may fail if key is HW-based.
  *
  * @param[in]  key       Key to be exported.
  * @param[in]  key_fmt   Format of the key.
- * @param[out] data      Data, allocated by the library, containing exported key (must be freed with @see crypto_free).
+ * @param[out] data      Data, allocated by the library, containing exported key (must be freed with @see owl_free).
  * @param[out] data_len  Size of the output data.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int crypto_key_export(const crypto_key_h key,
-		      crypto_key_fmt_e key_fmt,
-		      char **data,
-		      size_t *data_len);
+int owl_key_export(const owl_key_h key,
+		   owl_key_fmt_e key_fmt,
+		   char **data,
+		   size_t *data_len);
 
 // TODO: still a matter of ordering, should the key in key_gen functions be first or last?
 
 /**
- * @brief crypto_key_gen  Generates a secure symmetric key (or an initialization vector).
+ * @brief owl_key_gen  Generates a secure symmetric key (or an initialization vector).
  *
- * @param[out] sym_key   Newly generated key (must be freed with @see crypto_key_free).
+ * @param[out] sym_key   Newly generated key (must be freed with @see owl_key_free).
  * @param[in]  key_type  Type of the key to be generated.
  * @param[in]  key_len   Length of the key to be generated.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int crypto_key_gen(crypto_key_h *sym_key,
-		   crypto_key_type_e key_type,
-		   size_t key_len);
+int owl_key_gen(owl_key_h *sym_key,
+		owl_key_type_e key_type,
+		size_t key_len);
 
 /**
- * @brief crypto_key_gen_pair  Generates a new key pair.
+ * @brief owl_key_gen_pair  Generates a new key pair.
  *
- * @param[out] prv_key   Newly generated private key (must be freed with @see crypto_key_free).
- * @param[out] pub_key   Newly generated public key (must be freed with @see crypto_key_free).
- * @param[in]  key_type  Type of the key to be generated (must be CRYPTO_KEY_TYPE_PAIR*).
+ * @param[out] prv_key   Newly generated private key (must be freed with @see owl_key_free).
+ * @param[out] pub_key   Newly generated public key (must be freed with @see owl_key_free).
+ * @param[in]  key_type  Type of the key to be generated (must be OWL_KEY_TYPE_PAIR*).
  * @param[in]  key_len   Length of the key to be generated.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int crypto_key_gen_pair(crypto_key_h *prv_key,
-			crypto_key_h *pub_key,
-			crypto_key_type_e key_type,
-			size_t key_len);
+int owl_key_gen_pair(owl_key_h *prv_key,
+		     owl_key_h *pub_key,
+		     owl_key_type_e key_type,
+		     size_t key_len);
 
 /**
- * @brief crypto_key_free  Frees the key created by the library.
- *                         Passing CRYPTO_KEY_NULL is allowed.
+ * @brief owl_key_free  Frees the key created by the library.
+ *                         Passing OWL_KEY_NULL is allowed.
  *
  * @param key  Key to be freed.
  *
  */
-void crypto_key_free(crypto_key_h key);
+void owl_key_free(owl_key_h key);
 
 /**@}*/
 
@@ -135,20 +135,20 @@ void crypto_key_free(crypto_key_h key);
  */
 
 /**
- * @brief crypto_key_derive_dh  Derives a key using Diffie-Helmann or EC Diffie-Helmann key exchange protocol.
+ * @brief owl_key_derive_dh  Derives a key using Diffie-Helmann or EC Diffie-Helmann key exchange protocol.
  *
  * @param[in]  prv_key  Our private key.
  * @param[in]  pub_key  Peer public key.
- * @param[out] sym_key  Shared secret, that can be used as a symmetric key (must be freed with @see crypto_key_free).
+ * @param[out] sym_key  Shared secret, that can be used as a symmetric key (must be freed with @see owl_key_free).
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int crypto_key_derive_dh(const crypto_key_h prv_key,
-			 const crypto_key_h pub_key,
-			 crypto_key_h *sym_key);
+int owl_key_derive_dh(const owl_key_h prv_key,
+		      const owl_key_h pub_key,
+		      owl_key_h *sym_key);
 
 /**
- * @brief crypto_key_derive_kea  Derives a key using KEA key exchange protocol.
+ * @brief owl_key_derive_kea  Derives a key using KEA key exchange protocol.
  *
  * @param[in]  prv_key       Our DH private component.
  * @param[in]  pub_key       Peers' DH public component.
@@ -156,18 +156,18 @@ int crypto_key_derive_dh(const crypto_key_h prv_key,
  *                           DH public component sent to peer to verify our identity.
  * @param[in]  pub_key_auth  Peers' public key used for signature verification
  *                           of pub_key from peer (peer authentication).
- * @param[out] sym_key       Shared secret, that can be used as a symmetric key (must be freed with @see crypto_key_free).
+ * @param[out] sym_key       Shared secret, that can be used as a symmetric key (must be freed with @see owl_key_free).
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int crypto_key_derive_kea(const crypto_key_h prv_key,
-			  const crypto_key_h pub_key,
-			  const crypto_key_h prv_key_auth,
-			  const crypto_key_h pub_key_auth,
-			  crypto_key_h *sym_key);
+int owl_key_derive_kea(const owl_key_h prv_key,
+		       const owl_key_h pub_key,
+		       const owl_key_h prv_key_auth,
+		       const owl_key_h pub_key_auth,
+		       owl_key_h *sym_key);
 
 /**
- * @brief crypto_key_derive_pbkdf2  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
+ * @brief owl_key_derive_pbkdf2  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
  *
  * @param[in]  password  User password as a NULL-terminated string.
  * @param[in]  salt      Salt, should be non-zero.
@@ -175,23 +175,24 @@ int crypto_key_derive_kea(const crypto_key_h prv_key,
  * @param[in]  iter      Number of iterations. (TODO: add enum to proposed number of iterations, pick sane defaults).
  * @param[in]  algo      Digest algorithm that should be used in key generation. (TODO: sane defaults).
  * @param[in]  key_len   Length of a key to be generated.
- * @param[out] key       Newly generated key (must be freed with @see crypto_key_free).
+ * @param[out] key       Newly generated key (must be freed with @see owl_key_free).
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int crypto_key_derive_pbkdf2(const char *password,
-			     const char *salt,
-			     size_t salt_len,
-			     int iter,
-			     crypto_digest_algo_e algo,
-			     crypto_key_len_e key_len,
-			     crypto_key_h *key);
+int owl_key_derive_pbkdf2(const char *password,
+			  const char *salt,
+			  size_t salt_len,
+			  int iter,
+			  owl_digest_algo_e algo,
+			  owl_key_len_e key_len,
+			  owl_key_h *key);
 
 // TODO: specify
-//int crypto_key_wrap(crypto_key_h key, ??);
-//int crypto_key_unwrap(crypto_key_h key, ??);
+//int owl_key_wrap(owl_key_h key, ??);
+//int owl_key_unwrap(owl_key_h key, ??);
 
 /**@}*/
+
 #ifdef __cplusplus
 } /* extern */
 #endif

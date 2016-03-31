@@ -36,11 +36,11 @@ void encrypt_decrypt_aes_gcm(void)
 {
 	int ret;
 
-	crypto_ctx_h ctx;
+	owl_ctx_h ctx;
 
-	crypto_key_h key = CRYPTO_KEY_NULL;
-	crypto_key_h iv = CRYPTO_KEY_NULL;
-	crypto_key_h aad_key = CRYPTO_KEY_NULL; // add CRYPTO_CRYPTO_KEY_TYPE_AAD ?
+	owl_key_h key = OWL_KEY_NULL;
+	owl_key_h iv = OWL_KEY_NULL;
+	owl_key_h aad_key = OWL_KEY_NULL; // add OWL_OWL_KEY_TYPE_AAD ?
 
 	char *plaintext = NULL, *ciphertext = NULL, *aad = NULL, *tag = NULL;
 	size_t plaintext_len, ciphertext_len, aad_len, tag_len;
@@ -49,114 +49,114 @@ void encrypt_decrypt_aes_gcm(void)
 
 	/// Key generation
 
-	ret = crypto_key_gen(&key, CRYPTO_KEY_256BIT, CRYPTO_KEY_TYPE_SYMMETRIC); // key_type, key_len, *key ? looks imo much better
+	ret = owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC); // key_type, key_len, *key ? looks imo much better
 	if (ret) goto clean;
 
-	// use CRYPTO_KEY_IV_128BIT & CRYPTO_KEY_TYPE_IV or maybe CRYPTO_KEY_128BIT & CRYPTO_KEY_TYPE_SYMMETRIC ?
-	ret = crypto_key_gen(&iv, CRYPTO_KEY_IV_128BIT, CRYPTO_KEY_TYPE_IV);
+	// use OWL_KEY_IV_128BIT & OWL_KEY_TYPE_IV or maybe OWL_KEY_128BIT & OWL_KEY_TYPE_SYMMETRIC ?
+	ret = owl_key_gen(&iv, OWL_KEY_IV_128BIT, OWL_KEY_TYPE_IV);
 	if (ret) goto clean;
 
-	// use CRYPTO_KEY_128BIT & CRYPTO_KEY_TYPE_SYMMETRIC or maybe add CRYPTO_KEY_AAD_128BIT & CRYPTO_KEY_TYPE_AAD ?
-	ret = crypto_key_gen(&aad_key, CRYPTO_KEY_UNSAFE_128BIT, CRYPTO_KEY_TYPE_SYMMETRIC);
+	// use OWL_KEY_128BIT & OWL_KEY_TYPE_SYMMETRIC or maybe add OWL_KEY_AAD_128BIT & OWL_KEY_TYPE_AAD ?
+	ret = owl_key_gen(&aad_key, OWL_KEY_UNSAFE_128BIT, OWL_KEY_TYPE_SYMMETRIC);
 	if (ret) goto clean;
 
 	// generate and export aad?
-	ret = crypto_key_export(aad_key, CRYPTO_KEY_FORMAT_RAW, &aad, &aad_len);
+	ret = owl_key_export(aad_key, OWL_KEY_FORMAT_RAW, &aad, &aad_len);
 	if (ret) goto clean;
 
 	/// Encryption
 	{
-		ret = crypto_encrypt_init(&ctx, CRYPTO_ENC_AES, CRYPTO_BCM_GCM, key, iv);
+		ret = owl_encrypt_init(&ctx, OWL_ENC_AES, OWL_BCM_GCM, key, iv);
 		if (ret) goto clean;
 
-		ret = crypto_ctx_set_param(ctx, CRYPTO_PARAM_GCM_AAD, aad, aad_len);
+		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_AAD, aad, aad_len);
 		if (ret) goto clean;
 
-		ret = crypto_encrypt_update(ctx, lorem4096, 4096, NULL, &ciphertext_len);
+		ret = owl_encrypt_update(ctx, lorem4096, 4096, NULL, &ciphertext_len);
 		if (ret != 42) goto clean;// TODO: what error code?
 
-		ret = crypto_get_block_length(ctx);
+		ret = owl_get_block_length(ctx);
 		if (ret) goto clean;
 
 		ciphertext_len += ret ; // Add block size for finalize
-		ciphertext = crypto_alloc(ciphertext_len);
+		ciphertext = owl_alloc(ciphertext_len);
 		if (!ciphertext) goto clean;
 
 		size_t len;
-		ret = crypto_encrypt_update(ctx, lorem4096, 4096, ciphertext, &len);
+		ret = owl_encrypt_update(ctx, lorem4096, 4096, ciphertext, &len);
 		if (ret) goto clean;
 
 		ciphertext_len = len;
 
-		ret = crypto_encrypt_final(ctx, ciphertext + len, &len);
+		ret = owl_encrypt_final(ctx, ciphertext + len, &len);
 		if (ret) goto clean;
 
 		ciphertext_len += len;
 
-		ret = crypto_ctx_get_param(ctx, CRYPTO_PARAM_GCM_TAG, (void*)&tag, &tag_len);
+		ret = owl_ctx_get_param(ctx, OWL_PARAM_GCM_TAG, (void*)&tag, &tag_len);
 		if (ret) goto clean;
 
 		dump_hex(ciphertext, 16, "Encrypted data (16 of %zu bytes): ", ciphertext_len);
 
-		crypto_ctx_free(ctx); // TODO: perhaps it should not return value
+		owl_ctx_free(ctx); // TODO: perhaps it should not return value
 	}
 
 	/// Decryption
 	{
-		ret = crypto_decrypt_init(&ctx, CRYPTO_ENC_AES, CRYPTO_BCM_GCM, key, iv);
+		ret = owl_decrypt_init(&ctx, OWL_ENC_AES, OWL_BCM_GCM, key, iv);
 		if (ret) goto clean;
 
-		ret = crypto_ctx_set_param(ctx, CRYPTO_PARAM_GCM_AAD, aad, aad_len);
+		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_AAD, aad, aad_len);
 		if (ret) goto clean;
 
-		ret = crypto_decrypt_update(ctx, ciphertext, ciphertext_len, NULL, &plaintext_len);
+		ret = owl_decrypt_update(ctx, ciphertext, ciphertext_len, NULL, &plaintext_len);
 		if (ret != 42) goto clean; // TODO: what error code?
 
-		ret = crypto_get_block_length(ctx);
+		ret = owl_get_block_length(ctx);
 		if (ret) goto clean;
 
 		plaintext_len += ret; // Add block size for finalize
-		plaintext = crypto_alloc(plaintext_len);
+		plaintext = owl_alloc(plaintext_len);
 		if (!plaintext) goto clean;
 
 		size_t len;
-		ret = crypto_decrypt_update(ctx, ciphertext, ciphertext_len, plaintext, &len);
+		ret = owl_decrypt_update(ctx, ciphertext, ciphertext_len, plaintext, &len);
 		if (ret) goto clean;
 
 		plaintext_len = len;
 
-		ret = crypto_ctx_set_param(ctx, CRYPTO_PARAM_GCM_TAG, tag, tag_len);
+		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_TAG, tag, tag_len);
 		if (ret) goto clean;
 
-		ret = crypto_encrypt_final(ctx, plaintext + len, &len);
+		ret = owl_encrypt_final(ctx, plaintext + len, &len);
 		if (ret) goto clean;
 
 		plaintext_len += len;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n", plaintext_len, plaintext);
 
-		crypto_ctx_free(ctx);
+		owl_ctx_free(ctx);
 	}
 
 clean:
-	crypto_free(plaintext);
-	crypto_free(ciphertext);
-	crypto_free(tag);
-	crypto_free(aad);
-	crypto_ctx_free(ctx);
-	crypto_key_free(aad_key);
-	crypto_key_free(iv);
-	crypto_key_free(key);
+	owl_free(plaintext);
+	owl_free(ciphertext);
+	owl_free(tag);
+	owl_free(aad);
+	owl_ctx_free(ctx);
+	owl_key_free(aad_key);
+	owl_key_free(iv);
+	owl_key_free(key);
 }
 
 int main()
 {
 	int ret = 0;
-	if ((ret = crypto_init()))
+	if ((ret = owl_init()))
 		return ret;
 
 	encrypt_decrypt_aes_gcm();
 
-	crypto_exit(); // TODO: what about handing of return value from exit??
+	owl_exit(); // TODO: what about handing of return value from exit??
 	return ret;
 }

@@ -31,15 +31,15 @@ void key_exchange_dh(void)
 {
 	int ret;
 
-	crypto_key_h private_key = CRYPTO_KEY_NULL;
-	crypto_key_h public_key = CRYPTO_KEY_NULL;
-	crypto_key_h peer_key = CRYPTO_KEY_NULL;
-	crypto_key_h secret = CRYPTO_KEY_NULL;
+	owl_key_h private_key = OWL_KEY_NULL;
+	owl_key_h public_key = OWL_KEY_NULL;
+	owl_key_h peer_key = OWL_KEY_NULL;
+	owl_key_h secret = OWL_KEY_NULL;
 
 	// generate  private, public key
 	// add KEY_TYPE_PAIR_DH or use KEY_TYPE_PAIR_ECC and proper len?
 	// imo add KEY_TYPE_PAIR_DH
-	ret = crypto_key_gen_pair(&private_key, &public_key, CRYPTO_KEY_2048BIT, CRYPTO_KEY_TYPE_PAIR_DH);
+	ret = owl_key_gen_pair(&private_key, &public_key, OWL_KEY_2048BIT, OWL_KEY_TYPE_PAIR_DH);
 	if (ret) goto clean;
 
 	// get peer public key from file
@@ -56,28 +56,28 @@ void key_exchange_dh(void)
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = crypto_alloc(size+1);
+	buffer = owl_alloc(size+1);
 	if(!buffer) goto clean;
 
 	/* copy the file into the buffer */
 	if(1!=fread(buffer, size, 1, fp)) goto clean;
 
-	ret = crypto_key_import(&peer_key,
-				CRYPTO_KEY_FORMAT_RAW, CRYPTO_KEY_TYPE_DH_PUB,
+	ret = owl_key_import(&peer_key,
+				OWL_KEY_FORMAT_RAW, OWL_KEY_TYPE_DH_PUB,
 				buffer, size);
 	if (ret) goto clean;
 
 	// derive secret
-	ret = crypto_key_derive_dh(private_key, peer_key, &secret);
+	ret = owl_key_derive_dh(private_key, peer_key, &secret);
 	if (ret) goto clean;
 
 clean:
-	crypto_key_free(private_key);
-	crypto_key_free(public_key);
-	crypto_key_free(peer_key);
-	crypto_key_free(secret);
+	owl_key_free(private_key);
+	owl_key_free(public_key);
+	owl_key_free(peer_key);
+	owl_key_free(secret);
 	fclose(fp);
-	crypto_free(buffer);
+	owl_free(buffer);
 }
 
 void key_exchange_ecdh(void)
@@ -85,13 +85,13 @@ void key_exchange_ecdh(void)
 
 	int ret;
 
-	crypto_key_h private_key = CRYPTO_KEY_NULL;
-	crypto_key_h public_key = CRYPTO_KEY_NULL;
-	crypto_key_h peer_key = CRYPTO_KEY_NULL;
-	crypto_key_h secret = CRYPTO_KEY_NULL;
+	owl_key_h private_key = OWL_KEY_NULL;
+	owl_key_h public_key = OWL_KEY_NULL;
+	owl_key_h peer_key = OWL_KEY_NULL;
+	owl_key_h secret = OWL_KEY_NULL;
 
 	// generate  private, public key
-	ret = crypto_key_gen_pair(&private_key, &public_key, CRYPTO_KEY_CURVE_P256, CRYPTO_KEY_TYPE_PAIR_ECC);
+	ret = owl_key_gen_pair(&private_key, &public_key, OWL_KEY_CURVE_P256, OWL_KEY_TYPE_PAIR_ECC);
 	if (ret) goto clean;
 
 	// get peer public key from file
@@ -107,37 +107,37 @@ void key_exchange_ecdh(void)
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = crypto_alloc(size+1);
+	buffer = owl_alloc(size+1);
 	if(!buffer) goto clean;
 
 	/* copy the file into the buffer */
 	if(1!=fread(buffer, size, 1, fp)) goto clean;
 
-	ret = crypto_key_import(&peer_key, CRYPTO_KEY_FORMAT_RAW, CRYPTO_KEY_TYPE_ECC_PUB, buffer, size);
+	ret = owl_key_import(&peer_key, OWL_KEY_FORMAT_RAW, OWL_KEY_TYPE_ECC_PUB, buffer, size);
 	if (ret) goto clean;
 
 	// derive secret
-	ret = crypto_key_derive_dh(private_key, peer_key, &secret);
+	ret = owl_key_derive_dh(private_key, peer_key, &secret);
 	if (ret) goto clean;
 
 clean:
-	crypto_key_free(private_key);
-	crypto_key_free(public_key);
-	crypto_key_free(peer_key);
-	crypto_key_free(secret);
+	owl_key_free(private_key);
+	owl_key_free(public_key);
+	owl_key_free(peer_key);
+	owl_key_free(secret);
 	fclose(fp);
-	crypto_free(buffer);
+	owl_free(buffer);
 }
 
 int main()
 {
 	int ret = 0;
-	if ((ret = crypto_init()))
+	if ((ret = owl_init()))
 		return ret;
 
 	key_exchange_dh();
 	key_exchange_ecdh();
 
-	crypto_exit();
+	owl_exit();
 	return ret;
 }
