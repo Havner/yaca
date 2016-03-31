@@ -42,59 +42,77 @@ void encrypt_decrypt_aes_gcm(void)
 	owl_key_h iv = OWL_KEY_NULL;
 	owl_key_h aad_key = OWL_KEY_NULL; // add OWL_OWL_KEY_TYPE_AAD ?
 
-	char *plaintext = NULL, *ciphertext = NULL, *aad = NULL, *tag = NULL;
-	size_t plaintext_len, ciphertext_len, aad_len, tag_len;
+	char *plaintext = NULL;
+	char *ciphertext = NULL;
+	char *aad = NULL;
+	char *tag = NULL;
+	size_t plaintext_len;
+	size_t ciphertext_len;
+	size_t aad_len;
+	size_t tag_len;
 
 	printf("Plain data (16 of %zu bytes): %.16s\n", (size_t)4096, lorem4096);
 
 	/// Key generation
 
 	ret = owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC); // key_type, key_len, *key ? looks imo much better
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 	// use OWL_KEY_IV_128BIT & OWL_KEY_TYPE_IV or maybe OWL_KEY_128BIT & OWL_KEY_TYPE_SYMMETRIC ?
 	ret = owl_key_gen(&iv, OWL_KEY_IV_128BIT, OWL_KEY_TYPE_IV);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 	// use OWL_KEY_128BIT & OWL_KEY_TYPE_SYMMETRIC or maybe add OWL_KEY_AAD_128BIT & OWL_KEY_TYPE_AAD ?
 	ret = owl_key_gen(&aad_key, OWL_KEY_UNSAFE_128BIT, OWL_KEY_TYPE_SYMMETRIC);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 	// generate and export aad?
 	ret = owl_key_export(aad_key, OWL_KEY_FORMAT_RAW, &aad, &aad_len);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 	/// Encryption
 	{
 		ret = owl_encrypt_init(&ctx, OWL_ENC_AES, OWL_BCM_GCM, key, iv);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_AAD, aad, aad_len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ret = owl_encrypt_update(ctx, lorem4096, 4096, NULL, &ciphertext_len);
-		if (ret != 42) goto clean;// TODO: what error code?
+		if (ret != 42)
+			goto clean;// TODO: what error code?
 
 		ret = owl_get_block_length(ctx);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ciphertext_len += ret ; // Add block size for finalize
-		ciphertext = owl_alloc(ciphertext_len);
-		if (!ciphertext) goto clean;
+		ciphertext = owl_malloc(ciphertext_len);
+		if (ciphertext == NULL)
+			goto clean;
 
 		size_t len;
 		ret = owl_encrypt_update(ctx, lorem4096, 4096, ciphertext, &len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ciphertext_len = len;
 
 		ret = owl_encrypt_final(ctx, ciphertext + len, &len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ciphertext_len += len;
 
 		ret = owl_ctx_get_param(ctx, OWL_PARAM_GCM_TAG, (void*)&tag, &tag_len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		dump_hex(ciphertext, 16, "Encrypted data (16 of %zu bytes): ", ciphertext_len);
 
@@ -103,33 +121,42 @@ void encrypt_decrypt_aes_gcm(void)
 
 	/// Decryption
 	{
+		size_t len;
+
 		ret = owl_decrypt_init(&ctx, OWL_ENC_AES, OWL_BCM_GCM, key, iv);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_AAD, aad, aad_len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ret = owl_decrypt_update(ctx, ciphertext, ciphertext_len, NULL, &plaintext_len);
-		if (ret != 42) goto clean; // TODO: what error code?
+		if (ret != 42)
+			goto clean; // TODO: what error code?
 
 		ret = owl_get_block_length(ctx);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		plaintext_len += ret; // Add block size for finalize
-		plaintext = owl_alloc(plaintext_len);
-		if (!plaintext) goto clean;
+		plaintext = owl_malloc(plaintext_len);
+		if (plaintext == NULL)
+			goto clean;
 
-		size_t len;
 		ret = owl_decrypt_update(ctx, ciphertext, ciphertext_len, plaintext, &len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		plaintext_len = len;
 
 		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_TAG, tag, tag_len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		ret = owl_encrypt_final(ctx, plaintext + len, &len);
-		if (ret) goto clean;
+		if (ret < 0)
+			goto clean;
 
 		plaintext_len += len;
 
@@ -151,8 +178,8 @@ clean:
 
 int main()
 {
-	int ret = 0;
-	if ((ret = owl_init()))
+	int ret = owl_init();
+	if (ret < 0)
 		return ret;
 
 	encrypt_decrypt_aes_gcm();

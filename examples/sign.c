@@ -40,7 +40,7 @@ size_t read_data(char* buffer, size_t size)
 {
 	size_t i = 0;
 
-	for(; i<size && IDX < MAX_IDX; i++,IDX++)
+	for(; i < size && IDX < MAX_IDX; i++, IDX++)
 		buffer[i] = IDX%0xff;
 
 	return i;
@@ -51,24 +51,25 @@ int sign(owl_ctx_h ctx, char** signature, size_t* signature_len)
 	char buffer[SIZE];
 
 	reset();
-	for(;;) {
+	for (;;) {
 		size_t read = read_data(buffer, SIZE);
-		if(read == 0)
+		if (read == 0)
 			break;
 
-		if(owl_sign_update(ctx, buffer, read))
+		if (owl_sign_update(ctx, buffer, read))
 			return -1;
 	}
 
 	// TODO: is it a size in bytes or length in characters?
 	*signature_len = owl_get_digest_length(ctx);
-	*signature = (char*)owl_alloc(*signature_len);
+	*signature = (char*)owl_malloc(*signature_len);
 
 	// TODO: owl_get_digest_length() returns int but owl_sign_final accepts size_t. Use common type.
-	if(owl_sign_final(ctx, *signature, signature_len))
+	if (owl_sign_final(ctx, *signature, signature_len))
 		return -1;
 
 	dump_hex(*signature, *signature_len, "Message signature: ");
+
 	return 0;
 }
 
@@ -77,20 +78,21 @@ int verify(owl_ctx_h ctx, const char* signature, size_t signature_len)
 	char buffer[SIZE];
 
 	reset();
-	for(;;) {
+	for (;;) {
 		size_t read = read_data(buffer, SIZE);
-		if(read == 0)
+		if (read == 0)
 			break;
 
-		if(owl_verify_update(ctx, buffer, read))
+		if (owl_verify_update(ctx, buffer, read))
 			return -1;
 	}
 
 	// TODO: use int or size_t for output sizes
-	if(owl_verify_final(ctx, signature, (size_t)signature_len))
+	if (owl_verify_final(ctx, signature, (size_t)signature_len))
 		return -1;
 
 	printf("Verification succeeded\n");
+
 	return 0;
 }
 
@@ -100,43 +102,44 @@ void sign_verify_rsa(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	owl_ctx_h ctx = NULL;
-	owl_key_h prv = NULL, pub = NULL;
+	owl_ctx_h ctx = OWL_CTX_NULL;
+	owl_key_h prv = OWL_KEY_NULL;
+	owl_key_h pub = OWL_KEY_NULL;
 	owl_padding_e padding = OWL_PADDING_PKCS1;
 
 
 	// GENERATE
 
-	if(owl_key_gen_pair(&prv, &pub, OWL_KEY_4096BIT, OWL_KEY_TYPE_PAIR_RSA))
+	if (owl_key_gen_pair(&prv, &pub, OWL_KEY_4096BIT, OWL_KEY_TYPE_PAIR_RSA))
 		return;
 
 
 	// SIGN
 
-	if(owl_sign_init(&ctx, OWL_DIGEST_SHA512, prv))
+	if (owl_sign_init(&ctx, OWL_DIGEST_SHA512, prv))
 		goto finish;
 
 	// TODO: owl_ctx_set_param should take void* not char*
-	if(owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+	if (owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
 		goto finish;
 
-	if(sign(ctx, &signature, &signature_len))
+	if (sign(ctx, &signature, &signature_len))
 		goto finish;
 
 	// TODO: is this necessary or will next ctx init handle it?
 	owl_ctx_free(ctx);
-	ctx = NULL;
+	ctx = OWL_CTX_NULL;
 
 
 	// VERIFY
 
-	if(owl_verify_init(&ctx, OWL_DIGEST_SHA512, pub))
+	if (owl_verify_init(&ctx, OWL_DIGEST_SHA512, pub))
 		goto finish;
 
-	if(owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+	if (owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
 		goto finish;
 
-	if(verify(ctx, signature, signature_len))
+	if (verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
@@ -151,30 +154,30 @@ void sign_verify_hmac(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	owl_ctx_h ctx = NULL;
-	owl_key_h key = NULL;
+	owl_ctx_h ctx = OWL_CTX_NULL;
+	owl_key_h key = OWL_KEY_NULL;
 
 
 	// GENERATE
 
-	if(owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
+	if (owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
 		return;
 
 	// SIGN
 
-	if(owl_sign_init(&ctx, OWL_DIGEST_SHA512, key))
+	if (owl_sign_init(&ctx, OWL_DIGEST_SHA512, key))
 		goto finish;
 
-	if(sign(ctx, &signature, &signature_len))
+	if (sign(ctx, &signature, &signature_len))
 		goto finish;
 
 
 	// VERIFY
 
-	if(owl_verify_init(&ctx, OWL_DIGEST_SHA512, key))
+	if (owl_verify_init(&ctx, OWL_DIGEST_SHA512, key))
 		goto finish;
 
-	if(verify(ctx, signature, signature_len))
+	if (verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
@@ -188,30 +191,30 @@ void sign_verify_cmac(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	owl_ctx_h ctx = NULL;
-	owl_key_h key = NULL;
+	owl_ctx_h ctx = OWL_CTX_NULL;
+	owl_key_h key = OWL_KEY_NULL;
 
 
 	// GENERATE
 
-	if(owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
+	if( owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
 		return;
 
 	// SIGN
 	// TODO: CMAC must extract the key length to select the proper evp (EVP_aes_XXX_cbc()) it should be documented
-	if(owl_sign_init(&ctx, OWL_DIGEST_CMAC, key))
+	if( owl_sign_init(&ctx, OWL_DIGEST_CMAC, key))
 		goto finish;
 
-	if(sign(ctx, &signature, &signature_len))
+	if( sign(ctx, &signature, &signature_len))
 		goto finish;
 
 
 	// VERIFY
 
-	if(owl_verify_init(&ctx, OWL_DIGEST_CMAC, key))
+	if( owl_verify_init(&ctx, OWL_DIGEST_CMAC, key))
 		goto finish;
 
-	if(verify(ctx, signature, signature_len))
+	if( verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
@@ -223,8 +226,8 @@ finish:
 
 int main()
 {
-	int ret = 0;
-	if ((ret = owl_init()))
+	int ret = owl_init();
+	if (ret < 0)
 		return ret;
 
 	// TODO simple?

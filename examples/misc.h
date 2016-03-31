@@ -23,6 +23,7 @@
 
 #ifndef MISC_H
 #define MISC_H
+
 #include <stddef.h>
 
 // Various helper functions
@@ -34,4 +35,4 @@ void dump_hex(const char *buf,
 	      size_t dump_size,
 	      const char *fmt, ...);
 
-#endif // MISC_H
+#endif /* MISC_H */

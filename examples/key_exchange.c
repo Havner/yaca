@@ -40,7 +40,8 @@ void key_exchange_dh(void)
 	// add KEY_TYPE_PAIR_DH or use KEY_TYPE_PAIR_ECC and proper len?
 	// imo add KEY_TYPE_PAIR_DH
 	ret = owl_key_gen_pair(&private_key, &public_key, OWL_KEY_2048BIT, OWL_KEY_TYPE_PAIR_DH);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 	// get peer public key from file
 	// add helper to read key from file to buffer?
@@ -49,27 +50,31 @@ void key_exchange_dh(void)
 	char *buffer;
 
 	fp = fopen("key.pub", "r");
-	if(!fp) goto clean;
+	if (!fp) goto clean;
 
 	fseek(fp ,0L ,SEEK_END);
 	size = ftell(fp);
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = owl_alloc(size+1);
-	if(!buffer) goto clean;
+	buffer = owl_malloc(size+1);
+	if (buffer == NULL)
+		goto clean;
 
 	/* copy the file into the buffer */
-	if(1!=fread(buffer, size, 1, fp)) goto clean;
+	if (1 != fread(buffer, size, 1, fp))
+		goto clean;
 
 	ret = owl_key_import(&peer_key,
-				OWL_KEY_FORMAT_RAW, OWL_KEY_TYPE_DH_PUB,
-				buffer, size);
-	if (ret) goto clean;
+			     OWL_KEY_FORMAT_RAW, OWL_KEY_TYPE_DH_PUB,
+			     buffer, size);
+	if (ret < 0)
+		goto clean;
 
 	// derive secret
 	ret = owl_key_derive_dh(private_key, peer_key, &secret);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 clean:
 	owl_key_free(private_key);
@@ -82,7 +87,6 @@ clean:
 
 void key_exchange_ecdh(void)
 {
-
 	int ret;
 
 	owl_key_h private_key = OWL_KEY_NULL;
@@ -92,7 +96,8 @@ void key_exchange_ecdh(void)
 
 	// generate  private, public key
 	ret = owl_key_gen_pair(&private_key, &public_key, OWL_KEY_CURVE_P256, OWL_KEY_TYPE_PAIR_ECC);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 	// get peer public key from file
 	FILE *fp;
@@ -100,25 +105,30 @@ void key_exchange_ecdh(void)
 	char *buffer;
 
 	fp = fopen("key.pub", "r");
-	if(!fp) goto clean;
+	if (fp == NULL)
+		goto clean;
 
 	fseek(fp ,0L ,SEEK_END);
 	size = ftell(fp);
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = owl_alloc(size+1);
-	if(!buffer) goto clean;
+	buffer = owl_malloc(size+1);
+	if (buffer == NULL)
+		goto clean;
 
 	/* copy the file into the buffer */
-	if(1!=fread(buffer, size, 1, fp)) goto clean;
+	if (1 != fread(buffer, size, 1, fp))
+		goto clean;
 
 	ret = owl_key_import(&peer_key, OWL_KEY_FORMAT_RAW, OWL_KEY_TYPE_ECC_PUB, buffer, size);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 	// derive secret
 	ret = owl_key_derive_dh(private_key, peer_key, &secret);
-	if (ret) goto clean;
+	if (ret < 0)
+		goto clean;
 
 clean:
 	owl_key_free(private_key);
@@ -131,8 +141,8 @@ clean:
 
 int main()
 {
-	int ret = 0;
-	if ((ret = owl_init()))
+	int ret = owl_init();
+	if (ret < 0)
 		return ret;
 
 	key_exchange_dh();

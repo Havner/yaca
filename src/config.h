@@ -16,22 +16,9 @@
  *  limitations under the License
  */
 
-#ifndef KEY_P_H
-#define KEY_P_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#include <stdlib.h>
-#include <crypto/types.h>
+#define API __attribute__ ((visibility ("default")))
 
-/**
- * @file key_p.h
- * @brief Private header for key.c
- */
-
-struct owl_key_s
-{
-	owl_key_type_e type;
-	size_t length;
-	char d[0];
-};
-
-#endif /* KEY_P_H */
+#endif // CONFIG_H

@@ -16,6 +16,8 @@
  *  limitations under the License
  */
 
+#include "config.h"
+
 #include <assert.h>
 
 #include <openssl/crypto.h>
@@ -27,33 +29,40 @@
 
 #include "ctx_p.h"
 
-int owl_init(void)
+API int owl_init(void)
 {
 	OPENSSL_init();
 	OpenSSL_add_all_digests();
 	OpenSSL_add_all_ciphers();
+
 	return 0;
 }
 
-void owl_exit(void)
+API void owl_exit(void)
 {
+	EVP_cleanup();
 }
 
-void *owl_alloc(size_t size)
+API void *owl_malloc(size_t size)
 {
 	return OPENSSL_malloc(size);
 }
 
-void owl_free(void *ptr)
+API void *owl_realloc(void *addr, size_t size)
+{
+	return OPENSSL_realloc(addr, size);
+}
+
+API void owl_free(void *ptr)
 {
 	OPENSSL_free(ptr);
 }
 
-int owl_rand_bytes(char *data, size_t data_len)
+API int owl_rand_bytes(char *data, size_t data_len)
 {
 	int ret;
 
-	if (!data || data_len == 0)
+	if (data == NULL || data_len == 0)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
 	ret = RAND_bytes((unsigned char *)data, data_len);
@@ -65,31 +74,32 @@ int owl_rand_bytes(char *data, size_t data_len)
 	return OWL_ERROR_OPENSSL_FAILURE;
 }
 
-int owl_ctx_set_param(owl_ctx_h ctx, owl_ex_param_e param,
+API int owl_ctx_set_param(owl_ctx_h ctx, owl_ex_param_e param,
 		      const void *value, size_t value_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int owl_ctx_get_param(const owl_ctx_h ctx, owl_ex_param_e param,
+API int owl_ctx_get_param(const owl_ctx_h ctx, owl_ex_param_e param,
 		      void **value, size_t *value_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-void owl_ctx_free(owl_ctx_h ctx)
+API void owl_ctx_free(owl_ctx_h ctx)
 {
 	owl_free(ctx);
 }
 
-int owl_get_output_length(const owl_ctx_h ctx, size_t input_len)
+API int owl_get_output_length(const owl_ctx_h ctx, size_t input_len)
 {
-	if (!ctx)
+	if (ctx == OWL_CTX_NULL)
 		return OWL_ERROR_INVALID_ARGUMENT;
+
 	return ctx->get_output_length(ctx, input_len);
 }
 
-int owl_get_iv_length(owl_enc_algo_e algo,
+API int owl_get_iv_length(owl_enc_algo_e algo,
 		      owl_block_cipher_mode_e bcm,
 		      size_t key_len)
 {

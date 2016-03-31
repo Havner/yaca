@@ -6,7 +6,7 @@ deps := $(addsuffix .d, $(files))
 libs := libCryptoAPI.so libCryptoAPI.a
 
 LIBS := $(shell pkg-config --libs openssl)
-CFLAGS := $(shell pkg-config --cflags openssl) -I../api -Wall -MMD -fPIC
+CFLAGS := $(shell pkg-config --cflags openssl) -I../api -Wall -MMD -fPIC -fvisibility=hidden
 
 .PHONY: all build clean
 all: build

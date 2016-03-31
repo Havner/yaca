@@ -39,12 +39,12 @@ extern "C" {
 /**
  * @brief Context
  */
-typedef struct __owl_ctx_s *owl_ctx_h;
+typedef struct owl_ctx_s *owl_ctx_h;
 
 /**
  * @brief Key
  */
-typedef struct __owl_key_s *owl_key_h;
+typedef struct owl_key_s *owl_key_h;
 
 /**
  * @brief Key formats

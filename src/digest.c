@@ -16,6 +16,8 @@
  *  limitations under the License
  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <stdint.h>
 
@@ -24,45 +26,52 @@
 
 #include <crypto/crypto.h>
 #include <crypto/error.h>
+#include <crypto/types.h>
 
 #include "ctx_p.h"
 
-typedef struct __owl_digest_ctx {
-	struct __owl_ctx_s ctx;
+struct owl_digest_ctx_s
+{
+	struct owl_ctx_s ctx;
 
 	const EVP_MD *md;
 	EVP_MD_CTX *mdctx;
-} owl_digest_ctx;
+};
 
-static owl_digest_ctx *get_ctx(owl_ctx_h ctx)
+static struct owl_digest_ctx_s *get_ctx(owl_ctx_h ctx)
 {
-	if (!ctx)
+	if (ctx == OWL_CTX_NULL)
 		return NULL;
-	if (ctx->type != OWL_CTX_DIGEST)
+
+	switch (ctx->type)
+	{
+	case OWL_CTX_DIGEST:
+		return (struct owl_digest_ctx_s *)ctx;
+	default:
 		return NULL;
-	return (owl_digest_ctx *)ctx;
+	}
 }
 
 static int get_digest_output_length(const owl_ctx_h ctx, size_t input_len)
 {
-	owl_digest_ctx *c = get_ctx(ctx);
+	struct owl_digest_ctx_s *c = get_ctx(ctx);
 
-	if (!c)
+	if (c == NULL)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
 	return EVP_MD_size(c->md);
 }
 
-int owl_digest_init(owl_ctx_h *ctx, owl_digest_algo_e algo)
+API int owl_digest_init(owl_ctx_h *ctx, owl_digest_algo_e algo)
 {
-	owl_digest_ctx *nc;
-	int ret;
+	struct owl_digest_ctx_s *nc;
+	int ret = OWL_ERROR_OPENSSL_FAILURE;
 
-	if (!ctx)
+	if (ctx == NULL)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
-	nc = owl_alloc(sizeof(struct __owl_digest_ctx));
-	if (!nc)
+	nc = owl_malloc(sizeof(struct owl_digest_ctx_s));
+	if (nc == NULL)
 		return OWL_ERROR_OUT_OF_MEMORY;
 
 	nc->ctx.type = OWL_CTX_DIGEST;
@@ -89,56 +98,52 @@ int owl_digest_init(owl_ctx_h *ctx, owl_digest_algo_e algo)
 		nc->md = EVP_sha512();
 		break;
 	default:
-		owl_free(nc);
-		return OWL_ERROR_INVALID_ARGUMENT;
+		ret = OWL_ERROR_INVALID_ARGUMENT;
+		goto err;
 	}
 
-	if (!nc->md) {
-		owl_free(nc);
-		return OWL_ERROR_OPENSSL_FAILURE;
-	}
+	if (nc->md == NULL)
+		goto err;
 
 	nc->mdctx = EVP_MD_CTX_create();
-	if (!nc->mdctx) {
-		owl_free(nc);
-		return OWL_ERROR_OPENSSL_FAILURE;
-	}
+	if (nc->mdctx == NULL)
+		goto err;
 
 	ret = EVP_DigestInit(nc->mdctx, nc->md);
 	if (ret == 1) {
-		*ctx = &nc->ctx; //TODO: how to do it "better" ?
+		*ctx = (owl_ctx_h)&nc;
 		return 0;
 	}
+	ret = OWL_ERROR_OPENSSL_FAILURE; // TODO: owl_get_error_code_from_openssl(ret);
 
 	EVP_MD_CTX_destroy(nc->mdctx);
+err:
 	owl_free(nc);
-
-	return OWL_ERROR_OPENSSL_FAILURE;
+	return ret;
 }
 
-int owl_digest_update(owl_ctx_h ctx, const char *data, size_t data_len)
+API int owl_digest_update(owl_ctx_h ctx, const char *data, size_t data_len)
 {
-	owl_digest_ctx *c = get_ctx(ctx);
+	struct owl_digest_ctx_s *c = get_ctx(ctx);
 	int ret;
 
-	if (!c || !data || !data_len)
+	if (c == NULL || data == NULL || data_len == 0)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestUpdate(c->mdctx, data, data_len);
-
 	if (ret == 1)
 		return 0;
 
-	return OWL_ERROR_OPENSSL_FAILURE;
+	return OWL_ERROR_OPENSSL_FAILURE; // TODO: owl_get_error_code_from_openssl(ret);
 }
 
-int owl_digest_final(owl_ctx_h ctx, char *digest, size_t *digest_len)
+API int owl_digest_final(owl_ctx_h ctx, char *digest, size_t *digest_len)
 {
-	owl_digest_ctx *c = get_ctx(ctx);
+	struct owl_digest_ctx_s *c = get_ctx(ctx);
 	int ret;
 	unsigned len = 0;
 
-	if (!c || !digest || !digest_len)
+	if (c == NULL || digest == NULL || digest_len == NULL)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
 	if (*digest_len == 0 || *digest_len > UINT_MAX) // DigestFinal accepts uint
@@ -149,5 +154,5 @@ int owl_digest_final(owl_ctx_h ctx, char *digest, size_t *digest_len)
 	if (ret == 1)
 		return 0;
 
-	return OWL_ERROR_OPENSSL_FAILURE;
+	return OWL_ERROR_OPENSSL_FAILURE; // TODO: owl_get_error_code_from_openssl(ret);
 }

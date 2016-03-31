@@ -35,8 +35,8 @@ void digest_simple(void)
 	size_t digest_len;
 
 	ret = owl_digest_calc(OWL_DIGEST_SHA256,
-				 lorem1024,
-				 1024, &digest, &digest_len);
+			      lorem1024,
+			      1024, &digest, &digest_len);
 	if (ret < 0)
 		return;
 
@@ -48,24 +48,28 @@ void digest_simple(void)
 void digest_advanced(void)
 {
 	int ret = 0;
-
 	owl_ctx_h ctx;
+
 	ret = owl_digest_init(&ctx, OWL_DIGEST_SHA256);
-	if (ret) return;
+	if (ret < 0)
+		return;
 
 	ret = owl_digest_update(ctx, lorem1024, 1024);
-	if (ret) goto exit_ctx;
+	if (ret < 0)
+		goto exit_ctx;
 
 	// TODO: rename to owl_digest_get_length??
 	size_t digest_len;
 	digest_len = owl_get_digest_length(ctx);
-	if (digest_len <= 0) goto exit_ctx;
+	if (digest_len <= 0)
+		goto exit_ctx;
 
 	{
 		char digest[digest_len];
 
 		ret = owl_digest_final(ctx, digest, &digest_len);
-		if (ret < 0) goto exit_ctx;
+		if (ret < 0)
+			goto exit_ctx;
 
 		dump_hex(digest, digest_len, "Message digest: ");
 	}
@@ -76,8 +80,8 @@ exit_ctx:
 
 int main()
 {
-	int ret = 0;
-	if ((ret = owl_init()))
+	int ret = owl_init();
+	if (ret < 0)
 		return ret;
 
 	digest_simple();

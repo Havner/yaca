@@ -16,6 +16,8 @@
  *  limitations under the License
  */
 
+#include "config.h"
+
 #include <assert.h>
 
 #include <openssl/crypto.h>
@@ -24,42 +26,42 @@
 #include <crypto/crypto.h>
 #include <crypto/error.h>
 
-int owl_sign_init(owl_ctx_h *ctx,
+API int owl_sign_init(owl_ctx_h *ctx,
 		  owl_digest_algo_e algo,
 		  const owl_key_h key)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int owl_sign_update(owl_ctx_h ctx,
+API int owl_sign_update(owl_ctx_h ctx,
 		    const char *data,
 		    size_t data_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int owl_sign_final(owl_ctx_h ctx,
+API int owl_sign_final(owl_ctx_h ctx,
 		   char *mac,
 		   size_t *mac_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int owl_verify_init(owl_ctx_h *ctx,
+API int owl_verify_init(owl_ctx_h *ctx,
 		    owl_digest_algo_e algo,
 		    const owl_key_h key)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int owl_verify_update(owl_ctx_h ctx,
+API int owl_verify_update(owl_ctx_h ctx,
 		      const char *data,
 		      size_t data_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
-int owl_verify_final(owl_ctx_h ctx,
+API int owl_verify_final(owl_ctx_h ctx,
 		     const char *mac,
 		     size_t mac_len)
 {

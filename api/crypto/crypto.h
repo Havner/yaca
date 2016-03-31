@@ -58,21 +58,34 @@ int owl_init(void);
 void owl_exit(void);
 
 /**
- * @brief owl_alloc  Allocates memory.
+ * @brief owl_malloc  Allocates the memory.
  *
  * @param[in] size  Size of the allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated memory otherwise.
  */
-void *owl_alloc(size_t size);
+// TODO: this should be a macro to CRYPTO_*
+void *owl_malloc(size_t size);
 
 /**
- * @brief owl_free  Frees the memory allocated by @see owl_alloc
+ * @brief owl_realloc  Re-allocates the memory.
+ *
+ * @param[in] addr  Address of the memory to be reallocated.
+ * @param[in] size  Size of the new allocation (bytes).
+ *
+ * @return NULL on failure, pointer to allocated memory otherwise.
+ */
+// TODO: this should be a macro to CRYPTO_*
+void *owl_realloc(void *addr, size_t size);
+
+/**
+ * @brief owl_free  Frees the memory allocated by @see owl_malloc
  *	            or one of the cryptographics operations.
  *
  * @param[in] ptr  Pointer to the memory to be freed.
  *
  */
+// TODO: this should be a macro to CRYPTO_*
 void owl_free(void *ptr);
 
 /**

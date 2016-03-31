@@ -22,14 +22,16 @@
 #include <stddef.h>
 #include <crypto/types.h>
 
-enum __owl_ctx_type {
+enum owl_ctx_type_e
+{
 	OWL_CTX_INVALID = 0,
 	OWL_CTX_DIGEST
 };
 
 /* Base structure for crypto contexts - to be inherited */
-struct __owl_ctx_s {
-	enum __owl_ctx_type type;
+struct owl_ctx_s
+{
+	enum owl_ctx_type_e type;
 
 	int (*get_output_length)(const owl_ctx_h ctx, size_t input_len);
 };

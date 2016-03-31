@@ -16,6 +16,8 @@
  *  limitations under the License
  */
 
+#include "config.h"
+
 #include <assert.h>
 #include <limits.h>
 
@@ -28,7 +30,7 @@
 #include <crypto/digest.h>
 #include <crypto/key.h>
 
-int owl_digest_calc(owl_digest_algo_e algo,
+API int owl_digest_calc(owl_digest_algo_e algo,
 		    const char *data,
 		    size_t data_len,
 		    char **digest,
@@ -39,7 +41,7 @@ int owl_digest_calc(owl_digest_algo_e algo,
 	char *ldigest;
 	size_t ldigest_len;
 
-	if (!data || !data_len || !digest || !digest_len)
+	if (data == NULL || data_len == 0 || digest == NULL || digest_len == NULL)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
 	ret = owl_digest_init(&ctx, algo);
@@ -55,7 +57,7 @@ int owl_digest_calc(owl_digest_algo_e algo,
 		goto err;
 
 	ldigest_len = ret;
-	ldigest = owl_alloc(ldigest_len);
+	ldigest = owl_malloc(ldigest_len);
 	if (!ldigest)
 		goto err;
 
@@ -76,7 +78,7 @@ err:
 	return ret;
 }
 
-int owl_encrypt(owl_enc_algo_e algo,
+API int owl_encrypt(owl_enc_algo_e algo,
 		owl_block_cipher_mode_e bcm,
 		const owl_key_h sym_key,
 		const owl_key_h iv,
@@ -90,7 +92,8 @@ int owl_encrypt(owl_enc_algo_e algo,
 	char *lcipher;
 	size_t out_len, lcipher_len, written;
 
-	if (!plain || !plain_len || !cipher || !cipher_len | !sym_key | !iv)
+	if (plain == NULL || plain_len == 0 || cipher == NULL || cipher_len == NULL ||
+	    sym_key == OWL_KEY_NULL || iv == OWL_KEY_NULL)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
 	if (plain_len > INT_MAX) /* TODO: this is because get_output_length returns signed int - perhaps we should change that */
@@ -105,8 +108,8 @@ int owl_encrypt(owl_enc_algo_e algo,
 		goto err;
 
 	lcipher_len = ret;
-	lcipher = owl_alloc(lcipher_len);
-	if (!lcipher)
+	lcipher = owl_malloc(lcipher_len);
+	if (lcipher == NULL)
 		goto err;
 
 	out_len = lcipher_len;
@@ -137,7 +140,7 @@ err:
 	return ret;
 }
 
-int owl_decrypt(owl_enc_algo_e algo,
+API int owl_decrypt(owl_enc_algo_e algo,
 		owl_block_cipher_mode_e bcm,
 		const owl_key_h sym_key,
 		const owl_key_h iv,
@@ -151,7 +154,8 @@ int owl_decrypt(owl_enc_algo_e algo,
 	char *lplain;
 	size_t out_len, lplain_len, written;
 
-	if (!cipher || !cipher_len || !plain || !plain_len || !sym_key || !iv)
+	if (cipher == NULL || cipher_len == 0 || plain == NULL || plain_len == NULL ||
+	    sym_key == OWL_KEY_NULL || iv == OWL_KEY_NULL)
 		return OWL_ERROR_INVALID_ARGUMENT;
 
 	if (cipher_len > INT_MAX) /* TODO: this is because get_output_length returns signed int - perhaps we should change that */
@@ -166,7 +170,7 @@ int owl_decrypt(owl_enc_algo_e algo,
 		goto err;
 
 	lplain_len = ret;
-	lplain = owl_alloc(lplain_len);
+	lplain = owl_malloc(lplain_len);
 	if (!lplain)
 		goto err;
 
@@ -175,7 +179,7 @@ int owl_decrypt(owl_enc_algo_e algo,
 	if (ret < 0)
 		goto err_free;
 
-	assert (out_len <= lplain_len);
+	assert(out_len <= lplain_len);
 
 	written = out_len;
 	out_len = lplain_len - written;
@@ -183,7 +187,7 @@ int owl_decrypt(owl_enc_algo_e algo,
 	if (ret < 0)
 		goto err_free;
 
-	assert (out_len + written == lplain_len);
+	assert(out_len + written == lplain_len);
 
 	owl_ctx_free(ctx);
 
