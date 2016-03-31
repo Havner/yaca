@@ -7,12 +7,13 @@ Code Style (for now):
 	$ astyle -T8 <file>
 
 Project structure:
+	api/ - Public API (headers)
+
 	demos/ - Demo applications
 	doc/ - Documentation
 	examples/ - Usage examples
 
 	src/ - source
-	src/include/crypto - headers
 
 	test/ - tests
 

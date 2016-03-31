@@ -39,7 +39,7 @@ extern "C" {
 /**
  * @brief Context
  */
-typedef struct __crypto_ctx *crypto_ctx_h;
+typedef struct __crypto_ctx_s *crypto_ctx_h;
 
 /**
  * @brief Key

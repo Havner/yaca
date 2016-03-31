@@ -50,7 +50,7 @@ extern "C" {
  *
  * @return negative on error (@see error.h) or key length.
  */
-int crypto_key_get_length(const crypto_key_h *key);
+int crypto_key_get_length(const crypto_key_h key);
 
 /**
  * @brief crypto_key_import  Imports a key from the arbitrary format.

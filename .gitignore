@@ -2,3 +2,5 @@
 *.d
 doc/html
 doc/man
+*.a
+*.so

@@ -31,6 +31,15 @@
 extern "C" {
 #endif
 
+enum __crypto_error_code {
+	CRYPTO_ERROR_INVALID_ARGUMENT = -1,
+	CRYPTO_ERROR_NOT_IMPLEMENTED= -2,
+	CRYPTO_ERROR_OPENSSL_FAILURE = -3,
+	CRYPTO_ERROR_NOT_SUPPORTED = -4,
+	CRYPTO_ERROR_TOO_BIG_ARGUMENT = -5,
+	CRYPTO_ERROR_OUT_OF_MEMORY = -6
+};
+
 #ifdef __cplusplus
 } /* extern */
 #endif
