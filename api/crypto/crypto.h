@@ -167,7 +167,7 @@ int owl_get_output_length(const owl_ctx_h ctx, size_t input_len);
  *
  * @param[in] algo  Encryption algorithm.
  * @param[in] bcm   Chain mode.
- * @param[in] len   Key length (@see owl_key_len_e).
+ * @param[in] key_len   Key length (@see crypto_key_len_e).
  *
  * @return negative on error (@see error.h) or the IV length.
  */
