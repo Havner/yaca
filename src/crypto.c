@@ -31,16 +31,24 @@
 
 API int owl_init(void)
 {
+
 	OPENSSL_init();
 	OpenSSL_add_all_digests();
 	OpenSSL_add_all_ciphers();
-
+	/*
+	  TODO:
+		We should prepare for multithreading. Either we or the user should setup static locks.
+		We should also decide on Openssl config.
+		Here's a good tutorial for initalization and cleanup: https://wiki.openssl.org/index.php/Library_Initialization
+		We should also initialize the entropy for random number generator: https://wiki.openssl.org/index.php/Random_Numbers#Initialization
+	*/
 	return 0;
 }
 
 API void owl_exit(void)
 {
 	EVP_cleanup();
+	CRYPTO_cleanup_all_ex_data();
 }
 
 API void *owl_malloc(size_t size)
@@ -89,6 +97,7 @@ API int owl_ctx_get_param(const owl_ctx_h ctx, owl_ex_param_e param,
 API void owl_ctx_free(owl_ctx_h ctx)
 {
 	owl_free(ctx);
+	/* TODO: What about digest context? This should free specific contexts as well. */
 }
 
 API int owl_get_output_length(const owl_ctx_h ctx, size_t input_len)

@@ -62,6 +62,7 @@ API int owl_key_import(owl_key_h *key,
 	if (key_fmt != OWL_KEY_FORMAT_RAW)
 		return OWL_ERROR_NOT_IMPLEMENTED;
 
+	/* TODO: Overflow on an unsigned value in an undefined behaviour, unless explicitly allowed by a compile flag. */
 	if (sizeof(struct owl_key_s) + data_len < data_len)
 		return OWL_ERROR_TOO_BIG_ARGUMENT;
 
@@ -69,7 +70,7 @@ API int owl_key_import(owl_key_h *key,
 	if (nk == NULL)
 		return OWL_ERROR_OUT_OF_MEMORY;
 
-	memcpy(nk->d, data, data_len);
+	memcpy(nk->d, data, data_len); /* TODO: CRYPTO_/OPENSSL_... */
 	nk->length = data_len * 8;
 	nk->type = key_type;
 	*key = nk;
