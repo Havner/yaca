@@ -111,7 +111,7 @@ API int owl_digest_init(owl_ctx_h *ctx, owl_digest_algo_e algo)
 
 	ret = EVP_DigestInit(nc->mdctx, nc->md);
 	if (ret == 1) {
-		*ctx = (owl_ctx_h)&nc;
+		*ctx = (owl_ctx_h)nc;
 		return 0;
 	}
 	ret = OWL_ERROR_OPENSSL_FAILURE; // TODO: owl_get_error_code_from_openssl(ret);
