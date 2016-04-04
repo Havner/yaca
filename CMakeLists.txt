@@ -52,8 +52,8 @@ MESSAGE(STATUS "Compiler version:  " ${CMAKE_C_COMPILER_VERSION})
 MESSAGE(STATUS "Build type:        " ${CMAKE_BUILD_TYPE})
 MESSAGE(STATUS "-------------------------------------------------")
 
-SET(CMAKE_C_FLAGS_DEBUG        "-std=c99 -O0 -ggdb -Wp,-U_FORTIFY_SOURCE")
-SET(CMAKE_C_FLAGS_RELEASE      "-std=c99 -O2 -DNDEBUG")
+SET(CMAKE_C_FLAGS_DEBUG        "-std=c11 -O0 -ggdb -Wp,-U_FORTIFY_SOURCE")
+SET(CMAKE_C_FLAGS_RELEASE      "-std=c11 -O2 -DNDEBUG")
 
 ADD_DEFINITIONS("-fPIC")   # Position Independent Code
 ADD_DEFINITIONS("-Werror") # Make all warnings into errors
