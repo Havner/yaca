@@ -25,6 +25,7 @@
 #define INTERNAL_H
 
 #include <stddef.h>
+#include <openssl/ossl_typ.h>
 
 #include <yaca/types.h>
 
@@ -53,5 +54,7 @@ struct yaca_key_s
 
 	int (*get_key_length)(const struct yaca_key_s *key);
 };
+
+int get_digest_algorithm(yaca_digest_algo_e algo, const EVP_MD **md);
 
 #endif

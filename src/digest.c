@@ -70,6 +70,49 @@ static void destroy_digest_context(yaca_ctx_h ctx)
 	EVP_MD_CTX_destroy(c->mdctx);
 }
 
+int get_digest_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
+{
+	int ret = 0;
+
+	if (!md)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	*md = NULL;
+
+	switch (algo)
+	{
+	case YACA_DIGEST_MD5:
+		*md = EVP_md5();
+		break;
+	case YACA_DIGEST_SHA1:
+		*md = EVP_sha1();
+		break;
+	case YACA_DIGEST_SHA224:
+		*md = EVP_sha224();
+		break;
+	case YACA_DIGEST_SHA256:
+		*md = EVP_sha256();
+		break;
+	case YACA_DIGEST_SHA384:
+		*md = EVP_sha384();
+		break;
+	case YACA_DIGEST_SHA512:
+		*md = EVP_sha512();
+		break;
+	case YACA_DIGEST_CMAC:
+		ret = YACA_ERROR_NOT_IMPLEMENTED;
+		break;
+	default:
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		break;
+	}
+
+	if (ret == 0 && *md == NULL)
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+
+	return ret;
+}
+
 API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 {
 	int ret;
@@ -86,35 +129,9 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 	nc->ctx.ctx_destroy = destroy_digest_context;
 	nc->ctx.get_output_length = get_digest_output_length;
 
-	switch (algo)
-	{
-	case YACA_DIGEST_MD5:
-		nc->md = EVP_md5();
-		break;
-	case YACA_DIGEST_SHA1:
-		nc->md = EVP_sha1();
-		break;
-	case YACA_DIGEST_SHA224:
-		nc->md = EVP_sha224();
-		break;
-	case YACA_DIGEST_SHA256:
-		nc->md = EVP_sha256();
-		break;
-	case YACA_DIGEST_SHA384:
-		nc->md = EVP_sha384();
-		break;
-	case YACA_DIGEST_SHA512:
-		nc->md = EVP_sha512();
-		break;
-	default:
-		ret = YACA_ERROR_INVALID_ARGUMENT;
+	ret = get_digest_algorithm(algo, &nc->md);
+	if (ret < 0)
 		goto free;
-	}
-
-	if (nc->md == NULL) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
-		goto free;
-	}
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
