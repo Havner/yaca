@@ -20,7 +20,7 @@
 #define CTX_P_H
 
 #include <stddef.h>
-#include <crypto/types.h>
+#include <owl/types.h>
 
 enum owl_ctx_type_e
 {

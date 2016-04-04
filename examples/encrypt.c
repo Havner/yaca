@@ -23,10 +23,10 @@
 
 #include <stdio.h>
 
-#include <crypto/crypto.h>
-#include <crypto/encrypt.h>
-#include <crypto/simple.h>
-#include <crypto/key.h>
+#include <owl/crypto.h>
+#include <owl/encrypt.h>
+#include <owl/simple.h>
+#include <owl/key.h>
 #include "lorem.h"
 #include "misc.h"
 

@@ -25,7 +25,7 @@
 #define SIGN_H
 
 #include <stddef.h>
-#include <crypto/types.h>
+#include <owl/types.h>
 
 #ifdef __cplusplus
 extern "C" {

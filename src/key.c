@@ -23,9 +23,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <crypto/crypto.h>
-#include <crypto/error.h>
-#include <crypto/key.h>
+#include <owl/crypto.h>
+#include <owl/error.h>
+#include <owl/key.h>
 
 #include "key_p.h"
 

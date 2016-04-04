@@ -24,8 +24,8 @@
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 
-#include <crypto/crypto.h>
-#include <crypto/error.h>
+#include <owl/crypto.h>
+#include <owl/error.h>
 
 #include "ctx_p.h"
 

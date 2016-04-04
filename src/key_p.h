@@ -20,7 +20,7 @@
 #define KEY_P_H
 
 #include <stdlib.h>
-#include <crypto/types.h>
+#include <owl/types.h>
 
 /**
  * @file key_p.h

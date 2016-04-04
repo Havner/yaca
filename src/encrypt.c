@@ -23,8 +23,8 @@
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
 
-#include <crypto/crypto.h>
-#include <crypto/error.h>
+#include <owl/crypto.h>
+#include <owl/error.h>
 
 API int owl_encrypt_init(owl_ctx_h *ctx,
 		     owl_enc_algo_e algo,

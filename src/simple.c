@@ -24,11 +24,11 @@
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
 
-#include <crypto/crypto.h>
-#include <crypto/error.h>
-#include <crypto/encrypt.h>
-#include <crypto/digest.h>
-#include <crypto/key.h>
+#include <owl/crypto.h>
+#include <owl/error.h>
+#include <owl/encrypt.h>
+#include <owl/digest.h>
+#include <owl/key.h>
 
 API int owl_digest_calc(owl_digest_algo_e algo,
 		    const char *data,

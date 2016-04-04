@@ -22,9 +22,9 @@
  */
 
 #include <stdio.h>
-#include <crypto/crypto.h>
-#include <crypto/sign.h>
-#include <crypto/key.h>
+#include <owl/crypto.h>
+#include <owl/sign.h>
+#include <owl/key.h>
 #include "misc.h"
 
 size_t IDX = 0;

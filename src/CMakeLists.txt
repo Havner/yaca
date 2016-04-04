@@ -25,7 +25,7 @@ PROJECT(owl)
 MESSAGE(STATUS "")
 MESSAGE(STATUS "Generating makefile for the owl...")
 
-FILE(GLOB HEADERS   ${API_FOLDER}/crypto/*.h)
+FILE(GLOB HEADERS   ${API_FOLDER}/owl/*.h)
 FILE(GLOB SRCS      *.c *.h)
 
 SET(_LIB_VERSION_ "${VERSION}")

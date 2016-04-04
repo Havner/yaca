@@ -17,9 +17,9 @@
  */
 
 #include <stdio.h>
-#include <crypto/crypto.h>
-#include <crypto/key.h>
-#include <crypto/types.h>
+#include <owl/crypto.h>
+#include <owl/key.h>
+#include <owl/types.h>
 #include "misc.h"
 
 /** Simple test for development of library (before API is ready) */
