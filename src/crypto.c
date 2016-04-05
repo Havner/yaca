@@ -83,13 +83,13 @@ API int owl_rand_bytes(char *data, size_t data_len)
 }
 
 API int owl_ctx_set_param(owl_ctx_h ctx, owl_ex_param_e param,
-		      const void *value, size_t value_len)
+			  const void *value, size_t value_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_ctx_get_param(const owl_ctx_h ctx, owl_ex_param_e param,
-		      void **value, size_t *value_len)
+			  void **value, size_t *value_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
@@ -109,8 +109,8 @@ API int owl_get_output_length(const owl_ctx_h ctx, size_t input_len)
 }
 
 API int owl_get_iv_length(owl_enc_algo_e algo,
-		      owl_block_cipher_mode_e bcm,
-		      size_t key_len)
+			  owl_block_cipher_mode_e bcm,
+			  size_t key_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }

@@ -31,10 +31,10 @@
 #include <owl/key.h>
 
 API int owl_digest_calc(owl_digest_algo_e algo,
-		    const char *data,
-		    size_t data_len,
-		    char **digest,
-		    size_t *digest_len)
+			const char *data,
+			size_t data_len,
+			char **digest,
+			size_t *digest_len)
 {
 	owl_ctx_h ctx;
 	int ret;
@@ -79,13 +79,13 @@ err:
 }
 
 API int owl_encrypt(owl_enc_algo_e algo,
-		owl_block_cipher_mode_e bcm,
-		const owl_key_h sym_key,
-		const owl_key_h iv,
-		const char *plain,
-		size_t plain_len,
-		char **cipher,
-		size_t *cipher_len)
+		    owl_block_cipher_mode_e bcm,
+		    const owl_key_h sym_key,
+		    const owl_key_h iv,
+		    const char *plain,
+		    size_t plain_len,
+		    char **cipher,
+		    size_t *cipher_len)
 {
 	owl_ctx_h ctx;
 	int ret;
@@ -141,13 +141,13 @@ err:
 }
 
 API int owl_decrypt(owl_enc_algo_e algo,
-		owl_block_cipher_mode_e bcm,
-		const owl_key_h sym_key,
-		const owl_key_h iv,
-		const char *cipher,
-		size_t cipher_len,
-		char **plain,
-		size_t *plain_len)
+		    owl_block_cipher_mode_e bcm,
+		    const owl_key_h sym_key,
+		    const owl_key_h iv,
+		    const char *cipher,
+		    size_t cipher_len,
+		    char **plain,
+		    size_t *plain_len)
 {
 	owl_ctx_h ctx;
 	int ret;

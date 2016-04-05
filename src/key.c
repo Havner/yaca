@@ -46,10 +46,10 @@ API int owl_key_get_length(const owl_key_h key)
 }
 
 API int owl_key_import(owl_key_h *key,
-		   owl_key_fmt_e key_fmt,
-		   owl_key_type_e key_type,
-		   const char *data,
-		   size_t data_len)
+		       owl_key_fmt_e key_fmt,
+		       owl_key_type_e key_type,
+		       const char *data,
+		       size_t data_len)
 {
 	owl_key_h nk = NULL;
 
@@ -79,9 +79,9 @@ API int owl_key_import(owl_key_h *key,
 }
 
 API int owl_key_export(const owl_key_h key,
-		   owl_key_fmt_e key_fmt,
-		   char **data,
-		   size_t *data_len)
+		       owl_key_fmt_e key_fmt,
+		       char **data,
+		       size_t *data_len)
 {
 	size_t byte_len;
 
@@ -105,8 +105,8 @@ API int owl_key_export(const owl_key_h key,
 }
 
 API int owl_key_gen(owl_key_h *sym_key,
-		owl_key_type_e key_type,
-		size_t key_len)
+		    owl_key_type_e key_type,
+		    size_t key_len)
 {
 	int ret;
 
@@ -132,9 +132,9 @@ API int owl_key_gen(owl_key_h *sym_key,
 }
 
 API int owl_key_gen_pair(owl_key_h *prv_key,
-		     owl_key_h *pub_key,
-		     owl_key_type_e key_type,
-		     size_t key_len)
+			 owl_key_h *pub_key,
+			 owl_key_type_e key_type,
+			 size_t key_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
@@ -148,28 +148,28 @@ API void owl_key_free(owl_key_h key)
 }
 
 API int owl_key_derive_dh(const owl_key_h prv_key,
-		      const owl_key_h pub_key,
-		      owl_key_h *sym_key)
+			  const owl_key_h pub_key,
+			  owl_key_h *sym_key)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_key_derive_kea(const owl_key_h prv_key,
-		       const owl_key_h pub_key,
-		       const owl_key_h prv_key_auth,
-		       const owl_key_h pub_key_auth,
-		       owl_key_h *sym_key)
+			   const owl_key_h pub_key,
+			   const owl_key_h prv_key_auth,
+			   const owl_key_h pub_key_auth,
+			   owl_key_h *sym_key)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_key_derive_pbkdf2(const char *password,
-			  const char *salt,
-			  size_t salt_len,
-			  int iter,
-			  owl_digest_algo_e algo,
-			  owl_key_len_e key_len,
-			  owl_key_h *key)
+			      const char *salt,
+			      size_t salt_len,
+			      int iter,
+			      owl_digest_algo_e algo,
+			      owl_key_len_e key_len,
+			      owl_key_h *key)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }

@@ -27,43 +27,43 @@
 #include <owl/error.h>
 
 API int owl_sign_init(owl_ctx_h *ctx,
-		  owl_digest_algo_e algo,
-		  const owl_key_h key)
+		      owl_digest_algo_e algo,
+		      const owl_key_h key)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_sign_update(owl_ctx_h ctx,
-		    const char *data,
-		    size_t data_len)
+			const char *data,
+			size_t data_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_sign_final(owl_ctx_h ctx,
-		   char *mac,
-		   size_t *mac_len)
+		       char *mac,
+		       size_t *mac_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_verify_init(owl_ctx_h *ctx,
-		    owl_digest_algo_e algo,
-		    const owl_key_h key)
+			owl_digest_algo_e algo,
+			const owl_key_h key)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_verify_update(owl_ctx_h ctx,
-		      const char *data,
-		      size_t data_len)
+			  const char *data,
+			  size_t data_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
 
 API int owl_verify_final(owl_ctx_h ctx,
-		     const char *mac,
-		     size_t mac_len)
+			 const char *mac,
+			 size_t mac_len)
 {
 	return OWL_ERROR_NOT_IMPLEMENTED;
 }
