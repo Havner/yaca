@@ -153,7 +153,6 @@ API int yaca_key_import(yaca_key_h *key,
 
 	if (key_type == YACA_KEY_TYPE_SYMMETRIC) {
 		struct yaca_key_simple_s *nk = NULL;
-		yaca_key_h k;
 
 		if (data_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 			return YACA_ERROR_TOO_BIG_ARGUMENT;
@@ -164,10 +163,9 @@ API int yaca_key_import(yaca_key_h *key,
 
 		memcpy(nk->d, data, data_len); /* TODO: CRYPTO_/EVP_... */
 		nk->length = data_len * 8;
+		nk->key.type = key_type;
 
-		k = (yaca_key_h)nk;
-		k->type = key_type;
-		*key = k;
+		*key = (yaca_key_h)nk;
 		return 0;
 	}
 
@@ -227,9 +225,29 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 	if (sym_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_type != YACA_KEY_TYPE_SYMMETRIC &&
-	    key_type != YACA_KEY_TYPE_IV)
+	switch(key_type)
+	{
+	case YACA_KEY_TYPE_SYMMETRIC:
+	case YACA_KEY_TYPE_IV:
+		break;
+	case YACA_KEY_TYPE_DES:
+	case YACA_KEY_TYPE_RSA_PUB:    /**< RSA public key */
+	case YACA_KEY_TYPE_RSA_PRIV:   /**< RSA private key */
+	case YACA_KEY_TYPE_DSA_PUB:    /**< DSA public key */
+	case YACA_KEY_TYPE_DSA_PRIV:   /**< DSA private key */
+	case YACA_KEY_TYPE_DH_PUB:     /**< Diffie-Hellman public key */
+	case YACA_KEY_TYPE_DH_PRIV:    /**< Diffie-Hellman private key */
+	case YACA_KEY_TYPE_ECC_PUB:    /**< ECC public key */
+	case YACA_KEY_TYPE_ECC_PRIV:   /**< ECC private key */
+	case YACA_KEY_TYPE_PAIR_RSA:   /**< Pair of RSA keys */
+	case YACA_KEY_TYPE_PAIR_DSA:   /**< Pair of DSA keys */
+	case YACA_KEY_TYPE_PAIR_DH:    /**< Pair of Diffie-Hellman keys */
+	case YACA_KEY_TYPE_PAIR_ECC:   /**< Pair of ECC keys */
 		return YACA_ERROR_NOT_IMPLEMENTED;
+	default:
+		return YACA_ERROR_INVALID_ARGUMENT;
+	}
+
 	if (key_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
@@ -238,20 +256,18 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 		return YACA_ERROR_OUT_OF_MEMORY;
 
 	nk->length = key_len;
+	nk->key.type = key_type;
 
 	ret = yaca_rand_bytes(nk->d, key_len);
 	if (ret != 0)
-		goto free;
+		goto err;
 
 	*sym_key = (yaca_key_h)nk;
-	(*sym_key)->type = key_type;
 
-	ret = 0;
+	return 0;
 
-free:
-	if (ret != 0)
-		yaca_free(nk);
-
+err:
+	yaca_free(nk);
 	return ret;
 }
 
