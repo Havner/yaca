@@ -96,8 +96,8 @@ API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
 
 API void yaca_ctx_free(yaca_ctx_h ctx)
 {
+	ctx->ctx_destroy(ctx);
 	yaca_free(ctx);
-	/* TODO: What about digest context? This should free specific contexts as well. */
 }
 
 API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len)

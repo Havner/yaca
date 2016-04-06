@@ -33,6 +33,7 @@ struct yaca_ctx_s
 {
 	enum yaca_ctx_type_e type;
 
+	void (*ctx_destroy)(const yaca_ctx_h ctx);
 	int (*get_output_length)(const yaca_ctx_h ctx, size_t input_len);
 };
 
