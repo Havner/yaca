@@ -20,6 +20,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+
+#include <openssl/evp.h>
 
 #include <yaca/crypto.h>
 #include <yaca/error.h>
@@ -390,8 +393,45 @@ API int yaca_key_derive_pbkdf2(const char *password,
 			       size_t salt_len,
 			       int iter,
 			       yaca_digest_algo_e algo,
-			       yaca_key_len_e key_len,
+			       size_t key_len,
 			       yaca_key_h *key)
 {
-	return YACA_ERROR_NOT_IMPLEMENTED;
+	const EVP_MD *md;
+	struct yaca_key_simple_s *nk;
+	int ret;
+
+	if (password == NULL || salt == NULL || salt_len == 0 ||
+	    iter == 0 || key_len == 0 || key == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	ret = get_digest_algorithm(algo, &md);
+	if (ret < 0)
+		return ret;
+
+	if (key_len % 8) /* Key length must be multiple of 8-bits */
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	if (key_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
+		return YACA_ERROR_TOO_BIG_ARGUMENT;
+
+	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_len);
+	if (nk == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	nk->length = key_len;
+	nk->key.type = YACA_KEY_TYPE_SYMMETRIC; // TODO: how to handle other keys?
+
+	ret = PKCS5_PBKDF2_HMAC(password, -1, (const unsigned char*)salt,
+				salt_len, iter, md, key_len / 8,
+				(unsigned char*)nk->d);
+	if (ret != 1) {
+		ret = YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);
+		goto err;
+	}
+
+	*key = (yaca_key_h)nk;
+	return 0;
+err:
+	yaca_free(nk);
+	return ret;
 }

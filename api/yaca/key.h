@@ -184,7 +184,7 @@ int yaca_key_derive_pbkdf2(const char *password,
 			   size_t salt_len,
 			   int iter,
 			   yaca_digest_algo_e algo,
-			   yaca_key_len_e key_len,
+			   size_t key_len,
 			   yaca_key_h *key);
 
 // TODO: specify
