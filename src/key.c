@@ -155,7 +155,7 @@ API int yaca_key_import(yaca_key_h *key,
 		struct yaca_key_simple_s *nk = NULL;
 		yaca_key_h k;
 
-		if (sizeof(struct yaca_key_s) + data_len < data_len)
+		if (data_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 			return YACA_ERROR_TOO_BIG_ARGUMENT;
 
 		nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + data_len);
@@ -230,6 +230,8 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 	if (key_type != YACA_KEY_TYPE_SYMMETRIC &&
 	    key_type != YACA_KEY_TYPE_IV)
 		return YACA_ERROR_NOT_IMPLEMENTED;
+	if (key_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
+		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
 	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_len);
 	if (nk == NULL)
