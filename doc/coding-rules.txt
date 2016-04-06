@@ -1,0 +1,106 @@
+--------------------------------------------------------------------------------
+1. Tizen rules that should be (partially) followed
+--------------------------------------------------------------------------------
+Differences from Tizen rules are included as "Notes". For full description of
+each rule - please refer to Tizen documentation.
+
+[R01] [CMT_M_C89] Style for comment is the C89 "/* … */" style.
+Note: Temporary comments may use C99 style (TODO, FIXME etc.)
+
+[R02] [DEC_R_INL] inline keyword should sit between storage class and type.
+
+[R03] [IDT_R_TAB] Use tabs. All tabs are 4 characters. Indentation use only tab (No space key).
+Note: If possible use Smart Tabs, if not - 4-character tabs + alignment spaces
+
+[R04] [IDT_R_SCH] Switch and case should be at the same indent.
+
+[R05] [IDT_R_LBL] goto labels aren't indented, allow a single space however.
+Note: No single space allowed
+
+[M01] [SPC_M_KWD] Keywords have following space rules
+-Put a space after (most) keywords (ex: if, switch, case, for, do, while).
+-Exception: Do not put a space after function like keywords, such as sizeof, typeof, alignof, __attribute__. -
+
+[M02] [SPC_M_OPR] Operators have following space rules
+-Put a space around(on each side of) most binary and ternary operators
+-Example: = + -< > * / % | & ^ <= >= == != ? :
+-Do not put a space after unary operators
+-Example: & * + -~ !
+-Unary ++ and unary --are allowed no space on one side.
+-Do not put a space after cast operator
+-Do not put a space around the "." and "->" structure member operators.
+
+[M03] [SPC_M_SEP] Seperators have following space rules
+-Put a space after closing brace when it has anything on the line.
+-Exception : comma after closing brace '},'
+-Put a space after comma
+-Do not put space inside parenthesis '(', ')'
+-Do not put a space after the function name in function calls.
+-Do not put space before open square bracket '['; and inside square bracket '[', ']'.
+
+[M04] [BRC_M_FTN] functions have the opening brace at the beginning of the next line.
+
+[M05] [BRC_M_SMT] Statement brace: Open brace last on the line. The closing brace is empty on a line of its own.
+-Exception: Where the closing race is followed by a continuation of the same statement, else should follow close brace '}',
+while should follow close brace '}'
+
+[R06] [BRC_R_SST] Do not unnecessarily use braces where a single statement will do.
+-Exception: if one branch of a conditional statement is a single statement, use braces in both branches.
+
+[R07] [LNE_R_TWS] No trailing whitespaces at the ends of lines.
+
+[R08] [LNE_R_EOF] Check for adding lines without a newline at end of file.
+Notes: File should end with '\n' (single newline at the end of file)
+
+[R09] In source file, the sequence of the code organization : Copyright File comments Header files Define constant and macros Declare static (private) functions Define exported (public) functions Define static (private) functions Define protected functions.
+Notes: Static (private) function code first, then functions used by other objects in library; API (public) functions at the end
+
+******** Public API should use 'API' macro - other functions are not visible outside of library
+
+[M07] Separate external public header(API) and internal header(declare protected functions that are not exported but use for many files)
+
+[M08] External public headers include the Doxygen style for comment. ex) Variable, Function, Struct.
+
+[M09] In function prototypes, include parameter names with their data types and return type.
+
+[R10] Macros with multiple statements should be enclosed in a "do -while" block.
+
+[R11] ''#' symbol for macro shall be located at the first column.
+
+[R12] In macro definition, every expression and the arguments in the expressions shall be enclosed by '(' and ')' for each.
+
+[R13] Don’t declare both a structure tag and variables or typedefs in the same declaration.
+Note: Avoid use of typedefs for structures/enums unless it's needed (for handles in API etc.)
+
+[R14] Each variable shall be declared in the new line.
+Notes: except for counters (like i, j, k, etc.).
+
+[M10] No mixed-case, Use underscores('_') to separate words in a name.
+
+[R15] Names of macros defining constants and labels in enums are composed of capital letters, numbers and '_' character.
+
+[R16] Name of functions are Verb + Noun to have a good representation of features.
+Note: this is rule of thumb except for Public API. Public API has prefix (<library>_<module>_fcn).
+
+--------------------------------------------------------------------------------
+2. Extra rules that should be followed
+--------------------------------------------------------------------------------
+
+- Line length
+    - soft limit (can be broken if expression will be more readable) 80 chars,
+    - hard limit 100 characters (should not be broken)
+- Enums, structs, unions etc. should use brackets in newline (like functions)
+- Typedefs should be used only where necessary (for example to make private implementations)
+- Function arguments should either fit one line, or each parameter should be placed in separate line
+
+--------------------------------------------------------------------------------
+3. Tizen rules that should NOT be followed
+--------------------------------------------------------------------------------
+[M06] [BRC_M_EUS] Open braces for enum, union and struct go on the same line.
+Note: They go in new line - the same way as for functions
+
+[R17] Local functions whose scope is limited to the current source file have "static" keyword and names started with "__".
+Note: static functions should not include "prefix" but can have arbitrary names (see R16).
+
+[R18] Names of protected(global) functions in internal header are started with '_' character.
+Note: Functions shared between multiple objects can have arbitrary naming (see R16)
