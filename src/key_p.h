@@ -27,11 +27,10 @@
  * @brief Private header for key.c
  */
 
+/* Base structure for crypto keys - to be inherited */
 struct yaca_key_s
 {
 	yaca_key_type_e type;
-	size_t length;
-	char d[0];
 };
 
 #endif /* KEY_P_H */

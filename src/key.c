@@ -26,23 +26,116 @@
 #include <yaca/crypto.h>
 #include <yaca/error.h>
 #include <yaca/key.h>
+#include <yaca/types.h>
+
+#include <openssl/evp.h>
+#include <openssl/rsa.h>
 
 #include "key_p.h"
 
-static inline void key_sanity_check(const yaca_key_h key)
+/**
+ * Internal type for:
+ * - YACA_KEY_TYPE_SYMMETRIC
+ * - YACA_KEY_TYPE_DES
+ * - YACA_KEY_TYPE_IV
+ */
+struct yaca_key_simple_s
+{
+	struct yaca_key_s key;
+
+	size_t length;
+	char d[0];
+};
+
+/**
+ * Internal type for:
+ * - YACA_KEY_TYPE_RSA_PUB
+ * - YACA_KEY_TYPE_RSA_PRIV
+ * - YACA_KEY_TYPE_DSA_PUB
+ * - YACA_KEY_TYPE_DSA_PRIV
+ *
+ * TODO: and possibly others (for every key that uses EVP_PKEY)
+ */
+struct yaca_key_evp_s
+{
+	struct yaca_key_s key;
+
+	EVP_PKEY *evp;
+};
+
+static struct yaca_key_simple_s *get_simple_key(const yaca_key_h key)
+{
+	if (key == YACA_KEY_NULL)
+		return NULL;
+
+	switch (key->type)
+	{
+	case YACA_KEY_TYPE_SYMMETRIC:
+	case YACA_KEY_TYPE_DES:
+	case YACA_KEY_TYPE_IV:
+		return (struct yaca_key_simple_s *)key;
+	default:
+		return NULL;
+	}
+}
+
+static struct yaca_key_evp_s *get_evp_key(const yaca_key_h key)
+{
+	if (key == YACA_KEY_NULL)
+		return NULL;
+
+	switch (key->type)
+	{
+	case YACA_KEY_TYPE_RSA_PUB:
+	case YACA_KEY_TYPE_RSA_PRIV:
+	case YACA_KEY_TYPE_DSA_PUB:
+	case YACA_KEY_TYPE_DSA_PRIV:
+		return (struct yaca_key_evp_s *)key;
+	default:
+		return NULL;
+	}
+}
+
+static inline void simple_key_sanity_check(const struct yaca_key_simple_s *key)
 {
 	assert(key->length);
 	assert(key->length % 8 == 0);
 }
 
+// TODO: do we need a sanity check sanity for Evp keys?
+static inline void evp_key_sanity_check(const struct yaca_key_evp_s *key)
+{
+}
+
+// TODO: do we need this variant? or the two above are enough?
+static inline void key_sanity_check(const yaca_key_h key)
+{
+	const struct yaca_key_simple_s *simple_key = get_simple_key(key);
+	const struct yaca_key_evp_s *evp_key = get_evp_key(key);
+
+	if (simple_key != NULL)
+		simple_key_sanity_check(simple_key);
+
+	if (evp_key != NULL)
+		evp_key_sanity_check(evp_key);
+}
+
 API int yaca_key_get_length(const yaca_key_h key)
 {
-	if (key == YACA_KEY_NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+	const struct yaca_key_simple_s *simple_key = get_simple_key(key);
+	const struct yaca_key_evp_s *evp_key = get_evp_key(key);
 
-	key_sanity_check(key);
+	if (simple_key != NULL) {
+		simple_key_sanity_check(simple_key);
+		return simple_key->length;
+	}
 
-	return key->length;
+	if (evp_key != NULL) {
+		evp_key_sanity_check(evp_key);
+		return YACA_ERROR_NOT_IMPLEMENTED;
+	}
+
+	return YACA_ERROR_INVALID_ARGUMENT;
 }
 
 API int yaca_key_import(yaca_key_h *key,
@@ -51,31 +144,41 @@ API int yaca_key_import(yaca_key_h *key,
 			const char *data,
 			size_t data_len)
 {
-	yaca_key_h nk = NULL;
-
 	if (key == NULL || data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
-
-	if (key_type != YACA_KEY_TYPE_SYMMETRIC)
-		return YACA_ERROR_NOT_IMPLEMENTED;
 
 	if (key_fmt != YACA_KEY_FORMAT_RAW)
 		return YACA_ERROR_NOT_IMPLEMENTED;
 
-	/* TODO: Overflow on an unsigned value in an undefined behaviour, unless explicitly allowed by a compile flag. */
-	if (sizeof(struct yaca_key_s) + data_len < data_len)
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
+	if (key_type == YACA_KEY_TYPE_SYMMETRIC) {
+		struct yaca_key_simple_s *nk = NULL;
+		yaca_key_h k;
 
-	nk = yaca_malloc(sizeof(struct yaca_key_s) + data_len);
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+		if (sizeof(struct yaca_key_s) + data_len < data_len)
+			return YACA_ERROR_TOO_BIG_ARGUMENT;
 
-	memcpy(nk->d, data, data_len); /* TODO: CRYPTO_/OPENSSL_... */
-	nk->length = data_len * 8;
-	nk->type = key_type;
-	*key = nk;
+		nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + data_len);
+		if (nk == NULL)
+			return YACA_ERROR_OUT_OF_MEMORY;
 
-	return 0;
+		memcpy(nk->d, data, data_len); /* TODO: CRYPTO_/EVP_... */
+		nk->length = data_len * 8;
+
+		k = (yaca_key_h)nk;
+		k->type = key_type;
+		*key = k;
+		return 0;
+	}
+
+	if (key_type == YACA_KEY_TYPE_DES) {
+		// TODO: ...
+		return YACA_ERROR_NOT_IMPLEMENTED;
+	}
+
+	/* if (...) */ {
+		// TODO: all the other key types
+		return YACA_ERROR_NOT_IMPLEMENTED;
+	}
 }
 
 API int yaca_key_export(const yaca_key_h key,
@@ -84,24 +187,33 @@ API int yaca_key_export(const yaca_key_h key,
 			size_t *data_len)
 {
 	size_t byte_len;
+	struct yaca_key_simple_s *simple_key = get_simple_key(key);
+	struct yaca_key_evp_s *evp_key = get_evp_key(key);
 
-	if (key == YACA_KEY_NULL || data == NULL || data_len == NULL)
+	if (data == NULL || data_len == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
-
-	if (key->type != YACA_KEY_TYPE_SYMMETRIC)
-		return YACA_ERROR_NOT_IMPLEMENTED;
 
 	if (key_fmt != YACA_KEY_FORMAT_RAW)
 		return YACA_ERROR_NOT_IMPLEMENTED;
 
-	key_sanity_check(key);
+	if (simple_key != NULL) {
+		simple_key_sanity_check(simple_key);
 
-	byte_len = key->length / 8;
-	*data = yaca_malloc(byte_len);
-	memcpy(*data, key->d, byte_len);
-	*data_len = byte_len;
+		byte_len = simple_key->length / 8;
+		*data = yaca_malloc(byte_len);
+		memcpy(*data, simple_key->d, byte_len);
+		*data_len = byte_len;
 
-	return 0;
+		return 0;
+	}
+
+	if (evp_key != NULL) {
+		evp_key_sanity_check(evp_key);
+
+		return YACA_ERROR_NOT_IMPLEMENTED;
+	}
+
+	return YACA_ERROR_INVALID_ARGUMENT;
 }
 
 API int yaca_key_gen(yaca_key_h *sym_key,
@@ -109,25 +221,34 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 		     size_t key_len)
 {
 	int ret;
+	struct yaca_key_simple_s *nk = NULL;
 
 	if (sym_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_type != YACA_KEY_TYPE_SYMMETRIC)
+	if (key_type != YACA_KEY_TYPE_SYMMETRIC &&
+	    key_type != YACA_KEY_TYPE_IV)
 		return YACA_ERROR_NOT_IMPLEMENTED;
 
-	*sym_key = yaca_malloc(sizeof(struct yaca_key_s) + key_len);
-	if (*sym_key == NULL)
+	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_len);
+	if (nk == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 
-	(*sym_key)->length = key_len;
+	nk->length = key_len;
+
+	ret = yaca_rand_bytes(nk->d, key_len);
+	if (ret != 0)
+		goto free;
+
+	*sym_key = (yaca_key_h)nk;
 	(*sym_key)->type = key_type;
 
-	ret = yaca_rand_bytes((*sym_key)->d, key_len);
-	if (ret == 0)
-		return 0;
+	ret = 0;
 
-	yaca_free(*sym_key);
+free:
+	if (ret != 0)
+		yaca_free(nk);
+
 	return ret;
 }
 
@@ -136,15 +257,118 @@ API int yaca_key_gen_pair(yaca_key_h *prv_key,
 			  yaca_key_type_e key_type,
 			  size_t key_len)
 {
-	return YACA_ERROR_NOT_IMPLEMENTED;
+	int ret;
+	struct yaca_key_evp_s *nk_prv = NULL;
+	struct yaca_key_evp_s *nk_pub = NULL;
+	RSA *rsa = NULL;
+	BIGNUM *bne = NULL;
+
+	if (prv_key == NULL || pub_key == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	if (key_type != YACA_KEY_TYPE_PAIR_RSA)
+		return YACA_ERROR_NOT_IMPLEMENTED;
+
+	nk_prv = yaca_malloc(sizeof(struct yaca_key_evp_s));
+	if (nk_prv == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	nk_pub = yaca_malloc(sizeof(struct yaca_key_evp_s));
+	if (nk_pub == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto free_prv;
+	}
+
+	// TODO: this NEEDS random number generator initialized
+	// there is some other TODO elsewhere about it
+
+	bne = BN_new();
+	if (bne == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto free_pub;
+	}
+
+	ret = BN_set_word(bne, RSA_F4);
+	if (ret != 1) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		goto free_bne;
+	}
+
+	rsa = RSA_new();
+	if (rsa == NULL) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		goto free_bne;
+	}
+
+	ret = RSA_generate_key_ex(rsa, key_len, bne, NULL);
+	if (ret != 1) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		goto free_rsa;
+	}
+
+	nk_prv->evp = EVP_PKEY_new();
+	if (nk_prv->evp == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto free_rsa;
+	}
+
+	nk_pub->evp = EVP_PKEY_new();
+	if (nk_prv->evp == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto free_evp_prv;
+	}
+
+	ret = EVP_PKEY_assign_RSA(nk_prv->evp, RSAPrivateKey_dup(rsa));
+	if (ret != 1) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		goto free_evp_pub;
+	}
+
+	ret = EVP_PKEY_assign_RSA(nk_pub->evp, RSAPublicKey_dup(rsa));
+	if (ret != 1) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		goto free_evp_pub;
+	}
+
+	*prv_key = (yaca_key_h)nk_prv;
+	(*prv_key)->type = YACA_KEY_TYPE_RSA_PRIV;
+	*pub_key = (yaca_key_h)nk_pub;
+	(*pub_key)->type = YACA_KEY_TYPE_RSA_PUB;
+
+	ret = 0;
+
+free_evp_pub:
+	if (ret != 0)
+		EVP_PKEY_free(nk_pub->evp);
+free_evp_prv:
+	if (ret != 0)
+		EVP_PKEY_free(nk_prv->evp);
+free_rsa:
+	RSA_free(rsa);
+free_bne:
+	BN_free(bne);
+free_pub:
+	if (ret != 0)
+		yaca_free(nk_pub);
+free_prv:
+	if (ret != 0)
+		yaca_free(nk_prv);
+
+	return ret;
 }
 
 API void yaca_key_free(yaca_key_h key)
 {
-	if (key == YACA_KEY_NULL)
-		return;
+	struct yaca_key_simple_s *simple_key = get_simple_key(key);
+	struct yaca_key_evp_s *evp_key = get_evp_key(key);
 
-	yaca_free(key);
+	if (simple_key != NULL)
+		yaca_free(simple_key);
+
+	if (evp_key != NULL) {
+		EVP_PKEY_free(evp_key->evp);
+		yaca_free(evp_key);
+	}
 }
 
 API int yaca_key_derive_dh(const yaca_key_h prv_key,
