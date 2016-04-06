@@ -25,7 +25,7 @@
 #define CRYPTO_H
 
 #include <stddef.h>
-#include <owl/types.h>
+#include <yaca/types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,35 +40,35 @@ extern "C" {
  */
 
 /**
- * @brief OWL_CTX_NULL  NULL value for the crypto context.
+ * @brief YACA_CTX_NULL  NULL value for the crypto context.
  */
-#define OWL_CTX_NULL ((owl_ctx_h) NULL)
+#define YACA_CTX_NULL ((yaca_ctx_h) NULL)
 
 /**
- * @brief owl_init  Initializes the library. Must be called before any other crypto function.
+ * @brief yaca_init  Initializes the library. Must be called before any other crypto function.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_init(void);
+int yaca_init(void);
 
 /**
- * @brief owl_exit  Closes the library. Must be called before exiting the application.
+ * @brief yaca_exit  Closes the library. Must be called before exiting the application.
  *
  */
-void owl_exit(void);
+void yaca_exit(void);
 
 /**
- * @brief owl_malloc  Allocates the memory.
+ * @brief yaca_malloc  Allocates the memory.
  *
  * @param[in] size  Size of the allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated memory otherwise.
  */
 // TODO: this should be a macro to CRYPTO_*
-void *owl_malloc(size_t size);
+void *yaca_malloc(size_t size);
 
 /**
- * @brief owl_realloc  Re-allocates the memory.
+ * @brief yaca_realloc  Re-allocates the memory.
  *
  * @param[in] addr  Address of the memory to be reallocated.
  * @param[in] size  Size of the new allocation (bytes).
@@ -76,31 +76,31 @@ void *owl_malloc(size_t size);
  * @return NULL on failure, pointer to allocated memory otherwise.
  */
 // TODO: this should be a macro to CRYPTO_*
-void *owl_realloc(void *addr, size_t size);
+void *yaca_realloc(void *addr, size_t size);
 
 /**
- * @brief owl_free  Frees the memory allocated by @see owl_malloc
- *	            or one of the cryptographics operations.
+ * @brief yaca_free  Frees the memory allocated by @see yaca_malloc
+ *	             or one of the cryptographics operations.
  *
  * @param[in] ptr  Pointer to the memory to be freed.
  *
  */
 // TODO: this should be a macro to CRYPTO_*
-void owl_free(void *ptr);
+void yaca_free(void *ptr);
 
 /**
- * @brief owl_rand_bytes  Generates random data.
+ * @brief yaca_rand_bytes  Generates random data.
  *
  * @param[in,out] data      Pointer to the memory to be randomized.
  * @param[in]     data_len  Length of the memory to be randomized.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_rand_bytes(char *data, size_t data_len);
+int yaca_rand_bytes(char *data, size_t data_len);
 
 /**
- * @brief owl_ctx_set_param  Sets the extended context parameters.
- *                           Can only be called on an initialized context.
+ * @brief yaca_ctx_set_param  Sets the extended context parameters.
+ *                            Can only be called on an initialized context.
  *
  * @param[in,out] ctx        Previously initialized crypto context.
  * @param[in]     param      Parameter to be set.
@@ -109,61 +109,61 @@ int owl_rand_bytes(char *data, size_t data_len);
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_ctx_set_param(owl_ctx_h ctx, owl_ex_param_e param,
-		      const void *value, size_t value_len);
+int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
+		       const void *value, size_t value_len);
 
 /**
- * @brief owl_ctx_get_param  Returns the extended context parameters.
- *                           Can only be called on an initialized context.
+ * @brief yaca_ctx_get_param  Returns the extended context parameters.
+ *                            Can only be called on an initialized context.
  *
  * @param[in]  ctx        Previously initialized crypto context.
  * @param[in]  param      Parameter to be read.
- * @param[out] value      Copy of the parameter value (must be freed with @see owl_free).
+ * @param[out] value      Copy of the parameter value (must be freed with @see yaca_free).
  * @param[out] value_len  Length of the parameter value will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_ctx_get_param(const owl_ctx_h ctx, owl_ex_param_e param,
-		      void **value, size_t *value_len);
+int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
+		       void **value, size_t *value_len);
 
 /**
- * @brief owl_ctx_free  Destroys the crypto context. Must be called
- *                      on all contexts that are no longer used.
- *                      Passing OWL_CTX_NULL is allowed.
+ * @brief yaca_ctx_free  Destroys the crypto context. Must be called
+ *                       on all contexts that are no longer used.
+ *                       Passing YACA_CTX_NULL is allowed.
  *
  * @param[in,out] ctx  Crypto context.
  *
  */
-void owl_ctx_free(owl_ctx_h ctx);
+void yaca_ctx_free(yaca_ctx_h ctx);
 
 /**
- * @brief owl_get_output_length  Returns the output length for a given algorithm.
- *                               Can only be called on an initialized context.
+ * @brief yaca_get_output_length  Returns the output length for a given algorithm.
+ *                                Can only be called on an initialized context.
  *
  * @param[in] ctx        Previously initialized crypto context.
  * @param[in] input_len  Length of the input data to be processed.
  *
  * @return negative on error (@see error.h) or length of output.
  */
-int owl_get_output_length(const owl_ctx_h ctx, size_t input_len);
+int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len);
 
 /**
- * @brief owl_get_digest_length  Wrapper - returns the length of the digest (for a given context).
+ * @brief yaca_get_digest_length  Wrapper - returns the length of the digest (for a given context).
  */
-#define owl_get_digest_length(ctxa) owl_get_output_length((ctxa), 0)
+#define yaca_get_digest_length(ctxa) yaca_get_output_length((ctxa), 0)
 
 /**
- * @brief owl_get_sign_length  Wrapper - returns the length of the signature (for a given context).
+ * @brief yaca_get_sign_length  Wrapper - returns the length of the signature (for a given context).
  */
-#define owl_get_sign_length(ctxa) owl_get_output_length((ctxa), 0)
+#define yaca_get_sign_length(ctxa) yaca_get_output_length((ctxa), 0)
 
 /**
- * @brief owl_get_block_length  Wrapper - returns the length of the block (for a given context).
+ * @brief yaca_get_block_length  Wrapper - returns the length of the block (for a given context).
  */
-#define owl_get_block_length(ctxa) owl_get_output_length((ctxa), 0)
+#define yaca_get_block_length(ctxa) yaca_get_output_length((ctxa), 0)
 
 /**
- * @brief owl_get_iv_length  Returns the recomended/default length of the IV for a given encryption configuration.
+ * @brief yaca_get_iv_length  Returns the recomended/default length of the IV for a given encryption configuration.
  *
  * @param[in] algo  Encryption algorithm.
  * @param[in] bcm   Chain mode.
@@ -171,9 +171,9 @@ int owl_get_output_length(const owl_ctx_h ctx, size_t input_len);
  *
  * @return negative on error (@see error.h) or the IV length.
  */
-int owl_get_iv_length(owl_enc_algo_e algo,
-		      owl_block_cipher_mode_e bcm,
-		      size_t key_len);
+int yaca_get_iv_length(yaca_enc_algo_e algo,
+		       yaca_block_cipher_mode_e bcm,
+		       size_t key_len);
 
 /**@}*/
 

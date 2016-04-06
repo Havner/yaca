@@ -25,7 +25,7 @@
 #define SIGN_H
 
 #include <stddef.h>
-#include <owl/types.h>
+#include <yaca/types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,83 +41,83 @@ extern "C" {
  */
 
 /**
- * @brief owl_sign_init  Initializes a signature context.
+ * @brief yaca_sign_init  Initializes a signature context.
  *
- * @param[out] ctx   Newly created context (must be freed with @see owl_ctx_free).
+ * @param[out] ctx   Newly created context (must be freed with @see yaca_ctx_free).
  * @param[in]  algo  Digest algorithm that will be used.
  * @param[in]  key   Private or symmetric key that will be used (algorithm is deduced based on key type).
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_sign_init(owl_ctx_h *ctx,
-		  owl_digest_algo_e algo,
-		  const owl_key_h key);
+int yaca_sign_init(yaca_ctx_h *ctx,
+		   yaca_digest_algo_e algo,
+		   const yaca_key_h key);
 
 /**
- * @brief owl_sign_update  Feeds the data into the digital signature algorithm.
+ * @brief yaca_sign_update  Feeds the data into the digital signature algorithm.
  *
- * @param[in,out] ctx       Context created by @see owl_sign_init.
+ * @param[in,out] ctx       Context created by @see yaca_sign_init.
  * @param[in]     data      Data to be signed.
  * @param[in]     data_len  Length of the data.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_sign_update(owl_ctx_h ctx,
-		    const char *data,
-		    size_t data_len);
+int yaca_sign_update(yaca_ctx_h ctx,
+		     const char *data,
+		     size_t data_len);
 
 /**
- * @brief owl_sign_final  Calculates the final signature.
+ * @brief yaca_sign_final  Calculates the final signature.
  *
  * @param[in,out] ctx      A valid sign context.
- * @param[out]    mac      Buffer for the MAC or the signature (must be allocated by client, @see owl_get_sign_length).
+ * @param[out]    mac      Buffer for the MAC or the signature (must be allocated by client, @see yaca_get_sign_length).
  * @param[out]    mac_len  Length of the MAC or the signature, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_sign_final(owl_ctx_h ctx,
-		   char *mac,
-		   size_t *mac_len);
+int yaca_sign_final(yaca_ctx_h ctx,
+		    char *mac,
+		    size_t *mac_len);
 
 /**
- * @brief owl_verify_init  Initializes a signature verification context.
+ * @brief yaca_verify_init  Initializes a signature verification context.
  *
- * @param[out] ctx   Newly created context (must be freed with @see owl_ctx_free).
+ * @param[out] ctx   Newly created context (must be freed with @see yaca_ctx_free).
  * @param[in]  algo  Digest algorithm that will be used.
  * @param[in]  key   Private or symmetric key that will be used (algorithm is deduced based on key type).
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_verify_init(owl_ctx_h *ctx,
-		    owl_digest_algo_e algo,
-		    const owl_key_h key);
+int yaca_verify_init(yaca_ctx_h *ctx,
+		     yaca_digest_algo_e algo,
+		     const yaca_key_h key);
 
 /**
- * @brief owl_verify_update  Feeds the data into the digital signature verification algorithm.
+ * @brief yaca_verify_update  Feeds the data into the digital signature verification algorithm.
  *
- * @param[in,out] ctx       Context created by @see owl_verify_init.
+ * @param[in,out] ctx       Context created by @see yaca_verify_init.
  * @param[in]     data      Data to be verified.
  * @param[in]     data_len  Length of the data.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_verify_update(owl_ctx_h ctx,
-		      const char *data,
-		      size_t data_len);
+int yaca_verify_update(yaca_ctx_h ctx,
+		       const char *data,
+		       size_t data_len);
 
 /**
- * @brief owl_verify_final  Performs the verification.
+ * @brief yaca_verify_final  Performs the verification.
  *
  * @param[in,out] ctx      A valid verify context.
- * @param[in]     mac      Input MAC or signature (returned by @see owl_sign_final).
+ * @param[in]     mac      Input MAC or signature (returned by @see yaca_sign_final).
  * @param[in]     mac_len  Size of the MAC or the signature.
  *
  * @return 0 on success, negative on error (@see error.h).
  * TODO: CRYTPO_ERROR_SIGNATURE_INVALID when verification fails.
  */
-int owl_verify_final(owl_ctx_h ctx,
-		     const char *mac,
-		     size_t mac_len);
+int yaca_verify_final(yaca_ctx_h ctx,
+		      const char *mac,
+		      size_t mac_len);
 
 /**@}*/
 

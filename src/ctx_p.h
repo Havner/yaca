@@ -20,20 +20,20 @@
 #define CTX_P_H
 
 #include <stddef.h>
-#include <owl/types.h>
+#include <yaca/types.h>
 
-enum owl_ctx_type_e
+enum yaca_ctx_type_e
 {
-	OWL_CTX_INVALID = 0,
-	OWL_CTX_DIGEST
+	YACA_CTX_INVALID = 0,
+	YACA_CTX_DIGEST
 };
 
 /* Base structure for crypto contexts - to be inherited */
-struct owl_ctx_s
+struct yaca_ctx_s
 {
-	enum owl_ctx_type_e type;
+	enum yaca_ctx_type_e type;
 
-	int (*get_output_length)(const owl_ctx_h ctx, size_t input_len);
+	int (*get_output_length)(const yaca_ctx_h ctx, size_t input_len);
 };
 
 #endif // CTX_P_H

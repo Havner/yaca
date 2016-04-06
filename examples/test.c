@@ -17,39 +17,39 @@
  */
 
 #include <stdio.h>
-#include <owl/crypto.h>
-#include <owl/key.h>
-#include <owl/types.h>
+#include <yaca/crypto.h>
+#include <yaca/key.h>
+#include <yaca/types.h>
 #include "misc.h"
 
 /** Simple test for development of library (before API is ready) */
 
 int main(int argc, char* argv[])
 {
-	owl_key_h key;
+	yaca_key_h key;
 	char *k;
 	size_t kl;
 	int ret;
 
-	ret = owl_init();
+	ret = yaca_init();
 	if (ret < 0)
 		return ret;
 
 	printf("Generating key using CryptoAPI.. ");
-	ret = owl_key_gen(&key, OWL_KEY_TYPE_SYMMETRIC, OWL_KEY_UNSAFE_128BIT);
+	ret = yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_UNSAFE_128BIT);
 	if (ret < 0)
 		return ret;
 	printf("done (%d)\n", ret);
 
 	printf("Exporting key using CryptoAPI.. ");
-	ret = owl_key_export(key, OWL_KEY_FORMAT_RAW, &k, &kl);
+	ret = yaca_key_export(key, YACA_KEY_FORMAT_RAW, &k, &kl);
 	if (ret < 0)
 		return ret;
 	printf("done (%d)\n", ret);
 
 	dump_hex(k, kl, "%zu-bit key: \n", kl);
 
-	owl_exit();
+	yaca_exit();
 
 	return 0;
 }

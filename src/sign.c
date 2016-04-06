@@ -23,47 +23,47 @@
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
 
-#include <owl/crypto.h>
-#include <owl/error.h>
+#include <yaca/crypto.h>
+#include <yaca/error.h>
 
-API int owl_sign_init(owl_ctx_h *ctx,
-		      owl_digest_algo_e algo,
-		      const owl_key_h key)
+API int yaca_sign_init(yaca_ctx_h *ctx,
+		       yaca_digest_algo_e algo,
+		       const yaca_key_h key)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_sign_update(owl_ctx_h ctx,
-			const char *data,
-			size_t data_len)
+API int yaca_sign_update(yaca_ctx_h ctx,
+			 const char *data,
+			 size_t data_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_sign_final(owl_ctx_h ctx,
-		       char *mac,
-		       size_t *mac_len)
+API int yaca_sign_final(yaca_ctx_h ctx,
+			char *mac,
+			size_t *mac_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_verify_init(owl_ctx_h *ctx,
-			owl_digest_algo_e algo,
-			const owl_key_h key)
+API int yaca_verify_init(yaca_ctx_h *ctx,
+			 yaca_digest_algo_e algo,
+			 const yaca_key_h key)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_verify_update(owl_ctx_h ctx,
-			  const char *data,
-			  size_t data_len)
+API int yaca_verify_update(yaca_ctx_h ctx,
+			   const char *data,
+			   size_t data_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_verify_final(owl_ctx_h ctx,
-			 const char *mac,
-			 size_t mac_len)
+API int yaca_verify_final(yaca_ctx_h ctx,
+			  const char *mac,
+			  size_t mac_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }

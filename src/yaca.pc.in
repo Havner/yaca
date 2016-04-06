@@ -5,8 +5,8 @@ exec_prefix=@CMAKE_INSTALL_PREFIX@
 libdir=@LIB_INSTALL_DIR@
 includedir=@INCLUDE_INSTALL_DIR@
 
-Name: owl
-Description: Openssl wrapper layer
+Name: yaca
+Description: Yet Another Crypto API
 Version: @_LIB_VERSION_@
 Libs: -L${libdir} -l@PROJECT_NAME@
 Cflags: -I${includedir}

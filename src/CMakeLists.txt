@@ -20,12 +20,12 @@
 # @author Dariusz Michaluk (d.michaluk@samsung.com)
 #
 
-PROJECT(owl)
+PROJECT(yaca)
 
 MESSAGE(STATUS "")
-MESSAGE(STATUS "Generating makefile for the owl...")
+MESSAGE(STATUS "Generating makefile for the yaca...")
 
-FILE(GLOB HEADERS   ${API_FOLDER}/owl/*.h)
+FILE(GLOB HEADERS   ${API_FOLDER}/yaca/*.h)
 FILE(GLOB SRCS      *.c *.h)
 
 SET(_LIB_VERSION_ "${VERSION}")
@@ -46,11 +46,11 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
 )
 
 ## Link libraries ##############################################################
-PKG_CHECK_MODULES(OWL_DEPS REQUIRED openssl)
+PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl)
 
 INCLUDE_DIRECTORIES(${API_FOLDER})
-INCLUDE_DIRECTORIES(SYSTEM ${OWL_DEPS_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OWL_DEPS_LIBRARIES})
+INCLUDE_DIRECTORIES(SYSTEM ${YACA_DEPS_INCLUDE_DIRS})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${YACA_DEPS_LIBRARIES})
 
 ## Generate the pc file ########################################################
 CONFIGURE_FILE(${PC_FILE}.in ${CMAKE_CURRENT_BINARY_DIR}/${PC_FILE} @ONLY)
@@ -64,4 +64,4 @@ INSTALL(TARGETS     ${PROJECT_NAME}
         COMPONENT   RuntimeLibraries)
 
 INSTALL(FILES       ${HEADERS}
-        DESTINATION ${INCLUDE_INSTALL_DIR}/owl)
+	DESTINATION ${INCLUDE_INSTALL_DIR}/yaca)

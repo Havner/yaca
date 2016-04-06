@@ -23,10 +23,10 @@
 
 #include <stdio.h>
 
-#include <owl/crypto.h>
-#include <owl/encrypt.h>
-#include <owl/key.h>
-#include <owl/types.h>
+#include <yaca/crypto.h>
+#include <yaca/encrypt.h>
+#include <yaca/key.h>
+#include <yaca/types.h>
 
 #include "lorem.h"
 #include "misc.h"
@@ -36,11 +36,11 @@ void encrypt_decrypt_aes_gcm(void)
 {
 	int ret;
 
-	owl_ctx_h ctx;
+	yaca_ctx_h ctx;
 
-	owl_key_h key = OWL_KEY_NULL;
-	owl_key_h iv = OWL_KEY_NULL;
-	owl_key_h aad_key = OWL_KEY_NULL; // add OWL_OWL_KEY_TYPE_AAD ?
+	yaca_key_h key = YACA_KEY_NULL;
+	yaca_key_h iv = YACA_KEY_NULL;
+	yaca_key_h aad_key = YACA_KEY_NULL; // add YACA_YACA_KEY_TYPE_AAD ?
 
 	char *plaintext = NULL;
 	char *ciphertext = NULL;
@@ -55,106 +55,106 @@ void encrypt_decrypt_aes_gcm(void)
 
 	/// Key generation
 
-	ret = owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC); // key_type, key_len, *key ? looks imo much better
+	ret = yaca_key_gen(&key, YACA_KEY_256BIT, YACA_KEY_TYPE_SYMMETRIC); // key_type, key_len, *key ? looks imo much better
 	if (ret < 0)
 		goto clean;
 
-	// use OWL_KEY_IV_128BIT & OWL_KEY_TYPE_IV or maybe OWL_KEY_128BIT & OWL_KEY_TYPE_SYMMETRIC ?
-	ret = owl_key_gen(&iv, OWL_KEY_IV_128BIT, OWL_KEY_TYPE_IV);
+	// use YACA_KEY_IV_128BIT & YACA_KEY_TYPE_IV or maybe YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC ?
+	ret = yaca_key_gen(&iv, YACA_KEY_IV_128BIT, YACA_KEY_TYPE_IV);
 	if (ret < 0)
 		goto clean;
 
-	// use OWL_KEY_128BIT & OWL_KEY_TYPE_SYMMETRIC or maybe add OWL_KEY_AAD_128BIT & OWL_KEY_TYPE_AAD ?
-	ret = owl_key_gen(&aad_key, OWL_KEY_UNSAFE_128BIT, OWL_KEY_TYPE_SYMMETRIC);
+	// use YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC or maybe add YACA_KEY_AAD_128BIT & YACA_KEY_TYPE_AAD ?
+	ret = yaca_key_gen(&aad_key, YACA_KEY_UNSAFE_128BIT, YACA_KEY_TYPE_SYMMETRIC);
 	if (ret < 0)
 		goto clean;
 
 	// generate and export aad?
-	ret = owl_key_export(aad_key, OWL_KEY_FORMAT_RAW, &aad, &aad_len);
+	ret = yaca_key_export(aad_key, YACA_KEY_FORMAT_RAW, &aad, &aad_len);
 	if (ret < 0)
 		goto clean;
 
 	/// Encryption
 	{
-		ret = owl_encrypt_init(&ctx, OWL_ENC_AES, OWL_BCM_GCM, key, iv);
+		ret = yaca_encrypt_init(&ctx, YACA_ENC_AES, YACA_BCM_GCM, key, iv);
 		if (ret < 0)
 			goto clean;
 
-		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_AAD, aad, aad_len);
+		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_len);
 		if (ret < 0)
 			goto clean;
 
-		ret = owl_encrypt_update(ctx, lorem4096, 4096, NULL, &ciphertext_len);
+		ret = yaca_encrypt_update(ctx, lorem4096, 4096, NULL, &ciphertext_len);
 		if (ret != 42)
 			goto clean;// TODO: what error code?
 
-		ret = owl_get_block_length(ctx);
+		ret = yaca_get_block_length(ctx);
 		if (ret < 0)
 			goto clean;
 
 		ciphertext_len += ret ; // Add block size for finalize
-		ciphertext = owl_malloc(ciphertext_len);
+		ciphertext = yaca_malloc(ciphertext_len);
 		if (ciphertext == NULL)
 			goto clean;
 
 		size_t len;
-		ret = owl_encrypt_update(ctx, lorem4096, 4096, ciphertext, &len);
+		ret = yaca_encrypt_update(ctx, lorem4096, 4096, ciphertext, &len);
 		if (ret < 0)
 			goto clean;
 
 		ciphertext_len = len;
 
-		ret = owl_encrypt_final(ctx, ciphertext + len, &len);
+		ret = yaca_encrypt_final(ctx, ciphertext + len, &len);
 		if (ret < 0)
 			goto clean;
 
 		ciphertext_len += len;
 
-		ret = owl_ctx_get_param(ctx, OWL_PARAM_GCM_TAG, (void*)&tag, &tag_len);
+		ret = yaca_ctx_get_param(ctx, YACA_PARAM_GCM_TAG, (void*)&tag, &tag_len);
 		if (ret < 0)
 			goto clean;
 
 		dump_hex(ciphertext, 16, "Encrypted data (16 of %zu bytes): ", ciphertext_len);
 
-		owl_ctx_free(ctx); // TODO: perhaps it should not return value
+		yaca_ctx_free(ctx); // TODO: perhaps it should not return value
 	}
 
 	/// Decryption
 	{
 		size_t len;
 
-		ret = owl_decrypt_init(&ctx, OWL_ENC_AES, OWL_BCM_GCM, key, iv);
+		ret = yaca_decrypt_init(&ctx, YACA_ENC_AES, YACA_BCM_GCM, key, iv);
 		if (ret < 0)
 			goto clean;
 
-		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_AAD, aad, aad_len);
+		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_len);
 		if (ret < 0)
 			goto clean;
 
-		ret = owl_decrypt_update(ctx, ciphertext, ciphertext_len, NULL, &plaintext_len);
+		ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, NULL, &plaintext_len);
 		if (ret != 42)
 			goto clean; // TODO: what error code?
 
-		ret = owl_get_block_length(ctx);
+		ret = yaca_get_block_length(ctx);
 		if (ret < 0)
 			goto clean;
 
 		plaintext_len += ret; // Add block size for finalize
-		plaintext = owl_malloc(plaintext_len);
+		plaintext = yaca_malloc(plaintext_len);
 		if (plaintext == NULL)
 			goto clean;
 
-		ret = owl_decrypt_update(ctx, ciphertext, ciphertext_len, plaintext, &len);
+		ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, plaintext, &len);
 		if (ret < 0)
 			goto clean;
 
 		plaintext_len = len;
 
-		ret = owl_ctx_set_param(ctx, OWL_PARAM_GCM_TAG, tag, tag_len);
+		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG, tag, tag_len);
 		if (ret < 0)
 			goto clean;
 
-		ret = owl_encrypt_final(ctx, plaintext + len, &len);
+		ret = yaca_encrypt_final(ctx, plaintext + len, &len);
 		if (ret < 0)
 			goto clean;
 
@@ -162,28 +162,28 @@ void encrypt_decrypt_aes_gcm(void)
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n", plaintext_len, plaintext);
 
-		owl_ctx_free(ctx);
+		yaca_ctx_free(ctx);
 	}
 
 clean:
-	owl_free(plaintext);
-	owl_free(ciphertext);
-	owl_free(tag);
-	owl_free(aad);
-	owl_ctx_free(ctx);
-	owl_key_free(aad_key);
-	owl_key_free(iv);
-	owl_key_free(key);
+	yaca_free(plaintext);
+	yaca_free(ciphertext);
+	yaca_free(tag);
+	yaca_free(aad);
+	yaca_ctx_free(ctx);
+	yaca_key_free(aad_key);
+	yaca_key_free(iv);
+	yaca_key_free(key);
 }
 
 int main()
 {
-	int ret = owl_init();
+	int ret = yaca_init();
 	if (ret < 0)
 		return ret;
 
 	encrypt_decrypt_aes_gcm();
 
-	owl_exit(); // TODO: what about handing of return value from exit??
+	yaca_exit(); // TODO: what about handing of return value from exit??
 	return ret;
 }

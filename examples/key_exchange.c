@@ -22,24 +22,24 @@
  */
 
 #include <stdio.h>
-#include <owl/crypto.h>
-#include <owl/encrypt.h>
-#include <owl/key.h>
-#include <owl/types.h>
+#include <yaca/crypto.h>
+#include <yaca/encrypt.h>
+#include <yaca/key.h>
+#include <yaca/types.h>
 
 void key_exchange_dh(void)
 {
 	int ret;
 
-	owl_key_h private_key = OWL_KEY_NULL;
-	owl_key_h public_key = OWL_KEY_NULL;
-	owl_key_h peer_key = OWL_KEY_NULL;
-	owl_key_h secret = OWL_KEY_NULL;
+	yaca_key_h private_key = YACA_KEY_NULL;
+	yaca_key_h public_key = YACA_KEY_NULL;
+	yaca_key_h peer_key = YACA_KEY_NULL;
+	yaca_key_h secret = YACA_KEY_NULL;
 
 	// generate  private, public key
 	// add KEY_TYPE_PAIR_DH or use KEY_TYPE_PAIR_ECC and proper len?
 	// imo add KEY_TYPE_PAIR_DH
-	ret = owl_key_gen_pair(&private_key, &public_key, OWL_KEY_2048BIT, OWL_KEY_TYPE_PAIR_DH);
+	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_2048BIT, YACA_KEY_TYPE_PAIR_DH);
 	if (ret < 0)
 		goto clean;
 
@@ -57,7 +57,7 @@ void key_exchange_dh(void)
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = owl_malloc(size+1);
+	buffer = yaca_malloc(size+1);
 	if (buffer == NULL)
 		goto clean;
 
@@ -65,37 +65,37 @@ void key_exchange_dh(void)
 	if (1 != fread(buffer, size, 1, fp))
 		goto clean;
 
-	ret = owl_key_import(&peer_key,
-			     OWL_KEY_FORMAT_RAW, OWL_KEY_TYPE_DH_PUB,
-			     buffer, size);
+	ret = yaca_key_import(&peer_key,
+			      YACA_KEY_FORMAT_RAW, YACA_KEY_TYPE_DH_PUB,
+			      buffer, size);
 	if (ret < 0)
 		goto clean;
 
 	// derive secret
-	ret = owl_key_derive_dh(private_key, peer_key, &secret);
+	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
 	if (ret < 0)
 		goto clean;
 
 clean:
-	owl_key_free(private_key);
-	owl_key_free(public_key);
-	owl_key_free(peer_key);
-	owl_key_free(secret);
+	yaca_key_free(private_key);
+	yaca_key_free(public_key);
+	yaca_key_free(peer_key);
+	yaca_key_free(secret);
 	fclose(fp);
-	owl_free(buffer);
+	yaca_free(buffer);
 }
 
 void key_exchange_ecdh(void)
 {
 	int ret;
 
-	owl_key_h private_key = OWL_KEY_NULL;
-	owl_key_h public_key = OWL_KEY_NULL;
-	owl_key_h peer_key = OWL_KEY_NULL;
-	owl_key_h secret = OWL_KEY_NULL;
+	yaca_key_h private_key = YACA_KEY_NULL;
+	yaca_key_h public_key = YACA_KEY_NULL;
+	yaca_key_h peer_key = YACA_KEY_NULL;
+	yaca_key_h secret = YACA_KEY_NULL;
 
 	// generate  private, public key
-	ret = owl_key_gen_pair(&private_key, &public_key, OWL_KEY_CURVE_P256, OWL_KEY_TYPE_PAIR_ECC);
+	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_CURVE_P256, YACA_KEY_TYPE_PAIR_ECC);
 	if (ret < 0)
 		goto clean;
 
@@ -113,7 +113,7 @@ void key_exchange_ecdh(void)
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = owl_malloc(size+1);
+	buffer = yaca_malloc(size+1);
 	if (buffer == NULL)
 		goto clean;
 
@@ -121,33 +121,33 @@ void key_exchange_ecdh(void)
 	if (1 != fread(buffer, size, 1, fp))
 		goto clean;
 
-	ret = owl_key_import(&peer_key, OWL_KEY_FORMAT_RAW, OWL_KEY_TYPE_ECC_PUB, buffer, size);
+	ret = yaca_key_import(&peer_key, YACA_KEY_FORMAT_RAW, YACA_KEY_TYPE_ECC_PUB, buffer, size);
 	if (ret < 0)
 		goto clean;
 
 	// derive secret
-	ret = owl_key_derive_dh(private_key, peer_key, &secret);
+	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
 	if (ret < 0)
 		goto clean;
 
 clean:
-	owl_key_free(private_key);
-	owl_key_free(public_key);
-	owl_key_free(peer_key);
-	owl_key_free(secret);
+	yaca_key_free(private_key);
+	yaca_key_free(public_key);
+	yaca_key_free(peer_key);
+	yaca_key_free(secret);
 	fclose(fp);
-	owl_free(buffer);
+	yaca_free(buffer);
 }
 
 int main()
 {
-	int ret = owl_init();
+	int ret = yaca_init();
 	if (ret < 0)
 		return ret;
 
 	key_exchange_dh();
 	key_exchange_ecdh();
 
-	owl_exit();
+	yaca_exit();
 	return ret;
 }

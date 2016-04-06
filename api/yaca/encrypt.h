@@ -25,7 +25,7 @@
 #define ENCRYPT_H
 
 #include <stddef.h>
-#include <owl/types.h>
+#include <yaca/types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,9 +42,9 @@ extern "C" {
  */
 
 /**
- * @brief owl_encrypt_init  Initializes an encryption context.
+ * @brief yaca_encrypt_init  Initializes an encryption context.
  *
- * @param[out] ctx      Newly created context (must be freed with @see owl_ctx_free).
+ * @param[out] ctx      Newly created context (must be freed with @see yaca_ctx_free).
  * @param[in]  algo     Encryption algorithm that will be used.
  * @param[in]  bcm      Chaining mode that will be used.
  * @param[in]  sym_key  Symmetric key that will be used.
@@ -52,46 +52,46 @@ extern "C" {
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_encrypt_init(owl_ctx_h *ctx,
-		     owl_enc_algo_e algo,
-		     owl_block_cipher_mode_e bcm,
-		     const owl_key_h sym_key,
-		     const owl_key_h iv);
+int yaca_encrypt_init(yaca_ctx_h *ctx,
+		      yaca_enc_algo_e algo,
+		      yaca_block_cipher_mode_e bcm,
+		      const yaca_key_h sym_key,
+		      const yaca_key_h iv);
 
 /**
- * @brief owl_encrypt_update  Encrypts chunk of the data.
+ * @brief yaca_encrypt_update  Encrypts chunk of the data.
  *
- * @param[in,out] ctx         Context created by @see owl_encrypt_init.
+ * @param[in,out] ctx         Context created by @see yaca_encrypt_init.
  * @param[in]     plain       Plain text to be encrypted.
  * @param[in]     plain_len   Length of the plain text.
- * @param[out]    cipher      Buffer for the encrypted data (must be allocated by client, @see owl_get_output_length).
+ * @param[out]    cipher      Buffer for the encrypted data (must be allocated by client, @see yaca_get_output_length).
  * @param[out]    cipher_len  Length of the encrypted data, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_encrypt_update(owl_ctx_h ctx,
-		       const char *plain,
-		       size_t plain_len,
-		       char *cipher,
-		       size_t *cipher_len);
+int yaca_encrypt_update(yaca_ctx_h ctx,
+			const char *plain,
+			size_t plain_len,
+			char *cipher,
+			size_t *cipher_len);
 
 /**
- * @brief owl_encrypt_final  Encrypts the final chunk of the data.
+ * @brief yaca_encrypt_final  Encrypts the final chunk of the data.
  *
  * @param[in,out] ctx         A valid encrypt context.
- * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, @see owl_get_block_length).
+ * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, @see yaca_get_block_length).
  * @param[out]    cipher_len  Length of the final piece, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_encrypt_final(owl_ctx_h ctx,
-		      char *cipher,
-		      size_t *cipher_len);
+int yaca_encrypt_final(yaca_ctx_h ctx,
+		       char *cipher,
+		       size_t *cipher_len);
 
 /**
- * @brief owl_decrypt_init  Initializes an decryption context.
+ * @brief yaca_decrypt_init  Initializes an decryption context.
  *
- * @param[out] ctx      Newly created context (must be freed with @see owl_ctx_free).
+ * @param[out] ctx      Newly created context (must be freed with @see yaca_ctx_free).
  * @param[in]  algo     Encryption algorithm that was used to encrypt the data.
  * @param[in]  bcm      Chaining mode that was used to encrypt the data.
  * @param[in]  sym_key  Symmetric key that was used to encrypt the data.
@@ -99,41 +99,41 @@ int owl_encrypt_final(owl_ctx_h ctx,
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_decrypt_init(owl_ctx_h *ctx,
-		     owl_enc_algo_e algo,
-		     owl_block_cipher_mode_e bcm,
-		     const owl_key_h sym_key,
-		     const owl_key_h iv);
+int yaca_decrypt_init(yaca_ctx_h *ctx,
+		      yaca_enc_algo_e algo,
+		      yaca_block_cipher_mode_e bcm,
+		      const yaca_key_h sym_key,
+		      const yaca_key_h iv);
 
 /**
- * @brief owl_decrypt_update Decrypts chunk of the data.
+ * @brief yaca_decrypt_update Decrypts chunk of the data.
  *
- * @param[in,out] ctx         Context created by @see owl_decrypt_init.
+ * @param[in,out] ctx         Context created by @see yaca_decrypt_init.
  * @param[in]     cipher      Cipher text to be decrypted.
  * @param[in]     cipher_len  Length of the cipher text.
- * @param[out]    plain       Buffer for the decrypted data (must be allocated by client, @see owl_get_output_length).
+ * @param[out]    plain       Buffer for the decrypted data (must be allocated by client, @see yaca_get_output_length).
  * @param[out]    plain_len   Length of the decrypted data, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_decrypt_update(owl_ctx_h ctx,
-		       const char *cipher,
-		       size_t cipher_len,
-		       char *plain,
-		       size_t *plain_len);
+int yaca_decrypt_update(yaca_ctx_h ctx,
+			const char *cipher,
+			size_t cipher_len,
+			char *plain,
+			size_t *plain_len);
 
 /**
- * @brief owl_decrypt_final  Decrypts the final chunk of the data.
+ * @brief yaca_decrypt_final  Decrypts the final chunk of the data.
  *
  * @param[in,out] ctx        A valid decrypt context.
- * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, @see owl_get_block_length).
+ * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, @see yaca_get_block_length).
  * @param[out]    plain_len  Length of the final piece, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_decrypt_final(owl_ctx_h ctx,
-		      char *plain,
-		      size_t *plain_len);
+int yaca_decrypt_final(yaca_ctx_h ctx,
+		       char *plain,
+		       size_t *plain_len);
 
 /**@}*/
 
@@ -150,9 +150,9 @@ int owl_decrypt_final(owl_ctx_h ctx,
  */
 
 /**
- * @brief owl_seal_init  Initializes an asymmetric encryption context.
+ * @brief yaca_seal_init  Initializes an asymmetric encryption context.
  *
- * @param[out] ctx      Newly created context (must be freed with @see owl_ctx_free).
+ * @param[out] ctx      Newly created context (must be freed with @see yaca_ctx_free).
  * @param[in]  pub_key  Public key of the peer that will receive the encrypted data.
  * @param[in]  algo     Symmetric algorithm that will be used.
  * @param[in]  bcm      Block chaining mode for the symmetric algorithm.
@@ -161,47 +161,47 @@ int owl_decrypt_final(owl_ctx_h ctx,
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_seal_init(owl_ctx_h *ctx,
-		  const owl_key_h pub_key,
-		  owl_enc_algo_e algo,
-		  owl_block_cipher_mode_e bcm,
-		  owl_key_h *sym_key,
-		  owl_key_h *iv);
+int yaca_seal_init(yaca_ctx_h *ctx,
+		   const yaca_key_h pub_key,
+		   yaca_enc_algo_e algo,
+		   yaca_block_cipher_mode_e bcm,
+		   yaca_key_h *sym_key,
+		   yaca_key_h *iv);
 
 /**
- * @brief owl_seal_update  Encrypts piece of the data.
+ * @brief yaca_seal_update  Encrypts piece of the data.
  *
- * @param[in,out] ctx         Context created by @see owl_seal_init.
+ * @param[in,out] ctx         Context created by @see yaca_seal_init.
  * @param[in]     plain       Plain text to be encrypted.
  * @param[in]     plain_len   Length of the plain text.
- * @param[out]    cipher      Buffer for the encrypted data (must be allocated by client, @see owl_get_output_length).
+ * @param[out]    cipher      Buffer for the encrypted data (must be allocated by client, @see yaca_get_output_length).
  * @param[out]    cipher_len  Length of the encrypted data, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_seal_update(owl_ctx_h ctx,
-		    const char *plain,
-		    size_t plain_len,
-		    char *cipher,
-		    size_t *cipher_len);
+int yaca_seal_update(yaca_ctx_h ctx,
+		     const char *plain,
+		     size_t plain_len,
+		     char *cipher,
+		     size_t *cipher_len);
 
 /**
- * @brief owl_seal_final  Encrypts the final piece of the data.
+ * @brief yaca_seal_final  Encrypts the final piece of the data.
  *
  * @param[in,out] ctx         A valid seal context.
- * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, @see owl_get_block_length).
+ * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, @see yaca_get_block_length).
  * @param[out]    cipher_len  Length of the final piece, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_seal_final(owl_ctx_h ctx,
-		   char *cipher,
-		   size_t *cipher_len);
+int yaca_seal_final(yaca_ctx_h ctx,
+		    char *cipher,
+		    size_t *cipher_len);
 
 /**
- * @brief owl_open_init  Initializes an asymmetric decryption context.
+ * @brief yaca_open_init  Initializes an asymmetric decryption context.
  *
- * @param[out] ctx      Newly created context. Must be freed by @see owl_ctx_free.
+ * @param[out] ctx      Newly created context. Must be freed by @see yaca_ctx_free.
  * @param[in]  prv_key  Private key, part of the pair that was used for the encryption.
  * @param[in]  algo     Symmetric algorithm that was used for the encryption.
  * @param[in]  bcm      Block chaining mode for the symmetric algorithm.
@@ -210,42 +210,42 @@ int owl_seal_final(owl_ctx_h ctx,
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_open_init(owl_ctx_h *ctx,
-		  const owl_key_h prv_key,
-		  owl_enc_algo_e algo,
-		  owl_block_cipher_mode_e bcm,
-		  const owl_key_h sym_key,
-		  const owl_key_h iv);
+int yaca_open_init(yaca_ctx_h *ctx,
+		   const yaca_key_h prv_key,
+		   yaca_enc_algo_e algo,
+		   yaca_block_cipher_mode_e bcm,
+		   const yaca_key_h sym_key,
+		   const yaca_key_h iv);
 
 /**
- * @brief owl_open_update  Decrypts piece of the data.
+ * @brief yaca_open_update  Decrypts piece of the data.
  *
- * @param[in,out] ctx         Context created by @see owl_open_init.
+ * @param[in,out] ctx         Context created by @see yaca_open_init.
  * @param[in]     cipher      Cipher text to be decrypted.
  * @param[in]     cipher_len  Length of the cipher text.
- * @param[out]    plain       Buffer for the decrypted data (must be allocated by client, @see owl_get_output_length).
+ * @param[out]    plain       Buffer for the decrypted data (must be allocated by client, @see yaca_get_output_length).
  * @param[out]    plain_len   Length of the decrypted data, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_open_update(owl_ctx_h ctx,
-		    const char *cipher,
-		    size_t cipher_len,
-		    char *plain,
-		    size_t *plain_len);
+int yaca_open_update(yaca_ctx_h ctx,
+		     const char *cipher,
+		     size_t cipher_len,
+		     char *plain,
+		     size_t *plain_len);
 
 /**
- * @brief owl_open_final Decrypts last chunk of sealed message.
+ * @brief yaca_open_final Decrypts last chunk of sealed message.
  *
  * @param[in,out] ctx        A valid open context.
- * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, @see owl_get_block_length).
+ * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, @see yaca_get_block_length).
  * @param[out]    plain_len  Length of the final piece, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_open_final(owl_ctx_h ctx,
-		   char *plain,
-		   size_t *plain_len);
+int yaca_open_final(yaca_ctx_h ctx,
+		    char *plain,
+		    size_t *plain_len);
 
 /**@}*/
 

@@ -24,12 +24,12 @@
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 
-#include <owl/crypto.h>
-#include <owl/error.h>
+#include <yaca/crypto.h>
+#include <yaca/error.h>
 
 #include "ctx_p.h"
 
-API int owl_init(void)
+API int yaca_init(void)
 {
 
 	OPENSSL_init();
@@ -45,72 +45,72 @@ API int owl_init(void)
 	return 0;
 }
 
-API void owl_exit(void)
+API void yaca_exit(void)
 {
 	EVP_cleanup();
 	CRYPTO_cleanup_all_ex_data();
 }
 
-API void *owl_malloc(size_t size)
+API void *yaca_malloc(size_t size)
 {
 	return OPENSSL_malloc(size);
 }
 
-API void *owl_realloc(void *addr, size_t size)
+API void *yaca_realloc(void *addr, size_t size)
 {
 	return OPENSSL_realloc(addr, size);
 }
 
-API void owl_free(void *ptr)
+API void yaca_free(void *ptr)
 {
 	OPENSSL_free(ptr);
 }
 
-API int owl_rand_bytes(char *data, size_t data_len)
+API int yaca_rand_bytes(char *data, size_t data_len)
 {
 	int ret;
 
 	if (data == NULL || data_len == 0)
-		return OWL_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = RAND_bytes((unsigned char *)data, data_len);
 	if (ret == -1)
-		return OWL_ERROR_NOT_SUPPORTED;
+		return YACA_ERROR_NOT_SUPPORTED;
 	if (ret == 1)
 		return 0;
 
-	return OWL_ERROR_OPENSSL_FAILURE;
+	return YACA_ERROR_OPENSSL_FAILURE;
 }
 
-API int owl_ctx_set_param(owl_ctx_h ctx, owl_ex_param_e param,
-			  const void *value, size_t value_len)
+API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
+			   const void *value, size_t value_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_ctx_get_param(const owl_ctx_h ctx, owl_ex_param_e param,
-			  void **value, size_t *value_len)
+API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
+			   void **value, size_t *value_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API void owl_ctx_free(owl_ctx_h ctx)
+API void yaca_ctx_free(yaca_ctx_h ctx)
 {
-	owl_free(ctx);
+	yaca_free(ctx);
 	/* TODO: What about digest context? This should free specific contexts as well. */
 }
 
-API int owl_get_output_length(const owl_ctx_h ctx, size_t input_len)
+API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len)
 {
-	if (ctx == OWL_CTX_NULL)
-		return OWL_ERROR_INVALID_ARGUMENT;
+	if (ctx == YACA_CTX_NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	return ctx->get_output_length(ctx, input_len);
 }
 
-API int owl_get_iv_length(owl_enc_algo_e algo,
-			  owl_block_cipher_mode_e bcm,
-			  size_t key_len)
+API int yaca_get_iv_length(yaca_enc_algo_e algo,
+			   yaca_block_cipher_mode_e bcm,
+			   size_t key_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }

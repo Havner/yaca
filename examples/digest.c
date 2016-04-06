@@ -22,9 +22,9 @@
  */
 
 #include <stdio.h>
-#include <owl/crypto.h>
-#include <owl/digest.h>
-#include <owl/simple.h>
+#include <yaca/crypto.h>
+#include <yaca/digest.h>
+#include <yaca/simple.h>
 #include "lorem.h"
 #include "misc.h"
 
@@ -34,40 +34,40 @@ void digest_simple(void)
 	char *digest;
 	size_t digest_len;
 
-	ret = owl_digest_calc(OWL_DIGEST_SHA256,
-			      lorem1024,
-			      1024, &digest, &digest_len);
+	ret = yaca_digest_calc(YACA_DIGEST_SHA256,
+			       lorem1024,
+			       1024, &digest, &digest_len);
 	if (ret < 0)
 		return;
 
 	dump_hex(digest, digest_len, "Message digest: ");
 
-	owl_free(digest);
+	yaca_free(digest);
 }
 
 void digest_advanced(void)
 {
 	int ret = 0;
-	owl_ctx_h ctx;
+	yaca_ctx_h ctx;
 
-	ret = owl_digest_init(&ctx, OWL_DIGEST_SHA256);
+	ret = yaca_digest_init(&ctx, YACA_DIGEST_SHA256);
 	if (ret < 0)
 		return;
 
-	ret = owl_digest_update(ctx, lorem1024, 1024);
+	ret = yaca_digest_update(ctx, lorem1024, 1024);
 	if (ret < 0)
 		goto exit_ctx;
 
-	// TODO: rename to owl_digest_get_length??
+	// TODO: rename to yaca_digest_get_length??
 	size_t digest_len;
-	digest_len = owl_get_digest_length(ctx);
+	digest_len = yaca_get_digest_length(ctx);
 	if (digest_len <= 0)
 		goto exit_ctx;
 
 	{
 		char digest[digest_len];
 
-		ret = owl_digest_final(ctx, digest, &digest_len);
+		ret = yaca_digest_final(ctx, digest, &digest_len);
 		if (ret < 0)
 			goto exit_ctx;
 
@@ -75,12 +75,12 @@ void digest_advanced(void)
 	}
 
 exit_ctx:
-	owl_ctx_free(ctx);
+	yaca_ctx_free(ctx);
 }
 
 int main()
 {
-	int ret = owl_init();
+	int ret = yaca_init();
 	if (ret < 0)
 		return ret;
 
@@ -88,6 +88,6 @@ int main()
 
 	digest_advanced();
 
-	owl_exit(); // TODO: what about handing of return value from exit??
+	yaca_exit(); // TODO: what about handing of return value from exit??
 	return ret;
 }

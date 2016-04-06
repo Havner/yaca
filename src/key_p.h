@@ -20,16 +20,16 @@
 #define KEY_P_H
 
 #include <stdlib.h>
-#include <owl/types.h>
+#include <yaca/types.h>
 
 /**
  * @file key_p.h
  * @brief Private header for key.c
  */
 
-struct owl_key_s
+struct yaca_key_s
 {
-	owl_key_type_e type;
+	yaca_key_type_e type;
 	size_t length;
 	char d[0];
 };

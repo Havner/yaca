@@ -1,4 +1,4 @@
-OWL - OpenSSL Wrapper Layer
+YACA - Yet Another Crypto API
 
 Basic information:
 
@@ -18,11 +18,11 @@ Project structure:
 	test/ - tests
 
 General design:
-	- All memory allocated by API should be freed with owl_free()
-	- Contexts and keys should be freed with owl_ctx_free()/owl_key_free()
-	- Function names: owl_<operation/object>_<function>; Ex: owl_verify_init()
+	- All memory allocated by API should be freed with yaca_free()
+	- Contexts and keys should be freed with yaca_ctx_free()/yaca_key_free()
+	- Function names: yaca_<operation/object>_<function>; Ex: yaca_verify_init()
 	- Simplified/Simple functions don't have <operation/object> part
-	- Enums: OWL_<concept>_<value>; Ex: OWL_KEY_256BIT
+	- Enums: YACA_<concept>_<value>; Ex: YACA_KEY_256BIT
 	- Objects (context, key) end with _h
 	- Most functions return 0 on success, negative values on error
 

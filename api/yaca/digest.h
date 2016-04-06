@@ -25,7 +25,7 @@
 #define DIGEST_H
 
 #include <stddef.h>
-#include <owl/types.h>
+#include <yaca/types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,36 +40,36 @@ extern "C" {
  */
 
 /**
- * @brief owl_digest_init  Initializes a digest context.
+ * @brief yaca_digest_init  Initializes a digest context.
  *
- * @param[out] ctx   Newly created context (must be freed with @see owl_ctx_free).
+ * @param[out] ctx   Newly created context (must be freed with @see yaca_ctx_free).
  * @param[in]  algo  Digest algorithm that will be used.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_digest_init(owl_ctx_h *ctx, owl_digest_algo_e algo);
+int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
 
 /**
- * @brief owl_digest_update  Feeds the data into the message digest algorithm.
+ * @brief yaca_digest_update  Feeds the data into the message digest algorithm.
  *
- * @param[in,out] ctx       Context created by @see owl_digest_init.
+ * @param[in,out] ctx       Context created by @see yaca_digest_init.
  * @param[in]     data      Data from which the digest is to be calculated.
  * @param[in]     data_len  Length of the data.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_digest_update(owl_ctx_h ctx, const char *data, size_t data_len);
+int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len);
 
 /**
- * @brief owl_digest_final  Calculates the final digest.
+ * @brief yaca_digest_final  Calculates the final digest.
  *
  * @param[in,out] ctx         A valid digest context.
- * @param[out]    digest      Buffer for the message digest (must be allocated by client, @see owl_get_digest_length).
+ * @param[out]    digest      Buffer for the message digest (must be allocated by client, @see yaca_get_digest_length).
  * @param[out]    digest_len  Length of the digest, actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
-int owl_digest_final(owl_ctx_h ctx, char *digest, size_t *digest_len);
+int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len);
 
 /**@}*/
 

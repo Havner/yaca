@@ -23,52 +23,52 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <owl/crypto.h>
-#include <owl/error.h>
-#include <owl/key.h>
+#include <yaca/crypto.h>
+#include <yaca/error.h>
+#include <yaca/key.h>
 
 #include "key_p.h"
 
-static inline void key_sanity_check(const owl_key_h key)
+static inline void key_sanity_check(const yaca_key_h key)
 {
 	assert(key->length);
 	assert(key->length % 8 == 0);
 }
 
-API int owl_key_get_length(const owl_key_h key)
+API int yaca_key_get_length(const yaca_key_h key)
 {
-	if (key == OWL_KEY_NULL)
-		return OWL_ERROR_INVALID_ARGUMENT;
+	if (key == YACA_KEY_NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	key_sanity_check(key);
 
 	return key->length;
 }
 
-API int owl_key_import(owl_key_h *key,
-		       owl_key_fmt_e key_fmt,
-		       owl_key_type_e key_type,
-		       const char *data,
-		       size_t data_len)
+API int yaca_key_import(yaca_key_h *key,
+			yaca_key_fmt_e key_fmt,
+			yaca_key_type_e key_type,
+			const char *data,
+			size_t data_len)
 {
-	owl_key_h nk = NULL;
+	yaca_key_h nk = NULL;
 
 	if (key == NULL || data == NULL || data_len == 0)
-		return OWL_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_type != OWL_KEY_TYPE_SYMMETRIC)
-		return OWL_ERROR_NOT_IMPLEMENTED;
+	if (key_type != YACA_KEY_TYPE_SYMMETRIC)
+		return YACA_ERROR_NOT_IMPLEMENTED;
 
-	if (key_fmt != OWL_KEY_FORMAT_RAW)
-		return OWL_ERROR_NOT_IMPLEMENTED;
+	if (key_fmt != YACA_KEY_FORMAT_RAW)
+		return YACA_ERROR_NOT_IMPLEMENTED;
 
 	/* TODO: Overflow on an unsigned value in an undefined behaviour, unless explicitly allowed by a compile flag. */
-	if (sizeof(struct owl_key_s) + data_len < data_len)
-		return OWL_ERROR_TOO_BIG_ARGUMENT;
+	if (sizeof(struct yaca_key_s) + data_len < data_len)
+		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
-	nk = owl_malloc(sizeof(struct owl_key_s) + data_len);
+	nk = yaca_malloc(sizeof(struct yaca_key_s) + data_len);
 	if (nk == NULL)
-		return OWL_ERROR_OUT_OF_MEMORY;
+		return YACA_ERROR_OUT_OF_MEMORY;
 
 	memcpy(nk->d, data, data_len); /* TODO: CRYPTO_/OPENSSL_... */
 	nk->length = data_len * 8;
@@ -78,98 +78,98 @@ API int owl_key_import(owl_key_h *key,
 	return 0;
 }
 
-API int owl_key_export(const owl_key_h key,
-		       owl_key_fmt_e key_fmt,
-		       char **data,
-		       size_t *data_len)
+API int yaca_key_export(const yaca_key_h key,
+			yaca_key_fmt_e key_fmt,
+			char **data,
+			size_t *data_len)
 {
 	size_t byte_len;
 
-	if (key == OWL_KEY_NULL || data == NULL || data_len == NULL)
-		return OWL_ERROR_INVALID_ARGUMENT;
+	if (key == YACA_KEY_NULL || data == NULL || data_len == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key->type != OWL_KEY_TYPE_SYMMETRIC)
-		return OWL_ERROR_NOT_IMPLEMENTED;
+	if (key->type != YACA_KEY_TYPE_SYMMETRIC)
+		return YACA_ERROR_NOT_IMPLEMENTED;
 
-	if (key_fmt != OWL_KEY_FORMAT_RAW)
-		return OWL_ERROR_NOT_IMPLEMENTED;
+	if (key_fmt != YACA_KEY_FORMAT_RAW)
+		return YACA_ERROR_NOT_IMPLEMENTED;
 
 	key_sanity_check(key);
 
 	byte_len = key->length / 8;
-	*data = owl_malloc(byte_len);
+	*data = yaca_malloc(byte_len);
 	memcpy(*data, key->d, byte_len);
 	*data_len = byte_len;
 
 	return 0;
 }
 
-API int owl_key_gen(owl_key_h *sym_key,
-		    owl_key_type_e key_type,
-		    size_t key_len)
+API int yaca_key_gen(yaca_key_h *sym_key,
+		     yaca_key_type_e key_type,
+		     size_t key_len)
 {
 	int ret;
 
 	if (sym_key == NULL)
-		return OWL_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_type != OWL_KEY_TYPE_SYMMETRIC)
-		return OWL_ERROR_NOT_IMPLEMENTED;
+	if (key_type != YACA_KEY_TYPE_SYMMETRIC)
+		return YACA_ERROR_NOT_IMPLEMENTED;
 
-	*sym_key = owl_malloc(sizeof(struct owl_key_s) + key_len);
+	*sym_key = yaca_malloc(sizeof(struct yaca_key_s) + key_len);
 	if (*sym_key == NULL)
-		return OWL_ERROR_OUT_OF_MEMORY;
+		return YACA_ERROR_OUT_OF_MEMORY;
 
 	(*sym_key)->length = key_len;
 	(*sym_key)->type = key_type;
 
-	ret = owl_rand_bytes((*sym_key)->d, key_len);
+	ret = yaca_rand_bytes((*sym_key)->d, key_len);
 	if (ret == 0)
 		return 0;
 
-	owl_free(*sym_key);
+	yaca_free(*sym_key);
 	return ret;
 }
 
-API int owl_key_gen_pair(owl_key_h *prv_key,
-			 owl_key_h *pub_key,
-			 owl_key_type_e key_type,
-			 size_t key_len)
+API int yaca_key_gen_pair(yaca_key_h *prv_key,
+			  yaca_key_h *pub_key,
+			  yaca_key_type_e key_type,
+			  size_t key_len)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API void owl_key_free(owl_key_h key)
+API void yaca_key_free(yaca_key_h key)
 {
-	if (key == OWL_KEY_NULL)
+	if (key == YACA_KEY_NULL)
 		return;
 
-	owl_free(key);
+	yaca_free(key);
 }
 
-API int owl_key_derive_dh(const owl_key_h prv_key,
-			  const owl_key_h pub_key,
-			  owl_key_h *sym_key)
+API int yaca_key_derive_dh(const yaca_key_h prv_key,
+			   const yaca_key_h pub_key,
+			   yaca_key_h *sym_key)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_key_derive_kea(const owl_key_h prv_key,
-			   const owl_key_h pub_key,
-			   const owl_key_h prv_key_auth,
-			   const owl_key_h pub_key_auth,
-			   owl_key_h *sym_key)
+API int yaca_key_derive_kea(const yaca_key_h prv_key,
+			    const yaca_key_h pub_key,
+			    const yaca_key_h prv_key_auth,
+			    const yaca_key_h pub_key_auth,
+			    yaca_key_h *sym_key)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
-API int owl_key_derive_pbkdf2(const char *password,
-			      const char *salt,
-			      size_t salt_len,
-			      int iter,
-			      owl_digest_algo_e algo,
-			      owl_key_len_e key_len,
-			      owl_key_h *key)
+API int yaca_key_derive_pbkdf2(const char *password,
+			       const char *salt,
+			       size_t salt_len,
+			       int iter,
+			       yaca_digest_algo_e algo,
+			       yaca_key_len_e key_len,
+			       yaca_key_h *key)
 {
-	return OWL_ERROR_NOT_IMPLEMENTED;
+	return YACA_ERROR_NOT_IMPLEMENTED;
 }

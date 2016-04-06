@@ -22,9 +22,9 @@
  */
 
 #include <stdio.h>
-#include <owl/crypto.h>
-#include <owl/sign.h>
-#include <owl/key.h>
+#include <yaca/crypto.h>
+#include <yaca/sign.h>
+#include <yaca/key.h>
 #include "misc.h"
 
 size_t IDX = 0;
@@ -46,7 +46,7 @@ size_t read_data(char* buffer, size_t size)
 	return i;
 }
 
-int sign(owl_ctx_h ctx, char** signature, size_t* signature_len)
+int sign(yaca_ctx_h ctx, char** signature, size_t* signature_len)
 {
 	char buffer[SIZE];
 
@@ -56,16 +56,16 @@ int sign(owl_ctx_h ctx, char** signature, size_t* signature_len)
 		if (read == 0)
 			break;
 
-		if (owl_sign_update(ctx, buffer, read))
+		if (yaca_sign_update(ctx, buffer, read))
 			return -1;
 	}
 
 	// TODO: is it a size in bytes or length in characters?
-	*signature_len = owl_get_digest_length(ctx);
-	*signature = (char*)owl_malloc(*signature_len);
+	*signature_len = yaca_get_digest_length(ctx);
+	*signature = (char*)yaca_malloc(*signature_len);
 
-	// TODO: owl_get_digest_length() returns int but owl_sign_final accepts size_t. Use common type.
-	if (owl_sign_final(ctx, *signature, signature_len))
+	// TODO: yaca_get_digest_length() returns int but yaca_sign_final accepts size_t. Use common type.
+	if (yaca_sign_final(ctx, *signature, signature_len))
 		return -1;
 
 	dump_hex(*signature, *signature_len, "Message signature: ");
@@ -73,7 +73,7 @@ int sign(owl_ctx_h ctx, char** signature, size_t* signature_len)
 	return 0;
 }
 
-int verify(owl_ctx_h ctx, const char* signature, size_t signature_len)
+int verify(yaca_ctx_h ctx, const char* signature, size_t signature_len)
 {
 	char buffer[SIZE];
 
@@ -83,12 +83,12 @@ int verify(owl_ctx_h ctx, const char* signature, size_t signature_len)
 		if (read == 0)
 			break;
 
-		if (owl_verify_update(ctx, buffer, read))
+		if (yaca_verify_update(ctx, buffer, read))
 			return -1;
 	}
 
 	// TODO: use int or size_t for output sizes
-	if (owl_verify_final(ctx, signature, (size_t)signature_len))
+	if (yaca_verify_final(ctx, signature, (size_t)signature_len))
 		return -1;
 
 	printf("Verification succeeded\n");
@@ -102,51 +102,51 @@ void sign_verify_rsa(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	owl_ctx_h ctx = OWL_CTX_NULL;
-	owl_key_h prv = OWL_KEY_NULL;
-	owl_key_h pub = OWL_KEY_NULL;
-	owl_padding_e padding = OWL_PADDING_PKCS1;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_key_h prv = YACA_KEY_NULL;
+	yaca_key_h pub = YACA_KEY_NULL;
+	yaca_padding_e padding = YACA_PADDING_PKCS1;
 
 
 	// GENERATE
 
-	if (owl_key_gen_pair(&prv, &pub, OWL_KEY_4096BIT, OWL_KEY_TYPE_PAIR_RSA))
+	if (yaca_key_gen_pair(&prv, &pub, YACA_KEY_4096BIT, YACA_KEY_TYPE_PAIR_RSA))
 		return;
 
 
 	// SIGN
 
-	if (owl_sign_init(&ctx, OWL_DIGEST_SHA512, prv))
+	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, prv))
 		goto finish;
 
-	// TODO: owl_ctx_set_param should take void* not char*
-	if (owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+	// TODO: yaca_ctx_set_param should take void* not char*
+	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
 		goto finish;
 
 	if (sign(ctx, &signature, &signature_len))
 		goto finish;
 
 	// TODO: is this necessary or will next ctx init handle it?
-	owl_ctx_free(ctx);
-	ctx = OWL_CTX_NULL;
+	yaca_ctx_free(ctx);
+	ctx = YACA_CTX_NULL;
 
 
 	// VERIFY
 
-	if (owl_verify_init(&ctx, OWL_DIGEST_SHA512, pub))
+	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, pub))
 		goto finish;
 
-	if (owl_ctx_set_param(ctx, OWL_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
 		goto finish;
 
 	if (verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
-	owl_free(signature);
-	owl_key_free(prv);
-	owl_key_free(pub);
-	owl_ctx_free(ctx);
+	yaca_free(signature);
+	yaca_key_free(prv);
+	yaca_key_free(pub);
+	yaca_ctx_free(ctx);
 }
 
 void sign_verify_hmac(void)
@@ -154,18 +154,18 @@ void sign_verify_hmac(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	owl_ctx_h ctx = OWL_CTX_NULL;
-	owl_key_h key = OWL_KEY_NULL;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_key_h key = YACA_KEY_NULL;
 
 
 	// GENERATE
 
-	if (owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
+	if (yaca_key_gen(&key, YACA_KEY_256BIT, YACA_KEY_TYPE_SYMMETRIC))
 		return;
 
 	// SIGN
 
-	if (owl_sign_init(&ctx, OWL_DIGEST_SHA512, key))
+	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, key))
 		goto finish;
 
 	if (sign(ctx, &signature, &signature_len))
@@ -174,16 +174,16 @@ void sign_verify_hmac(void)
 
 	// VERIFY
 
-	if (owl_verify_init(&ctx, OWL_DIGEST_SHA512, key))
+	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, key))
 		goto finish;
 
 	if (verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
-	owl_free(signature);
-	owl_key_free(key);
-	owl_ctx_free(ctx);
+	yaca_free(signature);
+	yaca_key_free(key);
+	yaca_ctx_free(ctx);
 }
 
 void sign_verify_cmac(void)
@@ -191,18 +191,18 @@ void sign_verify_cmac(void)
 	char* signature = NULL;
 	size_t signature_len;
 
-	owl_ctx_h ctx = OWL_CTX_NULL;
-	owl_key_h key = OWL_KEY_NULL;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_key_h key = YACA_KEY_NULL;
 
 
 	// GENERATE
 
-	if( owl_key_gen(&key, OWL_KEY_256BIT, OWL_KEY_TYPE_SYMMETRIC))
+	if( yaca_key_gen(&key, YACA_KEY_256BIT, YACA_KEY_TYPE_SYMMETRIC))
 		return;
 
 	// SIGN
 	// TODO: CMAC must extract the key length to select the proper evp (EVP_aes_XXX_cbc()) it should be documented
-	if( owl_sign_init(&ctx, OWL_DIGEST_CMAC, key))
+	if( yaca_sign_init(&ctx, YACA_DIGEST_CMAC, key))
 		goto finish;
 
 	if( sign(ctx, &signature, &signature_len))
@@ -211,22 +211,22 @@ void sign_verify_cmac(void)
 
 	// VERIFY
 
-	if( owl_verify_init(&ctx, OWL_DIGEST_CMAC, key))
+	if( yaca_verify_init(&ctx, YACA_DIGEST_CMAC, key))
 		goto finish;
 
 	if( verify(ctx, signature, signature_len))
 		goto finish;
 
 finish:
-	owl_free(signature);
-	owl_key_free(key);
-	owl_ctx_free(ctx);
+	yaca_free(signature);
+	yaca_key_free(key);
+	yaca_ctx_free(ctx);
 }
 
 
 int main()
 {
-	int ret = owl_init();
+	int ret = yaca_init();
 	if (ret < 0)
 		return ret;
 
@@ -236,6 +236,6 @@ int main()
 	sign_verify_hmac();
 	sign_verify_cmac();
 
-	owl_exit(); // TODO: what about handing of return value from exit??
+	yaca_exit(); // TODO: what about handing of return value from exit??
 	return ret;
 }

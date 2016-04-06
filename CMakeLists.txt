@@ -22,7 +22,7 @@
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6.2)
 
-PROJECT(owl)
+PROJECT(yaca)
 SET(VERSION "0.0.1")
 
 ## pkgconfig ###################################################################
@@ -35,7 +35,7 @@ INCLUDE(GNUInstallDirs)
 IF (( "${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" AND NOT (CMAKE_C_COMPILER_VERSION VERSION_LESS 4.9))
       OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" ))
 
-    IF (OWL_BUILD_FORCE_COMPILER_COLORS)
+    IF (YACA_BUILD_FORCE_COMPILER_COLORS)
         SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=always")
     ENDIF()
 ENDIF()
