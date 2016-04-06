@@ -36,19 +36,19 @@ void key_exchange_dh(void)
 	yaca_key_h peer_key = YACA_KEY_NULL;
 	yaca_key_h secret = YACA_KEY_NULL;
 
+	FILE *fp = NULL;
+	char *buffer = NULL;
+	long size;
+
 	// generate  private, public key
 	// add KEY_TYPE_PAIR_DH or use KEY_TYPE_PAIR_ECC and proper len?
 	// imo add KEY_TYPE_PAIR_DH
-	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_2048BIT, YACA_KEY_TYPE_PAIR_DH);
+	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_TYPE_PAIR_DH, YACA_KEY_2048BIT);
 	if (ret < 0)
 		goto clean;
 
 	// get peer public key from file
 	// add helper to read key from file to buffer?
-	FILE *fp;
-	long size;
-	char *buffer;
-
 	fp = fopen("key.pub", "r");
 	if (!fp) goto clean;
 
@@ -81,7 +81,8 @@ clean:
 	yaca_key_free(public_key);
 	yaca_key_free(peer_key);
 	yaca_key_free(secret);
-	fclose(fp);
+	if (fp != NULL)
+		fclose(fp);
 	yaca_free(buffer);
 }
 
@@ -94,16 +95,16 @@ void key_exchange_ecdh(void)
 	yaca_key_h peer_key = YACA_KEY_NULL;
 	yaca_key_h secret = YACA_KEY_NULL;
 
+	FILE *fp = NULL;
+	char *buffer = NULL;
+	long size;
+
 	// generate  private, public key
-	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_CURVE_P256, YACA_KEY_TYPE_PAIR_ECC);
+	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_TYPE_PAIR_ECC, YACA_KEY_CURVE_P256);
 	if (ret < 0)
 		goto clean;
 
 	// get peer public key from file
-	FILE *fp;
-	long size;
-	char *buffer;
-
 	fp = fopen("key.pub", "r");
 	if (fp == NULL)
 		goto clean;
@@ -135,7 +136,8 @@ clean:
 	yaca_key_free(public_key);
 	yaca_key_free(peer_key);
 	yaca_key_free(secret);
-	fclose(fp);
+	if (fp != NULL)
+		fclose(fp);
 	yaca_free(buffer);
 }
 
