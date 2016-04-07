@@ -16,21 +16,42 @@
  *  limitations under the License
  */
 
-#ifndef KEY_P_H
-#define KEY_P_H
+/**
+ * @file encrypt.h
+ * @brief Internal API
+ */
 
-#include <stdlib.h>
+#ifndef INTERNAL_H
+#define INTERNAL_H
+
+#include <stddef.h>
+
 #include <yaca/types.h>
 
-/**
- * @file key_p.h
- * @brief Private header for key.c
- */
+#define API __attribute__ ((visibility ("default")))
+
+enum yaca_ctx_type_e
+{
+	YACA_CTX_INVALID = 0,
+	YACA_CTX_DIGEST
+};
+
+/* Base structure for crypto contexts - to be inherited */
+struct yaca_ctx_s
+{
+	enum yaca_ctx_type_e type;
+
+	void (*ctx_destroy)(const yaca_ctx_h ctx);
+	int (*get_output_length)(const yaca_ctx_h ctx, size_t input_len);
+};
+
 
 /* Base structure for crypto keys - to be inherited */
 struct yaca_key_s
 {
 	yaca_key_type_e type;
+
+	int (*get_key_length)(const struct yaca_key_s *key);
 };
 
-#endif /* KEY_P_H */
+#endif

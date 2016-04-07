@@ -16,8 +16,6 @@
  *  limitations under the License
  */
 
-#include "config.h"
-
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,7 +29,7 @@
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
 
-#include "key_p.h"
+#include "internal.h"
 
 /**
  * Internal type for:

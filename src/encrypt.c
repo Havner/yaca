@@ -16,8 +16,6 @@
  *  limitations under the License
  */
 
-#include "config.h"
-
 #include <assert.h>
 
 #include <openssl/crypto.h>
@@ -25,6 +23,8 @@
 
 #include <yaca/crypto.h>
 #include <yaca/error.h>
+
+#include "internal.h"
 
 API int yaca_encrypt_init(yaca_ctx_h *ctx,
 			  yaca_enc_algo_e algo,

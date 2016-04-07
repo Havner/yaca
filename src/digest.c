@@ -16,8 +16,6 @@
  *  limitations under the License
  */
 
-#include "config.h"
-
 #include <assert.h>
 #include <stdint.h>
 
@@ -28,7 +26,7 @@
 #include <yaca/error.h>
 #include <yaca/types.h>
 
-#include "ctx_p.h"
+#include "internal.h"
 
 struct yaca_digest_ctx_s
 {

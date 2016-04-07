@@ -16,8 +16,6 @@
  *  limitations under the License
  */
 
-#include "config.h"
-
 #include <assert.h>
 #include <limits.h>
 
@@ -29,6 +27,8 @@
 #include <yaca/encrypt.h>
 #include <yaca/digest.h>
 #include <yaca/key.h>
+
+#include "internal.h"
 
 API int yaca_digest_calc(yaca_digest_algo_e algo,
 			 const char *data,

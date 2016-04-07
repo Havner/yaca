@@ -16,8 +16,6 @@
  *  limitations under the License
  */
 
-#include "config.h"
-
 #include <assert.h>
 
 #include <openssl/crypto.h>
@@ -27,7 +25,7 @@
 #include <yaca/crypto.h>
 #include <yaca/error.h>
 
-#include "ctx_p.h"
+#include "internal.h"
 
 API int yaca_init(void)
 {
