@@ -394,7 +394,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	    iter == 0 || key_bits == 0 || key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	ret = get_digest_algorithm(algo, &md);
+	ret = digest_get_algorithm(algo, &md);
 	if (ret < 0)
 		return ret;
 

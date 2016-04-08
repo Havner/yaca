@@ -85,7 +85,7 @@ struct yaca_key_evp_s
 	EVP_PKEY *evp;
 };
 
-int get_digest_algorithm(yaca_digest_algo_e algo, const EVP_MD **md);
+int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md);
 
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key);
 struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);

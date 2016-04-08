@@ -70,7 +70,7 @@ static void destroy_digest_context(yaca_ctx_h ctx)
 	EVP_MD_CTX_destroy(c->mdctx);
 }
 
-int get_digest_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
+int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
 {
 	int ret = 0;
 
@@ -129,7 +129,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 	nc->ctx.ctx_destroy = destroy_digest_context;
 	nc->ctx.get_output_length = get_digest_output_length;
 
-	ret = get_digest_algorithm(algo, &nc->md);
+	ret = digest_get_algorithm(algo, &nc->md);
 	if (ret < 0)
 		goto free;
 
