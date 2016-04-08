@@ -108,7 +108,7 @@ API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len)
 
 API int yaca_get_iv_length(yaca_enc_algo_e algo,
 			   yaca_block_cipher_mode_e bcm,
-			   size_t key_len)
+			   size_t key_bits)
 {
 	return YACA_ERROR_NOT_IMPLEMENTED;
 }

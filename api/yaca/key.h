@@ -48,7 +48,7 @@ extern "C" {
  *
  * @param[in] key  Key which length we return.
  *
- * @return negative on error (@see error.h) or key length.
+ * @return negative on error (@see error.h) or key length (in bits).
  */
 int yaca_key_get_length(const yaca_key_h key);
 
@@ -91,13 +91,13 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @param[out] sym_key   Newly generated key (must be freed with @see yaca_key_free).
  * @param[in]  key_type  Type of the key to be generated.
- * @param[in]  key_len   Length of the key to be generated.
+ * @param[in]  key_bits  Length of the key (in bits) to be generated.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
 int yaca_key_gen(yaca_key_h *sym_key,
 		 yaca_key_type_e key_type,
-		 size_t key_len);
+		 size_t key_bits);
 
 /**
  * @brief yaca_key_gen_pair  Generates a new key pair.
@@ -105,18 +105,18 @@ int yaca_key_gen(yaca_key_h *sym_key,
  * @param[out] prv_key   Newly generated private key (must be freed with @see yaca_key_free).
  * @param[out] pub_key   Newly generated public key (must be freed with @see yaca_key_free).
  * @param[in]  key_type  Type of the key to be generated (must be YACA_KEY_TYPE_PAIR*).
- * @param[in]  key_len   Length of the key to be generated.
+ * @param[in]  key_bits  Length of the key (in bits) to be generated.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
 int yaca_key_gen_pair(yaca_key_h *prv_key,
 		      yaca_key_h *pub_key,
 		      yaca_key_type_e key_type,
-		      size_t key_len);
+		      size_t key_bits);
 
 /**
  * @brief yaca_key_free  Frees the key created by the library.
- *                         Passing YACA_KEY_NULL is allowed.
+ *                       Passing YACA_KEY_NULL is allowed.
  *
  * @param key  Key to be freed.
  *
@@ -174,7 +174,7 @@ int yaca_key_derive_kea(const yaca_key_h prv_key,
  * @param[in]  salt_len  Length of the salt.
  * @param[in]  iter      Number of iterations. (TODO: add enum to proposed number of iterations, pick sane defaults).
  * @param[in]  algo      Digest algorithm that should be used in key generation. (TODO: sane defaults).
- * @param[in]  key_len   Length of a key to be generated.
+ * @param[in]  key_bits  Length of a key (in bits) to be generated.
  * @param[out] key       Newly generated key (must be freed with @see yaca_key_free).
  *
  * @return 0 on success, negative on error (@see error.h).
@@ -184,7 +184,7 @@ int yaca_key_derive_pbkdf2(const char *password,
 			   size_t salt_len,
 			   int iter,
 			   yaca_digest_algo_e algo,
-			   size_t key_len,
+			   size_t key_bits,
 			   yaca_key_h *key);
 
 // TODO: specify

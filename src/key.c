@@ -44,7 +44,7 @@ struct yaca_key_simple_s
 {
 	struct yaca_key_s key;
 
-	size_t length;
+	size_t bits;
 	char d[0];
 };
 
@@ -99,8 +99,8 @@ static struct yaca_key_evp_s *get_evp_key(const yaca_key_h key)
 
 static inline void simple_key_sanity_check(const struct yaca_key_simple_s *key)
 {
-	assert(key->length);
-	assert(key->length % 8 == 0);
+	assert(key->bits);
+	assert(key->bits % 8 == 0);
 }
 
 // TODO: do we need a sanity check sanity for Evp keys?
@@ -128,7 +128,7 @@ API int yaca_key_get_length(const yaca_key_h key)
 
 	if (simple_key != NULL) {
 		simple_key_sanity_check(simple_key);
-		return simple_key->length;
+		return simple_key->bits;
 	}
 
 	if (evp_key != NULL) {
@@ -162,7 +162,7 @@ API int yaca_key_import(yaca_key_h *key,
 			return YACA_ERROR_OUT_OF_MEMORY;
 
 		memcpy(nk->d, data, data_len); /* TODO: CRYPTO_/EVP_... */
-		nk->length = data_len * 8;
+		nk->bits = data_len * 8;
 		nk->key.type = key_type;
 
 		*key = (yaca_key_h)nk;
@@ -198,7 +198,7 @@ API int yaca_key_export(const yaca_key_h key,
 	if (simple_key != NULL) {
 		simple_key_sanity_check(simple_key);
 
-		byte_len = simple_key->length / 8;
+		byte_len = simple_key->bits / 8;
 		*data = yaca_malloc(byte_len);
 		memcpy(*data, simple_key->d, byte_len);
 		*data_len = byte_len;
@@ -217,10 +217,11 @@ API int yaca_key_export(const yaca_key_h key,
 
 API int yaca_key_gen(yaca_key_h *sym_key,
 		     yaca_key_type_e key_type,
-		     size_t key_len)
+		     size_t key_bits)
 {
 	int ret;
 	struct yaca_key_simple_s *nk = NULL;
+	size_t key_byte_len = key_bits / 8;
 
 	if (sym_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -248,17 +249,17 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	if (key_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
+	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
-	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_len);
+	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 
-	nk->length = key_len;
+	nk->bits = key_bits;
 	nk->key.type = key_type;
 
-	ret = yaca_rand_bytes(nk->d, key_len);
+	ret = yaca_rand_bytes(nk->d, key_byte_len);
 	if (ret != 0)
 		goto err;
 
@@ -274,7 +275,7 @@ err:
 API int yaca_key_gen_pair(yaca_key_h *prv_key,
 			  yaca_key_h *pub_key,
 			  yaca_key_type_e key_type,
-			  size_t key_len)
+			  size_t key_bits)
 {
 	int ret;
 	struct yaca_key_evp_s *nk_prv = NULL;
@@ -319,7 +320,7 @@ API int yaca_key_gen_pair(yaca_key_h *prv_key,
 		goto free_bne;
 	}
 
-	ret = RSA_generate_key_ex(rsa, key_len, bne, NULL);
+	ret = RSA_generate_key_ex(rsa, key_bits, bne, NULL);
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
 		goto free_rsa;
@@ -411,36 +412,37 @@ API int yaca_key_derive_pbkdf2(const char *password,
 			       size_t salt_len,
 			       int iter,
 			       yaca_digest_algo_e algo,
-			       size_t key_len,
+			       size_t key_bits,
 			       yaca_key_h *key)
 {
 	const EVP_MD *md;
 	struct yaca_key_simple_s *nk;
+	size_t key_byte_len = key_bits / 8;
 	int ret;
 
 	if (password == NULL || salt == NULL || salt_len == 0 ||
-	    iter == 0 || key_len == 0 || key == NULL)
+	    iter == 0 || key_bits == 0 || key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = get_digest_algorithm(algo, &md);
 	if (ret < 0)
 		return ret;
 
-	if (key_len % 8) /* Key length must be multiple of 8-bits */
+	if (key_bits % 8) /* Key length must be multiple of 8-bits */
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
+	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
-	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_len);
+	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 
-	nk->length = key_len;
+	nk->bits = key_bits;
 	nk->key.type = YACA_KEY_TYPE_SYMMETRIC; // TODO: how to handle other keys?
 
 	ret = PKCS5_PBKDF2_HMAC(password, -1, (const unsigned char*)salt,
-				salt_len, iter, md, key_len / 8,
+				salt_len, iter, md, key_byte_len,
 				(unsigned char*)nk->d);
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);

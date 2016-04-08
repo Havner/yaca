@@ -105,7 +105,7 @@ typedef enum {
 	YACA_KEY_2048BIT = 2048,
 	YACA_KEY_3072BIT = 3072,
 	YACA_KEY_4096BIT = 4096
-} yaca_key_len_e;
+} yaca_key_bits_e;
 
 /**
  * @brief Message digest algorithms. CMAC is included to simplify API
