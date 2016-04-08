@@ -36,7 +36,7 @@ void encrypt_decrypt_aes_gcm(void)
 {
 	int ret;
 
-	yaca_ctx_h ctx;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
 
 	yaca_key_h key = YACA_KEY_NULL;
 	yaca_key_h iv = YACA_KEY_NULL;
@@ -55,17 +55,17 @@ void encrypt_decrypt_aes_gcm(void)
 
 	/// Key generation
 
-	ret = yaca_key_gen(&key, YACA_KEY_256BIT, YACA_KEY_TYPE_SYMMETRIC); // key_type, key_len, *key ? looks imo much better
+	ret = yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT); // key_type, key_len, *key ? looks imo much better
 	if (ret < 0)
 		goto clean;
 
 	// use YACA_KEY_IV_128BIT & YACA_KEY_TYPE_IV or maybe YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC ?
-	ret = yaca_key_gen(&iv, YACA_KEY_IV_128BIT, YACA_KEY_TYPE_IV);
+	ret = yaca_key_gen(&iv, YACA_KEY_TYPE_IV, YACA_KEY_IV_128BIT);
 	if (ret < 0)
 		goto clean;
 
 	// use YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC or maybe add YACA_KEY_AAD_128BIT & YACA_KEY_TYPE_AAD ?
-	ret = yaca_key_gen(&aad_key, YACA_KEY_UNSAFE_128BIT, YACA_KEY_TYPE_SYMMETRIC);
+	ret = yaca_key_gen(&aad_key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_UNSAFE_128BIT);
 	if (ret < 0)
 		goto clean;
 

@@ -46,6 +46,7 @@ static inline void evp_key_sanity_check(const struct yaca_key_evp_s *key)
 }
 
 // TODO: do we need this variant? or the two above are enough?
+#if 0
 static inline void key_sanity_check(const yaca_key_h key)
 {
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
@@ -57,6 +58,7 @@ static inline void key_sanity_check(const yaca_key_h key)
 	if (evp_key != NULL)
 		evp_key_sanity_check(evp_key);
 }
+#endif
 
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 {

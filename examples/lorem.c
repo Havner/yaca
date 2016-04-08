@@ -18,7 +18,7 @@
 
 /**
  * @file lorem.c
- * @brief
+ * @brief Lorem Ipsum
  */
 
 const char *lorem8 = "Lorem i";

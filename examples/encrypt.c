@@ -100,7 +100,7 @@ void encrypt_advanced(void)
 	if (ret)
 		return;
 
-	ret = yaca_key_gen(&iv, YACA_KEY_IV_256BIT, YACA_KEY_TYPE_SYMMETRIC);
+	ret = yaca_key_gen(&iv, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_IV_256BIT);
 	if (ret)
 		goto ex_key;
 
@@ -208,7 +208,8 @@ void encrypt_seal(void)
 
 	/// Generate key pair
 	ret = yaca_key_gen_pair(&key_priv, &key_pub,
-				YACA_KEY_2048BIT, YACA_KEY_TYPE_PAIR_RSA);
+				YACA_KEY_TYPE_PAIR_RSA,
+				YACA_KEY_2048BIT);
 	if (ret) return;
 
 	/// Encrypt a.k.a. seal

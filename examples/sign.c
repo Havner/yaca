@@ -110,7 +110,7 @@ void sign_verify_rsa(void)
 
 	// GENERATE
 
-	if (yaca_key_gen_pair(&prv, &pub, YACA_KEY_4096BIT, YACA_KEY_TYPE_PAIR_RSA))
+	if (yaca_key_gen_pair(&prv, &pub, YACA_KEY_TYPE_PAIR_RSA, YACA_KEY_4096BIT))
 		return;
 
 
@@ -160,7 +160,7 @@ void sign_verify_hmac(void)
 
 	// GENERATE
 
-	if (yaca_key_gen(&key, YACA_KEY_256BIT, YACA_KEY_TYPE_SYMMETRIC))
+	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
 		return;
 
 	// SIGN
@@ -197,7 +197,7 @@ void sign_verify_cmac(void)
 
 	// GENERATE
 
-	if( yaca_key_gen(&key, YACA_KEY_256BIT, YACA_KEY_TYPE_SYMMETRIC))
+	if( yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
 		return;
 
 	// SIGN
