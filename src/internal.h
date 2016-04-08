@@ -55,6 +55,39 @@ struct yaca_key_s
 	int (*get_key_length)(const struct yaca_key_s *key);
 };
 
+/**
+ * Internal type for:
+ * - YACA_KEY_TYPE_SYMMETRIC
+ * - YACA_KEY_TYPE_DES
+ * - YACA_KEY_TYPE_IV
+ */
+struct yaca_key_simple_s
+{
+	struct yaca_key_s key;
+
+	size_t bits;
+	char d[0];
+};
+
+/**
+ * Internal type for:
+ * - YACA_KEY_TYPE_RSA_PUB
+ * - YACA_KEY_TYPE_RSA_PRIV
+ * - YACA_KEY_TYPE_DSA_PUB
+ * - YACA_KEY_TYPE_DSA_PRIV
+ *
+ * TODO: and possibly others (for every key that uses EVP_PKEY)
+ */
+struct yaca_key_evp_s
+{
+	struct yaca_key_s key;
+
+	EVP_PKEY *evp;
+};
+
 int get_digest_algorithm(yaca_digest_algo_e algo, const EVP_MD **md);
+
+struct yaca_key_simple_s *key_get_simple(const yaca_key_h key);
+struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);
 
 #endif

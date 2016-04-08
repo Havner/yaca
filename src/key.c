@@ -34,37 +34,31 @@
 
 #include "internal.h"
 
-/**
- * Internal type for:
- * - YACA_KEY_TYPE_SYMMETRIC
- * - YACA_KEY_TYPE_DES
- * - YACA_KEY_TYPE_IV
- */
-struct yaca_key_simple_s
+static inline void simple_key_sanity_check(const struct yaca_key_simple_s *key)
 {
-	struct yaca_key_s key;
+	assert(key->bits);
+	assert(key->bits % 8 == 0);
+}
 
-	size_t bits;
-	char d[0];
-};
-
-/**
- * Internal type for:
- * - YACA_KEY_TYPE_RSA_PUB
- * - YACA_KEY_TYPE_RSA_PRIV
- * - YACA_KEY_TYPE_DSA_PUB
- * - YACA_KEY_TYPE_DSA_PRIV
- *
- * TODO: and possibly others (for every key that uses EVP_PKEY)
- */
-struct yaca_key_evp_s
+// TODO: do we need a sanity check sanity for Evp keys?
+static inline void evp_key_sanity_check(const struct yaca_key_evp_s *key)
 {
-	struct yaca_key_s key;
+}
 
-	EVP_PKEY *evp;
-};
+// TODO: do we need this variant? or the two above are enough?
+static inline void key_sanity_check(const yaca_key_h key)
+{
+	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
+	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
-static struct yaca_key_simple_s *get_simple_key(const yaca_key_h key)
+	if (simple_key != NULL)
+		simple_key_sanity_check(simple_key);
+
+	if (evp_key != NULL)
+		evp_key_sanity_check(evp_key);
+}
+
+struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 {
 	if (key == YACA_KEY_NULL)
 		return NULL;
@@ -80,7 +74,7 @@ static struct yaca_key_simple_s *get_simple_key(const yaca_key_h key)
 	}
 }
 
-static struct yaca_key_evp_s *get_evp_key(const yaca_key_h key)
+struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 {
 	if (key == YACA_KEY_NULL)
 		return NULL;
@@ -97,34 +91,10 @@ static struct yaca_key_evp_s *get_evp_key(const yaca_key_h key)
 	}
 }
 
-static inline void simple_key_sanity_check(const struct yaca_key_simple_s *key)
-{
-	assert(key->bits);
-	assert(key->bits % 8 == 0);
-}
-
-// TODO: do we need a sanity check sanity for Evp keys?
-static inline void evp_key_sanity_check(const struct yaca_key_evp_s *key)
-{
-}
-
-// TODO: do we need this variant? or the two above are enough?
-static inline void key_sanity_check(const yaca_key_h key)
-{
-	const struct yaca_key_simple_s *simple_key = get_simple_key(key);
-	const struct yaca_key_evp_s *evp_key = get_evp_key(key);
-
-	if (simple_key != NULL)
-		simple_key_sanity_check(simple_key);
-
-	if (evp_key != NULL)
-		evp_key_sanity_check(evp_key);
-}
-
 API int yaca_key_get_length(const yaca_key_h key)
 {
-	const struct yaca_key_simple_s *simple_key = get_simple_key(key);
-	const struct yaca_key_evp_s *evp_key = get_evp_key(key);
+	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
+	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
 	if (simple_key != NULL) {
 		simple_key_sanity_check(simple_key);
@@ -186,8 +156,8 @@ API int yaca_key_export(const yaca_key_h key,
 			size_t *data_len)
 {
 	size_t byte_len;
-	struct yaca_key_simple_s *simple_key = get_simple_key(key);
-	struct yaca_key_evp_s *evp_key = get_evp_key(key);
+	struct yaca_key_simple_s *simple_key = key_get_simple(key);
+	struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
 	if (data == NULL || data_len == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -379,8 +349,8 @@ free_prv:
 
 API void yaca_key_free(yaca_key_h key)
 {
-	struct yaca_key_simple_s *simple_key = get_simple_key(key);
-	struct yaca_key_evp_s *evp_key = get_evp_key(key);
+	struct yaca_key_simple_s *simple_key = key_get_simple(key);
+	struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
 	if (simple_key != NULL)
 		yaca_free(simple_key);
