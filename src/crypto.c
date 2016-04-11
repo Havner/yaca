@@ -94,8 +94,10 @@ API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
 
 API void yaca_ctx_free(yaca_ctx_h ctx)
 {
-	ctx->ctx_destroy(ctx);
-	yaca_free(ctx);
+	if (ctx != YACA_CTX_NULL) {
+		ctx->ctx_destroy(ctx);
+		yaca_free(ctx);
+	}
 }
 
 API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len)
