@@ -17,6 +17,7 @@
  */
 
 #include <assert.h>
+#include <string.h>
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
@@ -52,6 +53,14 @@ API void yaca_exit(void)
 API void *yaca_malloc(size_t size)
 {
 	return OPENSSL_malloc(size);
+}
+
+API void *yaca_zalloc(size_t size)
+{
+	void *blob = OPENSSL_malloc(size);
+	if (blob != NULL)
+		memset(blob, 0, size);
+	return blob;
 }
 
 API void *yaca_realloc(void *addr, size_t size)

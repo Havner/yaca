@@ -68,6 +68,16 @@ void yaca_exit(void);
 void *yaca_malloc(size_t size);
 
 /**
+ * @brief yaca_zalloc  Allocates the zeroed memory.
+ *
+ * @param[in] size  Size of the allocation (bytes).
+ *
+ * @return NULL on failure, pointer to allocated and zeroed memory otherwise.
+ */
+// TODO: this should be a macro to CRYPTO_*
+void *yaca_zalloc(size_t size);
+
+/**
  * @brief yaca_realloc  Re-allocates the memory.
  *
  * @param[in] addr  Address of the memory to be reallocated.
