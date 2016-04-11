@@ -92,13 +92,25 @@ API int yaca_rand_bytes(char *data, size_t data_len)
 API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
 			   const void *value, size_t value_len)
 {
-	return YACA_ERROR_NOT_IMPLEMENTED;
+	if (ctx == YACA_CTX_NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	if (ctx->set_param == NULL)
+		return YACA_ERROR_NOT_SUPPORTED;
+
+	return ctx->set_param(ctx, param, value, value_len);
 }
 
 API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
 			   void **value, size_t *value_len)
 {
-	return YACA_ERROR_NOT_IMPLEMENTED;
+	if (ctx == YACA_CTX_NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	if (ctx->get_param == NULL)
+		return YACA_ERROR_NOT_SUPPORTED;
+
+	return ctx->get_param(ctx, param, value, value_len);
 }
 
 API void yaca_ctx_free(yaca_ctx_h ctx)
