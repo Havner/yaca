@@ -13,10 +13,13 @@ Requires(postun):   /sbin/ldconfig
 %description
 The package provides Yet Another Crypto API.
 
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
 %files
-%defattr(644,root,root,755)
 %{_libdir}/libyaca.so.0
-%attr(755,root,root) %{_libdir}/libyaca.so.%{version}
+%{_libdir}/libyaca.so.%{version}
 
 %prep
 %setup -q
@@ -33,10 +36,6 @@ make -k %{?jobs:-j%jobs}
 %clean
 rm -rf %{buildroot}
 
-%post -n yaca -p /sbin/ldconfig
-
-%postun -n yaca -p /sbin/ldconfig
-
 ## Devel Package ###############################################################
 %package devel
 Summary:        Yet Another Crypto API development files
@@ -47,7 +46,19 @@ Requires:       yaca = %{version}-%{release}
 The package provides Yet Another Crypto API development files.
 
 %files devel
-%defattr(644,root,root,755)
 %{_libdir}/libyaca.so
 %{_includedir}/yaca
 %{_libdir}/pkgconfig/yaca.pc
+
+## Examples Package ############################################################
+%package examples
+Summary:        Yet Another Crypto API example files
+Group:          Security/Other
+Requires:       yaca = %{version}-%{release}
+
+%description examples
+The package provides Yet Another Crypto API example files.
+
+%files examples
+%{_bindir}/yaca-example*
+%{_datadir}/%{name}/examples

@@ -45,6 +45,8 @@ FUNCTION(BUILD_EXAMPLE EXAMPLE_NAME SOURCE_FILE)
                     WORLD_READ
                     WORLD_EXECUTE
         )
+    INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}
+        DESTINATION ${EXAMPLES_DIR})
 ENDFUNCTION(BUILD_EXAMPLE)
 
 BUILD_EXAMPLE("yaca-example-digest"       digest.c)
@@ -53,3 +55,6 @@ BUILD_EXAMPLE("yaca-example-encrypt-gcm"  encrypt_aes_gcm.c)
 BUILD_EXAMPLE("yaca-example-sign"         sign.c)
 BUILD_EXAMPLE("yaca-example-key-exchange" key_exchange.c)
 BUILD_EXAMPLE("yaca-example-test"         test.c)
+
+INSTALL(FILES       ${COMMON_SOURCES}
+    DESTINATION ${EXAMPLES_DIR})
