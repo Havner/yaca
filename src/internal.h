@@ -35,7 +35,8 @@ enum yaca_ctx_type_e
 {
 	YACA_CTX_INVALID = 0,
 	YACA_CTX_DIGEST,
-	YACA_CTX_SIGN
+	YACA_CTX_SIGN,
+	YACA_CTX_ENCRYPT,
 };
 
 /* Base structure for crypto contexts - to be inherited */
