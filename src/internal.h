@@ -66,7 +66,7 @@ struct yaca_key_simple_s
 	struct yaca_key_s key;
 
 	size_t bits;
-	char d[0];
+	char d[];
 };
 
 /**
