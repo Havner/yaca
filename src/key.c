@@ -137,7 +137,7 @@ API int yaca_key_import(yaca_key_h *key,
 		if (data_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 			return YACA_ERROR_TOO_BIG_ARGUMENT;
 
-		nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + data_len);
+		nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + data_len);
 		if (nk == NULL)
 			return YACA_ERROR_OUT_OF_MEMORY;
 
@@ -232,7 +232,7 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
-	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
+	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 
@@ -269,11 +269,11 @@ API int yaca_key_gen_pair(yaca_key_h *prv_key,
 	if (key_type != YACA_KEY_TYPE_PAIR_RSA)
 		return YACA_ERROR_NOT_IMPLEMENTED;
 
-	nk_prv = yaca_malloc(sizeof(struct yaca_key_evp_s));
+	nk_prv = yaca_zalloc(sizeof(struct yaca_key_evp_s));
 	if (nk_prv == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 
-	nk_pub = yaca_malloc(sizeof(struct yaca_key_evp_s));
+	nk_pub = yaca_zalloc(sizeof(struct yaca_key_evp_s));
 	if (nk_pub == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
 		goto free_prv;
@@ -414,7 +414,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
-	nk = yaca_malloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
+	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 

@@ -184,11 +184,9 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	if (lkey == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	nc = yaca_malloc(sizeof(struct yaca_encrypt_ctx_s));
+	nc = yaca_zalloc(sizeof(struct yaca_encrypt_ctx_s));
 	if (nc == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
-
-	memset(nc, 0, sizeof(struct yaca_encrypt_ctx_s));
 
 	nc->ctx.type = YACA_CTX_ENCRYPT;
 	nc->ctx.ctx_destroy = destroy_encrypt_ctx;

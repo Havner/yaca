@@ -121,7 +121,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 	if (ctx == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	nc = yaca_malloc(sizeof(struct yaca_digest_ctx_s));
+	nc = yaca_zalloc(sizeof(struct yaca_digest_ctx_s));
 	if (nc == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 
