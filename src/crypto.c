@@ -116,6 +116,7 @@ API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
 API void yaca_ctx_free(yaca_ctx_h ctx)
 {
 	if (ctx != YACA_CTX_NULL) {
+		assert(ctx->ctx_destroy != NULL);
 		ctx->ctx_destroy(ctx);
 		yaca_free(ctx);
 	}
