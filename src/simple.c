@@ -90,6 +90,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	yaca_ctx_h ctx;
 	int ret;
 	char *lcipher;
+	char *rcipher;
 	size_t out_len, lcipher_len, written;
 
 	if (plain == NULL || plain_len == 0 || cipher == NULL || cipher_len == NULL ||
@@ -100,21 +101,28 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
 	ret = yaca_encrypt_init(&ctx, algo, bcm, sym_key, iv);
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
-	ret = yaca_get_output_length(ctx, plain_len);
-	if (ret < 0)
+	ret = yaca_get_block_length(ctx);
+	if (ret <= 0)
 		goto err;
 
 	lcipher_len = ret;
+
+	ret = yaca_get_output_length(ctx, plain_len);
+	if (ret <= 0)
+		goto err;
+
+	lcipher_len += ret;
+
 	lcipher = yaca_malloc(lcipher_len);
 	if (lcipher == NULL)
 		goto err;
 
 	out_len = lcipher_len;
 	ret = yaca_encrypt_update(ctx, plain, plain_len, lcipher, &out_len);
-	if (ret < 0)
+	if (ret != 0)
 		goto err_free;
 
 	assert (out_len <= lcipher_len);
@@ -122,15 +130,22 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	written = out_len;
 	out_len = lcipher_len - written;
 	ret = yaca_encrypt_final(ctx, lcipher + written, &out_len);
-	if (ret < 0)
+	if (ret != 0)
 		goto err_free;
 
-	assert (out_len + written == lcipher_len);
+	written += out_len;
+	assert (written <= lcipher_len);
+
+	rcipher = yaca_realloc(lcipher, written);
+	if (rcipher == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto err_free;
+	}
 
 	yaca_ctx_free(ctx);
 
-	*cipher = lcipher;
-	*cipher_len = lcipher_len;
+	*cipher = rcipher;
+	*cipher_len = written;
 	return 0;
 
 err_free:
@@ -152,6 +167,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	yaca_ctx_h ctx;
 	int ret;
 	char *lplain;
+	char *rplain;
 	size_t out_len, lplain_len, written;
 
 	if (cipher == NULL || cipher_len == 0 || plain == NULL || plain_len == NULL ||
@@ -162,21 +178,28 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
 	ret = yaca_decrypt_init(&ctx, algo, bcm, sym_key, iv);
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
-	ret = yaca_get_output_length(ctx, cipher_len);
-	if (ret < 0)
+	ret = yaca_get_block_length(ctx);
+	if (ret <= 0)
 		goto err;
 
 	lplain_len = ret;
+
+	ret = yaca_get_output_length(ctx, cipher_len);
+	if (ret <= 0)
+		goto err;
+
+	lplain_len += ret;
+
 	lplain = yaca_malloc(lplain_len);
 	if (!lplain)
 		goto err;
 
 	out_len = lplain_len;
 	ret = yaca_decrypt_update(ctx, cipher, cipher_len, lplain, &out_len);
-	if (ret < 0)
+	if (ret != 0)
 		goto err_free;
 
 	assert(out_len <= lplain_len);
@@ -184,15 +207,22 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	written = out_len;
 	out_len = lplain_len - written;
 	ret = yaca_decrypt_final(ctx, lplain + written, &out_len);
-	if (ret < 0)
+	if (ret != 0)
 		goto err_free;
 
-	assert(out_len + written == lplain_len);
+	written += out_len;
+	assert(written <= lplain_len);
+
+	rplain = yaca_realloc(lplain, written);
+	if (rplain == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto err_free;
+	}
 
 	yaca_ctx_free(ctx);
 
-	*plain = lplain;
-	*plain_len = lplain_len;
+	*plain = rplain;
+	*plain_len = written;
 	return 0;
 
 err_free:
