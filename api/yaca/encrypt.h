@@ -247,6 +247,19 @@ int yaca_open_final(yaca_ctx_h ctx,
 		    char *plain,
 		    size_t *plain_len);
 
+/**
+ * @brief yaca_get_iv_bits  Returns the recomended/default length of the IV for a given encryption configuration.
+ *
+ * @param[in] algo      Encryption algorithm.
+ * @param[in] bcm       Chain mode.
+ * @param[in] key_bits  Key length in bits (@see crypto_key_len_e).
+ *
+ * @return negative on error (@see error.h) or the IV length in bits.
+ */
+int yaca_get_iv_bits(yaca_enc_algo_e algo,
+		     yaca_block_cipher_mode_e bcm,
+		     size_t key_bits);
+
 /**@}*/
 
 #ifdef __cplusplus

@@ -104,6 +104,20 @@ int get_symmetric_algorithm(yaca_enc_algo_e algo,
 	return 0;
 }
 
+API int yaca_get_iv_bits(yaca_enc_algo_e algo,
+			 yaca_block_cipher_mode_e bcm,
+			 size_t key_bits)
+{
+	const EVP_CIPHER *cipher;
+	int ret;
+
+	ret = get_symmetric_algorithm(algo, bcm, key_bits, &cipher);
+	if (ret < 0)
+		return ret;
+
+	return EVP_CIPHER_iv_length(cipher) * 8;
+}
+
 API int yaca_encrypt_init(yaca_ctx_h *ctx,
 			  yaca_enc_algo_e algo,
 			  yaca_block_cipher_mode_e bcm,
