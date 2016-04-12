@@ -147,15 +147,12 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 
 	*ctx = (yaca_ctx_h)nc;
 
-	ret = 0;
+	return 0;
 
 ctx:
-	if (ret != 0)
-		EVP_MD_CTX_destroy(nc->mdctx);
+	EVP_MD_CTX_destroy(nc->mdctx);
 free:
-	if (ret != 0)
-		yaca_free(nc);
-
+	yaca_free(nc);
 	return ret;
 }
 
