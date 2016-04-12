@@ -41,9 +41,8 @@ ADD_DEFINITIONS(-fvisibility=hidden)
 ## Setup target ################################################################
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${SRCS} ${HEADERS})
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
-    SOVERSION   ${_LIB_SOVERSION_}
-    VERSION     ${_LIB_VERSION_}
-)
+                      SOVERSION  ${_LIB_SOVERSION_}
+                      VERSION    ${_LIB_VERSION_})
 
 ## Link libraries ##############################################################
 PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl)
@@ -64,4 +63,4 @@ INSTALL(TARGETS     ${PROJECT_NAME}
         COMPONENT   RuntimeLibraries)
 
 INSTALL(FILES       ${HEADERS}
-	DESTINATION ${INCLUDE_INSTALL_DIR}/yaca)
+        DESTINATION ${INCLUDE_INSTALL_DIR}/yaca)

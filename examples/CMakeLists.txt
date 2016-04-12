@@ -1,7 +1,7 @@
 #
 #  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
 #
-#  Contact:
+#  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,35 +18,29 @@
 #
 # @file   CMakeLists.txt
 # @author Krzysztof Jackiewicz (k.jackiewicz@samsung.com)
-# @version 1.0
-# @brief
 #
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/api)
 
-SET(COMMON_SOURCES
-                ${CMAKE_CURRENT_SOURCE_DIR}/lorem.c
-                ${CMAKE_CURRENT_SOURCE_DIR}/misc.c
-    )
+SET(COMMON_SOURCES  ${CMAKE_CURRENT_SOURCE_DIR}/lorem.c
+                    ${CMAKE_CURRENT_SOURCE_DIR}/misc.c)
 
 FUNCTION(BUILD_EXAMPLE EXAMPLE_NAME SOURCE_FILE)
-    ADD_EXECUTABLE(${EXAMPLE_NAME}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}
-                    ${COMMON_SOURCES}
-        )
-    TARGET_LINK_LIBRARIES(${EXAMPLE_NAME} ${PROJECT_NAME})
-    INSTALL(TARGETS ${EXAMPLE_NAME}
-        DESTINATION ${BIN_INSTALL_DIR}
-        PERMISSIONS OWNER_READ
-                    OWNER_WRITE
-                    OWNER_EXECUTE
-                    GROUP_READ
-                    GROUP_EXECUTE
-                    WORLD_READ
-                    WORLD_EXECUTE
-        )
-    INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}
-        DESTINATION ${EXAMPLES_DIR})
+	ADD_EXECUTABLE(${EXAMPLE_NAME}
+	               ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}
+	               ${COMMON_SOURCES})
+	TARGET_LINK_LIBRARIES(${EXAMPLE_NAME} ${PROJECT_NAME})
+	INSTALL(TARGETS      ${EXAMPLE_NAME}
+	        DESTINATION  ${BIN_INSTALL_DIR}
+	        PERMISSIONS  OWNER_READ
+	                     OWNER_WRITE
+	                     OWNER_EXECUTE
+	                     GROUP_READ
+	                     GROUP_EXECUTE
+	                     WORLD_READ
+	                     WORLD_EXECUTE)
+	INSTALL(FILES        ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE}
+	        DESTINATION  ${EXAMPLES_DIR})
 ENDFUNCTION(BUILD_EXAMPLE)
 
 BUILD_EXAMPLE("yaca-example-digest"       digest.c)
@@ -58,4 +52,4 @@ BUILD_EXAMPLE("yaca-example-key-exchange" key_exchange.c)
 BUILD_EXAMPLE("yaca-example-test"         test.c)
 
 INSTALL(FILES       ${COMMON_SOURCES}
-    DESTINATION ${EXAMPLES_DIR})
+        DESTINATION ${EXAMPLES_DIR})
