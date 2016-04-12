@@ -32,7 +32,6 @@ struct yaca_digest_ctx_s
 {
 	struct yaca_ctx_s ctx;
 
-	const EVP_MD *md;
 	EVP_MD_CTX *mdctx;
 };
 
@@ -57,7 +56,7 @@ static int get_digest_output_length(const yaca_ctx_h ctx, size_t input_len)
 	if (c == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	return EVP_MD_size(c->md);
+	return EVP_MD_CTX_size(c->mdctx);
 }
 
 static void destroy_digest_context(yaca_ctx_h ctx)
@@ -117,6 +116,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 {
 	int ret;
 	struct yaca_digest_ctx_s *nc = NULL;
+	const EVP_MD *md;
 
 	if (ctx == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -129,7 +129,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 	nc->ctx.ctx_destroy = destroy_digest_context;
 	nc->ctx.get_output_length = get_digest_output_length;
 
-	ret = digest_get_algorithm(algo, &nc->md);
+	ret = digest_get_algorithm(algo, &md);
 	if (ret < 0)
 		goto free;
 
@@ -139,7 +139,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 		goto free;
 	}
 
-	ret = EVP_DigestInit(nc->mdctx, nc->md);
+	ret = EVP_DigestInit(nc->mdctx, md);
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
 		goto ctx;
