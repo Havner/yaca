@@ -113,7 +113,7 @@ int yaca_verify_update(yaca_ctx_h ctx,
  * @param[in]     mac_len  Size of the MAC or the signature.
  *
  * @return 0 on success, negative on error (@see error.h).
- * TODO: CRYTPO_ERROR_SIGNATURE_INVALID when verification fails.
+ * TODO: YACA_ERROR_SIGNATURE_INVALID when verification fails.
  */
 int yaca_verify_final(yaca_ctx_h ctx,
 		      const char *mac,
