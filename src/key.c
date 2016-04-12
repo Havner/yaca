@@ -104,8 +104,16 @@ API int yaca_key_get_length(const yaca_key_h key)
 	}
 
 	if (evp_key != NULL) {
+		int ret;
+
 		evp_key_sanity_check(evp_key);
-		return YACA_ERROR_NOT_IMPLEMENTED;
+
+		// TODO: handle ECC keys when they're implemented
+		ret = EVP_PKEY_bits(evp_key->evp);
+		if (ret <= 0)
+			return YACA_ERROR_OPENSSL_FAILURE;
+
+		return ret;
 	}
 
 	return YACA_ERROR_INVALID_ARGUMENT;
