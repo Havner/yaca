@@ -1,0 +1,3 @@
+Global:
+- Rethink and possibly add verification of output buffer lengths.
+  In other words check whether the user won't cause a buffer overflow.
