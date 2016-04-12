@@ -51,8 +51,6 @@ struct yaca_ctx_s
 struct yaca_key_s
 {
 	yaca_key_type_e type;
-
-	int (*get_key_length)(const struct yaca_key_s *key);
 };
 
 /**
