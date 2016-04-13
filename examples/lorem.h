@@ -24,12 +24,22 @@
 #ifndef LOREM_H
 #define LOREM_H
 
+#include <stddef.h>
+
 /**
   Test strings, sizes include null-termination
  */
-extern const char *lorem8;
-extern const char *lorem16;
-extern const char *lorem1024;
-extern const char *lorem4096;
+extern const char lorem8[];
+extern const char lorem16[];
+extern const char lorem1024[];
+extern const char lorem4096[];
+
+/**
+ * Sizes of test strings
+ */
+#define LOREM8_SIZE ((size_t)8)
+#define LOREM16_SIZE ((size_t)16)
+#define LOREM1024_SIZE ((size_t)1024)
+#define LOREM4096_SIZE ((size_t)4096)
 
 #endif
