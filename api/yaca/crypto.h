@@ -163,17 +163,17 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len);
 #define yaca_get_block_length(ctxa) yaca_get_output_length((ctxa), 0)
 
 /**
- * @brief yaca_get_iv_length  Returns the recomended/default length of the IV for a given encryption configuration.
+ * @brief yaca_get_iv_bits  Returns the recomended/default length of the IV for a given encryption configuration.
  *
  * @param[in] algo      Encryption algorithm.
  * @param[in] bcm       Chain mode.
  * @param[in] key_bits  Key length in bits (@see crypto_key_len_e).
  *
- * @return negative on error (@see error.h) or the IV length.
+ * @return negative on error (@see error.h) or the IV length in bits.
  */
-int yaca_get_iv_length(yaca_enc_algo_e algo,
-		       yaca_block_cipher_mode_e bcm,
-		       size_t key_bits);
+int yaca_get_iv_bits(yaca_enc_algo_e algo,
+		     yaca_block_cipher_mode_e bcm,
+		     size_t key_bits);
 
 /**@}*/
 
