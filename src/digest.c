@@ -67,6 +67,7 @@ static void destroy_digest_context(yaca_ctx_h ctx)
 		return;
 
 	EVP_MD_CTX_destroy(c->mdctx);
+	c->mdctx = NULL;
 }
 
 int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
