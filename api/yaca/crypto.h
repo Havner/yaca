@@ -155,6 +155,8 @@ void yaca_ctx_free(yaca_ctx_h ctx);
  *
  * @return negative on error (@see error.h) or length of output.
  */
+// TODO: this function should probably return the value by param of
+// size_t type and leave the return int value only to report errors
 int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len);
 
 /**
