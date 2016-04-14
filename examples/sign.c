@@ -25,76 +25,11 @@
 #include <yaca/crypto.h>
 #include <yaca/sign.h>
 #include <yaca/key.h>
+
+#include "lorem.h"
 #include "misc.h"
 
-size_t IDX = 0;
-size_t MAX_IDX = 2345;
-const size_t SIZE = 666;
-
-void reset()
-{
-	IDX = 0;
-}
-
-size_t read_data(char* buffer, size_t size)
-{
-	size_t i = 0;
-
-	for(; i < size && IDX < MAX_IDX; i++, IDX++)
-		buffer[i] = IDX%0xff;
-
-	return i;
-}
-
-int sign(yaca_ctx_h ctx, char** signature, size_t* signature_len)
-{
-	char buffer[SIZE];
-
-	reset();
-	for (;;) {
-		size_t read = read_data(buffer, SIZE);
-		if (read == 0)
-			break;
-
-		if (yaca_sign_update(ctx, buffer, read))
-			return -1;
-	}
-
-	// TODO: is it a size in bytes or length in characters?
-	*signature_len = yaca_get_digest_length(ctx);
-	*signature = (char*)yaca_malloc(*signature_len);
-
-	// TODO: yaca_get_digest_length() returns int but yaca_sign_final accepts size_t. Use common type.
-	if (yaca_sign_final(ctx, *signature, signature_len))
-		return -1;
-
-	dump_hex(*signature, *signature_len, "Message signature: ");
-
-	return 0;
-}
-
-int verify(yaca_ctx_h ctx, const char* signature, size_t signature_len)
-{
-	char buffer[SIZE];
-
-	reset();
-	for (;;) {
-		size_t read = read_data(buffer, SIZE);
-		if (read == 0)
-			break;
-
-		if (yaca_verify_update(ctx, buffer, read))
-			return -1;
-	}
-
-	// TODO: use int or size_t for output sizes
-	if (yaca_verify_final(ctx, signature, (size_t)signature_len))
-		return -1;
-
-	printf("Verification succeeded\n");
-
-	return 0;
-}
+#define PADDING_IMPLEMENTED 0
 
 // Signature creation and verification using advanced API
 void sign_verify_rsa(void)
@@ -105,42 +40,58 @@ void sign_verify_rsa(void)
 	yaca_ctx_h ctx = YACA_CTX_NULL;
 	yaca_key_h prv = YACA_KEY_NULL;
 	yaca_key_h pub = YACA_KEY_NULL;
+#if PADDING_IMPLEMENTED
 	yaca_padding_e padding = YACA_PADDING_PKCS1;
-
+#endif
 
 	// GENERATE
-
-	if (yaca_key_gen_pair(&prv, &pub, YACA_KEY_TYPE_PAIR_RSA, YACA_KEY_4096BIT))
+	if (yaca_key_gen_pair(&prv, &pub, YACA_KEY_TYPE_PAIR_RSA, YACA_KEY_4096BIT) != 0)
 		return;
 
-
 	// SIGN
-
-	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, prv))
+	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, prv) != 0)
 		goto finish;
 
+#if PADDING_IMPLEMENTED
 	// TODO: yaca_ctx_set_param should take void* not char*
-	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)) != 0)
+		goto finish;
+#endif
+
+	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
 
-	if (sign(ctx, &signature, &signature_len))
+	if ((signature_len = yaca_get_sign_length(ctx)) <= 0)
 		goto finish;
 
-	// TODO: is this necessary or will next ctx init handle it?
+	if ((signature = yaca_malloc(signature_len)) == NULL)
+		goto finish;
+
+	if (yaca_sign_final(ctx, signature, &signature_len) != 0)
+		goto finish;
+
+	dump_hex(signature, signature_len, "RSA Signature of lorem4096:");
+
+	// CLEANUP
 	yaca_ctx_free(ctx);
 	ctx = YACA_CTX_NULL;
 
-
 	// VERIFY
-
-	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, pub))
+	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, pub) != 0)
 		goto finish;
 
-	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)))
+#if PADDING_IMPLEMENTED
+	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)) != 0)
+		goto finish;
+#endif
+
+	if (yaca_verify_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
 
-	if (verify(ctx, signature, signature_len))
-		goto finish;
+	if (yaca_verify_final(ctx, signature, signature_len) != 0)
+		printf("RSA verification failed\n");
+	else
+		printf("RSA verification succesful\n");
 
 finish:
 	yaca_free(signature);
@@ -157,28 +108,43 @@ void sign_verify_hmac(void)
 	yaca_ctx_h ctx = YACA_CTX_NULL;
 	yaca_key_h key = YACA_KEY_NULL;
 
-
 	// GENERATE
-
-	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
+	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT) != 0)
 		return;
 
 	// SIGN
-
-	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, key))
+	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, key) != 0)
 		goto finish;
 
-	if (sign(ctx, &signature, &signature_len))
+	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
 
+	if ((signature_len = yaca_get_sign_length(ctx)) <= 0)
+		goto finish;
+
+	if ((signature = yaca_malloc(signature_len)) == NULL)
+		goto finish;
+
+	if (yaca_sign_final(ctx, signature, &signature_len) != 0)
+		goto finish;
+
+	dump_hex(signature, signature_len, "HMAC Signature of lorem4096:");
+
+	// CLEANUP
+	yaca_ctx_free(ctx);
+	ctx = YACA_CTX_NULL;
 
 	// VERIFY
-
-	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, key))
+	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, key) != 0)
 		goto finish;
 
-	if (verify(ctx, signature, signature_len))
+	if (yaca_verify_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
+
+	if (yaca_verify_final(ctx, signature, signature_len) != 0)
+		printf("HMAC verification failed\n");
+	else
+		printf("HMAC verification succesful\n");
 
 finish:
 	yaca_free(signature);
@@ -194,35 +160,50 @@ void sign_verify_cmac(void)
 	yaca_ctx_h ctx = YACA_CTX_NULL;
 	yaca_key_h key = YACA_KEY_NULL;
 
-
 	// GENERATE
-
-	if( yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
+	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
 		return;
 
 	// SIGN
 	// TODO: CMAC must extract the key length to select the proper evp (EVP_aes_XXX_cbc()) it should be documented
-	if( yaca_sign_init(&ctx, YACA_DIGEST_CMAC, key))
+	if (yaca_sign_init(&ctx, YACA_DIGEST_CMAC, key) != 0)
 		goto finish;
 
-	if( sign(ctx, &signature, &signature_len))
+	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE))
 		goto finish;
 
+	if ((signature_len = yaca_get_sign_length(ctx)) <= 0)
+		goto finish;
+
+	if ((signature = yaca_malloc(signature_len)) == NULL)
+		goto finish;
+
+	if (yaca_sign_final(ctx, signature, &signature_len))
+		goto finish;
+
+	dump_hex(signature, signature_len, "CMAC Signature of lorem4096:");
+
+	// CLEANUP
+	yaca_ctx_free(ctx);
+	ctx = YACA_CTX_NULL;
 
 	// VERIFY
-
-	if( yaca_verify_init(&ctx, YACA_DIGEST_CMAC, key))
+	if (yaca_verify_init(&ctx, YACA_DIGEST_CMAC, key) != 0)
 		goto finish;
 
-	if( verify(ctx, signature, signature_len))
+	if (yaca_verify_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
+
+	if (yaca_verify_final(ctx, signature, signature_len) != 0)
+		printf("CMAC verification failed\n");
+	else
+		printf("CMAC verification succesful\n");
 
 finish:
 	yaca_free(signature);
 	yaca_key_free(key);
 	yaca_ctx_free(ctx);
 }
-
 
 int main()
 {
