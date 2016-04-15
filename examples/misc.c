@@ -11,5 +11,6 @@ void dump_hex(const char *buf, size_t dump_size, const char *fmt, ...)
 	va_start(ap, fmt);
 	vprintf(fmt, ap);
 	va_end(ap);
+	putchar('\n');
 	BIO_dump_fp(stdout, buf, dump_size);
 }
