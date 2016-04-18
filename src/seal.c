@@ -34,6 +34,7 @@ API int yaca_seal_init(yaca_ctx_h *ctx,
 		       const yaca_key_h pub_key,
 		       yaca_enc_algo_e algo,
 		       yaca_block_cipher_mode_e bcm,
+		       yaca_key_bits_e sym_key_bits,
 		       yaca_key_h *sym_key,
 		       yaca_key_h *iv)
 {
