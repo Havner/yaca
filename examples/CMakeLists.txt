@@ -51,6 +51,7 @@ ENDFUNCTION(BUILD_EXAMPLE)
 
 BUILD_EXAMPLE("yaca-example-digest"       digest.c)
 BUILD_EXAMPLE("yaca-example-encrypt"      encrypt.c)
+BUILD_EXAMPLE("yaca-example-seal"         seal.c)
 BUILD_EXAMPLE("yaca-example-encrypt-gcm"  encrypt_aes_gcm.c)
 BUILD_EXAMPLE("yaca-example-sign"         sign.c)
 BUILD_EXAMPLE("yaca-example-key-exchange" key_exchange.c)

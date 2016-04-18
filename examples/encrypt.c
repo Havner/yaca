@@ -228,126 +228,6 @@ ex_key:
 	yaca_key_free(key);
 }
 
-void encrypt_seal(void)
-{
-	int ret;
-	yaca_ctx_h ctx = YACA_CTX_NULL;
-	yaca_key_h key_pub = YACA_KEY_NULL;
-	yaca_key_h key_priv = YACA_KEY_NULL;
-	yaca_key_h aes_key = YACA_KEY_NULL;
-	yaca_key_h iv = YACA_KEY_NULL;
-
-	char *enc = NULL;
-	char *dec = NULL;
-	size_t enc_size;
-	size_t dec_size;
-
-	printf("Plain data (16 of %zu bytes): %.16s\n", (size_t)4096, lorem1024);
-
-	/// Generate key pair
-	ret = yaca_key_gen_pair(&key_priv, &key_pub,
-				YACA_KEY_TYPE_PAIR_RSA,
-				YACA_KEY_2048BIT);
-	if (ret) return;
-
-	/// Encrypt a.k.a. seal
-	{
-		size_t out_size;
-		size_t rem;
-
-		ret = yaca_seal_init(&ctx, key_pub,
-				     YACA_ENC_AES, YACA_BCM_CBC,
-				     &aes_key, &iv);
-		if (ret < 0)
-			goto ex_pk;
-
-		ret = yaca_seal_update(ctx, lorem4096, 4096, NULL, &enc_size);
-		if (ret < 0)
-			goto ex_ak;
-
-		ret = yaca_get_block_length(ctx);
-		if (ret < 0)
-			goto ex_ak;
-
-		enc_size = enc_size + ret;
-		enc = yaca_malloc(enc_size);
-		if (enc == NULL)
-			goto ex_ak;
-
-		// Seal and finalize
-		out_size = enc_size;
-		ret = yaca_seal_update(ctx, lorem4096, 4096, enc, &out_size);
-		if (ret < 0)
-			goto ex_of;
-
-		rem = enc_size - out_size;
-		ret = yaca_seal_final(ctx, enc + out_size, &rem);
-		if (ret < 0)
-			goto ex_of;
-
-		enc_size = rem + out_size;
-
-		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
-
-		yaca_ctx_free(ctx); // TODO: perhaps it should not return value
-	}
-
-	/// Decrypt a.k.a. open
-	{
-		size_t out_size;
-		size_t rem;
-
-		ret = yaca_open_init(&ctx, key_priv,
-				     YACA_ENC_AES, YACA_BCM_CBC,
-				     aes_key, iv);
-		if (ret < 0) {
-			yaca_free(enc);
-			goto ex_ak;
-		}
-
-		ret = yaca_open_update(ctx, enc, enc_size, NULL, &dec_size);
-		if (ret < 0)
-			goto ex_of;
-
-		ret = yaca_get_block_length(ctx);
-		if (ret < 0)
-			goto ex_of;
-
-		dec_size = dec_size + ret;
-		dec = yaca_malloc(dec_size);
-		if (dec == NULL)
-			goto ex_of;
-
-		// Seal and finalize
-		out_size = enc_size;
-		ret = yaca_open_update(ctx, enc, enc_size, dec, &out_size);
-		if (ret < 0)
-			goto ex_in;
-
-		rem = dec_size - out_size;
-		ret = yaca_open_final(ctx, dec + out_size, &rem);
-		if (ret < 0)
-			goto ex_in;
-
-		dec_size = rem + out_size;
-
-		printf("Decrypted data (16 of %zu bytes): %.16s\n", (size_t)dec_size, dec);
-
-		yaca_ctx_free(ctx); // TODO: perhaps it should not return value
-	}
-
-ex_in:
-	yaca_free(dec);
-ex_of:
-	yaca_free(enc);
-ex_ak:
-	yaca_key_free(aes_key);
-	yaca_key_free(iv);
-ex_pk:
-	yaca_key_free(key_pub);
-	yaca_key_free(key_priv);
-}
-
 int main()
 {
 	int ret = yaca_init();
@@ -357,8 +237,6 @@ int main()
 	encrypt_simple();
 
 	encrypt_advanced();
-
-	encrypt_seal();
 
 	yaca_exit(); // TODO: what about handing of return value from exit??
 	return ret;
