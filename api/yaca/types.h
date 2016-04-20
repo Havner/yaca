@@ -60,26 +60,30 @@ typedef enum {
  * @brief Key types, IV is considered as key
  */
 typedef enum {
-	YACA_KEY_TYPE_SYMMETRIC,  /**< Generic symmetric cipher KEY */
-	YACA_KEY_TYPE_DES,        /**< DES* key - must be handled differently because of parity bits */
-	YACA_KEY_TYPE_IV,         /**< IV for symmetric algorithms */
+	YACA_KEY_TYPE_SYMMETRIC,   /**< Generic symmetric cipher KEY */
+	YACA_KEY_TYPE_DES,         /**< DES* key - must be handled differently because of parity bits */
+	YACA_KEY_TYPE_IV,          /**< Initialization Vector for symmetric algorithms */
 
-	YACA_KEY_TYPE_RSA_PUB,    /**< RSA public key */
-	YACA_KEY_TYPE_RSA_PRIV,   /**< RSA private key */
+	YACA_KEY_TYPE_RSA_PUB,     /**< RSA public key */
+	YACA_KEY_TYPE_RSA_PRIV,    /**< RSA private key */
 
-	YACA_KEY_TYPE_DSA_PUB,    /**< DSA public key */
-	YACA_KEY_TYPE_DSA_PRIV,   /**< DSA private key */
+	YACA_KEY_TYPE_DSA_PUB,     /**< Digital Signature Algorithm public key */
+	YACA_KEY_TYPE_DSA_PRIV,    /**< Digital Signature Algorithm private key */
 
-	YACA_KEY_TYPE_DH_PUB,     /**< Diffie-Hellman public key */
-	YACA_KEY_TYPE_DH_PRIV,    /**< Diffie-Hellman private key */
+	YACA_KEY_TYPE_DH_PUB,      /**< Diffie-Hellman public key */
+	YACA_KEY_TYPE_DH_PRIV,     /**< Diffie-Hellman private key */
 
-	YACA_KEY_TYPE_ECC_PUB,    /**< ECC public key */
-	YACA_KEY_TYPE_ECC_PRIV,   /**< ECC private key */
+	YACA_KEY_TYPE_ECDSA_PUB,   /**< Elliptic Curve Digital Signature Algorithm public key */
+	YACA_KEY_TYPE_ECDSA_PRIV,  /**< Elliptic Curve Digital Signature Algorithm private key */
 
-	YACA_KEY_TYPE_PAIR_RSA,   /**< Pair of RSA keys */
-	YACA_KEY_TYPE_PAIR_DSA,   /**< Pair of DSA keys */
-	YACA_KEY_TYPE_PAIR_DH,    /**< Pair of Diffie-Hellman keys */
-	YACA_KEY_TYPE_PAIR_ECC    /**< Pair of ECC keys */
+	YACA_KEY_TYPE_ECDH_PUB,    /**< Elliptic Curve Diffie-Hellman public key */
+	YACA_KEY_TYPE_ECDH_PRIV,   /**< Elliptic Curve Diffie-Hellman private key */
+
+	YACA_KEY_TYPE_PAIR_RSA,    /**< Pair of RSA keys */
+	YACA_KEY_TYPE_PAIR_DSA,    /**< Pair of DSA keys */
+	YACA_KEY_TYPE_PAIR_DH,     /**< Pair of DH keys */
+	YACA_KEY_TYPE_PAIR_ECDSA,  /**< Pair of ECDSA keys */
+	YACA_KEY_TYPE_PAIR_ECDH    /**< Pair of ECDH keys */
 } yaca_key_type_e;
 
 /**

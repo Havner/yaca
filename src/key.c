@@ -212,18 +212,21 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 	case YACA_KEY_TYPE_IV:
 		break;
 	case YACA_KEY_TYPE_DES:
-	case YACA_KEY_TYPE_RSA_PUB:    /**< RSA public key */
-	case YACA_KEY_TYPE_RSA_PRIV:   /**< RSA private key */
-	case YACA_KEY_TYPE_DSA_PUB:    /**< DSA public key */
-	case YACA_KEY_TYPE_DSA_PRIV:   /**< DSA private key */
-	case YACA_KEY_TYPE_DH_PUB:     /**< Diffie-Hellman public key */
-	case YACA_KEY_TYPE_DH_PRIV:    /**< Diffie-Hellman private key */
-	case YACA_KEY_TYPE_ECC_PUB:    /**< ECC public key */
-	case YACA_KEY_TYPE_ECC_PRIV:   /**< ECC private key */
-	case YACA_KEY_TYPE_PAIR_RSA:   /**< Pair of RSA keys */
-	case YACA_KEY_TYPE_PAIR_DSA:   /**< Pair of DSA keys */
-	case YACA_KEY_TYPE_PAIR_DH:    /**< Pair of Diffie-Hellman keys */
-	case YACA_KEY_TYPE_PAIR_ECC:   /**< Pair of ECC keys */
+	case YACA_KEY_TYPE_RSA_PUB:    /* RSA public key */
+	case YACA_KEY_TYPE_RSA_PRIV:   /* RSA private key */
+	case YACA_KEY_TYPE_DSA_PUB:    /* DSA public key */
+	case YACA_KEY_TYPE_DSA_PRIV:   /* DSA private key */
+	case YACA_KEY_TYPE_DH_PUB:     /* DH public key */
+	case YACA_KEY_TYPE_DH_PRIV:    /* DH private key */
+	case YACA_KEY_TYPE_ECDSA_PUB:  /* ECDSA public key */
+	case YACA_KEY_TYPE_ECDSA_PRIV: /* ECDSA private key */
+	case YACA_KEY_TYPE_ECDH_PUB:   /* ECDH public key */
+	case YACA_KEY_TYPE_ECDH_PRIV:  /* ECDH private key */
+	case YACA_KEY_TYPE_PAIR_RSA:   /* Pair of RSA keys */
+	case YACA_KEY_TYPE_PAIR_DSA:   /* Pair of DSA keys */
+	case YACA_KEY_TYPE_PAIR_DH:    /* Pair of DH keys */
+	case YACA_KEY_TYPE_PAIR_ECDSA: /* Pair of ECDSA keys */
+	case YACA_KEY_TYPE_PAIR_ECDH:  /* Pair of ECDH keys */
 		return YACA_ERROR_NOT_IMPLEMENTED;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;

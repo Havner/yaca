@@ -100,7 +100,7 @@ void key_exchange_ecdh(void)
 	long size;
 
 	// generate  private, public key
-	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_TYPE_PAIR_ECC, YACA_KEY_CURVE_P256);
+	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_TYPE_PAIR_ECDH, YACA_KEY_CURVE_P256);
 	if (ret < 0)
 		goto clean;
 
@@ -122,7 +122,7 @@ void key_exchange_ecdh(void)
 	if (1 != fread(buffer, size, 1, fp))
 		goto clean;
 
-	ret = yaca_key_import(&peer_key, YACA_KEY_FORMAT_RAW, YACA_KEY_TYPE_ECC_PUB, buffer, size);
+	ret = yaca_key_import(&peer_key, YACA_KEY_FORMAT_RAW, YACA_KEY_TYPE_ECDH_PUB, buffer, size);
 	if (ret < 0)
 		goto clean;
 
