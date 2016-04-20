@@ -68,7 +68,7 @@ void key_exchange_dh(void)
 		goto clean;
 
 	ret = yaca_key_import(&peer_key,
-			      YACA_KEY_FORMAT_RAW, YACA_KEY_TYPE_DH_PUB,
+			      YACA_KEY_FILE_FORMAT_RAW, YACA_KEY_TYPE_DH_PUB,
 			      buffer, size);
 	if (ret < 0)
 		goto clean;
@@ -124,7 +124,7 @@ void key_exchange_ecdh(void)
 	if (1 != fread(buffer, size, 1, fp))
 		goto clean;
 
-	ret = yaca_key_import(&peer_key, YACA_KEY_FORMAT_RAW, YACA_KEY_TYPE_ECDH_PUB, buffer, size);
+	ret = yaca_key_import(&peer_key, YACA_KEY_FILE_FORMAT_RAW, YACA_KEY_TYPE_ECDH_PUB, buffer, size);
 	if (ret < 0)
 		goto clean;
 

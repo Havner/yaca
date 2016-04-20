@@ -123,7 +123,7 @@ API int yaca_key_get_bits(const yaca_key_h key)
 }
 
 API int yaca_key_import(yaca_key_h *key,
-                        yaca_key_fmt_e key_fmt,
+                        yaca_key_file_fmt_e key_file_fmt,
                         yaca_key_type_e key_type,
                         const char *data,
                         size_t data_len)
@@ -131,7 +131,7 @@ API int yaca_key_import(yaca_key_h *key,
 	if (key == NULL || data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_fmt != YACA_KEY_FORMAT_RAW)
+	if (key_file_fmt != YACA_KEY_FILE_FORMAT_RAW)
 		return YACA_ERROR_NOT_IMPLEMENTED;
 
 	if (key_type == YACA_KEY_TYPE_SYMMETRIC) {
@@ -164,7 +164,7 @@ API int yaca_key_import(yaca_key_h *key,
 }
 
 API int yaca_key_export(const yaca_key_h key,
-                        yaca_key_fmt_e key_fmt,
+                        yaca_key_file_fmt_e key_file_fmt,
                         char **data,
                         size_t *data_len)
 {
@@ -175,7 +175,7 @@ API int yaca_key_export(const yaca_key_h key,
 	if (data == NULL || data_len == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_fmt != YACA_KEY_FORMAT_RAW)
+	if (key_file_fmt != YACA_KEY_FILE_FORMAT_RAW)
 		return YACA_ERROR_NOT_IMPLEMENTED;
 
 	if (simple_key != NULL) {

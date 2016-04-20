@@ -55,17 +55,17 @@ int yaca_key_get_bits(const yaca_key_h key);
 /**
  * @brief yaca_key_import  Imports a key from the arbitrary format.
  *
- * @param[out] key       Returned key (must be freed with yaca_key_free()).
- * @param[in]  key_fmt   Format of the key.
- * @param[in]  key_type  Type of the key.
- * @param[in]  data      Blob containing the key.
- * @param[in]  data_len  Size of the blob.
+ * @param[out] key           Returned key (must be freed with yaca_key_free()).
+ * @param[in]  key_file_fmt  Format of the key file.
+ * @param[in]  key_type      Type of the key.
+ * @param[in]  data          Blob containing the key.
+ * @param[in]  data_len      Size of the blob.
  *
  * @return 0 on success, negative on error.
  * @see #yaca_key_fmt_e, #yaca_key_type_e, yaca_key_export(), yaca_key_free()
  */
 int yaca_key_import(yaca_key_h *key,
-                    yaca_key_fmt_e key_fmt,
+                    yaca_key_file_fmt_e key_file_fmt,
                     yaca_key_type_e key_type,
                     const char *data,
                     size_t data_len);
@@ -73,17 +73,17 @@ int yaca_key_import(yaca_key_h *key,
 /**
  * @brief yaca_key_export  Exports a key to arbitrary format. Export may fail if key is HW-based.
  *
- * @param[in]  key       Key to be exported.
- * @param[in]  key_fmt   Format of the key.
- * @param[out] data      Data, allocated by the library, containing exported key
- *                       (must be freed with yaca_free()).
- * @param[out] data_len  Size of the output data.
+ * @param[in]  key           Key to be exported.
+ * @param[in]  key_file_fmt  Format of the key.
+ * @param[out] data          Data, allocated by the library, containing exported key
+ *                           (must be freed with yaca_free()).
+ * @param[out] data_len      Size of the output data.
  *
  * @return 0 on success, negative on error.
  * @see #yaca_key_fmt_e, yaca_key_import(), yaca_key_free()
  */
 int yaca_key_export(const yaca_key_h key,
-                    yaca_key_fmt_e key_fmt,
+                    yaca_key_file_fmt_e key_file_fmt,
                     char **data,
                     size_t *data_len);
 

@@ -50,11 +50,19 @@ typedef struct yaca_key_s *yaca_key_h;
  * @brief Key formats
  */
 typedef enum {
-	YACA_KEY_FORMAT_RAW,      /**< key is in clear format */
-	YACA_KEY_FORMAT_BASE64,   /**< key is encoded in ASCII-base64 */
-	YACA_KEY_FORMAT_PEM,      /**< key is in PEM file format */
-	YACA_KEY_FORMAT_DER       /**< key is in DER file format */
+	YACA_KEY_FORMAT_DEFAULT,  /**< key is either PKCS#1 for RSA or SSLeay for DSA, also use this option for symmetric */
+	YACA_KEY_FORMAT_PKCS8     /**< key is in PKCS#8, can only be used for asymmetric private keys */
 } yaca_key_fmt_e;
+
+/**
+ * @brief Key file formats
+ */
+typedef enum {
+	YACA_KEY_FILE_FORMAT_RAW,      /**< key file is in raw binary format, used for symmetric keys */
+	YACA_KEY_FILE_FORMAT_BASE64,   /**< key file is encoded in ASCII-base64, used for symmetric keys */
+	YACA_KEY_FILE_FORMAT_PEM,      /**< key file is in PEM file format, used for asymmetric keys */
+	YACA_KEY_FILE_FORMAT_DER       /**< key file is in DER file format, used for asymmetric keys */
+} yaca_key_file_fmt_e;
 
 /**
  * @brief Key types, IV is considered as key
