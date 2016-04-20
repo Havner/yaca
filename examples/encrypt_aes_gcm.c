@@ -71,7 +71,7 @@ void encrypt_decrypt_aes_gcm(void)
 		goto clean;
 
 	// generate and export aad?
-	ret = yaca_key_export(aad_key, YACA_KEY_FILE_FORMAT_RAW, &aad, &aad_len);
+	ret = yaca_key_export(aad_key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, &aad, &aad_len);
 	if (ret < 0)
 		goto clean;
 
