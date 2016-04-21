@@ -207,7 +207,7 @@ void encrypt_advanced(void)
 			goto ex_in;
 
 		rem = dec_size - out_size;
-		ret = yaca_encrypt_final(ctx, dec + out_size, &rem);
+		ret = yaca_decrypt_final(ctx, dec + out_size, &rem);
 		if (ret < 0)
 			goto ex_in;
 
