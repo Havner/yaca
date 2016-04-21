@@ -25,6 +25,7 @@
 #include <yaca/crypto.h>
 #include <yaca/sign.h>
 #include <yaca/key.h>
+#include <yaca/error.h>
 
 #include "lorem.h"
 #include "misc.h"
@@ -207,6 +208,8 @@ finish:
 
 int main()
 {
+	yaca_error_set_debug_func(debug_func);
+
 	int ret = yaca_init();
 	if (ret < 0)
 		return ret;

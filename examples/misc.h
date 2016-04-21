@@ -35,4 +35,6 @@ void dump_hex(const char *buf,
 	      size_t dump_size,
 	      const char *fmt, ...);
 
+void debug_func(const char* buf);
+
 #endif /* MISC_H */

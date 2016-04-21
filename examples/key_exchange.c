@@ -26,6 +26,8 @@
 #include <yaca/encrypt.h>
 #include <yaca/key.h>
 #include <yaca/types.h>
+#include <yaca/error.h>
+#include "misc.h"
 
 void key_exchange_dh(void)
 {
@@ -143,6 +145,8 @@ clean:
 
 int main()
 {
+	yaca_error_set_debug_func(debug_func);
+
 	int ret = yaca_init();
 	if (ret < 0)
 		return ret;
