@@ -134,9 +134,9 @@ static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
 	}
 }
 
-int get_encrypt_algorithm(yaca_enc_algo_e algo,
+int encrypt_get_algorithm(yaca_enc_algo_e algo,
 			  yaca_block_cipher_mode_e bcm,
-			  unsigned key_bits,
+			  size_t key_bits,
 			  const EVP_CIPHER **cipher)
 {
 	char cipher_name[32];
@@ -149,7 +149,7 @@ int get_encrypt_algorithm(yaca_enc_algo_e algo,
 	    cipher == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%d-%s", algo_name,
+	ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s", algo_name,
 		       key_bits, bcm_name);
 	if (ret < 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -199,12 +199,12 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	nc->op_type = op_type;
 
 	// TODO: handling of algorithms with variable key length
-	ret = yaca_key_get_length(sym_key);
+	ret = yaca_key_get_bits(sym_key);
 	if (ret < 0)
 		goto err_free;
 	key_bits = ret;
 
-	ret = get_encrypt_algorithm(algo, bcm, key_bits, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
 	if (ret != 0)
 		goto err_free;
 
@@ -228,7 +228,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	}
 
 	// TODO: handling of algorithms with variable IV length
-	if (iv_bits != yaca_key_get_length(iv)) { /* IV length doesn't match cipher */
+	if (iv_bits != yaca_key_get_bits(iv)) { /* IV length doesn't match cipher */
 		ret = YACA_ERROR_INVALID_ARGUMENT;
 		goto err_free;
 	}
@@ -355,7 +355,7 @@ API int yaca_get_iv_bits(yaca_enc_algo_e algo,
 	const EVP_CIPHER *cipher;
 	int ret;
 
-	ret = get_encrypt_algorithm(algo, bcm, key_bits, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
 	if (ret < 0)
 		return ret;
 

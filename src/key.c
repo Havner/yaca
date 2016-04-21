@@ -93,7 +93,7 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 	}
 }
 
-API int yaca_key_get_length(const yaca_key_h key)
+API int yaca_key_get_bits(const yaca_key_h key)
 {
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	const struct yaca_key_evp_s *evp_key = key_get_evp(key);

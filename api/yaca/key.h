@@ -44,13 +44,13 @@ extern "C" {
 // TODO: We need a way to import keys encrypted with hw (or other) keys. New function like yaca_key_load or sth??
 
 /**
- * @brief yaca_key_get_length  Get key's length.
+ * @brief yaca_key_get_bits  Get key's length (in bits).
  *
  * @param[in] key  Key which length we return.
  *
  * @return negative on error (@see error.h) or key length (in bits).
  */
-int yaca_key_get_length(const yaca_key_h key);
+int yaca_key_get_bits(const yaca_key_h key);
 
 /**
  * @brief yaca_key_import  Imports a key from the arbitrary format.

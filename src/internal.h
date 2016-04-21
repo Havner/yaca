@@ -37,6 +37,7 @@ enum yaca_ctx_type_e
 	YACA_CTX_DIGEST,
 	YACA_CTX_SIGN,
 	YACA_CTX_ENCRYPT,
+	YACA_CTX_SEAL
 };
 
 /* Base structure for crypto contexts - to be inherited */
@@ -90,6 +91,11 @@ struct yaca_key_evp_s
 };
 
 int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md);
+
+int encrypt_get_algorithm(yaca_enc_algo_e algo,
+                          yaca_block_cipher_mode_e bcm,
+                          size_t key_bits,
+                          const EVP_CIPHER **cipher);
 
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key);
 struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);
