@@ -41,6 +41,24 @@ enum __yaca_error_code {
 	YACA_ERROR_SIGNATURE_INVALID = -7
 };
 
+// TODO disable debug function in release?
+
+/**
+ * @brief Debug callback type.
+ */
+typedef void (*yaca_debug_func)(const char*);
+
+/**
+ * @brief yaca_error_set_debug_func  Sets a current thread debug callback that will be called each
+ *                                   time an internal error occurs. A NULL terminated string with
+ *                                   location and description of the error will be passed as an
+ *                                   argument.
+ *
+ * @param[in] fn                     Function to set as internal error callback.
+ */
+void yaca_error_set_debug_func(yaca_debug_func fn);
+
+
 #ifdef __cplusplus
 } /* extern */
 #endif

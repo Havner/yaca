@@ -22,6 +22,7 @@
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <openssl/err.h>
 
 #include <yaca/crypto.h>
 #include <yaca/error.h>
@@ -46,6 +47,8 @@ API int yaca_init(void)
 
 API void yaca_exit(void)
 {
+	ERR_free_strings();
+	ERR_remove_thread_state(NULL);
 	EVP_cleanup();
 	CRYPTO_cleanup_all_ex_data();
 }
