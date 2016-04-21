@@ -61,6 +61,7 @@ API int yaca_open_init(yaca_ctx_h *ctx,
 		       const yaca_key_h prv_key,
 		       yaca_enc_algo_e algo,
 		       yaca_block_cipher_mode_e bcm,
+		       yaca_key_bits_e sym_key_bits,
 		       const yaca_key_h sym_key,
 		       const yaca_key_h iv)
 {

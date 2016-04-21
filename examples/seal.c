@@ -100,7 +100,7 @@ void encrypt_seal(void)
 		size_t rem;
 
 		ret = yaca_open_init(&ctx, key_priv,
-				     YACA_ENC_AES, YACA_BCM_CBC,
+				     YACA_ENC_AES, YACA_BCM_CBC, YACA_KEY_192BIT,
 				     aes_key, iv);
 		if (ret < 0) {
 			yaca_free(enc);

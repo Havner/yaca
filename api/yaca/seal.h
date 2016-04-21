@@ -97,12 +97,13 @@ int yaca_seal_final(yaca_ctx_h ctx,
 /**
  * @brief yaca_open_init  Initializes an asymmetric decryption context.
  *
- * @param[out] ctx      Newly created context. Must be freed by @see yaca_ctx_free.
- * @param[in]  prv_key  Private key, part of the pair that was used for the encryption.
- * @param[in]  algo     Symmetric algorithm that was used for the encryption.
- * @param[in]  bcm      Block chaining mode for the symmetric algorithm.
- * @param[in]  sym_key  Symmetric key, encrypted with the public key, that was used to encrypt the data.
- * @param[in]  iv       Initialization vector that was used for the encryption.
+ * @param[out] ctx           Newly created context. Must be freed by @see yaca_ctx_free.
+ * @param[in]  prv_key       Private key, part of the pair that was used for the encryption.
+ * @param[in]  algo          Symmetric algorithm that was used for the encryption.
+ * @param[in]  bcm           Block chaining mode for the symmetric algorithm.
+ * @param[in]  sym_key_bits  Symmetric key length (in bits) that was used for the encryption.
+ * @param[in]  sym_key       Symmetric key, encrypted with the public key, that was used to encrypt the data.
+ * @param[in]  iv            Initialization vector that was used for the encryption.
  *
  * @return 0 on success, negative on error (@see error.h).
  */
@@ -110,6 +111,7 @@ int yaca_open_init(yaca_ctx_h *ctx,
 		   const yaca_key_h prv_key,
 		   yaca_enc_algo_e algo,
 		   yaca_block_cipher_mode_e bcm,
+		   yaca_key_bits_e sym_key_bits,
 		   const yaca_key_h sym_key,
 		   const yaca_key_h iv);
 
