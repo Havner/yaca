@@ -64,12 +64,16 @@ static int get_sign_output_length(const yaca_ctx_h ctx, size_t input_len)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(c->mdctx->pctx);
-	if (pkey == NULL)
+	if (pkey == NULL) {
+		ERROR_DUMP(YACA_ERROR_INVALID_ARGUMENT);
 		return YACA_ERROR_INVALID_ARGUMENT;
+	}
 
 	size_t len = EVP_PKEY_size(pkey);
-	if (len <= 0)
+	if (len <= 0) {
+		ERROR_DUMP(YACA_ERROR_INVALID_ARGUMENT);
 		return YACA_ERROR_INVALID_ARGUMENT;
+	}
 
 	return len;
 }
@@ -99,8 +103,10 @@ static int create_sign_pkey(const yaca_key_h key, EVP_PKEY **pkey)
 					     NULL,
 					     (unsigned char *)simple_key->d,
 					     simple_key->bits / 8);
-		if (*pkey == NULL)
+		if (*pkey == NULL) {
+			ERROR_DUMP(YACA_ERROR_OPENSSL_FAILURE);
 			return YACA_ERROR_OPENSSL_FAILURE;
+		}
 
 		return 0;
 	}
@@ -169,16 +175,19 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto free_ctx;
 	}
 
 	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, pkey);
 	if (ret == -2) {
 		ret = YACA_ERROR_NOT_SUPPORTED;
+		ERROR_DUMP(ret);
 		goto ctx;
 	}
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto ctx;
 	}
 
@@ -210,12 +219,16 @@ API int yaca_sign_update(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestSignUpdate(c->mdctx, data, data_len);
-	if (ret == -2)
-		return YACA_ERROR_NOT_SUPPORTED;
-	if (ret != 1)
-		return YACA_ERROR_OPENSSL_FAILURE;
+	if (ret == 1)
+		return 0;
 
-	return 0;
+	if (ret == -2)
+		ret = YACA_ERROR_NOT_SUPPORTED;
+	else
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+
+	ERROR_DUMP(ret);
+	return ret;
 }
 
 API int yaca_sign_final(yaca_ctx_h ctx,
@@ -230,12 +243,16 @@ API int yaca_sign_final(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestSignFinal(c->mdctx, (unsigned char *)mac, mac_len);
-	if (ret == -2)
-		return YACA_ERROR_NOT_SUPPORTED;
-	if (ret != 1)
-		return YACA_ERROR_OPENSSL_FAILURE;
+	if(ret == 1)
+		return 0;
 
-	return 0;
+	if (ret == -2)
+		ret = YACA_ERROR_NOT_SUPPORTED;
+	else
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+
+	ERROR_DUMP(ret);
+	return ret;
 }
 
 API int yaca_verify_init(yaca_ctx_h *ctx,
@@ -289,6 +306,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto free_ctx;
 	}
 
@@ -307,10 +325,12 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 
 	if (ret == -2) {
 		ret = YACA_ERROR_NOT_SUPPORTED;
+		ERROR_DUMP(ret);
 		goto ctx;
 	}
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto ctx;
 	}
 
@@ -352,12 +372,16 @@ API int yaca_verify_update(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	if (ret == -2)
-		return YACA_ERROR_NOT_SUPPORTED;
-	if (ret != 1)
-		return YACA_ERROR_OPENSSL_FAILURE;
+	if (ret == 1)
+		return 0;
 
-	return 0;
+	if (ret == -2)
+		ret = YACA_ERROR_NOT_SUPPORTED;
+	else
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+
+	ERROR_DUMP(ret);
+	return ret;
 }
 
 API int yaca_verify_final(yaca_ctx_h ctx,
@@ -378,28 +402,35 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 		ret = EVP_DigestSignFinal(c->mdctx,
 					  (unsigned char *)mac_cmp,
 					  &mac_cmp_len);
+		if (ret == 1) {
+			if (mac_len != mac_cmp_len || CRYPTO_memcmp(mac, mac_cmp, mac_len) != 0)
+				return YACA_ERROR_SIGNATURE_INVALID;
+			return 0;
+		}
+
 		if (ret == -2)
-			return YACA_ERROR_NOT_SUPPORTED;
-		if (ret != 1)
-			return YACA_ERROR_OPENSSL_FAILURE;
+			ret = YACA_ERROR_NOT_SUPPORTED;
+		else
+			ret = YACA_ERROR_OPENSSL_FAILURE;
 
-		if (mac_len != mac_cmp_len ||
-		    CRYPTO_memcmp(mac, mac_cmp, mac_len) != 0)
-			return YACA_ERROR_SIGNATURE_INVALID;
-
-		return 0;
+		ERROR_DUMP(ret);
+		return ret;
 	case OP_VERIFY_ASYMMETRIC:
 		ret = EVP_DigestVerifyFinal(c->mdctx,
 					    (unsigned char *)mac,
 					    mac_len);
-		if (ret == 0)
-			return YACA_ERROR_SIGNATURE_INVALID;
-		if (ret == -2)
-			return YACA_ERROR_NOT_SUPPORTED;
-		if (ret != 1)
-			return YACA_ERROR_OPENSSL_FAILURE;
+		if (ret == 1)
+			return 0;
 
-		return 0;
+		if (ret == 0)
+			ret = YACA_ERROR_SIGNATURE_INVALID;
+		else if (ret == -2)
+			ret = YACA_ERROR_NOT_SUPPORTED;
+		else
+			ret = YACA_ERROR_OPENSSL_FAILURE;
+
+		ERROR_DUMP(ret);
+		return ret;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}

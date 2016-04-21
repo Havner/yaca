@@ -77,8 +77,10 @@ static int get_encrypt_output_length(const yaca_ctx_h ctx, size_t input_len)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	block_size = EVP_CIPHER_CTX_block_size(nc->cipher_ctx);
-	if (block_size == 0)
-		return YACA_ERROR_OPENSSL_FAILURE; // TODO: extract openssl error here
+	if (block_size == 0) {
+		ERROR_DUMP(YACA_ERROR_OPENSSL_FAILURE);
+		return YACA_ERROR_OPENSSL_FAILURE;
+	}
 
 	if (input_len > 0)
 		return block_size + input_len - 1;
@@ -155,8 +157,11 @@ int get_encrypt_algorithm(yaca_enc_algo_e algo,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	lcipher = EVP_get_cipherbyname(cipher_name);
-	if (lcipher == NULL)
-		return YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);
+	if (lcipher == NULL) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	*cipher = lcipher;
 	return 0;
@@ -204,8 +209,11 @@ static int encrypt_init(yaca_ctx_h *ctx,
 		goto err_free;
 
 	ret = EVP_CIPHER_iv_length(cipher);
-	if (ret < 0)
+	if (ret < 0) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto err_free;
+	}
 
 	iv_bits = ret * 8;
 	if (iv_bits == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
@@ -227,7 +235,8 @@ static int encrypt_init(yaca_ctx_h *ctx,
 
 	nc->cipher_ctx = EVP_CIPHER_CTX_new();
 	if (nc->cipher_ctx == NULL) {
-		ret =  YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);
+		ret =  YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto err_free;
 	}
 
@@ -248,7 +257,8 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	}
 
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto err_ctx;
 	}
 
@@ -292,8 +302,11 @@ static int encrypt_update(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	if (ret != 1)
-		return YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);
+	if (ret != 1) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	*output_len = loutput_len;
 	return 0;
@@ -325,8 +338,11 @@ static int encrypt_final(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	if (ret != 1)
-		return YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);
+	if (ret != 1) {
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	*output_len = loutput_len;
 	return 0;

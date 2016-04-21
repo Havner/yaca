@@ -110,8 +110,11 @@ API int yaca_key_get_length(const yaca_key_h key)
 
 		// TODO: handle ECC keys when they're implemented
 		ret = EVP_PKEY_bits(evp_key->evp);
-		if (ret <= 0)
-			return YACA_ERROR_OPENSSL_FAILURE;
+		if (ret <= 0) {
+			ret = YACA_ERROR_OPENSSL_FAILURE;
+			ERROR_DUMP(ret);
+			return ret;
+		}
 
 		return ret;
 	}
@@ -288,48 +291,56 @@ API int yaca_key_gen_pair(yaca_key_h *prv_key,
 	bne = BN_new();
 	if (bne == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
 		goto free_pub;
 	}
 
 	ret = BN_set_word(bne, RSA_F4);
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto free_bne;
 	}
 
 	rsa = RSA_new();
 	if (rsa == NULL) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
 		goto free_bne;
 	}
 
 	ret = RSA_generate_key_ex(rsa, key_bits, bne, NULL);
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto free_rsa;
 	}
 
 	nk_prv->evp = EVP_PKEY_new();
 	if (nk_prv->evp == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
 		goto free_rsa;
 	}
 
 	nk_pub->evp = EVP_PKEY_new();
 	if (nk_prv->evp == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
 		goto free_evp_prv;
 	}
 
 	ret = EVP_PKEY_assign_RSA(nk_prv->evp, RSAPrivateKey_dup(rsa));
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto free_evp_pub;
 	}
 
 	ret = EVP_PKEY_assign_RSA(nk_pub->evp, RSAPublicKey_dup(rsa));
 	if (ret != 1) {
 		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto free_evp_pub;
 	}
 
@@ -428,7 +439,8 @@ API int yaca_key_derive_pbkdf2(const char *password,
 				salt_len, iter, md, key_byte_len,
 				(unsigned char*)nk->d);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE; // TODO: yaca_get_error_code_from_openssl(ret);
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(ret);
 		goto err;
 	}
 

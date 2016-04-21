@@ -84,12 +84,16 @@ API int yaca_rand_bytes(char *data, size_t data_len)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = RAND_bytes((unsigned char *)data, data_len);
-	if (ret == -1)
-		return YACA_ERROR_NOT_SUPPORTED;
 	if (ret == 1)
 		return 0;
 
-	return YACA_ERROR_OPENSSL_FAILURE;
+	if (ret == -1)
+		ret = YACA_ERROR_NOT_SUPPORTED;
+	else
+		ret = YACA_ERROR_OPENSSL_FAILURE;
+
+	ERROR_DUMP(ret);
+	return ret;
 }
 
 API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
