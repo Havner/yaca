@@ -31,6 +31,8 @@
 
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
+#include <openssl/bio.h>
+#include <openssl/pem.h>
 
 #include "internal.h"
 
@@ -59,6 +61,219 @@ static inline void key_sanity_check(const yaca_key_h key)
 		evp_key_sanity_check(evp_key);
 }
 #endif
+
+int export_simple_raw(struct yaca_key_simple_s *simple_key,
+                      char **data,
+                      size_t *data_len)
+{
+	assert(simple_key != NULL);
+	assert(data != NULL);
+	assert(data_len != NULL);
+
+	size_t key_len = simple_key->bits / 8;
+
+	*data = yaca_malloc(key_len);
+	if (*data == NULL) {
+		ERROR_DUMP(YACA_ERROR_OUT_OF_MEMORY);
+		return YACA_ERROR_OUT_OF_MEMORY;
+	}
+
+	memcpy(*data, simple_key->d, key_len);
+	*data_len = key_len;
+
+	return 0;
+}
+
+int export_simple_base64(struct yaca_key_simple_s *simple_key,
+                         char **data,
+                         size_t *data_len)
+{
+	assert(simple_key != NULL);
+	assert(data != NULL);
+	assert(data_len != NULL);
+
+	int ret;
+	size_t key_len = simple_key->bits / 8;
+	BIO *b64;
+	BIO *mem;
+	char *bio_data;
+	long bio_data_len;
+
+	b64 = BIO_new(BIO_f_base64());
+	if (b64 == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	mem = BIO_new(BIO_s_mem());
+	if (mem == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	BIO_push(b64, mem);
+
+	ret = BIO_write(b64, simple_key->d, key_len);
+	if (ret <= 0 || (unsigned)ret != key_len) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	ret = BIO_flush(b64);
+	if (ret <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	bio_data_len = BIO_get_mem_data(mem, &bio_data);
+	if (bio_data_len <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	*data = yaca_malloc(bio_data_len);
+	if (*data == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	memcpy(*data, bio_data, bio_data_len);
+	*data_len = bio_data_len;
+	ret = 0;
+
+free_bio:
+	BIO_free_all(b64);
+
+	return ret;
+}
+
+int export_evp(struct yaca_key_evp_s *evp_key,
+               yaca_key_file_fmt_e key_file_fmt,
+               char **data,
+               size_t *data_len)
+{
+	assert(evp_key != NULL);
+	assert(data != NULL);
+	assert(data_len != NULL);
+
+	int ret = 0;
+	BIO *mem;
+	char *bio_data;
+	long bio_data_len;
+
+	mem = BIO_new(BIO_s_mem());
+	if (mem == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	switch (key_file_fmt) {
+
+	case YACA_KEY_FILE_FORMAT_PEM:
+		switch (evp_key->key.type) {
+
+		case YACA_KEY_TYPE_RSA_PRIV:
+		case YACA_KEY_TYPE_DSA_PRIV:
+			ret = PEM_write_bio_PrivateKey(mem, evp_key->evp, NULL, NULL, 0, NULL, NULL);
+			break;
+
+		case YACA_KEY_TYPE_RSA_PUB:
+		case YACA_KEY_TYPE_DSA_PUB:
+			ret = PEM_write_bio_PUBKEY(mem, evp_key->evp);
+			break;
+
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_ECDSA_PRIV:
+		case YACA_KEY_TYPE_ECDSA_PUB:
+		case YACA_KEY_TYPE_ECDH_PRIV:
+		case YACA_KEY_TYPE_ECDH_PUB:
+			ret = YACA_ERROR_NOT_IMPLEMENTED;
+			goto free_bio;
+
+		default:
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			goto free_bio;
+		}
+
+		break;
+
+	case YACA_KEY_FILE_FORMAT_DER:
+		switch (evp_key->key.type) {
+
+		case YACA_KEY_TYPE_RSA_PRIV:
+		case YACA_KEY_TYPE_DSA_PRIV:
+			ret = i2d_PrivateKey_bio(mem, evp_key->evp);
+			break;
+
+		case YACA_KEY_TYPE_RSA_PUB:
+		case YACA_KEY_TYPE_DSA_PUB:
+			ret = i2d_PUBKEY_bio(mem, evp_key->evp);
+			break;
+
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_ECDSA_PRIV:
+		case YACA_KEY_TYPE_ECDSA_PUB:
+		case YACA_KEY_TYPE_ECDH_PRIV:
+		case YACA_KEY_TYPE_ECDH_PUB:
+			ret = YACA_ERROR_NOT_IMPLEMENTED;
+			goto free_bio;
+
+		default:
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			goto free_bio;
+		}
+
+		break;
+
+	default:
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		goto free_bio;
+	}
+
+	if (ret <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	ret = BIO_flush(mem);
+	if (ret <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	bio_data_len = BIO_get_mem_data(mem, &bio_data);
+	if (bio_data_len <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	*data = yaca_malloc(bio_data_len);
+	if (*data == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	memcpy(*data, bio_data, bio_data_len);
+	*data_len = bio_data_len;
+	ret = 0;
+
+free_bio:
+	BIO_free_all(mem);
+	return ret;
+}
 
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 {
@@ -165,35 +380,34 @@ API int yaca_key_export(const yaca_key_h key,
                         char **data,
                         size_t *data_len)
 {
-	size_t byte_len;
 	struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
 	if (data == NULL || data_len == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_fmt != YACA_KEY_FORMAT_DEFAULT)
-		return YACA_ERROR_NOT_IMPLEMENTED;
-
-	if (key_file_fmt != YACA_KEY_FILE_FORMAT_RAW)
-		return YACA_ERROR_NOT_IMPLEMENTED;
-
-	if (simple_key != NULL) {
+	if (simple_key != NULL)
 		simple_key_sanity_check(simple_key);
 
-		byte_len = simple_key->bits / 8;
-		*data = yaca_malloc(byte_len);
-		memcpy(*data, simple_key->d, byte_len);
-		*data_len = byte_len;
-
-		return 0;
-	}
-
-	if (evp_key != NULL) {
+	if (evp_key != NULL)
 		evp_key_sanity_check(evp_key);
 
+	if (key_fmt == YACA_KEY_FORMAT_DEFAULT &&
+	    key_file_fmt == YACA_KEY_FILE_FORMAT_RAW &&
+	    simple_key != NULL)
+		return export_simple_raw(simple_key, data, data_len);
+
+	if (key_fmt == YACA_KEY_FORMAT_DEFAULT &&
+	    key_file_fmt == YACA_KEY_FILE_FORMAT_BASE64 &&
+	    simple_key != NULL)
+		return export_simple_base64(simple_key, data, data_len);
+
+	if (key_fmt == YACA_KEY_FORMAT_DEFAULT &&
+	    evp_key != NULL)
+		return export_evp(evp_key, key_file_fmt, data, data_len);
+
+	if (key_fmt == YACA_KEY_FORMAT_PKCS8)
 		return YACA_ERROR_NOT_IMPLEMENTED;
-	}
 
 	return YACA_ERROR_INVALID_ARGUMENT;
 }
