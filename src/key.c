@@ -123,10 +123,10 @@ API int yaca_key_get_bits(const yaca_key_h key)
 }
 
 API int yaca_key_import(yaca_key_h *key,
-			yaca_key_fmt_e key_fmt,
-			yaca_key_type_e key_type,
-			const char *data,
-			size_t data_len)
+                        yaca_key_fmt_e key_fmt,
+                        yaca_key_type_e key_type,
+                        const char *data,
+                        size_t data_len)
 {
 	if (key == NULL || data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -164,9 +164,9 @@ API int yaca_key_import(yaca_key_h *key,
 }
 
 API int yaca_key_export(const yaca_key_h key,
-			yaca_key_fmt_e key_fmt,
-			char **data,
-			size_t *data_len)
+                        yaca_key_fmt_e key_fmt,
+                        char **data,
+                        size_t *data_len)
 {
 	size_t byte_len;
 	struct yaca_key_simple_s *simple_key = key_get_simple(key);
@@ -199,8 +199,8 @@ API int yaca_key_export(const yaca_key_h key,
 }
 
 API int yaca_key_gen(yaca_key_h *sym_key,
-		     yaca_key_type_e key_type,
-		     size_t key_bits)
+                     yaca_key_type_e key_type,
+                     size_t key_bits)
 {
 	int ret;
 	struct yaca_key_simple_s *nk = NULL;
@@ -259,9 +259,9 @@ err:
 }
 
 API int yaca_key_gen_pair(yaca_key_h *prv_key,
-			  yaca_key_h *pub_key,
-			  yaca_key_type_e key_type,
-			  size_t key_bits)
+                          yaca_key_h *pub_key,
+                          yaca_key_type_e key_type,
+                          size_t key_bits)
 {
 	int ret;
 	struct yaca_key_evp_s *nk_prv = NULL;
@@ -386,28 +386,28 @@ API void yaca_key_free(yaca_key_h key)
 }
 
 API int yaca_key_derive_dh(const yaca_key_h prv_key,
-			   const yaca_key_h pub_key,
-			   yaca_key_h *sym_key)
+                           const yaca_key_h pub_key,
+                           yaca_key_h *sym_key)
 {
 	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
 API int yaca_key_derive_kea(const yaca_key_h prv_key,
-			    const yaca_key_h pub_key,
-			    const yaca_key_h prv_key_auth,
-			    const yaca_key_h pub_key_auth,
-			    yaca_key_h *sym_key)
+                            const yaca_key_h pub_key,
+                            const yaca_key_h prv_key_auth,
+                            const yaca_key_h pub_key_auth,
+                            yaca_key_h *sym_key)
 {
 	return YACA_ERROR_NOT_IMPLEMENTED;
 }
 
 API int yaca_key_derive_pbkdf2(const char *password,
-			       const char *salt,
-			       size_t salt_len,
-			       int iter,
-			       yaca_digest_algo_e algo,
-			       size_t key_bits,
-			       yaca_key_h *key)
+                               const char *salt,
+                               size_t salt_len,
+                               int iter,
+                               yaca_digest_algo_e algo,
+                               size_t key_bits,
+                               yaca_key_h *key)
 {
 	const EVP_MD *md;
 	struct yaca_key_simple_s *nk;
@@ -436,8 +436,8 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	nk->key.type = YACA_KEY_TYPE_SYMMETRIC; // TODO: how to handle other keys?
 
 	ret = PKCS5_PBKDF2_HMAC(password, -1, (const unsigned char*)salt,
-				salt_len, iter, md, key_byte_len,
-				(unsigned char*)nk->d);
+	                        salt_len, iter, md, key_byte_len,
+	                        (unsigned char*)nk->d);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
