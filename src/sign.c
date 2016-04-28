@@ -104,8 +104,8 @@ static int create_sign_pkey(const yaca_key_h key, EVP_PKEY **pkey)
 					     (unsigned char *)simple_key->d,
 					     simple_key->bits / 8);
 		if (*pkey == NULL) {
-			ERROR_DUMP(YACA_ERROR_OPENSSL_FAILURE);
-			return YACA_ERROR_OPENSSL_FAILURE;
+			ERROR_DUMP(YACA_ERROR_INTERNAL);
+			return YACA_ERROR_INTERNAL;
 		}
 
 		return 0;
@@ -174,7 +174,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto free_ctx;
 	}
@@ -186,7 +186,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 		goto ctx;
 	}
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto ctx;
 	}
@@ -225,7 +225,7 @@ API int yaca_sign_update(yaca_ctx_h ctx,
 	if (ret == -2)
 		ret = YACA_ERROR_NOT_SUPPORTED;
 	else
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 
 	ERROR_DUMP(ret);
 	return ret;
@@ -249,7 +249,7 @@ API int yaca_sign_final(yaca_ctx_h ctx,
 	if (ret == -2)
 		ret = YACA_ERROR_NOT_SUPPORTED;
 	else
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 
 	ERROR_DUMP(ret);
 	return ret;
@@ -305,7 +305,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto free_ctx;
 	}
@@ -329,7 +329,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 		goto ctx;
 	}
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto ctx;
 	}
@@ -378,7 +378,7 @@ API int yaca_verify_update(yaca_ctx_h ctx,
 	if (ret == -2)
 		ret = YACA_ERROR_NOT_SUPPORTED;
 	else
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 
 	ERROR_DUMP(ret);
 	return ret;
@@ -411,7 +411,7 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 		if (ret == -2)
 			ret = YACA_ERROR_NOT_SUPPORTED;
 		else
-			ret = YACA_ERROR_OPENSSL_FAILURE;
+			ret = YACA_ERROR_INTERNAL;
 
 		ERROR_DUMP(ret);
 		return ret;
@@ -427,7 +427,7 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 		else if (ret == -2)
 			ret = YACA_ERROR_NOT_SUPPORTED;
 		else
-			ret = YACA_ERROR_OPENSSL_FAILURE;
+			ret = YACA_ERROR_INTERNAL;
 
 		ERROR_DUMP(ret);
 		return ret;

@@ -90,7 +90,7 @@ API int yaca_rand_bytes(char *data, size_t data_len)
 	if (ret == -1)
 		ret = YACA_ERROR_NOT_SUPPORTED;
 	else
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 
 	ERROR_DUMP(ret);
 	return ret;

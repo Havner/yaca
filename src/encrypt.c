@@ -78,8 +78,8 @@ static int get_encrypt_output_length(const yaca_ctx_h ctx, size_t input_len)
 
 	block_size = EVP_CIPHER_CTX_block_size(nc->cipher_ctx);
 	if (block_size == 0) {
-		ERROR_DUMP(YACA_ERROR_OPENSSL_FAILURE);
-		return YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(YACA_ERROR_INTERNAL);
+		return YACA_ERROR_INTERNAL;
 	}
 
 	if (input_len > 0)
@@ -158,7 +158,7 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 
 	lcipher = EVP_get_cipherbyname(cipher_name);
 	if (lcipher == NULL) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
 	}
@@ -210,7 +210,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 
 	ret = EVP_CIPHER_iv_length(cipher);
 	if (ret < 0) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_free;
 	}
@@ -235,7 +235,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 
 	nc->cipher_ctx = EVP_CIPHER_CTX_new();
 	if (nc->cipher_ctx == NULL) {
-		ret =  YACA_ERROR_OPENSSL_FAILURE;
+		ret =  YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_free;
 	}
@@ -257,7 +257,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	}
 
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_ctx;
 	}
@@ -303,7 +303,7 @@ static int encrypt_update(yaca_ctx_h ctx,
 	}
 
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
 	}
@@ -339,7 +339,7 @@ static int encrypt_final(yaca_ctx_h ctx,
 	}
 
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
 	}

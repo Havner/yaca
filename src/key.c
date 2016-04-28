@@ -111,7 +111,7 @@ API int yaca_key_get_bits(const yaca_key_h key)
 		// TODO: handle ECC keys when they're implemented
 		ret = EVP_PKEY_bits(evp_key->evp);
 		if (ret <= 0) {
-			ret = YACA_ERROR_OPENSSL_FAILURE;
+			ret = YACA_ERROR_INTERNAL;
 			ERROR_DUMP(ret);
 			return ret;
 		}
@@ -297,7 +297,7 @@ API int yaca_key_gen_pair(yaca_key_h *prv_key,
 
 	ret = BN_set_word(bne, RSA_F4);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto free_bne;
 	}
@@ -311,7 +311,7 @@ API int yaca_key_gen_pair(yaca_key_h *prv_key,
 
 	ret = RSA_generate_key_ex(rsa, key_bits, bne, NULL);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto free_rsa;
 	}
@@ -332,14 +332,14 @@ API int yaca_key_gen_pair(yaca_key_h *prv_key,
 
 	ret = EVP_PKEY_assign_RSA(nk_prv->evp, RSAPrivateKey_dup(rsa));
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto free_evp_pub;
 	}
 
 	ret = EVP_PKEY_assign_RSA(nk_pub->evp, RSAPublicKey_dup(rsa));
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto free_evp_pub;
 	}
@@ -439,7 +439,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 				salt_len, iter, md, key_byte_len,
 				(unsigned char*)nk->d);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err;
 	}

@@ -79,8 +79,8 @@ static int get_seal_output_length(const yaca_ctx_h ctx, size_t input_len)
 
 	block_size = EVP_CIPHER_CTX_block_size(nc->cipher_ctx);
 	if (block_size <= 0) {
-		ERROR_DUMP(YACA_ERROR_OPENSSL_FAILURE);
-		return YACA_ERROR_OPENSSL_FAILURE;
+		ERROR_DUMP(YACA_ERROR_INTERNAL);
+		return YACA_ERROR_INTERNAL;
 	}
 
 	if (input_len > 0)
@@ -124,14 +124,14 @@ static int seal_init(yaca_ctx_h *ctx,
 
 	nc->cipher_ctx = EVP_CIPHER_CTX_new();
 	if (nc->cipher_ctx == NULL) {
-		ret =  YACA_ERROR_OPENSSL_FAILURE;
+		ret =  YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_free;
 	}
 
 	ret = EVP_PKEY_size(lpub->evp);
 	if (ret <= 0) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_ctx;
 	}
@@ -149,7 +149,7 @@ static int seal_init(yaca_ctx_h *ctx,
 
 	ret = EVP_CIPHER_iv_length(cipher);
 	if (ret < 0) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_key;
 	}
@@ -173,7 +173,7 @@ static int seal_init(yaca_ctx_h *ctx,
 	                   1);
 
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_iv;
 	}
@@ -244,7 +244,7 @@ static int open_init(yaca_ctx_h *ctx,
 
 	ret = EVP_CIPHER_iv_length(cipher);
 	if (ret < 0) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_free;
 	}
@@ -270,7 +270,7 @@ static int open_init(yaca_ctx_h *ctx,
 
 	nc->cipher_ctx = EVP_CIPHER_CTX_new();
 	if (nc->cipher_ctx == NULL) {
-		ret =  YACA_ERROR_OPENSSL_FAILURE;
+		ret =  YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_free;
 	}
@@ -281,7 +281,7 @@ static int open_init(yaca_ctx_h *ctx,
 	                   (unsigned char*)liv->d,
 	                   lprv->evp);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto err_ctx;
 	}
@@ -322,7 +322,7 @@ static int seal_update(yaca_ctx_h ctx,
 	}
 
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
 	}
@@ -353,7 +353,7 @@ static int seal_final(yaca_ctx_h ctx,
 	}
 
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
 	}

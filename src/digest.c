@@ -108,7 +108,7 @@ int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
 	}
 
 	if (ret == 0 && *md == NULL) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 	}
 
@@ -138,14 +138,14 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto free;
 	}
 
 	ret = EVP_DigestInit(nc->mdctx, md);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto ctx;
 	}
@@ -171,7 +171,7 @@ API int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len)
 
 	ret = EVP_DigestUpdate(c->mdctx, data, data_len);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
 	}
@@ -193,7 +193,7 @@ API int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len)
 
 	ret = EVP_DigestFinal_ex(c->mdctx, (unsigned char*)digest, &len);
 	if (ret != 1) {
-		ret = YACA_ERROR_OPENSSL_FAILURE;
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
 	}
