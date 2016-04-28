@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 /**
- * @defgroup Crypto-Types   Enumerations for CryptoAPI
+ * @defgroup Crypto-Types Yet Another Crypto API - types.
  *
  * TODO: extended description.
  *
@@ -128,63 +128,124 @@ typedef enum {
  * @brief Symmetric encryption algorithms
  */
 typedef enum {
-	YACA_ENC_AES = 0,     /**< AES encryption.
-			    - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory)
-			    Supported key lengths: @c 128, @c 192 and @c 256 */
+	/**
+	 * AES encryption.
+	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - Supported key lengths: @c 128, @c 192 and @c 256.
+	 */
+	YACA_ENC_AES = 0,
 
-	YACA_ENC_UNSAFE_DES,  /**< DES encryption.
-			    - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory)
-			    Supported key lengths: @c 56 */
+	/**
+	 * DES encryption.
+	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - Supported key lengths: @c 56.
+	 */
+	YACA_ENC_UNSAFE_DES,
 
-	YACA_ENC_UNSAFE_3DES_2TDEA,   /**< 3DES 2-key encryption.
-			    - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory)
-			    Use double DES keys to perform corresponding 2-key 3DES encryption. Supported key lengths: @c 112 */
+	/**
+	 * 3DES 2-key encryption.
+	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - Use double DES keys to perform corresponding 2-key 3DES encryption.
+	 * - Supported key lengths: @c 112.
+	 */
+	YACA_ENC_UNSAFE_3DES_2TDEA,
 
-	YACA_ENC_3DES_3TDEA,  /**< 3DES 3-key encryption.
-			    - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory)
-			    Use triple DES keys to perform corresponding 3-key 3DES encryption. Supported key lengths: @c 168 */
+	/**
+	 * 3DES 3-key encryption.
+	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - Use triple DES keys to perform corresponding 3-key 3DES encryption.
+	 * - Supported key lengths: @c 168.
+	 */
+	YACA_ENC_3DES_3TDEA,
 
-	YACA_ENC_UNSAFE_RC2,  /**< RC2 encryption.
-			    - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory)
-			    The key length is extracted from the key buffer. Supported key lengths: 8-1024 bits in steps of 8 bits. */
+	/**
+	 * RC2 encryption.
+	 * - The key length is extracted from the key buffer.
+	 * - Supported key lengths: 8-1024 bits in steps of 8 bits.
+	 */
+	YACA_ENC_UNSAFE_RC2,
 
-	YACA_ENC_UNSAFE_RC4,  /**< RC4 encryption.
-			    The key length is extracted from the key buffer. Supported key lengths: 40–2048 bits in steps of 8 bits */
+	/**
+	 * RC4 encryption.
+	 * - The key length is extracted from the key buffer.
+	 * - Supported key lengths: 40–2048 bits in steps of 8 bits.
+	 */
+	YACA_ENC_UNSAFE_RC4,
 
-	YACA_ENC_CAST5,       /**< CAST5 encryption.
-			    - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory)
-			    The key length is extracted from the key buffer. Supported key lengths: 40-128 bits in steps of 8 bits */
+	/**
+	 * CAST5 encryption.
+	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - The key length is extracted from the key buffer.
+	 * - Supported key lengths: 40-128 bits in steps of 8 bits.
+	 */
+	YACA_ENC_CAST5,
 
-	YACA_ENC_UNSAFE_SKIPJACK  /**< SKIPJACK algorithm
-				- see #yaca_block_cipher_mode_e for details on additional parameters (mandatory)
-				Supported key length: 80 bits */
+	/**
+	 * SKIPJACK algorithm.
+	 * - Supported key length: 80 bits.
+	 */
+	YACA_ENC_UNSAFE_SKIPJACK
 } yaca_enc_algo_e;
 
 /**
  * @brief Chaining modes for block ciphers
  */
 typedef enum {
-	YACA_BCM_ECB, /**< ECB block cipher mode. Encrypts 64 bit at a time. No IV is used. */
+	/**
+	 * ECB block cipher mode.
+	 * Encrypts 64 bit at a time. No IV is used.
+	 */
+	YACA_BCM_ECB,
 
-	YACA_BCM_CTR, /**< CTR block cipher mode. 16-byte initialization vector is mandatory.
-		    Supported parameters:
-		    - YACA_PARAM_CTR_CNT = length of counter block in bits
-		    (optional, only 128b is supported at the moment) */
+	/**
+	 * CTR block cipher mode.
+	 * 16-byte initialization vector is mandatory.
+	 * Supported parameters:
+	 * - #YACA_PARAM_CTR_CNT = length of counter block in bits
+	 * (optional, only 128b is supported at the moment)
+	 */
+	YACA_BCM_CTR,
 
-	YACA_BCM_CBC, /**< CBC block cipher mode. 16-byte initialization vector is mandatory. */
+	/**
+	 * CBC block cipher mode.
+	 * 16-byte initialization vector is mandatory.
+	 */
+	YACA_BCM_CBC,
 
-	YACA_BCM_GCM, /**< GCM block cipher mode. IV is needed.
-		    Supported parameters:
-		    - YACA_PARAM_TAG = GCM tag
-		    - YACA_PARAM_AAD = additional authentication data(optional) */
+	/**
+	 * GCM block cipher mode, IV is needed.
+	 * Supported parameters:
+	 * - #YACA_PARAM_GCM_TAG = GCM tag
+	 * - #YACA_PARAM_GCM_TAG_LEN = GCM tag length
+	 * - #YACA_PARAM_GCM_AAD = additional authentication data(optional)
+	 */
+	YACA_BCM_GCM,
 
-	YACA_BCM_CFB, /**< CFB block cipher mode. 16-byte initialization vector is mandatory. */
+	/**
+	 * CFB block cipher mode.
+	 * 16-byte initialization vector is mandatory.
+	 */
+	YACA_BCM_CFB,
 
-	YACA_BCM_OFB, /**< OFB block cipher mode. 16-byte initialization vector is mandatory. */
+	/**
+	 * OFB block cipher mode.
+	 * 16-byte initialization vector is mandatory.
+	 */
+	YACA_BCM_OFB,
 
-	YACA_BCM_OCB, /**< Offest Codebook Mode (AES) */
+	/**
+	 * Offest Codebook Mode (AES)
+	 */
+	YACA_BCM_OCB,
 
-	YACA_BCM_CCM  /**< CBC-MAC Mode (AES) */
+	/**
+	 * CBC-MAC Mode (AES).
+	 * Supported parameters:
+	 * - #YACA_PARAM_CCM_TAG = CCM tag
+	 * - #YACA_PARAM_CCM_TAG_LEN = CCM tag length
+	 * - #YACA_PARAM_CCM_AAD = additional authentication data(optional)
+	 */
+	YACA_BCM_CCM
 
 } yaca_block_cipher_mode_e;
 
@@ -207,7 +268,7 @@ typedef enum {
 } yaca_ex_param_e;
 
 /**
- * @brief Paddings supported by CryptoAPI
+ * @brief Paddings supported by Yet Another Crypto API
  */
 typedef enum {
 	YACA_PADDING_NONE = 0,   /**< total number of data MUST multiple of block size, Default */

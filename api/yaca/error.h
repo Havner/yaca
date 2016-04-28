@@ -24,21 +24,27 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-/*
-  TODO: Error enums should be placed here
- */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * @defgroup  Error  Yet another Crypto API - error enums and debug functions.
+ *
+ * @{
+ */
+
+/**
+ *  @brief Error enums
+ */
 enum __yaca_error_code {
-	YACA_ERROR_INVALID_ARGUMENT = -1,
-	YACA_ERROR_NOT_IMPLEMENTED = -2,
-	YACA_ERROR_OPENSSL_FAILURE = -3,
-	YACA_ERROR_NOT_SUPPORTED = -4,
-	YACA_ERROR_TOO_BIG_ARGUMENT = -5,
-	YACA_ERROR_OUT_OF_MEMORY = -6,
-	YACA_ERROR_SIGNATURE_INVALID = -7
+	YACA_ERROR_INVALID_ARGUMENT   = -1,
+	YACA_ERROR_NOT_IMPLEMENTED    = -2,
+	YACA_ERROR_OPENSSL_FAILURE    = -3,
+	YACA_ERROR_NOT_SUPPORTED      = -4,
+	YACA_ERROR_TOO_BIG_ARGUMENT   = -5,
+	YACA_ERROR_OUT_OF_MEMORY      = -6,
+	YACA_ERROR_SIGNATURE_INVALID  = -7
 };
 
 // TODO disable debug function in release?
@@ -58,6 +64,7 @@ typedef void (*yaca_debug_func)(const char*);
  */
 void yaca_error_set_debug_func(yaca_debug_func fn);
 
+/**@}*/
 
 #ifdef __cplusplus
 } /* extern */

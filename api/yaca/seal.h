@@ -46,7 +46,7 @@ extern "C" {
 /**
  * @brief yaca_seal_init  Initializes an asymmetric encryption context.
  *
- * @param[out] ctx           Newly created context (must be freed with @see yaca_ctx_free).
+ * @param[out] ctx           Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  pub_key       Public key of the peer that will receive the encrypted data.
  * @param[in]  algo          Symmetric algorithm that will be used.
  * @param[in]  bcm           Block chaining mode for the symmetric algorithm.
@@ -54,50 +54,55 @@ extern "C" {
  * @param[out] sym_key       Generated symmetric key that will be used. It is encrypted with peer's public key.
  * @param[out] iv            Generated initialization vector that will be used.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_seal_update(), yaca_seal_final()
  */
 int yaca_seal_init(yaca_ctx_h *ctx,
-		   const yaca_key_h pub_key,
-		   yaca_enc_algo_e algo,
-		   yaca_block_cipher_mode_e bcm,
-		   yaca_key_bits_e sym_key_bits,
-		   yaca_key_h *sym_key,
-		   yaca_key_h *iv);
+                   const yaca_key_h pub_key,
+                   yaca_enc_algo_e algo,
+                   yaca_block_cipher_mode_e bcm,
+                   yaca_key_bits_e sym_key_bits,
+                   yaca_key_h *sym_key,
+                   yaca_key_h *iv);
 
 /**
  * @brief yaca_seal_update  Encrypts piece of the data.
  *
- * @param[in,out] ctx         Context created by @see yaca_seal_init.
+ * @param[in,out] ctx         Context created by yaca_seal_init().
  * @param[in]     plain       Plain text to be encrypted.
  * @param[in]     plain_len   Length of the plain text.
- * @param[out]    cipher      Buffer for the encrypted data (must be allocated by client, @see yaca_get_output_length).
+ * @param[out]    cipher      Buffer for the encrypted data (must be allocated by client, see
+ *                            yaca_get_output_length()).
  * @param[out]    cipher_len  Length of the encrypted data, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see yaca_seal_init(), yaca_seal_final()
  */
 int yaca_seal_update(yaca_ctx_h ctx,
-		     const char *plain,
-		     size_t plain_len,
-		     char *cipher,
-		     size_t *cipher_len);
+                     const char *plain,
+                     size_t plain_len,
+                     char *cipher,
+                     size_t *cipher_len);
 
 /**
  * @brief yaca_seal_final  Encrypts the final piece of the data.
  *
  * @param[in,out] ctx         A valid seal context.
- * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, @see yaca_get_block_length).
+ * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, see
+ *                            yaca_get_block_length()).
  * @param[out]    cipher_len  Length of the final piece, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see yaca_seal_init(), yaca_seal_update()
  */
 int yaca_seal_final(yaca_ctx_h ctx,
-		    char *cipher,
-		    size_t *cipher_len);
+                    char *cipher,
+                    size_t *cipher_len);
 
 /**
  * @brief yaca_open_init  Initializes an asymmetric decryption context.
  *
- * @param[out] ctx           Newly created context. Must be freed by @see yaca_ctx_free.
+ * @param[out] ctx           Newly created context. Must be freed by yaca_ctx_free().
  * @param[in]  prv_key       Private key, part of the pair that was used for the encryption.
  * @param[in]  algo          Symmetric algorithm that was used for the encryption.
  * @param[in]  bcm           Block chaining mode for the symmetric algorithm.
@@ -105,45 +110,50 @@ int yaca_seal_final(yaca_ctx_h ctx,
  * @param[in]  sym_key       Symmetric key, encrypted with the public key, that was used to encrypt the data.
  * @param[in]  iv            Initialization vector that was used for the encryption.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_open_update(), yaca_open_final()
  */
 int yaca_open_init(yaca_ctx_h *ctx,
-		   const yaca_key_h prv_key,
-		   yaca_enc_algo_e algo,
-		   yaca_block_cipher_mode_e bcm,
-		   yaca_key_bits_e sym_key_bits,
-		   const yaca_key_h sym_key,
-		   const yaca_key_h iv);
+                   const yaca_key_h prv_key,
+                   yaca_enc_algo_e algo,
+                   yaca_block_cipher_mode_e bcm,
+                   yaca_key_bits_e sym_key_bits,
+                   const yaca_key_h sym_key,
+                   const yaca_key_h iv);
 
 /**
  * @brief yaca_open_update  Decrypts piece of the data.
  *
- * @param[in,out] ctx         Context created by @see yaca_open_init.
+ * @param[in,out] ctx         Context created by yaca_open_init().
  * @param[in]     cipher      Cipher text to be decrypted.
  * @param[in]     cipher_len  Length of the cipher text.
- * @param[out]    plain       Buffer for the decrypted data (must be allocated by client, @see yaca_get_output_length).
+ * @param[out]    plain       Buffer for the decrypted data (must be allocated by client, see
+ *                            yaca_get_output_length()).
  * @param[out]    plain_len   Length of the decrypted data, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see yaca_open_init(), yaca_open_final()
  */
 int yaca_open_update(yaca_ctx_h ctx,
-		     const char *cipher,
-		     size_t cipher_len,
-		     char *plain,
-		     size_t *plain_len);
+                     const char *cipher,
+                     size_t cipher_len,
+                     char *plain,
+                     size_t *plain_len);
 
 /**
  * @brief yaca_open_final Decrypts last chunk of sealed message.
  *
  * @param[in,out] ctx        A valid open context.
- * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, @see yaca_get_block_length).
+ * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, see
+ *                           yaca_get_block_length()).
  * @param[out]    plain_len  Length of the final piece, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see yaca_open_init(), yaca_open_update()
  */
 int yaca_open_final(yaca_ctx_h ctx,
-		    char *plain,
-		    size_t *plain_len);
+                    char *plain,
+                    size_t *plain_len);
 
 /**@}*/
 

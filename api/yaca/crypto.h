@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 /**
- * @defgroup  Non-Crypto  Non crypto related functions.
+ * @defgroup  Non-Crypto  Yet Another Crypto API - non crypto related functions.
  *
  * TODO: extended description and examples.
  *
@@ -47,13 +47,15 @@ extern "C" {
 /**
  * @brief yaca_init  Initializes the library. Must be called before any other crypto function.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see yaca_exit()
  */
 int yaca_init(void);
 
 /**
  * @brief yaca_exit  Closes the library. Must be called before exiting the application.
  *
+ * @see yaca_init()
  */
 void yaca_exit(void);
 
@@ -63,6 +65,7 @@ void yaca_exit(void);
  * @param[in] size  Size of the allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated memory otherwise.
+ * @see yaca_zalloc(), yaca_realloc(), yaca_free()
  */
 // TODO: this should be a macro to CRYPTO_*
 void *yaca_malloc(size_t size);
@@ -73,6 +76,7 @@ void *yaca_malloc(size_t size);
  * @param[in] size  Size of the allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated and zeroed memory otherwise.
+ * @see yaca_malloc(), yaca_realloc(), yaca_free()
  */
 // TODO: this should be a macro to CRYPTO_*
 void *yaca_zalloc(size_t size);
@@ -84,15 +88,17 @@ void *yaca_zalloc(size_t size);
  * @param[in] size  Size of the new allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated memory otherwise.
+ * @see yaca_malloc(), yaca_zalloc(), yaca_free()
  */
 // TODO: this should be a macro to CRYPTO_*
 void *yaca_realloc(void *addr, size_t size);
 
 /**
- * @brief yaca_free  Frees the memory allocated by @see yaca_malloc
- *	             or one of the cryptographics operations.
+ * @brief yaca_free  Frees the memory allocated by yaca_malloc(), yaca_zalloc(),
+ *                   yaca_realloc() or one of the cryptographic operations.
  *
  * @param[in] ptr  Pointer to the memory to be freed.
+ * @see yaca_malloc(), yaca_zalloc(), yaca_realloc()
  *
  */
 // TODO: this should be a macro to CRYPTO_*
@@ -104,7 +110,7 @@ void yaca_free(void *ptr);
  * @param[in,out] data      Pointer to the memory to be randomized.
  * @param[in]     data_len  Length of the memory to be randomized.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
  */
 int yaca_rand_bytes(char *data, size_t data_len);
 
@@ -117,10 +123,13 @@ int yaca_rand_bytes(char *data, size_t data_len);
  * @param[in]     value      Parameter value.
  * @param[in]     value_len  Length of the parameter value.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see #yaca_ex_param_e, yaca_ctx_get_param()
  */
-int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
-		       const void *value, size_t value_len);
+int yaca_ctx_set_param(yaca_ctx_h ctx,
+                       yaca_ex_param_e param,
+                       const void *value,
+                       size_t value_len);
 
 /**
  * @brief yaca_ctx_get_param  Returns the extended context parameters.
@@ -128,13 +137,16 @@ int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
  *
  * @param[in]  ctx        Previously initialized crypto context.
  * @param[in]  param      Parameter to be read.
- * @param[out] value      Copy of the parameter value (must be freed with @see yaca_free).
+ * @param[out] value      Copy of the parameter value (must be freed with yaca_free()).
  * @param[out] value_len  Length of the parameter value will be returned here.
  *
- * @return 0 on success, negative on error (@see error.h).
+ * @return 0 on success, negative on error.
+ * @see #yaca_ex_param_e, yaca_ctx_set_param()
  */
-int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
-		       void **value, size_t *value_len);
+int yaca_ctx_get_param(const yaca_ctx_h ctx,
+                       yaca_ex_param_e param,
+                       void **value,
+                       size_t *value_len);
 
 /**
  * @brief yaca_ctx_free  Destroys the crypto context. Must be called
@@ -142,6 +154,7 @@ int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
  *                       Passing YACA_CTX_NULL is allowed.
  *
  * @param[in,out] ctx  Crypto context.
+ * @see #yaca_ctx_h
  *
  */
 void yaca_ctx_free(yaca_ctx_h ctx);
@@ -153,7 +166,7 @@ void yaca_ctx_free(yaca_ctx_h ctx);
  * @param[in] ctx        Previously initialized crypto context.
  * @param[in] input_len  Length of the input data to be processed.
  *
- * @return negative on error (@see error.h) or length of output.
+ * @return negative on error or length of output.
  */
 // TODO: this function should probably return the value by param of
 // size_t type and leave the return int value only to report errors
