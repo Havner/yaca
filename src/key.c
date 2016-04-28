@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <openssl/evp.h>
 
@@ -61,6 +62,277 @@ static inline void key_sanity_check(const yaca_key_h key)
 		evp_key_sanity_check(evp_key);
 }
 #endif
+
+int base64_decode_length(const char *data, size_t data_len, size_t *len)
+{
+	assert(data != NULL);
+	assert(data_len != 0);
+	assert(len != NULL);
+
+	size_t padded = 0;
+	size_t tmp_len = data_len;
+
+	if (data_len % 4 != 0)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	if (data[tmp_len - 1] == '=') {
+		padded = 1;
+		if (data[tmp_len - 2] == '=')
+			padded = 2;
+	}
+
+	*len = data_len / 4 * 3 - padded;
+	return 0;
+}
+
+#define TMP_BUF_LEN 512
+
+int base64_decode(const char *data, size_t data_len, BIO **output)
+{
+	assert(data != NULL);
+	assert(data_len != 0);
+	assert(output != NULL);
+
+	int ret;
+	BIO *b64 = NULL;
+	BIO *src = NULL;
+	BIO *dst = NULL;
+	char tmpbuf[TMP_BUF_LEN];
+	size_t b64_len;
+	char *out;
+	long out_len;
+
+	/* This is because of BIO_new_mem_buf() having its length param typed int */
+	if (data_len > INT_MAX)
+		return YACA_ERROR_TOO_BIG_ARGUMENT;
+
+	/* First phase of correctness checking, calculate expected output length */
+	ret = base64_decode_length(data, data_len, &b64_len);
+	if (ret != 0)
+		return ret;
+
+	b64 = BIO_new(BIO_f_base64());
+	if (b64 == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	src = BIO_new_mem_buf(data, data_len);
+	if (src == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	BIO_push(b64, src);
+
+	dst = BIO_new(BIO_s_mem());
+	if (dst == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+
+	/* Try to decode */
+	for(;;) {
+		ret = BIO_read(b64, tmpbuf, TMP_BUF_LEN);
+		if (ret < 0) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto free_bio;
+		}
+
+		if (ret == 0)
+			break;
+
+		if (BIO_write(dst, tmpbuf, ret) != ret) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto free_bio;
+		}
+	}
+
+	BIO_flush(dst);
+
+	/* Check wether the length of the decoded data is what we expected */
+	out_len = BIO_get_mem_data(dst, &out);
+	if (out_len < 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+	if ((size_t)out_len != b64_len) {
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		goto free_bio;
+	}
+
+	*output = dst;
+	dst = NULL;
+	ret = 0;
+
+free_bio:
+	BIO_free_all(b64);
+	BIO_free_all(dst);
+
+	return ret;
+}
+
+int import_simple(yaca_key_h *key,
+                  yaca_key_type_e key_type,
+                  const char *data,
+                  size_t data_len)
+{
+	assert(key != NULL);
+	assert(data != NULL);
+	assert(data_len != 0);
+
+	int ret;
+	BIO *decoded = NULL;
+	const char *key_data;
+	size_t key_data_len;
+	struct yaca_key_simple_s *nk = NULL;
+
+	ret = base64_decode(data, data_len, &decoded);
+	if (ret == 0) {
+		/* Conversion successfull, get the BASE64 */
+		long len = BIO_get_mem_data(decoded, &key_data);
+		if (len <= 0 || key_data == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
+		}
+		key_data_len = len;
+	} else if (ret == YACA_ERROR_INVALID_ARGUMENT) {
+		/* This was not BASE64 or it was corrupted, treat as RAW */
+		key_data_len = data_len;
+		key_data = data;
+	} else {
+		/* Some other, possibly unrecoverable error, give up */
+		return ret;
+	}
+
+	if (key_data_len > SIZE_MAX - sizeof(struct yaca_key_simple_s)) {
+		ret = YACA_ERROR_TOO_BIG_ARGUMENT;
+		goto out;
+	}
+
+	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_data_len);
+	if (nk == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto out;
+	}
+
+	memcpy(nk->d, key_data, key_data_len);
+	nk->bits = key_data_len * 8;
+	nk->key.type = key_type;
+
+	*key = (yaca_key_h)nk;
+	ret = 0;
+
+out:
+	BIO_free_all(decoded);
+	return ret;
+}
+
+int import_evp(yaca_key_h *key,
+               yaca_key_type_e key_type,
+               const char *data,
+               size_t data_len)
+{
+	assert(key != NULL);
+	assert(data != NULL);
+	assert(data_len != 0);
+
+	BIO *src = NULL;
+	EVP_PKEY *pkey = NULL;
+	bool private;
+	yaca_key_type_e type;
+	struct yaca_key_evp_s *nk = NULL;
+
+	/* Neither PEM nor DER will ever be shorter then 4 bytes (12 seems
+	 * to be minimum for DER, much more for PEM). This is just to make
+	 * sure we have at least 4 bytes for strncmp() below.
+	 */
+	if (data_len < 4)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	/* This is because of BIO_new_mem_buf() having its length param typed int */
+	if (data_len > INT_MAX)
+		return YACA_ERROR_TOO_BIG_ARGUMENT;
+
+	src = BIO_new_mem_buf(data, data_len);
+	if (src == NULL) {
+		ERROR_DUMP(YACA_ERROR_INTERNAL);
+		return YACA_ERROR_INTERNAL;
+	}
+
+	/* Possible PEM */
+	if (strncmp("----", data, 4) == 0) {
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = PEM_read_bio_PrivateKey(src, NULL, NULL, NULL);
+			private = true;
+		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = PEM_read_bio_PUBKEY(src, NULL, NULL, NULL);
+			private = false;
+		}
+	}
+	/* Possible DER */
+	else {
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = d2i_PrivateKey_bio(src, NULL);
+			private = true;
+		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = d2i_PUBKEY_bio(src, NULL);
+			private = false;
+		}
+	}
+
+	BIO_free(src);
+
+	if (pkey == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	switch (EVP_PKEY_type(pkey->type)) {
+	case EVP_PKEY_RSA:
+		type = private ? YACA_KEY_TYPE_RSA_PRIV : YACA_KEY_TYPE_RSA_PUB;
+		break;
+
+	case EVP_PKEY_DSA:
+		type = private ? YACA_KEY_TYPE_DSA_PRIV : YACA_KEY_TYPE_DSA_PUB;
+		break;
+
+	case EVP_PKEY_EC:
+		type = private ? YACA_KEY_TYPE_ECDSA_PRIV : YACA_KEY_TYPE_ECDSA_PUB;
+		break;
+
+	default:
+		return YACA_ERROR_INVALID_ARGUMENT;
+	}
+
+	if (type != key_type)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
+	if (nk == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	nk->evp = pkey;
+	*key = (yaca_key_h)nk;
+	(*key)->type = type;
+
+	return 0;
+}
 
 int export_simple_raw(struct yaca_key_simple_s *simple_key,
                       char **data,
@@ -114,6 +386,7 @@ int export_simple_base64(struct yaca_key_simple_s *simple_key,
 	}
 
 	BIO_push(b64, mem);
+	BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
 	ret = BIO_write(b64, simple_key->d, key_len);
 	if (ret <= 0 || (unsigned)ret != key_len) {
@@ -345,32 +618,25 @@ API int yaca_key_import(yaca_key_h *key,
 	if (key == NULL || data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (key_type == YACA_KEY_TYPE_SYMMETRIC) {
-		struct yaca_key_simple_s *nk = NULL;
-
-		if (data_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
-			return YACA_ERROR_TOO_BIG_ARGUMENT;
-
-		nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + data_len);
-		if (nk == NULL)
-			return YACA_ERROR_OUT_OF_MEMORY;
-
-		memcpy(nk->d, data, data_len); /* TODO: CRYPTO_/EVP_... */
-		nk->bits = data_len * 8;
-		nk->key.type = key_type;
-
-		*key = (yaca_key_h)nk;
-		return 0;
-	}
-
-	if (key_type == YACA_KEY_TYPE_DES) {
-		// TODO: ...
+	switch (key_type) {
+	case YACA_KEY_TYPE_SYMMETRIC:
+	case YACA_KEY_TYPE_IV:
+		return import_simple(key, key_type, data, data_len);
+	case YACA_KEY_TYPE_RSA_PUB:
+	case YACA_KEY_TYPE_RSA_PRIV:
+		return import_evp(key, key_type, data, data_len);
+	case YACA_KEY_TYPE_DES:
+	case YACA_KEY_TYPE_DSA_PUB:
+	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_DH_PUB:
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_ECDSA_PUB:
+	case YACA_KEY_TYPE_ECDSA_PRIV:
+	case YACA_KEY_TYPE_ECDH_PUB:
+	case YACA_KEY_TYPE_ECDH_PRIV:
 		return YACA_ERROR_NOT_IMPLEMENTED;
-	}
-
-	/* if (...) */ {
-		// TODO: all the other key types
-		return YACA_ERROR_NOT_IMPLEMENTED;
+	default:
+		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 }
 
