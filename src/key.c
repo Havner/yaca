@@ -36,7 +36,7 @@
 
 static inline void simple_key_sanity_check(const struct yaca_key_simple_s *key)
 {
-	assert(key->bits);
+	assert(key->bits != 0);
 	assert(key->bits % 8 == 0);
 }
 
@@ -206,7 +206,7 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 	struct yaca_key_simple_s *nk = NULL;
 	size_t key_byte_len = key_bits / 8;
 
-	if (sym_key == NULL)
+	if (sym_key == NULL || key_bits % 8 != 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	switch(key_type)
@@ -215,21 +215,6 @@ API int yaca_key_gen(yaca_key_h *sym_key,
 	case YACA_KEY_TYPE_IV:
 		break;
 	case YACA_KEY_TYPE_DES:
-	case YACA_KEY_TYPE_RSA_PUB:    /* RSA public key */
-	case YACA_KEY_TYPE_RSA_PRIV:   /* RSA private key */
-	case YACA_KEY_TYPE_DSA_PUB:    /* DSA public key */
-	case YACA_KEY_TYPE_DSA_PRIV:   /* DSA private key */
-	case YACA_KEY_TYPE_DH_PUB:     /* DH public key */
-	case YACA_KEY_TYPE_DH_PRIV:    /* DH private key */
-	case YACA_KEY_TYPE_ECDSA_PUB:  /* ECDSA public key */
-	case YACA_KEY_TYPE_ECDSA_PRIV: /* ECDSA private key */
-	case YACA_KEY_TYPE_ECDH_PUB:   /* ECDH public key */
-	case YACA_KEY_TYPE_ECDH_PRIV:  /* ECDH private key */
-	case YACA_KEY_TYPE_PAIR_RSA:   /* Pair of RSA keys */
-	case YACA_KEY_TYPE_PAIR_DSA:   /* Pair of DSA keys */
-	case YACA_KEY_TYPE_PAIR_DH:    /* Pair of DH keys */
-	case YACA_KEY_TYPE_PAIR_ECDSA: /* Pair of ECDSA keys */
-	case YACA_KEY_TYPE_PAIR_ECDH:  /* Pair of ECDH keys */
 		return YACA_ERROR_NOT_IMPLEMENTED;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -418,15 +403,15 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	    iter == 0 || key_bits == 0 || key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	ret = digest_get_algorithm(algo, &md);
-	if (ret < 0)
-		return ret;
-
 	if (key_bits % 8) /* Key length must be multiple of 8-bits */
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
+
+	ret = digest_get_algorithm(algo, &md);
+	if (ret < 0)
+		return ret;
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
