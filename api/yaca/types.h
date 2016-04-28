@@ -84,6 +84,7 @@ typedef enum {
 	YACA_KEY_TYPE_ECDSA_PUB,   /**< Elliptic Curve Digital Signature Algorithm public key */
 	YACA_KEY_TYPE_ECDSA_PRIV,  /**< Elliptic Curve Digital Signature Algorithm private key */
 
+	// TODO: ECDH might not exist as a separate key type, remove?
 	YACA_KEY_TYPE_ECDH_PUB,    /**< Elliptic Curve Diffie-Hellman public key */
 	YACA_KEY_TYPE_ECDH_PRIV,   /**< Elliptic Curve Diffie-Hellman private key */
 
