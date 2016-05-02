@@ -113,16 +113,18 @@ int yaca_key_export(const yaca_key_h key,
                     size_t *data_len);
 
 /**
- * @brief yaca_key_gen  Generates a secure symmetric key (or an initialization vector).
+ * @brief yaca_key_gen  Generates a secure key (or an initialization vector).
  *
- * @param[out] sym_key   Newly generated key (must be freed with yaca_key_free()).
+ * This function is used to generate symmetric and private asymmetric keys.
+ *
+ * @param[out] key       Newly generated key (must be freed with yaca_key_free()).
  * @param[in]  key_type  Type of the key to be generated.
  * @param[in]  key_bits  Length of the key (in bits) to be generated.
  *
  * @return 0 on success, negative on error.
  * @see #yaca_key_type_e, #yaca_key_bits_e, yaca_key_gen_pair(), yaca_key_free()
  */
-int yaca_key_gen(yaca_key_h *sym_key,
+int yaca_key_gen(yaca_key_h *key,
                  yaca_key_type_e key_type,
                  size_t key_bits);
 

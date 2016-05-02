@@ -523,6 +523,88 @@ free_bio:
 	return ret;
 }
 
+int gen_simple(struct yaca_key_simple_s **out, size_t key_bits)
+{
+	assert(out != NULL);
+
+	int ret;
+	struct yaca_key_simple_s *nk;
+	size_t key_byte_len = key_bits / 8;
+
+	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
+		return YACA_ERROR_TOO_BIG_ARGUMENT;
+
+	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
+	if (nk == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	nk->bits = key_bits;
+
+	ret = yaca_rand_bytes(nk->d, key_byte_len);
+	if (ret != 0)
+		return ret;
+
+	*out = nk;
+	return 0;
+}
+
+int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
+{
+	assert(out != NULL);
+	assert(key_bits > 0);
+	assert(key_bits % 8 == 0);
+
+	int ret;
+	struct yaca_key_evp_s *nk;
+	EVP_PKEY_CTX *ctx;
+	EVP_PKEY *pkey = NULL;
+
+	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
+	if (nk == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
+	if (ctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_nk;
+	}
+
+	ret = EVP_PKEY_keygen_init(ctx);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_ctx;
+	}
+
+	ret = EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bits);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_ctx;
+	}
+
+	ret = EVP_PKEY_keygen(ctx, &pkey);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_ctx;
+	}
+
+	nk->evp = pkey;
+
+	*out = nk;
+	nk = NULL;
+	ret = 0;
+
+free_ctx:
+	EVP_PKEY_CTX_free(ctx);
+free_nk:
+	yaca_free(nk);
+
+	return ret;
+}
+
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 {
 	struct yaca_key_simple_s *k;
@@ -659,49 +741,51 @@ API int yaca_key_export(const yaca_key_h key,
 	return YACA_ERROR_INVALID_ARGUMENT;
 }
 
-API int yaca_key_gen(yaca_key_h *sym_key,
+// TODO: this NEEDS random number generator initialized
+// there is some other TODO elsewhere about it
+API int yaca_key_gen(yaca_key_h *key,
                      yaca_key_type_e key_type,
                      size_t key_bits)
 {
 	int ret;
-	struct yaca_key_simple_s *nk = NULL;
-	size_t key_byte_len = key_bits / 8;
+	struct yaca_key_simple_s *nk_simple = NULL;
+	struct yaca_key_evp_s *nk_evp = NULL;
 
-	if (sym_key == NULL || key_bits % 8 != 0)
+	if (key == NULL || key_bits == 0 || key_bits % 8 != 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	switch(key_type)
 	{
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_IV:
-		break;
+		ret = gen_simple(&nk_simple, key_bits);
+		if (ret != 0)
+			return ret;
+
+		nk_simple->key.type = key_type;
+
+		*key = (yaca_key_h)nk_simple;
+		return 0;
+
+	case YACA_KEY_TYPE_RSA_PRIV:
+		ret = gen_evp_rsa(&nk_evp, key_bits);
+		if (ret != 0)
+			return ret;
+
+		nk_evp->key.type = key_type;
+
+		*key = (yaca_key_h)nk_evp;
+		return 0;
+
 	case YACA_KEY_TYPE_DES:
+	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_ECDSA_PRIV:
+	case YACA_KEY_TYPE_ECDH_PRIV:
 		return YACA_ERROR_NOT_IMPLEMENTED;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
-
-	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
-
-	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
-
-	nk->bits = key_bits;
-	nk->key.type = key_type;
-
-	ret = yaca_rand_bytes(nk->d, key_byte_len);
-	if (ret != 0)
-		goto err;
-
-	*sym_key = (yaca_key_h)nk;
-
-	return 0;
-
-err:
-	yaca_free(nk);
-	return ret;
 }
 
 API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
