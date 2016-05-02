@@ -704,6 +704,73 @@ err:
 	return ret;
 }
 
+API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
+{
+	int ret;
+	struct yaca_key_evp_s *evp_key = key_get_evp(prv_key);
+	struct yaca_key_evp_s *nk = NULL;
+	RSA *rsa_pub = NULL;
+
+	if (prv_key == YACA_KEY_NULL || evp_key == NULL || pub_key == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
+	if (nk == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	nk->evp = EVP_PKEY_new();
+	if (nk->evp == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
+		goto free_key;
+	}
+
+	switch(prv_key->type)
+	{
+	case YACA_KEY_TYPE_RSA_PRIV:
+		assert(EVP_PKEY_type(evp_key->evp->type) == EVP_PKEY_RSA);
+
+		rsa_pub = RSAPublicKey_dup(EVP_PKEY_get0(evp_key->evp));
+		if (rsa_pub == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto free_evp;
+		}
+
+		ret = EVP_PKEY_assign_RSA(nk->evp, rsa_pub);
+		if (ret != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto free_rsa;
+		}
+
+		*pub_key = (yaca_key_h)nk;
+		(*pub_key)->type = YACA_KEY_TYPE_RSA_PUB;
+
+		return 0;
+
+	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_ECDSA_PRIV:
+		ret = YACA_ERROR_NOT_IMPLEMENTED;
+		goto free_evp;
+
+	default:
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		goto free_evp;
+	}
+
+	return YACA_ERROR_INVALID_ARGUMENT;
+
+free_rsa:
+	RSA_free(rsa_pub);
+free_evp:
+	EVP_PKEY_free(nk->evp);
+free_key:
+	yaca_free(nk);
+
+	return ret;
+}
+
 API int yaca_key_gen_pair(yaca_key_h *prv_key,
                           yaca_key_h *pub_key,
                           yaca_key_type_e key_type,

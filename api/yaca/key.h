@@ -127,6 +127,17 @@ int yaca_key_gen(yaca_key_h *sym_key,
                  size_t key_bits);
 
 /**
+ * @brief yaca_key_extract_public  Extracts public key from a private one.
+ *
+ * @param[in]  prv_key   Private key to extract the public one from.
+ * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free()).
+ *
+ * @return 0 on success, negative on error.
+ * @see yaca_key_gen(), yaca_key_import(), yaca_key_free()
+ */
+int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
+
+/**
  * @brief yaca_key_gen_pair  Generates a new key pair.
  *
  * @param[out] prv_key   Newly generated private key (must be freed with yaca_key_free()).
