@@ -122,7 +122,7 @@ int yaca_key_export(const yaca_key_h key,
  * @param[in]  key_bits  Length of the key (in bits) to be generated.
  *
  * @return 0 on success, negative on error.
- * @see #yaca_key_type_e, #yaca_key_bits_e, yaca_key_gen_pair(), yaca_key_free()
+ * @see #yaca_key_type_e, #yaca_key_bits_e, yaca_key_free()
  */
 int yaca_key_gen(yaca_key_h *key,
                  yaca_key_type_e key_type,
@@ -140,27 +140,11 @@ int yaca_key_gen(yaca_key_h *key,
 int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
 
 /**
- * @brief yaca_key_gen_pair  Generates a new key pair.
- *
- * @param[out] prv_key   Newly generated private key (must be freed with yaca_key_free()).
- * @param[out] pub_key   Newly generated public key (must be freed with yaca_key_free()).
- * @param[in]  key_type  Type of the key to be generated (must be YACA_KEY_TYPE_PAIR*).
- * @param[in]  key_bits  Length of the key (in bits) to be generated.
- *
- * @return 0 on success, negative on error.
- * @see #yaca_key_type_e, #yaca_key_bits_e, yaca_key_gen(), yaca_key_free()
- */
-int yaca_key_gen_pair(yaca_key_h *prv_key,
-                      yaca_key_h *pub_key,
-                      yaca_key_type_e key_type,
-                      size_t key_bits);
-
-/**
  * @brief yaca_key_free  Frees the key created by the library.
  *                       Passing YACA_KEY_NULL is allowed.
  *
  * @param key  Key to be freed.
- * @see yaca_key_import(), yaca_key_export(), yaca_key_gen(), yaca_key_gen_pair()
+ * @see yaca_key_import(), yaca_key_export(), yaca_key_gen()
  *
  */
 void yaca_key_free(yaca_key_h key);

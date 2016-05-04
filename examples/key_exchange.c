@@ -43,9 +43,11 @@ void key_exchange_dh(void)
 	long size;
 
 	// generate  private, public key
-	// add KEY_TYPE_PAIR_DH or use KEY_TYPE_PAIR_ECC and proper len?
-	// imo add KEY_TYPE_PAIR_DH
-	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_TYPE_PAIR_DH, YACA_KEY_2048BIT);
+	ret = yaca_key_gen(&private_key, YACA_KEY_TYPE_DH_PRIV, YACA_KEY_2048BIT);
+	if (ret < 0)
+		goto clean;
+
+	ret = yaca_key_extract_public(private_key, &public_key);
 	if (ret < 0)
 		goto clean;
 
@@ -101,7 +103,11 @@ void key_exchange_ecdh(void)
 	long size;
 
 	// generate  private, public key
-	ret = yaca_key_gen_pair(&private_key, &public_key, YACA_KEY_TYPE_PAIR_ECDH, YACA_KEY_CURVE_P256);
+	ret = yaca_key_gen(&private_key, YACA_KEY_TYPE_ECDH_PRIV, YACA_KEY_CURVE_P256);
+	if (ret < 0)
+		goto clean;
+
+	ret = yaca_key_extract_public(private_key, &public_key);
 	if (ret < 0)
 		goto clean;
 

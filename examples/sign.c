@@ -46,8 +46,11 @@ void sign_verify_rsa(void)
 #endif
 
 	// GENERATE
-	if (yaca_key_gen_pair(&prv, &pub, YACA_KEY_TYPE_PAIR_RSA, YACA_KEY_4096BIT) != 0)
+	if (yaca_key_gen(&prv, YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_4096BIT) != 0)
 		return;
+
+	if (yaca_key_extract_public(prv, &pub) != 0)
+		goto finish;
 
 	// SIGN
 	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, prv) != 0)

@@ -213,7 +213,11 @@ int main()
 	if (ret != 0)
 		goto exit;
 
-	ret = yaca_key_gen_pair(&rsa_priv, &rsa_pub, YACA_KEY_TYPE_PAIR_RSA, YACA_KEY_1024BIT);
+	ret = yaca_key_gen(&rsa_priv, YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_1024BIT);
+	if (ret != 0)
+		goto free_sym;
+
+	ret = yaca_key_extract_public(rsa_priv, &rsa_pub);
 	if (ret != 0)
 		goto free_sym;
 

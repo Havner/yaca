@@ -2,4 +2,3 @@ Global:
 - Rethink and possibly add verification of output buffer lengths.
   In other words check whether the user won't cause a buffer overflow.
 - Importing/exporting encrypted (passphrased) RSA keys
-- What about importing RSA priv and generating PUB from it?

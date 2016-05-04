@@ -54,13 +54,16 @@ void encrypt_seal(void)
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Generate key pair */
-	if (yaca_key_gen_pair(&key_priv, &key_pub, YACA_KEY_TYPE_PAIR_RSA, YACA_KEY_4096BIT) != 0)
+	if (yaca_key_gen(&key_priv, YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_4096BIT) != 0)
 		return;
+
+	if (yaca_key_extract_public(key_priv, &key_pub) != 0)
+		goto ex_prvk;
 
 	/* Encrypt a.k.a. seal */
 	{
 		if (yaca_seal_init(&ctx, key_pub, algo, bcm, key_bits, &aes_key, &iv) != 0)
-			goto ex_pk;
+			goto ex_pubk;
 
 		if ((block_len = yaca_get_block_length(ctx)) <= 0)
 			goto ex_ak;
@@ -128,8 +131,9 @@ ex_ak:
 	yaca_ctx_free(ctx);
 	yaca_key_free(aes_key);
 	yaca_key_free(iv);
-ex_pk:
+ex_pubk:
 	yaca_key_free(key_pub);
+ex_prvk:
 	yaca_key_free(key_priv);
 }
 
