@@ -38,3 +38,9 @@ API:
 
 Examples:
 	- It is possible to compile-check examples with "make" command
+
+Tests:
+	All tests are developed at security-tests repository from tizen.org, branch yaca.
+	git clone ssh://[USER_ID]@review.tizen.org:29418/platform/core/test/security-tests -b yaca
+	Build all tests with command: cmake -DBUILD_ALL_TESTS=OFF -DBUILD_YACA=ON; make
+	Run all tests with command: yaca-test
