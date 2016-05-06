@@ -44,6 +44,8 @@ void key_import_export_sym(yaca_key_h sym)
 	yaca_key_h b64_imported = YACA_KEY_NULL;
 
 
+	/* BASE64 */
+
 	ret = yaca_key_export(sym, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64, &b64, &b64_len);
 	if (ret != 0)
 		return;
@@ -61,6 +63,8 @@ void key_import_export_sym(yaca_key_h sym)
 
 	printf("\t***** BASE64 imported key: *****\n%*s\n", (int)b64_len, b64);
 
+
+	/* RAW */
 
 	ret = yaca_key_export(sym, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, &raw, &raw_len);
 	if (ret != 0)
