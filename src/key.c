@@ -605,6 +605,90 @@ free_nk:
 	return ret;
 }
 
+int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
+{
+	assert(out != NULL);
+	assert(key_bits > 0);
+	assert(key_bits % 8 == 0);
+
+	int ret;
+	struct yaca_key_evp_s *nk;
+	EVP_PKEY_CTX *pctx;
+	EVP_PKEY_CTX *kctx;
+	EVP_PKEY *pkey = NULL;
+	EVP_PKEY *params = NULL;
+
+	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
+	if (nk == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
+	if (pctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_nk;
+	}
+
+	ret = EVP_PKEY_paramgen_init(pctx);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pctx;
+	}
+
+	ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bits);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pctx;
+	}
+
+	ret = EVP_PKEY_paramgen(pctx, &params);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pctx;
+	}
+
+	kctx = EVP_PKEY_CTX_new(params, NULL);
+	if (kctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_params;
+	}
+
+	ret = EVP_PKEY_keygen_init(kctx);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_kctx;
+	}
+
+	ret = EVP_PKEY_keygen(kctx, &pkey);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_kctx;
+	}
+
+	nk->evp = pkey;
+
+	*out = nk;
+	nk = NULL;
+	ret = 0;
+
+free_kctx:
+	EVP_PKEY_CTX_free(kctx);
+free_params:
+	EVP_PKEY_free(params);
+free_pctx:
+	EVP_PKEY_CTX_free(pctx);
+free_nk:
+	yaca_free(nk);
+
+	return ret;
+}
+
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 {
 	struct yaca_key_simple_s *k;
@@ -777,8 +861,17 @@ API int yaca_key_gen(yaca_key_h *key,
 		*key = (yaca_key_h)nk_evp;
 		return 0;
 
-	case YACA_KEY_TYPE_DES:
 	case YACA_KEY_TYPE_DSA_PRIV:
+		ret = gen_evp_dsa(&nk_evp, key_bits);
+		if (ret != 0)
+			return ret;
+
+		nk_evp->key.type = key_type;
+
+		*key = (yaca_key_h)nk_evp;
+		return 0;
+
+	case YACA_KEY_TYPE_DES:
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_ECDSA_PRIV:
 	case YACA_KEY_TYPE_ECDH_PRIV:
@@ -792,8 +885,9 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 {
 	int ret;
 	struct yaca_key_evp_s *evp_key = key_get_evp(prv_key);
-	struct yaca_key_evp_s *nk = NULL;
-	RSA *rsa_pub = NULL;
+	struct yaca_key_evp_s *nk;
+	BIO *mem;
+	EVP_PKEY *pkey;
 
 	if (prv_key == YACA_KEY_NULL || evp_key == NULL || pub_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -802,54 +896,56 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	if (nk == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
 
-	nk->evp = EVP_PKEY_new();
-	if (nk->evp == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
+	mem = BIO_new(BIO_s_mem());
+	if (mem == NULL) {
+		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_key;
+		goto free_nk;
 	}
+
+	ret = i2d_PUBKEY_bio(mem, evp_key->evp);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	pkey = d2i_PUBKEY_bio(mem, NULL);
+	if (pkey == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_bio;
+	}
+
+	BIO_free(mem);
+	mem = NULL;
+
+	nk->evp = pkey;
+	*pub_key = (yaca_key_h)nk;
 
 	switch(prv_key->type)
 	{
 	case YACA_KEY_TYPE_RSA_PRIV:
-		assert(EVP_PKEY_type(evp_key->evp->type) == EVP_PKEY_RSA);
-
-		rsa_pub = RSAPublicKey_dup(EVP_PKEY_get0(evp_key->evp));
-		if (rsa_pub == NULL) {
-			ret = YACA_ERROR_INTERNAL;
-			ERROR_DUMP(ret);
-			goto free_evp;
-		}
-
-		ret = EVP_PKEY_assign_RSA(nk->evp, rsa_pub);
-		if (ret != 1) {
-			ret = YACA_ERROR_INTERNAL;
-			ERROR_DUMP(ret);
-			goto free_rsa;
-		}
-
-		*pub_key = (yaca_key_h)nk;
 		(*pub_key)->type = YACA_KEY_TYPE_RSA_PUB;
-
-		return 0;
-
+		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
+		(*pub_key)->type = YACA_KEY_TYPE_DSA_PUB;
+		break;
 	case YACA_KEY_TYPE_ECDSA_PRIV:
-		ret = YACA_ERROR_NOT_IMPLEMENTED;
-		goto free_evp;
-
+		(*pub_key)->type = YACA_KEY_TYPE_ECDSA_PUB;
+		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free_evp;
+		goto free_pkey;
 	}
 
-	return YACA_ERROR_INVALID_ARGUMENT;
+	return 0;
 
-free_rsa:
-	RSA_free(rsa_pub);
-free_evp:
-	EVP_PKEY_free(nk->evp);
-free_key:
+free_pkey:
+	EVP_PKEY_free(pkey);
+free_bio:
+	BIO_free(mem);
+free_nk:
 	yaca_free(nk);
 
 	return ret;
