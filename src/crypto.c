@@ -84,26 +84,20 @@ API int yaca_rand_bytes(char *data, size_t data_len)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = RAND_bytes((unsigned char *)data, data_len);
-	if (ret == 1)
-		return 0;
-
-	if (ret == -1)
-		ret = YACA_ERROR_NOT_SUPPORTED;
-	else
+	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
-	ERROR_DUMP(ret);
-	return ret;
+	return 0;
 }
 
 API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
 			   const void *value, size_t value_len)
 {
-	if (ctx == YACA_CTX_NULL)
+	if (ctx == YACA_CTX_NULL || ctx->set_param == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
-
-	if (ctx->set_param == NULL)
-		return YACA_ERROR_NOT_SUPPORTED;
 
 	return ctx->set_param(ctx, param, value, value_len);
 }
@@ -111,11 +105,8 @@ API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
 API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
 			   void **value, size_t *value_len)
 {
-	if (ctx == YACA_CTX_NULL)
+	if (ctx == YACA_CTX_NULL || ctx->get_param == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
-
-	if (ctx->get_param == NULL)
-		return YACA_ERROR_NOT_SUPPORTED;
 
 	return ctx->get_param(ctx, param, value, value_len);
 }

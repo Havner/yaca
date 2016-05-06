@@ -180,11 +180,6 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	}
 
 	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, pkey);
-	if (ret == -2) {
-		ret = YACA_ERROR_NOT_SUPPORTED;
-		ERROR_DUMP(ret);
-		goto ctx;
-	}
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -219,16 +214,13 @@ API int yaca_sign_update(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestSignUpdate(c->mdctx, data, data_len);
-	if (ret == 1)
-		return 0;
-
-	if (ret == -2)
-		ret = YACA_ERROR_NOT_SUPPORTED;
-	else
+	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
-	ERROR_DUMP(ret);
-	return ret;
+	return 0;
 }
 
 API int yaca_sign_final(yaca_ctx_h ctx,
@@ -243,16 +235,13 @@ API int yaca_sign_final(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestSignFinal(c->mdctx, (unsigned char *)mac, mac_len);
-	if(ret == 1)
-		return 0;
-
-	if (ret == -2)
-		ret = YACA_ERROR_NOT_SUPPORTED;
-	else
+	if(ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
-	ERROR_DUMP(ret);
-	return ret;
+	return 0;
 }
 
 API int yaca_verify_init(yaca_ctx_h *ctx,
@@ -323,11 +312,6 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 		goto ctx;
 	}
 
-	if (ret == -2) {
-		ret = YACA_ERROR_NOT_SUPPORTED;
-		ERROR_DUMP(ret);
-		goto ctx;
-	}
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -372,16 +356,13 @@ API int yaca_verify_update(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	if (ret == 1)
-		return 0;
-
-	if (ret == -2)
-		ret = YACA_ERROR_NOT_SUPPORTED;
-	else
+	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
-	ERROR_DUMP(ret);
-	return ret;
+	return 0;
 }
 
 API int yaca_verify_final(yaca_ctx_h ctx,
@@ -402,19 +383,16 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 		ret = EVP_DigestSignFinal(c->mdctx,
 					  (unsigned char *)mac_cmp,
 					  &mac_cmp_len);
-		if (ret == 1) {
-			if (mac_len != mac_cmp_len || CRYPTO_memcmp(mac, mac_cmp, mac_len) != 0)
-				return YACA_ERROR_SIGNATURE_INVALID;
-			return 0;
+		if (ret != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
 		}
 
-		if (ret == -2)
-			ret = YACA_ERROR_NOT_SUPPORTED;
-		else
-			ret = YACA_ERROR_INTERNAL;
+		if (mac_len != mac_cmp_len || CRYPTO_memcmp(mac, mac_cmp, mac_len) != 0)
+			return YACA_ERROR_SIGNATURE_INVALID;
 
-		ERROR_DUMP(ret);
-		return ret;
+		return 0;
 	case OP_VERIFY_ASYMMETRIC:
 		ret = EVP_DigestVerifyFinal(c->mdctx,
 					    (unsigned char *)mac,
@@ -424,8 +402,6 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 
 		if (ret == 0)
 			ret = YACA_ERROR_SIGNATURE_INVALID;
-		else if (ret == -2)
-			ret = YACA_ERROR_NOT_SUPPORTED;
 		else
 			ret = YACA_ERROR_INTERNAL;
 
