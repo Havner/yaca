@@ -221,6 +221,7 @@ int import_evp(yaca_key_h *key,
 	assert(data != NULL);
 	assert(data_len != 0);
 
+	int ret;
 	BIO *src = NULL;
 	EVP_PKEY *pkey = NULL;
 	bool private;
@@ -257,6 +258,15 @@ int import_evp(yaca_key_h *key,
 			pkey = PEM_read_bio_PUBKEY(src, NULL, NULL, NULL);
 			private = false;
 		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			X509 *x509 = PEM_read_bio_X509(src, NULL, NULL, NULL);
+			if (x509 != NULL)
+				pkey = X509_get_pubkey(x509);
+			private = false;
+			X509_free(x509);
+		}
 	}
 	/* Possible DER */
 	else {
@@ -292,21 +302,31 @@ int import_evp(yaca_key_h *key,
 		break;
 
 	default:
-		return YACA_ERROR_INVALID_ARGUMENT;
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		goto free;
 	}
 
-	if (type != key_type)
-		return YACA_ERROR_INVALID_ARGUMENT;
+	if (type != key_type) {
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		goto free;
+	}
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	if (nk == NULL) {
+		ret = YACA_ERROR_OUT_OF_MEMORY;
+		goto free;
+	}
 
 	nk->evp = pkey;
 	*key = (yaca_key_h)nk;
 	(*key)->type = type;
 
-	return 0;
+	pkey = NULL;
+	ret = 0;
+
+free:
+	EVP_PKEY_free(pkey);
+	return ret;
 }
 
 int export_simple_raw(struct yaca_key_simple_s *simple_key,
