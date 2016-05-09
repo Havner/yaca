@@ -95,6 +95,10 @@ static const char *encrypt_algo_to_str(yaca_enc_algo_e algo)
 		return "aes";
 	case YACA_ENC_UNSAFE_DES:
 		return "des";
+	case YACA_ENC_UNSAFE_3DES_2TDEA:
+		return "des-ede";
+	case YACA_ENC_3DES_3TDEA:
+		return "des-ede3";
 	case YACA_ENC_UNSAFE_RC2:
 		return "rc2";
 	case YACA_ENC_UNSAFE_RC4:
@@ -102,8 +106,6 @@ static const char *encrypt_algo_to_str(yaca_enc_algo_e algo)
 	case YACA_ENC_CAST5:
 		return "cast5";
 
-	case YACA_ENC_UNSAFE_3DES_2TDEA: // TODO: add 3des/2tdea support
-	case YACA_ENC_3DES_3TDEA:  // TODO: add 3des/3tdea support
 	case YACA_ENC_UNSAFE_SKIPJACK:  // TODO: add skipjack implementation
 	default:
 		return NULL;
@@ -149,8 +151,32 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 	    cipher == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s", algo_name,
-		       key_bits, bcm_name);
+	switch(algo)
+	{
+	case YACA_ENC_AES:
+		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s",
+		               algo_name, key_bits, bcm_name);
+		break;
+	case YACA_ENC_UNSAFE_DES:
+		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
+		               algo_name, bcm_name);
+		break;
+	case YACA_ENC_UNSAFE_3DES_2TDEA:
+	case YACA_ENC_3DES_3TDEA:
+		if (bcm == YACA_BCM_ECB)
+			ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
+		else
+			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
+			               algo_name, bcm_name);
+		break;
+	case YACA_ENC_UNSAFE_RC2:
+	case YACA_ENC_UNSAFE_RC4:
+	case YACA_ENC_CAST5:
+	case YACA_ENC_UNSAFE_SKIPJACK:
+	default:
+		return YACA_ERROR_NOT_IMPLEMENTED;
+	}
+
 	if (ret < 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 	if ((unsigned)ret >= sizeof(cipher_name)) // output was truncated
@@ -179,6 +205,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	struct yaca_encrypt_ctx_s *nc;
 	const EVP_CIPHER *cipher;
 	int key_bits;
+	unsigned char *iv_data = NULL;
 	int iv_bits;
 	int ret;
 
@@ -221,16 +248,17 @@ static int encrypt_init(yaca_ctx_h *ctx,
 		goto err_free;
 	}
 
-	liv = key_get_simple(iv);
-	if (ret != 0 && liv == NULL) { /* cipher requires iv, but none was provided */
-		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_free;
-	}
-
-	// TODO: handling of algorithms with variable IV length
-	if (iv_bits != yaca_key_get_bits(iv)) { /* IV length doesn't match cipher */
-		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_free;
+	if (iv_bits != 0) { /* cipher requires iv*/
+		liv = key_get_simple(iv);
+		if (liv == NULL) { /* iv was not provided */
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			goto err_free;
+		}
+		if (iv_bits != yaca_key_get_bits(iv)) { /* IV length doesn't match cipher */
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			goto err_free;
+		}
+		iv_data = (unsigned char*)liv->d;
 	}
 
 	nc->cipher_ctx = EVP_CIPHER_CTX_new();
@@ -244,12 +272,12 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	case OP_ENCRYPT:
 		ret = EVP_EncryptInit(nc->cipher_ctx, cipher,
 				      (unsigned char*)lkey->d,
-				      (unsigned char*)liv->d);
+				      iv_data);
 		break;
 	case OP_DECRYPT:
 		ret = EVP_DecryptInit(nc->cipher_ctx, cipher,
 				      (unsigned char*)lkey->d,
-				      (unsigned char*)liv->d);
+				      iv_data);
 		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
