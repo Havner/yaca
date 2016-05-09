@@ -157,9 +157,9 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	{
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_RSA_PRIV:
+	case YACA_KEY_TYPE_DSA_PRIV:
 		nc->op_type = OP_SIGN;
 		break;
-	case YACA_KEY_TYPE_DSA_PRIV:
 	case YACA_KEY_TYPE_ECDSA_PRIV:
 		ret = YACA_ERROR_NOT_IMPLEMENTED;
 		goto free_ctx;
@@ -277,9 +277,9 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 		nc->op_type = OP_VERIFY_SYMMETRIC;
 		break;
 	case YACA_KEY_TYPE_RSA_PUB:
+	case YACA_KEY_TYPE_DSA_PUB:
 		nc->op_type = OP_VERIFY_ASYMMETRIC;
 		break;
-	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_ECDSA_PUB:
 		ret = YACA_ERROR_NOT_IMPLEMENTED;
 		goto free_ctx;
