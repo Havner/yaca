@@ -428,8 +428,12 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		switch (evp_key->key.type) {
 
 		case YACA_KEY_TYPE_RSA_PRIV:
+			ret = PEM_write_bio_RSAPrivateKey(mem, EVP_PKEY_get0(evp_key->evp),
+			                                  NULL, NULL, 0, NULL, NULL);
+			break;
 		case YACA_KEY_TYPE_DSA_PRIV:
-			ret = PEM_write_bio_PrivateKey(mem, evp_key->evp, NULL, NULL, 0, NULL, NULL);
+			ret = PEM_write_bio_DSAPrivateKey(mem, EVP_PKEY_get0(evp_key->evp),
+			                                  NULL, NULL, 0, NULL, NULL);
 			break;
 
 		case YACA_KEY_TYPE_RSA_PUB:
@@ -457,8 +461,11 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		switch (evp_key->key.type) {
 
 		case YACA_KEY_TYPE_RSA_PRIV:
+			ret = i2d_RSAPrivateKey_bio(mem, EVP_PKEY_get0(evp_key->evp));
+			break;
+
 		case YACA_KEY_TYPE_DSA_PRIV:
-			ret = i2d_PrivateKey_bio(mem, evp_key->evp);
+			ret = i2d_DSAPrivateKey_bio(mem, EVP_PKEY_get0(evp_key->evp));
 			break;
 
 		case YACA_KEY_TYPE_RSA_PUB:
