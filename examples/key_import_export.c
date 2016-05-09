@@ -210,6 +210,42 @@ free:
 	return ret;
 }
 
+int key_import_x509(void)
+{
+	int ret;
+	char *pub = NULL;
+	size_t pub_len;
+	yaca_key_h rsa_pub_from_cert = YACA_KEY_NULL;
+
+	ret = read_file("x509.crt", &pub, &pub_len);
+	if (ret != 0) {
+		printf("Make sure you copied a x509.crt from yaca_root/examples to your current directory\n");
+		printf("You can also generate one with:\n");
+		printf("openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout x509.key -out x509.crt\n");
+		return ret;
+	}
+
+	ret = yaca_key_import(&rsa_pub_from_cert, YACA_KEY_TYPE_RSA_PUB, pub, pub_len);
+	if (ret != 0)
+		goto free;
+
+	yaca_free(pub);
+	pub = NULL;
+
+	ret = yaca_key_export(rsa_pub_from_cert, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, &pub, &pub_len);
+	if (ret != 0)
+		goto free;
+
+	printf("\n\t***** RSA X509 imported public key: *****\n%.*s", (int)pub_len, pub);
+
+	ret = 0;
+
+free:
+	yaca_key_free(rsa_pub_from_cert);
+	yaca_free(pub);
+	return ret;
+}
+
 int main()
 {
 	yaca_key_h sym = YACA_KEY_NULL;
@@ -271,6 +307,15 @@ int main()
 		printf("\n\t************ DSA - success ************\n\n");
 	else
 		printf("\n\t************ DSA - failure ************\n\n");
+
+	printf("\t***************************************\n");
+	printf("\t**************** X509 *****************\n");
+	printf("\t***************************************\n");
+	ret = key_import_x509();
+	if (ret == 0)
+		printf("\n\t*********** X509 - success ************\n\n");
+	else
+		printf("\n\t*********** X509 - failure ************\n\n");
 
 free:
 	yaca_key_free(dsa_pub);
