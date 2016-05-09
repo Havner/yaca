@@ -33,7 +33,7 @@
 #define PADDING_IMPLEMENTED 0
 
 // Signature creation and verification using advanced API
-void sign_verify_rsa(void)
+void sign_verify_asym(yaca_key_type_e type, const char *algo)
 {
 	char* signature = NULL;
 	size_t signature_len;
@@ -46,7 +46,7 @@ void sign_verify_rsa(void)
 #endif
 
 	// GENERATE
-	if (yaca_key_gen(&prv, YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_4096BIT) != 0)
+	if (yaca_key_gen(&prv, type, YACA_KEY_4096BIT) != 0)
 		return;
 
 	if (yaca_key_extract_public(prv, &pub) != 0)
@@ -74,7 +74,7 @@ void sign_verify_rsa(void)
 	if (yaca_sign_final(ctx, signature, &signature_len) != 0)
 		goto finish;
 
-	dump_hex(signature, signature_len, "RSA Signature of lorem4096:");
+	dump_hex(signature, signature_len, "%s Signature of lorem4096:", algo);
 
 	// CLEANUP
 	yaca_ctx_free(ctx);
@@ -93,9 +93,9 @@ void sign_verify_rsa(void)
 		goto finish;
 
 	if (yaca_verify_final(ctx, signature, signature_len) != 0)
-		printf("RSA verification failed\n");
+		printf("%s verification failed\n", algo);
 	else
-		printf("RSA verification succesful\n");
+		printf("%s verification succesful\n", algo);
 
 finish:
 	yaca_free(signature);
@@ -219,7 +219,8 @@ int main()
 
 	// TODO simple?
 
-	sign_verify_rsa();
+	sign_verify_asym(YACA_KEY_TYPE_RSA_PRIV, "RSA");
+	sign_verify_asym(YACA_KEY_TYPE_DSA_PRIV, "DSA");
 	sign_verify_hmac();
 	sign_verify_cmac();
 
