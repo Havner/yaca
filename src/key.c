@@ -777,10 +777,10 @@ API int yaca_key_import(yaca_key_h *key,
 		return import_simple(key, key_type, data, data_len);
 	case YACA_KEY_TYPE_RSA_PUB:
 	case YACA_KEY_TYPE_RSA_PRIV:
-		return import_evp(key, key_type, data, data_len);
-	case YACA_KEY_TYPE_DES:
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_DSA_PRIV:
+		return import_evp(key, key_type, data, data_len);
+	case YACA_KEY_TYPE_DES:
 	case YACA_KEY_TYPE_DH_PUB:
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_ECDSA_PUB:
