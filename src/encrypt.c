@@ -172,6 +172,9 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 	case YACA_ENC_UNSAFE_RC2:
 	case YACA_ENC_UNSAFE_RC4:
 	case YACA_ENC_CAST5:
+		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
+		               algo_name, bcm_name);
+		break;
 	case YACA_ENC_UNSAFE_SKIPJACK:
 	default:
 		return YACA_ERROR_NOT_IMPLEMENTED;
@@ -225,7 +228,6 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	nc->ctx.get_output_length = get_encrypt_output_length;
 	nc->op_type = op_type;
 
-	// TODO: handling of algorithms with variable key length
 	ret = yaca_key_get_bits(sym_key);
 	if (ret < 0)
 		goto err_free;
@@ -270,14 +272,40 @@ static int encrypt_init(yaca_ctx_h *ctx,
 
 	switch (op_type) {
 	case OP_ENCRYPT:
-		ret = EVP_EncryptInit(nc->cipher_ctx, cipher,
-				      (unsigned char*)lkey->d,
-				      iv_data);
+		ret = EVP_EncryptInit_ex(nc->cipher_ctx, cipher, NULL, NULL, NULL);
+		if (ret != 1)
+			break;
+
+		/* Handling of algorithms with variable key length */
+		ret = EVP_CIPHER_CTX_set_key_length(nc->cipher_ctx, key_bits / 8);
+		if (ret != 1) {
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			ERROR_DUMP(ret);
+			goto err_ctx;
+		}
+
+		ret = EVP_EncryptInit_ex(nc->cipher_ctx, NULL, NULL,
+		                         (unsigned char*)lkey->d,
+		                         iv_data);
+
 		break;
 	case OP_DECRYPT:
-		ret = EVP_DecryptInit(nc->cipher_ctx, cipher,
-				      (unsigned char*)lkey->d,
-				      iv_data);
+		ret = EVP_DecryptInit_ex(nc->cipher_ctx, cipher, NULL, NULL, NULL);
+		if (ret != 1)
+			break;
+
+		/* Handling of algorithms with variable key length */
+		ret = EVP_CIPHER_CTX_set_key_length(nc->cipher_ctx, key_bits / 8);
+		if (ret != 1) {
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			ERROR_DUMP(ret);
+			goto err_ctx;
+		}
+
+		ret = EVP_DecryptInit_ex(nc->cipher_ctx, NULL, NULL,
+		                         (unsigned char*)lkey->d,
+		                         iv_data);
+
 		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;

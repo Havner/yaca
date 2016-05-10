@@ -192,9 +192,14 @@ typedef enum {
 
 	/**
 	 * CAST5 encryption.
+	 * This is a variable key length cipher.
+	 * Supported key lengths: 40-128 bits in steps of 8 bits.
+	 * - Supported block cipher modes:
+	 * #YACA_BCM_CBC,
+	 * #YACA_BCM_OFB,
+	 * #YACA_BCM_CFB,
+	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
-	 * - The key length is extracted from the key buffer.
-	 * - Supported key lengths: 40-128 bits in steps of 8 bits.
 	 */
 	YACA_ENC_CAST5,
 
