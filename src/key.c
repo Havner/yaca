@@ -37,31 +37,6 @@
 
 #include "internal.h"
 
-static inline void simple_key_sanity_check(const struct yaca_key_simple_s *key)
-{
-	assert(key->bits != 0);
-	assert(key->bits % 8 == 0);
-}
-
-// TODO: do we need a sanity check sanity for Evp keys?
-static inline void evp_key_sanity_check(const struct yaca_key_evp_s *key)
-{
-}
-
-// TODO: do we need this variant? or the two above are enough?
-#if 0
-static inline void key_sanity_check(const yaca_key_h key)
-{
-	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
-	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
-
-	if (simple_key != NULL)
-		simple_key_sanity_check(simple_key);
-
-	if (evp_key != NULL)
-		evp_key_sanity_check(evp_key);
-}
-#endif
 
 int base64_decode_length(const char *data, size_t data_len, size_t *len)
 {
@@ -550,6 +525,8 @@ free_bio:
 
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 {
+	struct yaca_key_simple_s *k;
+
 	if (key == YACA_KEY_NULL)
 		return NULL;
 
@@ -558,7 +535,14 @@ struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_DES:
 	case YACA_KEY_TYPE_IV:
-		return (struct yaca_key_simple_s *)key;
+		k = (struct yaca_key_simple_s *)key;
+
+		/* sanity check */
+		assert(k->bits != 0);
+		assert(k->bits % 8 == 0);
+		assert(k->d != NULL);
+
+		return k;
 	default:
 		return NULL;
 	}
@@ -566,6 +550,8 @@ struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 
 struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 {
+	struct yaca_key_evp_s *k;
+
 	if (key == YACA_KEY_NULL)
 		return NULL;
 
@@ -575,7 +561,12 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_DSA_PRIV:
-		return (struct yaca_key_evp_s *)key;
+		k = (struct yaca_key_evp_s *)key;
+
+		/* sanity check */
+		assert(k->evp != NULL);
+
+		return k;
 	default:
 		return NULL;
 	}
@@ -586,15 +577,11 @@ API int yaca_key_get_bits(const yaca_key_h key)
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
-	if (simple_key != NULL) {
-		simple_key_sanity_check(simple_key);
+	if (simple_key != NULL)
 		return simple_key->bits;
-	}
 
 	if (evp_key != NULL) {
 		int ret;
-
-		evp_key_sanity_check(evp_key);
 
 		// TODO: handle ECC keys when they're implemented
 		ret = EVP_PKEY_bits(evp_key->evp);
@@ -651,12 +638,6 @@ API int yaca_key_export(const yaca_key_h key,
 
 	if (data == NULL || data_len == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
-
-	if (simple_key != NULL)
-		simple_key_sanity_check(simple_key);
-
-	if (evp_key != NULL)
-		evp_key_sanity_check(evp_key);
 
 	if (key_fmt == YACA_KEY_FORMAT_DEFAULT &&
 	    key_file_fmt == YACA_KEY_FILE_FORMAT_RAW &&
