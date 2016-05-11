@@ -100,6 +100,7 @@ typedef enum {
 	YACA_KEY_CURVE_P192 = 192,        /**< ECC: P192 curve */
 	YACA_KEY_CURVE_P256 = 256,        /**< ECC: P-256 curve */
 	YACA_KEY_CURVE_P384 = 384,        /**< ECC: SECP-384 curve */
+	YACA_KEY_UNSAFE_8BIT = 8,
 	YACA_KEY_UNSAFE_40BIT = 40,
 	YACA_KEY_UNSAFE_64BIT = 64,
 	YACA_KEY_UNSAFE_80BIT = 80,
@@ -178,15 +179,23 @@ typedef enum {
 
 	/**
 	 * RC2 encryption.
-	 * - The key length is extracted from the key buffer.
+	 * This is a variable key length cipher.
 	 * - Supported key lengths: 8-1024 bits in steps of 8 bits.
+	 * - Additional parameter, effective key bits: #YACA_PARAM_RC2_EFFECTIVE_KEY_BITS,
+	 * by default equals to 128
+	 * - Supported block cipher modes:
+	 * #YACA_BCM_CBC,
+	 * #YACA_BCM_OFB,
+	 * #YACA_BCM_CFB,
+	 * #YACA_BCM_ECB
 	 */
 	YACA_ENC_UNSAFE_RC2,
 
 	/**
 	 * RC4 encryption.
-	 * - The key length is extracted from the key buffer.
+	 * This is a variable key length cipher.
 	 * - Supported key lengths: 40–2048 bits in steps of 8 bits.
+	 * This cipher doesn't support block cipher modes, use #YACA_BCM_NONE instead.
 	 */
 	YACA_ENC_UNSAFE_RC4,
 
@@ -214,6 +223,11 @@ typedef enum {
  * @brief Chaining modes for block ciphers
  */
 typedef enum {
+	/**
+	 * Used when algorithm doesn't support block ciphers modes.
+	 */
+	YACA_BCM_NONE,
+
 	/**
 	 * ECB block cipher mode.
 	 * Encrypts 64 bit at a time. No IV is used.
@@ -277,17 +291,18 @@ typedef enum {
  * @brief Non-standard parameters for algorithms
  */
 typedef enum {
-	YACA_PARAM_PADDING,      /**< Padding */
+	YACA_PARAM_PADDING,                /**< Padding */
 
-	YACA_PARAM_CTR_CNT,      /**< CTR Counter bits */
+	YACA_PARAM_RC2_EFFECTIVE_KEY_BITS, /**< RC2 effective key bits, 1-1024, 1 bit resolution */
+	YACA_PARAM_CTR_CNT,                /**< CTR Counter bits */
 
-	YACA_PARAM_GCM_AAD,      /**< GCM Additional Authentication Data */
-	YACA_PARAM_GCM_TAG,      /**< GCM Tag bits */
-	YACA_PARAM_GCM_TAG_LEN,  /**< GCM Tag length */
+	YACA_PARAM_GCM_AAD,                /**< GCM Additional Authentication Data */
+	YACA_PARAM_GCM_TAG,                /**< GCM Tag bits */
+	YACA_PARAM_GCM_TAG_LEN,            /**< GCM Tag length */
 
-	YACA_PARAM_CCM_AAD,      /**< CCM Additional Authentication Data */
-	YACA_PARAM_CCM_TAG,      /**< CCM Tag bits */
-	YACA_PARAM_CCM_TAG_LEN,  /**< CCM Tag length */
+	YACA_PARAM_CCM_AAD,                /**< CCM Additional Authentication Data */
+	YACA_PARAM_CCM_TAG,                /**< CCM Tag bits */
+	YACA_PARAM_CCM_TAG_LEN,            /**< CCM Tag length */
 } yaca_ex_param_e;
 
 /**

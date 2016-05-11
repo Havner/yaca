@@ -115,6 +115,8 @@ static const char *encrypt_algo_to_str(yaca_enc_algo_e algo)
 static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
 {
 	switch (bcm) {
+	case YACA_BCM_NONE:
+		return "none";
 	case YACA_BCM_ECB:
 		return "ecb";
 	case YACA_BCM_CBC:
@@ -158,6 +160,8 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 		               algo_name, key_bits, bcm_name);
 		break;
 	case YACA_ENC_UNSAFE_DES:
+	case YACA_ENC_UNSAFE_RC2:
+	case YACA_ENC_CAST5:
 		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
 		               algo_name, bcm_name);
 		break;
@@ -169,11 +173,8 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
 			               algo_name, bcm_name);
 		break;
-	case YACA_ENC_UNSAFE_RC2:
 	case YACA_ENC_UNSAFE_RC4:
-	case YACA_ENC_CAST5:
-		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
-		               algo_name, bcm_name);
+		ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
 		break;
 	case YACA_ENC_UNSAFE_SKIPJACK:
 	default:
