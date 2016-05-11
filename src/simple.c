@@ -94,7 +94,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	size_t out_len, lcipher_len, written;
 
 	if (plain == NULL || plain_len == 0 || cipher == NULL || cipher_len == NULL ||
-	    sym_key == YACA_KEY_NULL || iv == YACA_KEY_NULL)
+	    sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	if (plain_len > INT_MAX) /* TODO: this is because get_output_length returns signed int - perhaps we should change that */
@@ -171,7 +171,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	size_t out_len, lplain_len, written;
 
 	if (cipher == NULL || cipher_len == 0 || plain == NULL || plain_len == NULL ||
-	    sym_key == YACA_KEY_NULL || iv == YACA_KEY_NULL)
+	    sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	if (cipher_len > INT_MAX) /* TODO: this is because get_output_length returns signed int - perhaps we should change that */
