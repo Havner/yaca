@@ -138,6 +138,8 @@ typedef enum {
 	 * #YACA_BCM_CBC,
 	 * #YACA_BCM_OFB,
 	 * #YACA_BCM_CFB,
+	 * #YACA_BCM_CFB1,
+	 * #YACA_BCM_CFB8,
 	 * #YACA_BCM_ECB,
 	 * #YACA_BCM_GCM,
 	 * #YACA_BCM_CCM,
@@ -154,6 +156,8 @@ typedef enum {
 	 * #YACA_BCM_CBC,
 	 * #YACA_BCM_OFB,
 	 * #YACA_BCM_CFB,
+	 * #YACA_BCM_CFB1,
+	 * #YACA_BCM_CFB8,
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
@@ -180,6 +184,8 @@ typedef enum {
 	 * #YACA_BCM_CBC,
 	 * #YACA_BCM_OFB,
 	 * #YACA_BCM_CFB,
+	 * #YACA_BCM_CFB1,
+	 * #YACA_BCM_CFB8,
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 * - Use triple DES keys to perform corresponding 3-key 3DES encryption.
@@ -268,10 +274,22 @@ typedef enum {
 	YACA_BCM_GCM,
 
 	/**
-	 * CFB block cipher mode.
+	 * Default CFB block cipher mode.
 	 * 16-byte initialization vector is mandatory.
 	 */
 	YACA_BCM_CFB,
+
+	/**
+	 * 1 bit CFB block cipher mode.
+	 * 16-byte initialization vector is mandatory.
+	 */
+	YACA_BCM_CFB1,
+
+	/**
+	 * 8 bits CFB block cipher mode.
+	 * 16-byte initialization vector is mandatory.
+	 */
+	YACA_BCM_CFB8,
 
 	/**
 	 * OFB block cipher mode.
