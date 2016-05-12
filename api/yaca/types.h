@@ -133,8 +133,17 @@ typedef enum {
 typedef enum {
 	/**
 	 * AES encryption.
-	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 * - Supported key lengths: @c 128, @c 192 and @c 256.
+	 * - Supported block cipher modes:
+	 * #YACA_BCM_CBC,
+	 * #YACA_BCM_OFB,
+	 * #YACA_BCM_CFB,
+	 * #YACA_BCM_ECB,
+	 * #YACA_BCM_GCM,
+	 * #YACA_BCM_CCM,
+	 * #YACA_BCM_CTR,
+	 * #YACA_BCM_OCB
+	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
 	YACA_ENC_AES = 0,
 
