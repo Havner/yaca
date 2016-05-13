@@ -49,14 +49,15 @@ static struct yaca_digest_ctx_s *get_digest_ctx(const yaca_ctx_h ctx)
 	}
 }
 
-static int get_digest_output_length(const yaca_ctx_h ctx, size_t input_len)
+static int get_digest_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)
 {
 	struct yaca_digest_ctx_s *c = get_digest_ctx(ctx);
 
 	if (c == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	return EVP_MD_CTX_size(c->mdctx);
+	*output_len = EVP_MD_CTX_size(c->mdctx);
+	return 0;
 }
 
 static void destroy_digest_context(yaca_ctx_h ctx)

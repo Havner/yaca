@@ -68,7 +68,7 @@ static void destroy_encrypt_ctx(const yaca_ctx_h ctx)
 	nc->cipher_ctx = NULL;
 }
 
-static int get_encrypt_output_length(const yaca_ctx_h ctx, size_t input_len)
+static int get_encrypt_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)
 {
 	struct yaca_encrypt_ctx_s *nc = get_encrypt_ctx(ctx);
 	int block_size;
@@ -77,14 +77,21 @@ static int get_encrypt_output_length(const yaca_ctx_h ctx, size_t input_len)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	block_size = EVP_CIPHER_CTX_block_size(nc->cipher_ctx);
-	if (block_size == 0) {
+	if (block_size <= 0) {
 		ERROR_DUMP(YACA_ERROR_INTERNAL);
 		return YACA_ERROR_INTERNAL;
 	}
 
-	if (input_len > 0)
-		return block_size + input_len - 1;
-	return block_size;
+	if (input_len > 0) {
+		if ((size_t)block_size > SIZE_MAX - input_len + 1)
+			return YACA_ERROR_TOO_BIG_ARGUMENT;
+
+		*output_len = block_size + input_len - 1;
+	} else {
+		*output_len = block_size;
+	}
+
+	return 0;
 }
 
 static const char *encrypt_algo_to_str(yaca_enc_algo_e algo)

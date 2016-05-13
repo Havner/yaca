@@ -59,10 +59,9 @@ void digest_advanced(void)
 	if (ret < 0)
 		goto exit_ctx;
 
-	// TODO: rename to yaca_digest_get_length??
 	size_t digest_len;
-	digest_len = yaca_get_digest_length(ctx);
-	if (digest_len <= 0)
+	ret = yaca_get_digest_length(ctx, &digest_len);
+	if (ret != 0)
 		goto exit_ctx;
 
 	{

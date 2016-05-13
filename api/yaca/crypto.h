@@ -162,29 +162,28 @@ void yaca_ctx_free(yaca_ctx_h ctx);
  * @brief  Returns the output length for a given algorithm. Can only be called
  *         on an initialized context.
  *
- * @param[in] ctx        Previously initialized crypto context.
- * @param[in] input_len  Length of the input data to be processed.
+ * @param[in] ctx         Previously initialized crypto context.
+ * @param[in] input_len   Length of the input data to be processed.
+ * @param[in] output_len  Required length of the output.
  *
  * @return negative on error or length of output.
  */
-// TODO: this function should probably return the value by param of
-// size_t type and leave the return int value only to report errors
-int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len);
+int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len);
 
 /**
  * @brief  Wrapper - returns the length of the digest (for a given context).
  */
-#define yaca_get_digest_length(ctxa) yaca_get_output_length((ctxa), 0)
+#define yaca_get_digest_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
 
 /**
  * @brief  Wrapper - returns the length of the signature (for a given context).
  */
-#define yaca_get_sign_length(ctxa) yaca_get_output_length((ctxa), 0)
+#define yaca_get_sign_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
 
 /**
  * @brief  Wrapper - returns the length of the block (for a given context).
  */
-#define yaca_get_block_length(ctxa) yaca_get_output_length((ctxa), 0)
+#define yaca_get_block_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
 
 /**@}*/
 

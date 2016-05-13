@@ -120,10 +120,10 @@ API void yaca_ctx_free(yaca_ctx_h ctx)
 	}
 }
 
-API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len)
+API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)
 {
 	if (ctx == YACA_CTX_NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	return ctx->get_output_length(ctx, input_len);
+	return ctx->get_output_length(ctx, input_len, output_len);
 }

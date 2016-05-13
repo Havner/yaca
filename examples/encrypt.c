@@ -134,17 +134,13 @@ void encrypt_advanced(void)
 		if (ret)
 			goto ex_iv;
 
-		ret = yaca_get_block_length(ctx);
-		if (ret < 0)
+		ret = yaca_get_block_length(ctx, &block_len);
+		if (ret != 0)
 			goto ex_ctx;
 
-		block_len = ret;
-
-		ret = yaca_get_output_length(ctx, LOREM4096_SIZE);
-		if (ret < 0)
+		ret = yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len);
+		if (ret != 0)
 			goto ex_ctx;
-
-		output_len = ret;
 
 		/* Calculate max output: size of update + final chunks */
 		enc_size = output_len + block_len;
@@ -184,17 +180,13 @@ void encrypt_advanced(void)
 			goto ex_of;
 		}
 
-		ret = yaca_get_block_length(ctx);
-		if (ret < 0)
+		ret = yaca_get_block_length(ctx, &block_len);
+		if (ret != 0)
 			goto ex_of;
 
-		block_len = ret;
-
-		ret = yaca_get_output_length(ctx, LOREM4096_SIZE);
-		if (ret < 0)
+		ret = yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len);
+		if (ret != 0)
 			goto ex_ctx;
-
-		output_len = ret;
 
 		/* Calculate max output: size of update + final chunks */
 		dec_size = output_len + block_len;

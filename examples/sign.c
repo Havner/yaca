@@ -65,7 +65,7 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
 
-	if ((signature_len = yaca_get_sign_length(ctx)) <= 0)
+	if (yaca_get_sign_length(ctx, &signature_len) != 0)
 		goto finish;
 
 	if ((signature = yaca_malloc(signature_len)) == NULL)
@@ -123,7 +123,7 @@ void sign_verify_hmac(void)
 	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
 
-	if ((signature_len = yaca_get_sign_length(ctx)) <= 0)
+	if (yaca_get_sign_length(ctx, &signature_len) != 0)
 		goto finish;
 
 	if ((signature = yaca_malloc(signature_len)) == NULL)
@@ -176,7 +176,7 @@ void sign_verify_cmac(void)
 	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE))
 		goto finish;
 
-	if ((signature_len = yaca_get_sign_length(ctx)) <= 0)
+	if (yaca_get_sign_length(ctx, &signature_len) != 0)
 		goto finish;
 
 	if ((signature = yaca_malloc(signature_len)) == NULL)

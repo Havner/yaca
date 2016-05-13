@@ -56,7 +56,7 @@ static struct yaca_sign_ctx_s *get_sign_ctx(const yaca_ctx_h ctx)
 	}
 }
 
-static int get_sign_output_length(const yaca_ctx_h ctx, size_t input_len)
+static int get_sign_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 
@@ -75,7 +75,8 @@ static int get_sign_output_length(const yaca_ctx_h ctx, size_t input_len)
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	return len;
+	*output_len = len;
+	return 0;
 }
 
 static void destroy_sign_context(yaca_ctx_h ctx)

@@ -46,7 +46,7 @@ struct yaca_ctx_s
 	enum yaca_ctx_type_e type;
 
 	void (*ctx_destroy)(const yaca_ctx_h ctx);
-	int (*get_output_length)(const yaca_ctx_h ctx, size_t input_len);
+	int (*get_output_length)(const yaca_ctx_h ctx, size_t input_len, size_t *output_len);
 	int (*set_param)(yaca_ctx_h ctx, yaca_ex_param_e param,
 			 const void *value, size_t value_len);
 	int (*get_param)(const yaca_ctx_h ctx, yaca_ex_param_e param,

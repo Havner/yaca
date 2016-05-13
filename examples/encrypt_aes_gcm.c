@@ -52,7 +52,7 @@ void encrypt_decrypt_aes_gcm(void)
 	size_t aad_len;
 	size_t tag_len;
 
-	printf("Plain data (16 of %zu bytes): %.16s\n", (size_t)4096, lorem4096);
+	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/// Key generation
 
@@ -77,6 +77,8 @@ void encrypt_decrypt_aes_gcm(void)
 
 	/// Encryption
 	{
+		size_t len;
+
 		ret = yaca_encrypt_init(&ctx, YACA_ENC_AES, YACA_BCM_GCM, key, iv);
 		if (ret < 0)
 			goto clean;
@@ -85,21 +87,20 @@ void encrypt_decrypt_aes_gcm(void)
 		if (ret < 0)
 			goto clean;
 
-		ret = yaca_encrypt_update(ctx, lorem4096, 4096, NULL, &ciphertext_len);
-		if (ret != 42)
-			goto clean;// TODO: what error code?
-
-		ret = yaca_get_block_length(ctx);
-		if (ret < 0)
+		ret = yaca_get_output_length(ctx, LOREM4096_SIZE, &ciphertext_len);
+		if (ret != 0)
 			goto clean;
 
-		ciphertext_len += ret ; // Add block size for finalize
+		ret = yaca_get_block_length(ctx, &len);
+		if (ret != 0)
+			goto clean;
+
+		ciphertext_len += len ; // Add block size for finalize
 		ciphertext = yaca_malloc(ciphertext_len);
 		if (ciphertext == NULL)
 			goto clean;
 
-		size_t len;
-		ret = yaca_encrypt_update(ctx, lorem4096, 4096, ciphertext, &len);
+		ret = yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, ciphertext, &len);
 		if (ret < 0)
 			goto clean;
 
@@ -132,15 +133,15 @@ void encrypt_decrypt_aes_gcm(void)
 		if (ret < 0)
 			goto clean;
 
-		ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, NULL, &plaintext_len);
-		if (ret != 42)
-			goto clean; // TODO: what error code?
-
-		ret = yaca_get_block_length(ctx);
-		if (ret < 0)
+		ret = yaca_get_output_length(ctx, ciphertext_len, &plaintext_len);
+		if (ret != 0)
 			goto clean;
 
-		plaintext_len += ret; // Add block size for finalize
+		ret = yaca_get_block_length(ctx, &len);
+		if (ret != 0)
+			goto clean;
+
+		plaintext_len += len; // Add block size for finalize
 		plaintext = yaca_malloc(plaintext_len);
 		if (plaintext == NULL)
 			goto clean;

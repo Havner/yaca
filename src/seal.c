@@ -68,7 +68,7 @@ static void destroy_seal_ctx(const yaca_ctx_h ctx)
 	nc->cipher_ctx = NULL;
 }
 
-static int get_seal_output_length(const yaca_ctx_h ctx, size_t input_len)
+static int get_seal_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)
 {
 	struct yaca_seal_ctx_s *nc = get_seal_ctx(ctx);
 	int block_size;
@@ -83,9 +83,16 @@ static int get_seal_output_length(const yaca_ctx_h ctx, size_t input_len)
 		return YACA_ERROR_INTERNAL;
 	}
 
-	if (input_len > 0)
-		return block_size + input_len - 1;
-	return block_size;
+	if (input_len > 0) {
+		if ((size_t)block_size > SIZE_MAX - input_len + 1)
+			return YACA_ERROR_TOO_BIG_ARGUMENT;
+
+		*output_len = block_size + input_len - 1;
+	} else {
+		*output_len = block_size;
+	}
+
+	return 0;
 }
 
 static int seal_init(yaca_ctx_h *ctx,

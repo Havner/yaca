@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <limits.h>
+#include <stdint.h>
 
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
@@ -52,11 +53,10 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 	if (ret < 0)
 		goto err;
 
-	ret = yaca_get_digest_length(ctx);
-	if (ret < 0)
+	ret = yaca_get_digest_length(ctx, &ldigest_len);
+	if (ret != 0)
 		goto err;
 
-	ldigest_len = ret;
 	ldigest = yaca_malloc(ldigest_len);
 	if (!ldigest)
 		goto err;
@@ -97,24 +97,24 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	    sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (plain_len > INT_MAX) /* TODO: this is because get_output_length returns signed int - perhaps we should change that */
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
-
 	ret = yaca_encrypt_init(&ctx, algo, bcm, sym_key, iv);
 	if (ret != 0)
 		return ret;
 
-	ret = yaca_get_block_length(ctx);
-	if (ret <= 0)
+	ret = yaca_get_block_length(ctx, &lcipher_len);
+	if (ret != 0)
 		goto err;
 
-	lcipher_len = ret;
-
-	ret = yaca_get_output_length(ctx, plain_len);
-	if (ret <= 0)
+	ret = yaca_get_output_length(ctx, plain_len, &out_len);
+	if (ret != 0)
 		goto err;
 
-	lcipher_len += ret;
+	if (out_len > SIZE_MAX - lcipher_len) {
+		ret = YACA_ERROR_TOO_BIG_ARGUMENT;
+		goto err;
+	}
+
+	lcipher_len += out_len;
 
 	lcipher = yaca_malloc(lcipher_len);
 	if (lcipher == NULL)
@@ -174,24 +174,24 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	    sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	if (cipher_len > INT_MAX) /* TODO: this is because get_output_length returns signed int - perhaps we should change that */
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
-
 	ret = yaca_decrypt_init(&ctx, algo, bcm, sym_key, iv);
 	if (ret != 0)
 		return ret;
 
-	ret = yaca_get_block_length(ctx);
-	if (ret <= 0)
+	ret = yaca_get_block_length(ctx, &lplain_len);
+	if (ret != 0)
 		goto err;
 
-	lplain_len = ret;
-
-	ret = yaca_get_output_length(ctx, cipher_len);
-	if (ret <= 0)
+	ret = yaca_get_output_length(ctx, cipher_len, &out_len);
+	if (ret != 0)
 		goto err;
 
-	lplain_len += ret;
+	if (out_len > SIZE_MAX - lplain_len) {
+		ret = YACA_ERROR_TOO_BIG_ARGUMENT;
+		goto err;
+	}
+
+	lplain_len += out_len;
 
 	lplain = yaca_malloc(lplain_len);
 	if (!lplain)
