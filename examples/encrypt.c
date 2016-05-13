@@ -164,7 +164,7 @@ void encrypt_advanced(void)
 		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ",
 			 enc_size);
 
-		yaca_ctx_free(ctx); // TODO: perhaps it should not return value
+		yaca_ctx_free(ctx);
 	}
 
 	/// Decryption
@@ -233,6 +233,6 @@ int main()
 
 	encrypt_advanced();
 
-	yaca_exit(); // TODO: what about handing of return value from exit??
+	yaca_exit();
 	return ret;
 }

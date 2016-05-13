@@ -67,7 +67,6 @@ void yaca_exit(void);
  * @return NULL on failure, pointer to allocated memory otherwise.
  * @see yaca_zalloc(), yaca_realloc(), yaca_free()
  */
-// TODO: this should be a macro to CRYPTO_*
 void *yaca_malloc(size_t size);
 
 /**
@@ -78,7 +77,6 @@ void *yaca_malloc(size_t size);
  * @return NULL on failure, pointer to allocated and zeroed memory otherwise.
  * @see yaca_malloc(), yaca_realloc(), yaca_free()
  */
-// TODO: this should be a macro to CRYPTO_*
 void *yaca_zalloc(size_t size);
 
 /**
@@ -90,7 +88,6 @@ void *yaca_zalloc(size_t size);
  * @return NULL on failure, pointer to allocated memory otherwise.
  * @see yaca_malloc(), yaca_zalloc(), yaca_free()
  */
-// TODO: this should be a macro to CRYPTO_*
 void *yaca_realloc(void *addr, size_t size);
 
 /**
@@ -101,7 +98,6 @@ void *yaca_realloc(void *addr, size_t size);
  * @see yaca_malloc(), yaca_zalloc(), yaca_realloc()
  *
  */
-// TODO: this should be a macro to CRYPTO_*
 void yaca_free(void *ptr);
 
 /**

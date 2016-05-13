@@ -143,8 +143,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	if (ret != 0)
 		return ret;
 
-	// TODO: use zalloc when available
-	nc = yaca_malloc(sizeof(struct yaca_sign_ctx_s));
+	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
 	if (nc == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
 		goto free_key;
@@ -261,8 +260,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 	if (ret != 0)
 		return ret;
 
-	// TODO: use zalloc when available
-	nc = yaca_malloc(sizeof(struct yaca_sign_ctx_s));
+	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
 	if (nc == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
 		goto free_key;

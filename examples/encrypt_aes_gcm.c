@@ -118,7 +118,7 @@ void encrypt_decrypt_aes_gcm(void)
 
 		dump_hex(ciphertext, 16, "Encrypted data (16 of %zu bytes): ", ciphertext_len);
 
-		yaca_ctx_free(ctx); // TODO: perhaps it should not return value
+		yaca_ctx_free(ctx);
 	}
 
 	/// Decryption
@@ -188,6 +188,6 @@ int main()
 
 	encrypt_decrypt_aes_gcm();
 
-	yaca_exit(); // TODO: what about handing of return value from exit??
+	yaca_exit();
 	return ret;
 }
