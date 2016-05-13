@@ -310,12 +310,11 @@ typedef enum {
  */
 typedef enum {
 	YACA_PADDING_NONE = 0,   /**< total number of data MUST multiple of block size, Default */
-	YACA_PADDING_ZEROS,      /**< pad with zeros */
-	YACA_PADDING_ISO10126,   /**< ISO 10126 */
-	YACA_PADDING_ANSIX923,   /**< ANSI X.923 padding*/
-	YACA_PADDING_ANSIX931,   /**< ANSI X.931 padding*/
-	YACA_PADDING_PKCS1,      /**< RSA signature creation */
-	YACA_PADDING_PKCS7       /**< Byte padding for symetric algos (RFC 5652), (PKCS5 padding is the same) */
+	YACA_PADDING_X931,       /**< RSA X9.31 padding*/
+	YACA_PADDING_PKCS1,      /**< RSA signature/verify operations */
+	YACA_PADDING_PKCS1_PSS,  /**< RSA signature/verify operations */
+	YACA_PADDING_SSLV23,     /**< RSA SSLv23 */
+	YACA_PADDING_PKCS1_OAEP  /**< RSA encrypt/decrypt operations */
 } yaca_padding_e;
 
 /**@}*/

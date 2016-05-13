@@ -30,8 +30,6 @@
 #include "lorem.h"
 #include "misc.h"
 
-#define PADDING_IMPLEMENTED 0
-
 // Signature creation and verification using advanced API
 void sign_verify_asym(yaca_key_type_e type, const char *algo)
 {
@@ -41,9 +39,7 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	yaca_ctx_h ctx = YACA_CTX_NULL;
 	yaca_key_h prv = YACA_KEY_NULL;
 	yaca_key_h pub = YACA_KEY_NULL;
-#if PADDING_IMPLEMENTED
-	yaca_padding_e padding = YACA_PADDING_PKCS1;
-#endif
+	yaca_padding_e padding = YACA_PADDING_PKCS1_PSS;
 
 	// GENERATE
 	if (yaca_key_gen(&prv, type, YACA_KEY_1024BIT) != 0)
@@ -56,11 +52,8 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, prv) != 0)
 		goto finish;
 
-#if PADDING_IMPLEMENTED
-	// TODO: yaca_ctx_set_param should take void* not char*
 	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)) != 0)
 		goto finish;
-#endif
 
 	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
@@ -84,10 +77,8 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, pub) != 0)
 		goto finish;
 
-#if PADDING_IMPLEMENTED
 	if (yaca_ctx_set_param(ctx, YACA_PARAM_PADDING, (char*)(&padding), sizeof(padding)) != 0)
 		goto finish;
-#endif
 
 	if (yaca_verify_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
