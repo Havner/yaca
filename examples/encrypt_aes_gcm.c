@@ -33,148 +33,140 @@
 #include "misc.h"
 #include "../src/debug.h"
 
-// Symmetric aes gcm encryption using advanced API
 void encrypt_decrypt_aes_gcm(void)
 {
-	int ret;
+	yaca_enc_algo_e algo = YACA_ENC_AES;
+	yaca_block_cipher_mode_e bcm = YACA_BCM_GCM;
+	yaca_key_type_e key_type = YACA_KEY_TYPE_SYMMETRIC;
+	size_t key_bits = YACA_KEY_256BIT;
+	size_t iv_bits = YACA_KEY_IV_128BIT;
 
 	yaca_ctx_h ctx = YACA_CTX_NULL;
-
 	yaca_key_h key = YACA_KEY_NULL;
 	yaca_key_h iv = YACA_KEY_NULL;
-	yaca_key_h aad_key = YACA_KEY_NULL; // add YACA_YACA_KEY_TYPE_AAD ?
 
-	char *plaintext = NULL;
-	char *ciphertext = NULL;
+	char *enc = NULL;
+	char *dec = NULL;
+	size_t enc_size;
+	size_t dec_size;
+
 	char *aad = NULL;
 	char *tag = NULL;
-	size_t plaintext_len;
-	size_t ciphertext_len;
-	size_t aad_len;
-	size_t tag_len;
+	size_t aad_size = 16;
+	size_t tag_size = 16;
+
+	size_t block_len;
+	size_t output_len;
+	size_t out_size;
+	size_t rem;
 
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
-	/// Key generation
+	/* Key generation */
+	if (yaca_key_gen(&key, key_type, key_bits) != 0)
+		return;
 
-	ret = yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT); // key_type, key_len, *key ? looks imo much better
-	if (ret != 0)
+	/* IV generation */
+	if (yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != 0)
 		goto clean;
 
-	// use YACA_KEY_IV_128BIT & YACA_KEY_TYPE_IV or maybe YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC ?
-	ret = yaca_key_gen(&iv, YACA_KEY_TYPE_IV, YACA_KEY_IV_128BIT);
-	if (ret != 0)
+	if ((aad = yaca_zalloc(aad_size)) == NULL)
 		goto clean;
 
-	// use YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC or maybe add YACA_KEY_AAD_128BIT & YACA_KEY_TYPE_AAD ?
-	ret = yaca_key_gen(&aad_key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_UNSAFE_128BIT);
-	if (ret != 0)
+	if (yaca_rand_bytes(aad, aad_size) != 0)
 		goto clean;
 
-	// generate and export aad?
-	ret = yaca_key_export(aad_key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL, &aad, &aad_len);
-	if (ret != 0)
+	if ((tag = yaca_zalloc(tag_size)) == NULL)
 		goto clean;
 
-	/// Encryption
+	/* Encryption */
 	{
-		size_t len;
-
-		ret = yaca_encrypt_init(&ctx, YACA_ENC_AES, YACA_BCM_GCM, key, iv);
-		if (ret != 0)
+		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != 0)
 			goto clean;
 
-		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_len);
-		if (ret != 0)
+		/* Provide any AAD data */
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_size) != 0)
 			goto clean;
 
-		ret = yaca_get_output_length(ctx, LOREM4096_SIZE, &ciphertext_len);
-		if (ret != 0)
+		if (yaca_get_block_length(ctx, &block_len) != 0)
 			goto clean;
 
-		ret = yaca_get_block_length(ctx, &len);
-		if (ret != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
 			goto clean;
 
-		ciphertext_len += len ; // Add block size for finalize
-		ciphertext = yaca_malloc(ciphertext_len);
-		if (ciphertext == NULL)
+		/* Calculate max output: size of update + final chunks */
+		enc_size = output_len + block_len;
+		if ((enc = yaca_malloc(enc_size)) == NULL)
 			goto clean;
 
-		ret = yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, ciphertext, &len);
-		if (ret != 0)
+		out_size = enc_size;
+		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != 0)
 			goto clean;
 
-		ciphertext_len = len;
-
-		ret = yaca_encrypt_final(ctx, ciphertext + len, &len);
-		if (ret != 0)
+		rem = enc_size - out_size;
+		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != 0)
 			goto clean;
 
-		ciphertext_len += len;
+		enc_size = rem + out_size;
 
-		ret = yaca_ctx_get_param(ctx, YACA_PARAM_GCM_TAG, (void*)&tag, &tag_len);
-		if (ret != 0)
+		/* Set the tag length and get the tag after final encryption */
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG_LEN,
+		                       (void*)&tag_size, sizeof(tag_size)) != 0)
 			goto clean;
 
-		dump_hex(ciphertext, 16, "Encrypted data (16 of %zu bytes): ", ciphertext_len);
+		if (yaca_ctx_get_param(ctx, YACA_PARAM_GCM_TAG, (void**)tag, &tag_size) != 0)
+			goto clean;
+
+		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
 
 		yaca_ctx_free(ctx);
+		ctx = YACA_CTX_NULL;
 	}
 
-	/// Decryption
+	/* Decryption */
 	{
-		size_t len;
-
-		ret = yaca_decrypt_init(&ctx, YACA_ENC_AES, YACA_BCM_GCM, key, iv);
-		if (ret != 0)
+		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != 0)
 			goto clean;
 
-		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_len);
-		if (ret != 0)
+		/* Provide any AAD data */
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_size) != 0)
 			goto clean;
 
-		ret = yaca_get_output_length(ctx, ciphertext_len, &plaintext_len);
-		if (ret != 0)
+		if (yaca_get_block_length(ctx, &block_len) != 0)
 			goto clean;
 
-		ret = yaca_get_block_length(ctx, &len);
-		if (ret != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
 			goto clean;
 
-		plaintext_len += len; // Add block size for finalize
-		plaintext = yaca_malloc(plaintext_len);
-		if (plaintext == NULL)
+		/* Calculate max output: size of update + final chunks */
+		dec_size = output_len + block_len;
+		if ((dec = yaca_malloc(dec_size)) == NULL)
 			goto clean;
 
-		ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, plaintext, &len);
-		if (ret != 0)
+		out_size = dec_size;
+		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != 0)
 			goto clean;
 
-		plaintext_len = len;
+		rem = dec_size - out_size;
 
-		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG, tag, tag_len);
-		if (ret != 0)
+		/* Set expected tag value before final decryption */
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG, tag, tag_size) != 0)
 			goto clean;
 
-		ret = yaca_encrypt_final(ctx, plaintext + len, &len);
-		if (ret != 0)
+		if (yaca_decrypt_final(ctx, dec + out_size, &rem) != 0)
 			goto clean;
 
-		plaintext_len += len;
+		dec_size = rem + out_size;
 
-		printf("Decrypted data (16 of %zu bytes): %.16s\n", plaintext_len, plaintext);
-
-		yaca_ctx_free(ctx);
+		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_size, dec);
 	}
 
 clean:
-	yaca_free(plaintext);
-	yaca_free(ciphertext);
+	yaca_free(enc);
+	yaca_free(dec);
 	yaca_free(tag);
 	yaca_free(aad);
 	yaca_ctx_free(ctx);
-	yaca_key_free(aad_key);
 	yaca_key_free(iv);
 	yaca_key_free(key);
 }
