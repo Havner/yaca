@@ -40,7 +40,7 @@ extern "C" {
  */
 
 /**
- * @brief yaca_digest_init  Initializes a digest context.
+ * @brief  Initializes a digest context.
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
@@ -51,7 +51,7 @@ extern "C" {
 int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
 
 /**
- * @brief yaca_digest_update  Feeds the data into the message digest algorithm.
+ * @brief  Feeds the data into the message digest algorithm.
  *
  * @param[in,out] ctx       Context created by yaca_digest_init().
  * @param[in]     data      Data from which the digest is to be calculated.
@@ -63,7 +63,7 @@ int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
 int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len);
 
 /**
- * @brief yaca_digest_final  Calculates the final digest.
+ * @brief  Calculates the final digest.
  *
  * @param[in,out] ctx         A valid digest context.
  * @param[out]    digest      Buffer for the message digest (must be allocated by client,

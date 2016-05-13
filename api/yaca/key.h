@@ -44,7 +44,7 @@ extern "C" {
 // TODO: We need a way to import keys encrypted with hw (or other) keys. New function like yaca_key_load or sth??
 
 /**
- * @brief yaca_key_get_bits  Get key's length (in bits).
+ * @brief  Get key's length (in bits).
  *
  * @param[in] key  Key which length we return.
  *
@@ -53,7 +53,7 @@ extern "C" {
 int yaca_key_get_bits(const yaca_key_h key);
 
 /**
- * @brief yaca_key_import  Imports a key.
+ * @brief  Imports a key.
  *
  * This function imports a key trying to match it to the key_type specified.
  * It should autodetect both, key format and file format.
@@ -81,7 +81,7 @@ int yaca_key_import(yaca_key_h *key,
                     size_t data_len);
 
 /**
- * @brief yaca_key_export  Exports a key to arbitrary format. Export may fail if key is HW-based.
+ * @brief  Exports a key to arbitrary format. Export may fail if key is HW-based.
  *
  * This function exports the key to an arbitrary key format and key file format.
  *
@@ -113,7 +113,7 @@ int yaca_key_export(const yaca_key_h key,
                     size_t *data_len);
 
 /**
- * @brief yaca_key_gen  Generates a secure key (or an initialization vector).
+ * @brief  Generates a secure key (or an initialization vector).
  *
  * This function is used to generate symmetric and private asymmetric keys.
  *
@@ -129,7 +129,7 @@ int yaca_key_gen(yaca_key_h *key,
                  size_t key_bits);
 
 /**
- * @brief yaca_key_extract_public  Extracts public key from a private one.
+ * @brief  Extracts public key from a private one.
  *
  * @param[in]  prv_key   Private key to extract the public one from.
  * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free()).
@@ -140,8 +140,7 @@ int yaca_key_gen(yaca_key_h *key,
 int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
 
 /**
- * @brief yaca_key_free  Frees the key created by the library.
- *                       Passing YACA_KEY_NULL is allowed.
+ * @brief  Frees the key created by the library. Passing YACA_KEY_NULL is allowed.
  *
  * @param key  Key to be freed.
  * @see yaca_key_import(), yaca_key_export(), yaca_key_gen()
@@ -161,7 +160,7 @@ void yaca_key_free(yaca_key_h key);
  */
 
 /**
- * @brief yaca_key_derive_dh  Derives a key using Diffie-Helmann or EC Diffie-Helmann key exchange protocol.
+ * @brief  Derives a key using Diffie-Helmann or EC Diffie-Helmann key exchange protocol.
  *
  * @param[in]  prv_key  Our private key.
  * @param[in]  pub_key  Peer public key.
@@ -175,7 +174,7 @@ int yaca_key_derive_dh(const yaca_key_h prv_key,
                        yaca_key_h *sym_key);
 
 /**
- * @brief yaca_key_derive_kea  Derives a key using KEA key exchange protocol.
+ * @brief  Derives a key using KEA key exchange protocol.
  *
  * @param[in]  prv_key       Our DH private component.
  * @param[in]  pub_key       Peers' DH public component.
@@ -195,7 +194,7 @@ int yaca_key_derive_kea(const yaca_key_h prv_key,
                         yaca_key_h *sym_key);
 
 /**
- * @brief yaca_key_derive_pbkdf2  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
+ * @brief  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
  *
  * @param[in]  password  User password as a NULL-terminated string.
  * @param[in]  salt      Salt, should be non-zero.

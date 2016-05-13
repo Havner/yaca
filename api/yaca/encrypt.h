@@ -42,7 +42,7 @@ extern "C" {
  */
 
 /**
- * @brief yaca_encrypt_init  Initializes an encryption context.
+ * @brief  Initializes an encryption context.
  *
  * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo     Encryption algorithm that will be used.
@@ -60,7 +60,7 @@ int yaca_encrypt_init(yaca_ctx_h *ctx,
                       const yaca_key_h iv);
 
 /**
- * @brief yaca_encrypt_update  Encrypts chunk of the data.
+ * @brief  Encrypts chunk of the data.
  *
  * @param[in,out] ctx         Context created by yaca_encrypt_init().
  * @param[in]     plain       Plain text to be encrypted.
@@ -79,7 +79,7 @@ int yaca_encrypt_update(yaca_ctx_h ctx,
                         size_t *cipher_len);
 
 /**
- * @brief yaca_encrypt_final  Encrypts the final chunk of the data.
+ * @brief  Encrypts the final chunk of the data.
  *
  * @param[in,out] ctx         A valid encrypt context.
  * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, see
@@ -94,7 +94,7 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
                        size_t *cipher_len);
 
 /**
- * @brief yaca_decrypt_init  Initializes an decryption context.
+ * @brief  Initializes an decryption context.
  *
  * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo     Encryption algorithm that was used to encrypt the data.
@@ -112,7 +112,7 @@ int yaca_decrypt_init(yaca_ctx_h *ctx,
                       const yaca_key_h iv);
 
 /**
- * @brief yaca_decrypt_update Decrypts chunk of the data.
+ * @brief  Decrypts chunk of the data.
  *
  * @param[in,out] ctx         Context created by yaca_decrypt_init().
  * @param[in]     cipher      Cipher text to be decrypted.
@@ -131,7 +131,7 @@ int yaca_decrypt_update(yaca_ctx_h ctx,
                         size_t *plain_len);
 
 /**
- * @brief yaca_decrypt_final  Decrypts the final chunk of the data.
+ * @brief  Decrypts the final chunk of the data.
  *
  * @param[in,out] ctx        A valid decrypt context.
  * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, see
@@ -146,7 +146,7 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
                        size_t *plain_len);
 
 /**
- * @brief yaca_get_iv_bits  Returns the recomended/default length of the IV for a given encryption configuration.
+ * @brief  Returns the recomended/default length of the IV for a given encryption configuration.
  *
  * @param[in] algo      Encryption algorithm.
  * @param[in] bcm       Chain mode.

@@ -41,7 +41,7 @@ extern "C" {
  */
 
 /**
- * @brief yaca_sign_init  Initializes a signature context.
+ * @brief  Initializes a signature context.
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
@@ -55,7 +55,7 @@ int yaca_sign_init(yaca_ctx_h *ctx,
                    const yaca_key_h key);
 
 /**
- * @brief yaca_sign_update  Feeds the data into the digital signature algorithm.
+ * @brief  Feeds the data into the digital signature algorithm.
  *
  * @param[in,out] ctx       Context created by yaca_sign_init().
  * @param[in]     data      Data to be signed.
@@ -69,7 +69,7 @@ int yaca_sign_update(yaca_ctx_h ctx,
                      size_t data_len);
 
 /**
- * @brief yaca_sign_final  Calculates the final signature.
+ * @brief  Calculates the final signature.
  *
  * @param[in,out] ctx      A valid sign context.
  * @param[out]    mac      Buffer for the MAC or the signature (must be allocated by client, see
@@ -84,7 +84,7 @@ int yaca_sign_final(yaca_ctx_h ctx,
                     size_t *mac_len);
 
 /**
- * @brief yaca_verify_init  Initializes a signature verification context.
+ * @brief  Initializes a signature verification context.
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
@@ -98,7 +98,7 @@ int yaca_verify_init(yaca_ctx_h *ctx,
                      const yaca_key_h key);
 
 /**
- * @brief yaca_verify_update  Feeds the data into the digital signature verification algorithm.
+ * @brief  Feeds the data into the digital signature verification algorithm.
  *
  * @param[in,out] ctx       Context created by yaca_verify_init().
  * @param[in]     data      Data to be verified.
@@ -112,7 +112,7 @@ int yaca_verify_update(yaca_ctx_h ctx,
                        size_t data_len);
 
 /**
- * @brief yaca_verify_final  Performs the verification.
+ * @brief  Performs the verification.
  *
  * @param[in,out] ctx      A valid verify context.
  * @param[in]     mac      Input MAC or signature (returned by yaca_sign_final()).

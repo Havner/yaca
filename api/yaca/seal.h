@@ -44,7 +44,7 @@ extern "C" {
  */
 
 /**
- * @brief yaca_seal_init  Initializes an asymmetric encryption context.
+ * @brief  Initializes an asymmetric encryption context.
  *
  * @param[out] ctx           Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  pub_key       Public key of the peer that will receive the encrypted data.
@@ -66,7 +66,7 @@ int yaca_seal_init(yaca_ctx_h *ctx,
                    yaca_key_h *iv);
 
 /**
- * @brief yaca_seal_update  Encrypts piece of the data.
+ * @brief  Encrypts piece of the data.
  *
  * @param[in,out] ctx         Context created by yaca_seal_init().
  * @param[in]     plain       Plain text to be encrypted.
@@ -85,7 +85,7 @@ int yaca_seal_update(yaca_ctx_h ctx,
                      size_t *cipher_len);
 
 /**
- * @brief yaca_seal_final  Encrypts the final piece of the data.
+ * @brief  Encrypts the final piece of the data.
  *
  * @param[in,out] ctx         A valid seal context.
  * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, see
@@ -100,7 +100,7 @@ int yaca_seal_final(yaca_ctx_h ctx,
                     size_t *cipher_len);
 
 /**
- * @brief yaca_open_init  Initializes an asymmetric decryption context.
+ * @brief  Initializes an asymmetric decryption context.
  *
  * @param[out] ctx           Newly created context. Must be freed by yaca_ctx_free().
  * @param[in]  prv_key       Private key, part of the pair that was used for the encryption.
@@ -122,7 +122,7 @@ int yaca_open_init(yaca_ctx_h *ctx,
                    const yaca_key_h iv);
 
 /**
- * @brief yaca_open_update  Decrypts piece of the data.
+ * @brief  Decrypts piece of the data.
  *
  * @param[in,out] ctx         Context created by yaca_open_init().
  * @param[in]     cipher      Cipher text to be decrypted.
@@ -141,7 +141,7 @@ int yaca_open_update(yaca_ctx_h ctx,
                      size_t *plain_len);
 
 /**
- * @brief yaca_open_final Decrypts last chunk of sealed message.
+ * @brief  Decrypts last chunk of sealed message.
  *
  * @param[in,out] ctx        A valid open context.
  * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, see

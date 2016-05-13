@@ -48,7 +48,7 @@ extern "C" {
  */
 
 /**
- * @brief yaca_digest_calc  Calculate a digest of a buffer.
+ * @brief  Calculate a digest of a buffer.
  *
  * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure).
  * @param[in]  data        Data from which the digest is to be calculated.
@@ -67,7 +67,7 @@ int yaca_digest_calc(yaca_digest_algo_e algo,
                      size_t *digest_len);
 
 /**
- * @brief yaca_encrypt  Encrypt data using a symmetric cipher.
+ * @brief  Encrypt data using a symmetric cipher.
  *
  * @param[in]  algo        Encryption algorithm (select #YACA_ENC_AES if unsure).
  * @param[in]  bcm         Chaining mode (select #YACA_BCM_CBC if unsure).
@@ -92,7 +92,7 @@ int yaca_encrypt(yaca_enc_algo_e algo,
                  size_t *cipher_len);
 
 /**
- * @brief yaca_decrypt  Decrypta data using a symmetric cipher.
+ * @brief  Decrypt data using a symmetric cipher.
  *
  * @param[in]  algo        Decryption algorithm that was used to encrypt the data.
  * @param[in]  bcm         Chaining mode that was used to encrypt the data.
