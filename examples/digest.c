@@ -28,6 +28,7 @@
 #include <yaca/error.h>
 #include "lorem.h"
 #include "misc.h"
+#include "../src/debug.h"
 
 void digest_simple(void)
 {
@@ -80,7 +81,7 @@ exit_ctx:
 
 int main()
 {
-	yaca_error_set_debug_func(debug_func);
+	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
 	if (ret < 0)

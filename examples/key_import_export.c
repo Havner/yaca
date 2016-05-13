@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #include "misc.h"
+#include "../src/debug.h"
 
 #include <yaca/crypto.h>
 #include <yaca/encrypt.h>
@@ -259,7 +260,7 @@ int main()
 	if (ret != 0)
 		return ret;
 
-	yaca_error_set_debug_func(debug_func);
+	yaca_debug_set_error_cb(debug_func);
 
 	ret = yaca_key_gen(&sym, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_1024BIT);
 	if (ret != 0)

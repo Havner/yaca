@@ -17,41 +17,16 @@
  */
 
 /**
- * @file error.h
+ * @file debug.h
  * @brief
  */
 
-#ifndef YACA_ERROR_H
-#define YACA_ERROR_H
+#ifndef YACA_DEBUG_H
+#define YACA_DEBUG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef void (*yaca_error_cb)(const char*);
 
-/**
- * @defgroup  Error  Yet another Crypto API - error enums.
- *
- * @{
- */
+void yaca_debug_set_error_cb(yaca_error_cb cb);
 
-/**
- *  @brief Error enums
- */
-enum __yaca_error_code {
-	YACA_ERROR_NONE               =  0,
-	YACA_ERROR_INVALID_ARGUMENT   = -1,
-	YACA_ERROR_NOT_IMPLEMENTED    = -2,
-	YACA_ERROR_INTERNAL           = -3,
-	YACA_ERROR_TOO_BIG_ARGUMENT   = -4,
-	YACA_ERROR_OUT_OF_MEMORY      = -5,
-	YACA_ERROR_SIGNATURE_INVALID  = -6,
-	YACA_ERROR_PASSWORD_INVALID   = -7
-};
 
-/**@}*/
-
-#ifdef __cplusplus
-} /* extern */
-#endif
-
-#endif /* YACA_ERROR_H */
+#endif /* YACA_DEBUG_H */

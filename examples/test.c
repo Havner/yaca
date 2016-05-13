@@ -22,12 +22,13 @@
 #include <yaca/types.h>
 #include <yaca/error.h>
 #include "misc.h"
+#include "../src/debug.h"
 
 /** Simple test for development of library (before API is ready) */
 
 int main(int argc, char* argv[])
 {
-	yaca_error_set_debug_func(debug_func);
+	yaca_debug_set_error_cb(debug_func);
 
 	yaca_key_h key;
 	char *k;

@@ -31,6 +31,7 @@
 
 #include "lorem.h"
 #include "misc.h"
+#include "../src/debug.h"
 
 // Symmetric aes gcm encryption using advanced API
 void encrypt_decrypt_aes_gcm(void)
@@ -180,7 +181,7 @@ clean:
 
 int main()
 {
-	yaca_error_set_debug_func(debug_func);
+	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
 	if (ret < 0)

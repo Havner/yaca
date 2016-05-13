@@ -14,7 +14,7 @@
  *  limitations under the License
  */
 /*
- * @file       error.c
+ * @file       debug.c
  * @author     Krzysztof Jackiewicz (k.jackiewicz@samsung.com)
  */
 
@@ -26,14 +26,15 @@
 
 #include <yaca/error.h>
 #include "internal.h"
+#include "debug.h"
 
 // TODO any better idea than to use __thread?
-static __thread yaca_debug_func debug_fn = NULL;
+static __thread yaca_error_cb error_cb = NULL;
 static bool error_strings_loaded = false;
 
-API void yaca_error_set_debug_func(yaca_debug_func fn)
+API void yaca_debug_set_error_cb(yaca_error_cb fn)
 {
-	debug_fn = fn;
+	error_cb = fn;
 }
 
 // TODO use peeking function to intercept common errors
@@ -41,7 +42,7 @@ API void yaca_error_set_debug_func(yaca_debug_func fn)
 
 void error_dump(const char *file, int line, const char *function, int code)
 {
-	if (debug_fn == NULL)
+	if (error_cb == NULL)
 		return;
 
 	static const size_t BUF_SIZE = 512;
@@ -81,6 +82,6 @@ void error_dump(const char *file, int line, const char *function, int code)
 	}
 	buf[written] = '\0';
 
-	(*debug_fn)(buf);
+	(*error_cb)(buf);
 }
 

@@ -29,6 +29,7 @@
 
 #include "lorem.h"
 #include "misc.h"
+#include "../src/debug.h"
 
 // Signature creation and verification using advanced API
 void sign_verify_asym(yaca_key_type_e type, const char *algo)
@@ -202,7 +203,7 @@ finish:
 
 int main()
 {
-	yaca_error_set_debug_func(debug_func);
+	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
 	if (ret < 0)

@@ -3,3 +3,4 @@ Global:
   In other words check whether the user won't cause a buffer overflow.
 - Importing/exporting encrypted (passphrased) RSA keys
 - Support for OCB mode was added in OpenSSL 1.1.0
+- Remove debug function from examples
