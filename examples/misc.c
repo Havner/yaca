@@ -54,7 +54,7 @@ int read_file(const char *path, char **data, size_t *data_len)
 	int ret;
 	char tmp[BUF_SIZE];
 	char *buf = NULL;
-	size_t buf_len;
+	size_t buf_len = 0;
 	FILE *f;
 
 	f = fopen(path, "r");
@@ -71,7 +71,6 @@ int read_file(const char *path, char **data, size_t *data_len)
 					ret = -1;
 					break;
 				}
-				buf_len = 0;
 			} else {
 				char *new_buf = yaca_realloc(buf, buf_len + read);
 				if (new_buf == NULL) {
