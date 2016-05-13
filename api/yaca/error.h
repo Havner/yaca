@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef YACA_ERROR_H
+#define YACA_ERROR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,4 +68,4 @@ void yaca_error_set_debug_func(yaca_debug_func fn);
 } /* extern */
 #endif
 
-#endif /* ERROR_H */
+#endif /* YACA_ERROR_H */

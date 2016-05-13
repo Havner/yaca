@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef KEY_H
-#define KEY_H
+#ifndef YACA_KEY_H
+#define YACA_KEY_H
 
 #include <stddef.h>
 #include <yaca/types.h>
@@ -224,4 +224,4 @@ int yaca_key_derive_pbkdf2(const char *password,
 } /* extern */
 #endif
 
-#endif /* KEY_H */
+#endif /* YACA_KEY_H */

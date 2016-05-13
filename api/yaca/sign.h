@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef SIGN_H
-#define SIGN_H
+#ifndef YACA_SIGN_H
+#define YACA_SIGN_H
 
 #include <stddef.h>
 #include <yaca/types.h>
@@ -131,4 +131,4 @@ int yaca_verify_final(yaca_ctx_h ctx,
 } /* extern */
 #endif
 
-#endif /* SIGN_H */
+#endif /* YACA_SIGN_H */

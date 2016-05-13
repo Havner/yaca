@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef ENCRYPT_H
-#define ENCRYPT_H
+#ifndef YACA_ENCRYPT_H
+#define YACA_ENCRYPT_H
 
 #include <stddef.h>
 #include <yaca/types.h>
@@ -164,4 +164,4 @@ int yaca_get_iv_bits(yaca_enc_algo_e algo,
 } /* extern */
 #endif
 
-#endif /* ENCRYPT_H */
+#endif /* YACA_ENCRYPT_H */

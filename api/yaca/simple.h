@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef SIMPLE_H
-#define SIMPLE_H
+#ifndef YACA_SIMPLE_H
+#define YACA_SIMPLE_H
 
 #include <stddef.h>
 #include <yaca/types.h>
@@ -124,4 +124,4 @@ int yaca_decrypt(yaca_enc_algo_e algo,
 } /* extern */
 #endif
 
-#endif /* SIMPLE_H */
+#endif /* YACA_SIMPLE_H */

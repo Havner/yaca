@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef YACA_TYPES_H
+#define YACA_TYPES_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -289,4 +289,4 @@ typedef enum {
 } /* extern */
 #endif
 
-#endif /* TYPES_H */
+#endif /* YACA_TYPES_H */

@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef SEAL_H
-#define SEAL_H
+#ifndef YACA_SEAL_H
+#define YACA_SEAL_H
 
 #include <stddef.h>
 #include <yaca/types.h>
@@ -161,4 +161,4 @@ int yaca_open_final(yaca_ctx_h ctx,
 } /* extern */
 #endif
 
-#endif /* SEAL_H */
+#endif /* YACA_SEAL_H */

@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef CRYPTO_H
-#define CRYPTO_H
+#ifndef YACA_CRYPTO_H
+#define YACA_CRYPTO_H
 
 #include <stddef.h>
 #include <yaca/types.h>
@@ -192,4 +192,4 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len);
 } /* extern */
 #endif
 
-#endif /* CRYPTO_H */
+#endif /* YACA_CRYPTO_H */

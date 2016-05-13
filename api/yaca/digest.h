@@ -21,8 +21,8 @@
  * @brief
  */
 
-#ifndef DIGEST_H
-#define DIGEST_H
+#ifndef YACA_DIGEST_H
+#define YACA_DIGEST_H
 
 #include <stddef.h>
 #include <yaca/types.h>
@@ -81,4 +81,4 @@ int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len);
 } /* extern */
 #endif
 
-#endif /* DIGEST_H */
+#endif /* YACA_DIGEST_H */
