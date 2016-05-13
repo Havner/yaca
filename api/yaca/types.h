@@ -115,7 +115,7 @@ typedef enum {
 } yaca_key_bits_e;
 
 /**
- * @brief Message digest algorithms. CMAC is included to simplify API
+ * @brief Message digest algorithms.
  */
 typedef enum {
 	YACA_DIGEST_MD5,      /**< Message digest algorithm MD5  */
@@ -124,7 +124,6 @@ typedef enum {
 	YACA_DIGEST_SHA256,   /**< Message digest algorithm SHA2, 256bit  */
 	YACA_DIGEST_SHA384,   /**< Message digest algorithm SHA2, 384bit  */
 	YACA_DIGEST_SHA512,   /**< Message digest algorithm SHA2, 512bit  */
-	YACA_DIGEST_CMAC      /**< TODO: perhaps CMAC should be handled differently */
 } yaca_digest_algo_e;
 
 /**

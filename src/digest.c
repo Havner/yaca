@@ -100,9 +100,6 @@ int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
 	case YACA_DIGEST_SHA512:
 		*md = EVP_sha512();
 		break;
-	case YACA_DIGEST_CMAC:
-		ret = YACA_ERROR_NOT_IMPLEMENTED;
-		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
 		break;

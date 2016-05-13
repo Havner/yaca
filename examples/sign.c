@@ -150,6 +150,8 @@ finish:
 
 void sign_verify_cmac(void)
 {
+	// TODO rewrite it
+#if 0
 	char* signature = NULL;
 	size_t signature_len;
 
@@ -199,6 +201,7 @@ finish:
 	yaca_free(signature);
 	yaca_key_free(key);
 	yaca_ctx_free(ctx);
+#endif
 }
 
 int main()
