@@ -39,7 +39,7 @@ extern "C" {
  *  - All operations are single-shot (no streaming possible)
  *  - Context is not used
  *  - For now only digest and symmetric ciphers are supported
- *  - GCM chaining is not supported
+ *  - GCM and CCM chaining is not supported
  *  - All outputs are allocated by the library
  *
  * TODO: extended description and examples.

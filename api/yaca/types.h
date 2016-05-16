@@ -273,11 +273,27 @@ typedef enum {
 	YACA_BCM_CBC,
 
 	/**
-	 * GCM block cipher mode, IV is needed.
+	 * GCM block cipher mode.
+	 * This is a variable IV length mode (recommended 96 bits IV).
+	 *
 	 * Supported parameters:
-	 * - #YACA_PARAM_GCM_TAG = GCM tag
-	 * - #YACA_PARAM_GCM_TAG_LEN = GCM tag length
-	 * - #YACA_PARAM_GCM_AAD = additional authentication data(optional)
+	 * - #YACA_PARAM_GCM_TAG_LEN = GCM tag length\n
+	 *   Supported tag lengths: @c 32, @c 64, @c 96, @c 104, @c 112, @c 120, @c 128,
+	 *   (recommended 128 bits tag).\n
+	 *   Set after yaca_encrypt_final() and before yaca_ctx_get_param(#YACA_PARAM_GCM_TAG)
+	 *   in encryption operation.\n\n
+	 *
+	 * - #YACA_PARAM_GCM_TAG = GCM tag\n
+	 *   Get after yaca_encrypt_final() in encryption operation.\n
+	 *   Set before yaca_decrypt_final() in decryption operation.\n\n
+	 *
+	 * - #YACA_PARAM_GCM_AAD = additional authentication data (optional)\n
+	 *   Set after yaca_encrypt_init() and before yaca_encrypt_update()
+	 *   in encryption operation.\n
+	 *   Set after yaca_decrypt_init() and before yaca_decrypt_update()
+	 *   in decryption operation.\n\n
+	 *
+	 *   @see examples/encrypt_aes_gcm_ccm.c
 	 */
 	YACA_BCM_GCM,
 
@@ -307,10 +323,33 @@ typedef enum {
 
 	/**
 	 * CBC-MAC Mode (AES).
+	 * This is a variable IV length mode.\n
+	 * Supported IV lengths: 56-104 bits in steps of 8 bits (recommended 56 bits IV).\n\n
+	 *
 	 * Supported parameters:
-	 * - #YACA_PARAM_CCM_TAG = CCM tag
-	 * - #YACA_PARAM_CCM_TAG_LEN = CCM tag length
-	 * - #YACA_PARAM_CCM_AAD = additional authentication data(optional)
+	 * - #YACA_PARAM_CCM_TAG_LEN = CCM tag length\n
+	 *   Supported tag lengths: 32-128 bits in step of 16 bits (recommended 96 bits tag).\n
+	 *   Set after yaca_encrypt_init() and before yaca_encrypt_update()
+	 *   in encryption operation.\n\n
+	 *
+	 * - #YACA_PARAM_CCM_TAG = CCM tag\n
+	 *   Get after yaca_encrypt_final() in encryption operation.\n
+	 *   Set after yaca_decrypt_init() and before yaca_decrypt_update()
+	 *   in decryption operation.\n\n
+	 *
+	 * - #YACA_PARAM_CCM_AAD = additional authentication data (optional)\n
+	 *   The total plain text length must be passed to yaca_encrypt_update()
+	 *   if AAD is used.\n
+	 *   Set after yaca_encrypt_init() and before yaca_encrypt_update()
+	 *   in encryption operation.\n
+	 *   You can only call yaca_encrypt_update() once for AAD and once for the plain text.\n\n
+	 *
+	 *   The total encrypted text length must be passed to yaca_decrypt_update()
+	 *   if AAD is used.\n
+	 *   Set after yaca_decrypt_init() and before yaca_decrypt_update()
+	 *   in decryption operation.\n\n
+	 *
+	 *   @see examples/encrypt_aes_gcm_ccm.c
 	 */
 	YACA_BCM_CCM
 

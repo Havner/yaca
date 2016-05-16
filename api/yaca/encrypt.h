@@ -36,8 +36,6 @@ extern "C" {
  *
  * TODO: extended description and examples.
  *
- * TODO: Let's describe how to set additional params (like GCM, CCM)
- *
  * @{
  */
 
