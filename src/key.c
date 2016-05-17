@@ -850,6 +850,7 @@ API int yaca_key_get_bits(const yaca_key_h key)
 
 API int yaca_key_import(yaca_key_h *key,
                         yaca_key_type_e key_type,
+                        const char *password,
                         const char *data,
                         size_t data_len)
 {
@@ -881,6 +882,7 @@ API int yaca_key_import(yaca_key_h *key,
 API int yaca_key_export(const yaca_key_h key,
                         yaca_key_fmt_e key_fmt,
                         yaca_key_file_fmt_e key_file_fmt,
+                        const char *password,
                         char **data,
                         size_t *data_len)
 {

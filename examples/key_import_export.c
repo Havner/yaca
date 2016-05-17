@@ -46,10 +46,10 @@ int key_import_export_sym(yaca_key_h sym)
 
 	/* BASE64 */
 
-	ret = yaca_key_export(sym, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64, &b64, &b64_len);
+	ret = yaca_key_export(sym, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64, NULL, &b64, &b64_len);
 	if (ret != 0)
 		return ret;
-	ret = yaca_key_import(&b64_imported, YACA_KEY_TYPE_SYMMETRIC, b64, b64_len);
+	ret = yaca_key_import(&b64_imported, YACA_KEY_TYPE_SYMMETRIC, NULL, b64, b64_len);
 	if (ret != 0)
 		goto free;
 
@@ -57,7 +57,7 @@ int key_import_export_sym(yaca_key_h sym)
 	yaca_free(b64);
 	b64 = NULL;
 
-	ret = yaca_key_export(b64_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64, &b64, &b64_len);
+	ret = yaca_key_export(b64_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64, NULL, &b64, &b64_len);
 	if (ret != 0)
 		goto free;
 
@@ -66,10 +66,10 @@ int key_import_export_sym(yaca_key_h sym)
 
 	/* RAW */
 
-	ret = yaca_key_export(sym, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, &raw, &raw_len);
+	ret = yaca_key_export(sym, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL, &raw, &raw_len);
 	if (ret != 0)
 		goto free;
-	ret = yaca_key_import(&raw_imported, YACA_KEY_TYPE_SYMMETRIC, raw, raw_len);
+	ret = yaca_key_import(&raw_imported, YACA_KEY_TYPE_SYMMETRIC, NULL, raw, raw_len);
 	if (ret != 0)
 		goto free;
 
@@ -77,7 +77,7 @@ int key_import_export_sym(yaca_key_h sym)
 	yaca_free(raw);
 	raw = NULL;
 
-	ret = yaca_key_export(raw_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, &raw, &raw_len);
+	ret = yaca_key_export(raw_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL, &raw, &raw_len);
 	if (ret != 0)
 		goto free;
 
@@ -118,10 +118,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	/* PEM private */
 
-	ret = yaca_key_export(priv, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, &pem_prv, &pem_prv_len);
+	ret = yaca_key_export(priv, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pem_prv, &pem_prv_len);
 	if (ret != 0)
 		return ret;
-	ret = yaca_key_import(&pem_prv_imported, priv_type, pem_prv, pem_prv_len);
+	ret = yaca_key_import(&pem_prv_imported, priv_type, NULL, pem_prv, pem_prv_len);
 	if (ret != 0)
 		goto free;
 
@@ -129,7 +129,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 	yaca_free(pem_prv);
 	pem_prv = NULL;
 
-	ret = yaca_key_export(pem_prv_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, &pem_prv, &pem_prv_len);
+	ret = yaca_key_export(pem_prv_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pem_prv, &pem_prv_len);
 	if (ret != 0)
 		goto free;
 
@@ -138,10 +138,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	/* DER private */
 
-	ret = yaca_key_export(priv, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, &der_prv, &der_prv_len);
+	ret = yaca_key_export(priv, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_prv, &der_prv_len);
 	if (ret != 0)
 		goto free;
-	ret = yaca_key_import(&der_prv_imported, priv_type, der_prv, der_prv_len);
+	ret = yaca_key_import(&der_prv_imported, priv_type, NULL, der_prv, der_prv_len);
 	if (ret != 0)
 		goto free;
 
@@ -149,7 +149,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 	yaca_free(der_prv);
 	der_prv = NULL;
 
-	ret = yaca_key_export(der_prv_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, &der_prv, &der_prv_len);
+	ret = yaca_key_export(der_prv_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_prv, &der_prv_len);
 	if (ret != 0)
 		goto free;
 
@@ -158,10 +158,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	/* PEM public */
 
-	ret = yaca_key_export(pub, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, &pem_pub, &pem_pub_len);
+	ret = yaca_key_export(pub, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pem_pub, &pem_pub_len);
 	if (ret != 0)
 		goto free;
-	ret = yaca_key_import(&pem_pub_imported, pub_type, pem_pub, pem_pub_len);
+	ret = yaca_key_import(&pem_pub_imported, pub_type, NULL, pem_pub, pem_pub_len);
 	if (ret != 0)
 		goto free;
 
@@ -169,7 +169,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 	yaca_free(pem_pub);
 	pem_pub = NULL;
 
-	ret = yaca_key_export(pem_pub_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, &pem_pub, &pem_pub_len);
+	ret = yaca_key_export(pem_pub_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pem_pub, &pem_pub_len);
 	if (ret != 0)
 		goto free;
 
@@ -178,10 +178,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	/* DER public */
 
-	ret = yaca_key_export(pub, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, &der_pub, &der_pub_len);
+	ret = yaca_key_export(pub, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_pub, &der_pub_len);
 	if (ret != 0)
 		goto free;
-	ret = yaca_key_import(&der_pub_imported, pub_type, der_pub, der_pub_len);
+	ret = yaca_key_import(&der_pub_imported, pub_type, NULL, der_pub, der_pub_len);
 	if (ret != 0)
 		goto free;
 
@@ -189,7 +189,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 	yaca_free(der_pub);
 	der_pub = NULL;
 
-	ret = yaca_key_export(der_pub_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, &der_pub, &der_pub_len);
+	ret = yaca_key_export(der_pub_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_pub, &der_pub_len);
 	if (ret != 0)
 		goto free;
 
@@ -225,14 +225,14 @@ int key_import_x509(void)
 		return ret;
 	}
 
-	ret = yaca_key_import(&rsa_pub_from_cert, YACA_KEY_TYPE_RSA_PUB, pub, pub_len);
+	ret = yaca_key_import(&rsa_pub_from_cert, YACA_KEY_TYPE_RSA_PUB, NULL, pub, pub_len);
 	if (ret != 0)
 		goto free;
 
 	yaca_free(pub);
 	pub = NULL;
 
-	ret = yaca_key_export(rsa_pub_from_cert, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, &pub, &pub_len);
+	ret = yaca_key_export(rsa_pub_from_cert, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pub, &pub_len);
 	if (ret != 0)
 		goto free;
 

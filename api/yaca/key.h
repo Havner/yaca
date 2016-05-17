@@ -67,16 +67,23 @@ int yaca_key_get_bits(const yaca_key_h key);
  * format. Additionally it is possible to import public RSA key from
  * X509 certificate.
  *
+ * If the key is encrypted the algorithm will be autodetected and password
+ * used. If it's not known if the key is encrypted one should pass NULL as
+ * password and check for the YACA_ERROR_PASSWORD_INVALID return code.
+ *
  * @param[out] key       Returned key (must be freed with yaca_key_free()).
  * @param[in]  key_type  Type of the key.
+ * @param[in]  password  null terminated password for the key (can be NULL).
  * @param[in]  data      Blob containing the key.
  * @param[in]  data_len  Size of the blob.
  *
- * @return 0 on success, negative on error.
+ * @return 0 on success, YACA_ERROR_PASSWORD_INVALID if wrong password given,
+ *         negative on error.
  * @see #yaca_key_type_e, yaca_key_export(), yaca_key_free()
  */
 int yaca_key_import(yaca_key_h *key,
                     yaca_key_type_e key_type,
+                    const char *password,
                     const char *data,
                     size_t data_len);
 
@@ -96,9 +103,16 @@ int yaca_key_import(yaca_key_h *key,
  * - #YACA_KEY_FILE_FORMAT_PEM:    used only for asymmetric, PEM file format
  * - #YACA_KEY_FILE_FORMAT_DER:    used only for asymmetric, DER file format
  *
+ * If no password is provided the exported key will be unencrypted. Only private
+ * RSA/DSA exported as PEM can be encrypted.
+ *
+ * TODO: document the default encryption algorithm (AES256 for FORMAT_DEFAULT,
+ * unknown yet for the FORMAT_PKCS8)
+ *
  * @param[in]  key           Key to be exported.
  * @param[in]  key_fmt       Format of the key.
  * @param[in]  key_file_fmt  Format of the key file.
+ * @param[in]  password      Password used for the encryption (can be NULL).
  * @param[out] data          Data, allocated by the library, containing exported key
  *                           (must be freed with yaca_free()).
  * @param[out] data_len      Size of the output data.
@@ -109,6 +123,7 @@ int yaca_key_import(yaca_key_h *key,
 int yaca_key_export(const yaca_key_h key,
                     yaca_key_fmt_e key_fmt,
                     yaca_key_file_fmt_e key_file_fmt,
+                    const char *password,
                     char **data,
                     size_t *data_len);
 

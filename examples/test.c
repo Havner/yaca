@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 	printf("done (%d)\n", ret);
 
 	printf("Exporting key using CryptoAPI.. ");
-	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, &k, &kl);
+	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL, &k, &kl);
 	if (ret < 0)
 		return ret;
 	printf("done (%d)\n", ret);
