@@ -127,3 +127,11 @@ API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *o
 
 	return ctx->get_output_length(ctx, input_len, output_len);
 }
+
+API int yaca_memcmp(const void *first, const void *second, size_t len)
+{
+	if (CRYPTO_memcmp(first, second, len) == 0)
+		return 0;
+
+	return YACA_ERROR_DATA_MISMATCH;
+}

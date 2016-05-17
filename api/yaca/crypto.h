@@ -181,6 +181,17 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *outpu
  */
 #define yaca_get_block_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
 
+/**
+ * @brief  Safely compares first @b len bytes of two buffers.
+ *
+ * @param[in]  first  Pointer to the first buffer.
+ * @param[in]  second Pointer to the second buffer.
+ * @param[in]  len    Length to compare.
+ *
+ * @return 0 when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
+ */
+int yaca_memcmp(const void *first, const void *second, size_t len);
+
 /**@}*/
 
 #ifdef __cplusplus

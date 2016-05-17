@@ -41,57 +41,115 @@ extern "C" {
  */
 
 /**
- * @brief  Initializes a signature context.
+ * @brief  Initializes a signature context for asymmetric signatures.
+ *
+ * For verification use yaca_verify_init(), yaca_verify_update() and
+ * yaca_verify_final() functions with matching public key.
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
- * @param[in]  key   Private or symmetric key that will be used (algorithm is deduced based on key type).
+ * @param[in]  key   Private key that will be used. Algorithm is deduced based
+ *                   on key type. Supported key types:
+ *                   - #YACA_KEY_TYPE_RSA_PRIV,
+ *                   - #YACA_KEY_TYPE_DSA_PRIV,
+ *                   - #YACA_KEY_TYPE_ECDSA_PRIV.
  *
  * @return 0 on success, negative on error.
- * @see #yaca_digest_algo_e, yaca_sign_update(), yaca_sign_final()
+ * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign_update(),
+ *      yaca_sign_final(), yaca_verify_init(), yaca_verify_update(),
+ *      yaca_verify_final()
  */
 int yaca_sign_init(yaca_ctx_h *ctx,
                    yaca_digest_algo_e algo,
                    const yaca_key_h key);
 
 /**
- * @brief  Feeds the data into the digital signature algorithm.
+ * @brief  Initializes a signature context for HMAC.
  *
- * @param[in,out] ctx       Context created by yaca_sign_init().
+ * For verification, calculate message HMAC and compare with received MAC using
+ * yaca_memcmp().
+ *
+ * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
+ * @param[in]  algo  Digest algorithm that will be used.
+ * @param[in]  key   Symmetric key that will be used. Supported key types:
+ *                   - #YACA_KEY_TYPE_SYMMETRIC,
+ *                   - #YACA_KEY_TYPE_DES.
+ *
+ * @return 0 on success, negative on error.
+ * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign_update(),
+ *      yaca_sign_final(), yaca_memcmp()
+ */
+int yaca_sign_hmac_init(yaca_ctx_h *ctx,
+                        yaca_digest_algo_e algo,
+                        const yaca_key_h key);
+
+/**
+ * @brief  Initializes a signature context for CMAC.
+ *
+ * For verification, calculate message CMAC and compare with received MAC using
+ * yaca_memcmp().
+ *
+ * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
+ * @param[in]  algo  Encryption algorithm that will be used.
+ * @param[in]  key   Symmetric key that will be used. Supported key types:
+ *                   - #YACA_KEY_TYPE_SYMMETRIC,
+ *                   - #YACA_KEY_TYPE_DES.
+ *
+ * @return 0 on success, negative on error.
+ * @see #yaca_key_type_e, #yaca_enc_algo_e, yaca_sign_update(),
+ *      yaca_sign_final(), yaca_memcmp()
+ */
+int yaca_sign_cmac_init(yaca_ctx_h *ctx,
+                        yaca_enc_algo_e algo,
+                        const yaca_key_h key);
+
+/**
+ * @brief  Feeds the data into the digital signature or MAC algorithm.
+ *
+ * @param[in,out] ctx       Context created by yaca_sign_init(),
+ *                          yaca_sign_hmac_init() or yaca_sign_cmac_init().
  * @param[in]     data      Data to be signed.
  * @param[in]     data_len  Length of the data.
  *
  * @return 0 on success, negative on error.
- * @see yaca_sign_init(), yaca_sign_final()
+ * @see yaca_sign_init(), yaca_sign_final(), yaca_sign_hmac_init(),
+ *      yaca_sign_cmac_init()
  */
 int yaca_sign_update(yaca_ctx_h ctx,
                      const char *data,
                      size_t data_len);
 
 /**
- * @brief  Calculates the final signature.
+ * @brief  Calculates the final signature or MAC.
  *
- * @param[in,out] ctx      A valid sign context.
- * @param[out]    mac      Buffer for the MAC or the signature (must be allocated by client, see
- *                         yaca_get_sign_length()).
- * @param[out]    mac_len  Length of the MAC or the signature, actual number of bytes written will be returned here.
+ * @param[in,out] ctx              A valid sign context.
+ * @param[out]    signature        Buffer for the MAC or the signature,
+ *                                 (must be allocated by client, see yaca_get_sign_length()).
+ * @param[out]    signature_len    Length of the MAC or the signature,
+ *                                 actual number of bytes written will be returned here.
  *
  * @return 0 on success, negative on error.
- * @see yaca_sign_init(), yaca_sign_update()
+ * @see yaca_sign_init(), yaca_sign_update(), yaca_sign_hmac_init(),
+ *      yaca_sign_cmac_init()
  */
 int yaca_sign_final(yaca_ctx_h ctx,
-                    char *mac,
-                    size_t *mac_len);
+                    char *signature,
+                    size_t *signature_len);
 
 /**
- * @brief  Initializes a signature verification context.
+ * @brief  Initializes a signature verification context for asymmetric signatures
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
- * @param[in]  key   Private or symmetric key that will be used (algorithm is deduced based on key type).
+ * @param[in]  key   Public key that will be used. Algorithm is deduced based on
+ *                   key type. Supported key types:
+ *                   - #YACA_KEY_TYPE_RSA_PUB,
+ *                   - #YACA_KEY_TYPE_DSA_PUB,
+ *                   - #YACA_KEY_TYPE_ECDSA_PUB.
  *
  * @return 0 on success, negative on error.
- * @see #yaca_digest_algo_e, yaca_verify_update(), yaca_verify_final()
+ * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_verify_update(),
+ *      yaca_verify_final()
  */
 int yaca_verify_init(yaca_ctx_h *ctx,
                      yaca_digest_algo_e algo,
@@ -114,16 +172,17 @@ int yaca_verify_update(yaca_ctx_h ctx,
 /**
  * @brief  Performs the verification.
  *
- * @param[in,out] ctx      A valid verify context.
- * @param[in]     mac      Input MAC or signature (returned by yaca_sign_final()).
- * @param[in]     mac_len  Size of the MAC or the signature.
+ * @param[in,out] ctx            A valid verify context.
+ * @param[in]     signature      Input signature (returned by yaca_sign_final()).
+ * @param[in]     signature_len  Size of the signature.
  *
- * @return 0 on success, negative on error.
+ * @return 0 on success, YACA_ERROR_DATA_MISMATCH if verification fails,
+ *         negative on error.
  * @see yaca_verify_init(), yaca_verify_update()
  */
 int yaca_verify_final(yaca_ctx_h ctx,
-                      const char *mac,
-                      size_t mac_len);
+                      const char *signature,
+                      size_t signature_len);
 
 /**@}*/
 

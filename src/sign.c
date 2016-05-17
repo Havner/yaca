@@ -356,17 +356,17 @@ API int yaca_sign_update(yaca_ctx_h ctx,
 }
 
 API int yaca_sign_final(yaca_ctx_h ctx,
-			char *mac,
-			size_t *mac_len)
+			char *signature,
+			size_t *signature_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 	int ret;
 
 	if (c == NULL ||  c->op_type != OP_SIGN ||
-	    mac == NULL || mac_len == NULL || *mac_len == 0)
+	    signature == NULL || signature_len == NULL || *signature_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	ret = EVP_DigestSignFinal(c->mdctx, (unsigned char *)mac, mac_len);
+	ret = EVP_DigestSignFinal(c->mdctx, (unsigned char *)signature, signature_len);
 	if(ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -499,15 +499,15 @@ API int yaca_verify_update(yaca_ctx_h ctx,
 }
 
 API int yaca_verify_final(yaca_ctx_h ctx,
-			  const char *mac,
-			  size_t mac_len)
+                          const char *signature,
+                          size_t signature_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
-	char mac_cmp[mac_len];
-	size_t mac_cmp_len = mac_len;
+	char mac_cmp[signature_len];
+	size_t mac_cmp_len = signature_len;
 	int ret;
 
-	if (c == NULL || mac == NULL || mac_len == 0)
+	if (c == NULL || signature == NULL || signature_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	switch (c->op_type)
@@ -522,19 +522,19 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 			return ret;
 		}
 
-		if (mac_len != mac_cmp_len || CRYPTO_memcmp(mac, mac_cmp, mac_len) != 0)
-			return YACA_ERROR_SIGNATURE_INVALID;
+		if (signature_len != mac_cmp_len || CRYPTO_memcmp(signature, mac_cmp, signature_len) != 0)
+			return YACA_ERROR_DATA_MISMATCH;
 
 		return 0;
 	case OP_VERIFY_ASYMMETRIC:
 		ret = EVP_DigestVerifyFinal(c->mdctx,
-					    (unsigned char *)mac,
-					    mac_len);
+					    (unsigned char *)signature,
+					    signature_len);
 		if (ret == 1)
 			return 0;
 
 		if (ret == 0)
-			ret = YACA_ERROR_SIGNATURE_INVALID;
+			ret = YACA_ERROR_DATA_MISMATCH;
 		else
 			ret = YACA_ERROR_INTERNAL;
 
