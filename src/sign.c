@@ -60,8 +60,13 @@ static int get_sign_output_length(const yaca_ctx_h ctx, size_t input_len, size_t
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 
-	if (c == NULL || c->mdctx == NULL || c->mdctx->pctx == NULL)
+	if (c == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
+
+	assert(c->mdctx != NULL);
+
+	if (c->mdctx->pctx == NULL)
+		return YACA_ERROR_INTERNAL;
 
 	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(c->mdctx->pctx);
 	if (pkey == NULL) {
