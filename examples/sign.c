@@ -46,7 +46,7 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 #endif
 
 	// GENERATE
-	if (yaca_key_gen(&prv, type, YACA_KEY_4096BIT) != 0)
+	if (yaca_key_gen(&prv, type, YACA_KEY_1024BIT) != 0)
 		return;
 
 	if (yaca_key_extract_public(prv, &pub) != 0)
