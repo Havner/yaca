@@ -144,7 +144,6 @@ typedef enum {
 	 * #YACA_BCM_GCM,
 	 * #YACA_BCM_CCM,
 	 * #YACA_BCM_CTR,
-	 * #YACA_BCM_OCB
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
 	YACA_ENC_AES = 0,
@@ -296,11 +295,6 @@ typedef enum {
 	 * 16-byte initialization vector is mandatory.
 	 */
 	YACA_BCM_OFB,
-
-	/**
-	 * Offest Codebook Mode (AES)
-	 */
-	YACA_BCM_OCB,
 
 	/**
 	 * CBC-MAC Mode (AES).

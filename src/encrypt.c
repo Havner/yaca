@@ -141,8 +141,6 @@ static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
 		return "cfb8";
 	case YACA_BCM_OFB:
 		return "ofb";
-	case YACA_BCM_OCB:
-		return "ocb";
 	case YACA_BCM_CCM:
 		return "ccm";
 	default:
