@@ -251,9 +251,6 @@ typedef enum {
 	/**
 	 * CTR block cipher mode.
 	 * 16-byte initialization vector is mandatory.
-	 * Supported parameters:
-	 * - #YACA_PARAM_CTR_CNT = length of counter block in bits
-	 * (optional, only 128b is supported at the moment)
 	 */
 	YACA_BCM_CTR,
 
@@ -315,7 +312,6 @@ typedef enum {
 	YACA_PARAM_PADDING,                /**< Padding */
 
 	YACA_PARAM_RC2_EFFECTIVE_KEY_BITS, /**< RC2 effective key bits, 1-1024, 1 bit resolution */
-	YACA_PARAM_CTR_CNT,                /**< CTR Counter bits */
 
 	YACA_PARAM_GCM_AAD,                /**< GCM Additional Authentication Data */
 	YACA_PARAM_GCM_TAG,                /**< GCM Tag bits */
