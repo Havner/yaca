@@ -116,7 +116,107 @@ int yaca_decrypt(yaca_enc_algo_e algo,
                  char **plain,
                  size_t * plain_len);
 
-// TODO: sign/verify
+/**
+ * @brief  Create a signature using asymmetric private key.
+ *
+ * @param[in]  algo           Digest algorithm that will be used.
+ * @param[in]  key            Private key that will be used. Algorithm is
+ *                            deduced based on key type. Supported key types:
+ *                            - #YACA_KEY_TYPE_RSA_PRIV,
+ *                            - #YACA_KEY_TYPE_DSA_PRIV,
+ *                            - #YACA_KEY_TYPE_ECDSA_PRIV.
+ * @param[in]  data           Data to be signed.
+ * @param[in]  data_len       Length of the data.
+ * @param[out] signature      Message signature. Will be allocated by the
+ *                            library. Should be freed with yaca_free().
+ * @param[out] signature_len  Length of the signature.
+ *
+ * @return 0 on success, negative on error.
+ * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_verify(),
+ */
+int yaca_sign(yaca_digest_algo_e algo,
+              const yaca_key_h key,
+              const char *data,
+              size_t data_len,
+              char** signature,
+              size_t* signature_len);
+
+/**
+ * @brief  Verify a signature using asymmetric public key.
+ *
+ * @param[in]  algo           Digest algorithm that will be used.
+ * @param[in]  key            Public key that will be used. Algorithm is
+ *                            deduced based on key type. Supported key types:
+ *                            - #YACA_KEY_TYPE_RSA_PUB,
+ *                            - #YACA_KEY_TYPE_DSA_PUB,
+ *                            - #YACA_KEY_TYPE_ECDSA_PUB.
+ * @param[in]  data           Signed data.
+ * @param[in]  data_len       Length of the data.
+ * @param[in]  signature      Message signature.
+ * @param[in]  signature_len  Length of the signature.
+ *
+ * @return 0 on success, YACA_ERROR_SIGNATURE_INVALID if verification fails,
+ *         negative on error.
+ * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign(),
+ */
+int yaca_verify(yaca_digest_algo_e algo,
+                const yaca_key_h key,
+                const char *data,
+                size_t data_len,
+                const char* signature,
+                size_t signature_len);
+
+/**
+ * @brief  Calculate a HMAC of given message using symmetric key.
+ *
+ * For verification, calculate message HMAC and compare with received MAC using
+ * yaca_memcmp().
+ *
+ * @param[in]  algo      Digest algorithm that will be used.
+ * @param[in]  key       Key that will be used. Supported key types:
+ *                       - #YACA_KEY_TYPE_SYMMETRIC,
+ *                       - #YACA_KEY_TYPE_DES.
+ * @param[in]  data      Data to calculate HMAC from.
+ * @param[in]  data_len  Length of the data.
+ * @param[out] mac       MAC. Will be allocated by the library. Should be freed
+ *                       with yaca_free().
+ * @param[out] mac_len   Length of the MAC.
+ *
+ * @return 0 on success, negative on error.
+ * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_memcmp()
+ */
+int yaca_hmac(yaca_digest_algo_e algo,
+              const yaca_key_h key,
+              const char *data,
+              size_t data_len,
+              char** mac,
+              size_t* mac_len);
+
+/**
+ * @brief  Calculate a CMAC of given message using symmetric key.
+ *
+ * For verification, calculate message CMAC and compare with received MAC using
+ * yaca_memcmp().
+ *
+ * @param[in]  algo      Encryption algorithm that will be used.
+ * @param[in]  key       Key that will be used. Supported key types:
+ *                       - #YACA_KEY_TYPE_SYMMETRIC,
+ *                       - #YACA_KEY_TYPE_DES.
+ * @param[in]  data      Data to calculate CMAC from.
+ * @param[in]  data_len  Length of the data.
+ * @param[out] mac       MAC. Will be allocated by the library. Should be freed
+ *                       with yaca_free().
+ * @param[out] mac_len   Length of the MAC.
+ *
+ * @return 0 on success, negative on error.
+ * @see #yaca_key_type_e, #yaca_enc_algo_e, yaca_memcmp()
+ */
+int yaca_cmac(yaca_enc_algo_e algo,
+              const yaca_key_h key,
+              const char *data,
+              size_t data_len,
+              char** mac,
+              size_t* mac_len);
 
 /**@}*/
 
