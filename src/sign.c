@@ -21,6 +21,7 @@
 
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
+#include <openssl/cmac.h>
 
 #include <yaca/crypto.h>
 #include <yaca/error.h>
@@ -327,6 +328,97 @@ free_ctx:
 		yaca_ctx_free((yaca_ctx_h)nc);
 free_key:
 	EVP_PKEY_free(pkey);
+
+	return ret;
+}
+
+API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
+                            yaca_enc_algo_e algo,
+                            const yaca_key_h key)
+{
+	struct yaca_sign_ctx_s *nc = NULL;
+	CMAC_CTX* cmac_ctx = NULL;
+	const EVP_CIPHER* cipher = NULL;
+	EVP_PKEY *pkey = NULL;
+	int ret;
+
+	if (ctx == NULL || key == NULL ||
+	   (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
+
+	 // the type is ok so we should be able to extract simple key
+	assert(simple_key != NULL);
+
+	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
+	if (nc == NULL) {
+		return YACA_ERROR_OUT_OF_MEMORY;
+	}
+
+	nc->op_type = OP_SIGN;
+	nc->ctx.type = YACA_CTX_SIGN;
+	nc->ctx.ctx_destroy = destroy_sign_context;
+	nc->ctx.get_output_length = get_sign_output_length;
+
+	ret = encrypt_get_algorithm(algo, YACA_BCM_CBC, simple_key->bits, &cipher);
+	if (ret != 0) {
+		goto free_ctx;
+	}
+
+	// create and initialize low level CMAC context
+	cmac_ctx = CMAC_CTX_new();
+	if (cmac_ctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_ctx;
+	}
+
+	if (CMAC_Init(cmac_ctx, simple_key->d, simple_key->bits/8, cipher, NULL) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		// TODO refactor error handling: use single cleanup label
+		goto free_cmac_ctx;
+	}
+
+	// create key and assign CMAC context to it
+	pkey = EVP_PKEY_new();
+	if (!pkey) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_cmac_ctx;
+	}
+
+	if (EVP_PKEY_assign(pkey, EVP_PKEY_CMAC, cmac_ctx) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pkey;
+	}
+	// TODO refactor error handling: set cmac_ctx to NULL
+
+	nc->mdctx = EVP_MD_CTX_create();
+	if (nc->mdctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pkey;
+	}
+
+	if (EVP_DigestSignInit(nc->mdctx, NULL, NULL, NULL, pkey) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pkey;
+	}
+	// TODO refactor error handling: set mdctx to NULL, set pkey to NULL
+
+	*ctx = (yaca_ctx_h)nc;
+	return 0;
+
+free_pkey:
+	EVP_PKEY_free(pkey);
+free_cmac_ctx:
+	CMAC_CTX_free(cmac_ctx);
+free_ctx:
+	yaca_ctx_free((yaca_ctx_h)nc);
 
 	return ret;
 }
