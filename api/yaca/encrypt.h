@@ -148,15 +148,20 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
 /**
  * @brief  Returns the recomended/default length of the IV for a given encryption configuration.
  *
- * @param[in] algo      Encryption algorithm.
- * @param[in] bcm       Chain mode.
- * @param[in] key_bits  Key length in bits.
+ * If returned iv_bits equals 0 that means that for this
+ * specific algorithm and its parameters IV is not used.
  *
- * @return negative on error or the IV length in bits.
+ * @param[in]  algo      Encryption algorithm.
+ * @param[in]  bcm       Chain mode.
+ * @param[in]  key_bits  Key length in bits.
+ * @param[out] iv_bits   Recommended IV length in bits.
+ *
+ * @return 0 on success, negative on error.
  */
 int yaca_get_iv_bits(yaca_enc_algo_e algo,
                      yaca_block_cipher_mode_e bcm,
-                     size_t key_bits);
+                     size_t key_bits,
+                     size_t *iv_bits);
 
 /**@}*/
 

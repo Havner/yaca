@@ -44,7 +44,7 @@ void encrypt_simple(void)
 	char *dec_data = NULL;
 	size_t enc_len;
 	size_t dec_len;
-	int iv_bits;
+	size_t iv_bits;
 
 	printf("Simple Encrypt\nPlain data (16 of %zu bytes): %.16s\n",
 	       LOREM1024_SIZE, lorem1024);
@@ -54,8 +54,7 @@ void encrypt_simple(void)
 	if (ret)
 		return;
 
-	iv_bits = yaca_get_iv_bits(algo, bcm, key_bits);
-	if (iv_bits < 0)
+	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != 0)
 		return;
 
 	if (iv_bits > 0) {
@@ -101,7 +100,7 @@ void encrypt_advanced(void)
 	char *dec = NULL;
 	size_t enc_size;
 	size_t dec_size;
-	int iv_bits;
+	size_t iv_bits;
 
 	printf("Advanced Encrypt\nPlain data (16 of %zu bytes): %.16s\n",
 	       LOREM4096_SIZE, lorem4096);
@@ -113,8 +112,7 @@ void encrypt_advanced(void)
 	if (ret)
 		return;
 
-	iv_bits = yaca_get_iv_bits(algo, bcm, key_bits);
-	if (iv_bits < 0)
+	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != 0)
 		goto ex_key;
 
 	if (iv_bits > 0) {

@@ -414,8 +414,9 @@ static int encrypt_final(yaca_ctx_h ctx,
 }
 
 API int yaca_get_iv_bits(yaca_enc_algo_e algo,
-			 yaca_block_cipher_mode_e bcm,
-			 size_t key_bits)
+                         yaca_block_cipher_mode_e bcm,
+                         size_t key_bits,
+                         size_t *iv_bits)
 {
 	const EVP_CIPHER *cipher;
 	int ret;
@@ -424,7 +425,14 @@ API int yaca_get_iv_bits(yaca_enc_algo_e algo,
 	if (ret < 0)
 		return ret;
 
-	return EVP_CIPHER_iv_length(cipher) * 8;
+	ret = EVP_CIPHER_iv_length(cipher);
+	if (ret < 0) {
+		ERROR_DUMP(YACA_ERROR_INTERNAL);
+		return YACA_ERROR_INTERNAL;
+	}
+
+	*iv_bits = ret * 8;
+	return 0;
 }
 
 API int yaca_encrypt_init(yaca_ctx_h *ctx,
