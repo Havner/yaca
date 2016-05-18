@@ -32,12 +32,25 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/des.h>
+#include <openssl/err.h>
 
 #include <yaca/crypto.h>
 #include <yaca/error.h>
 #include <yaca/key.h>
 
 #include "internal.h"
+
+/* This callback only exists to block the default OpenSSL one and
+ * allow us to check for a proper error code when the key is encrypted
+ */
+int password_dummy_cb(char *buf, int size, int rwflag, void *u)
+{
+	const char empty[] = "";
+
+	memcpy(buf, empty, sizeof(empty));
+
+	return sizeof(empty);
+}
 
 int base64_decode_length(const char *data, size_t data_len, size_t *len)
 {
@@ -224,18 +237,34 @@ out:
 	return ret;
 }
 
+bool check_import_wrong_pass()
+{
+	unsigned long err = ERR_peek_last_error();
+	unsigned long err_bad_password_1 = ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT);
+	unsigned long err_bad_password_2 = ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT);
+
+	if (err == err_bad_password_1 || err == err_bad_password_2)
+		return true;
+
+	return false;
+}
+
 int import_evp(yaca_key_h *key,
                yaca_key_type_e key_type,
+               const char *password,
                const char *data,
                size_t data_len)
 {
 	assert(key != NULL);
+	assert(password == NULL || password[0] != '\0');
 	assert(data != NULL);
 	assert(data_len != 0);
 
 	int ret;
 	BIO *src = NULL;
 	EVP_PKEY *pkey = NULL;
+	bool wrong_pass = false;
+	pem_password_cb *cb = NULL;
 	bool private;
 	yaca_key_type_e type;
 	struct yaca_key_evp_s *nk = NULL;
@@ -257,45 +286,63 @@ int import_evp(yaca_key_h *key,
 		return YACA_ERROR_INTERNAL;
 	}
 
+	/* Block the default OpenSSL password callback */
+	if (password == NULL)
+		cb = password_dummy_cb;
+
 	/* Possible PEM */
 	if (strncmp("----", data, 4) == 0) {
-		if (pkey == NULL) {
+		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
-			pkey = PEM_read_bio_PrivateKey(src, NULL, NULL, NULL);
+			pkey = PEM_read_bio_PrivateKey(src, NULL, cb, (void*)password);
+			if (check_import_wrong_pass())
+				wrong_pass = true;
 			private = true;
+			ERROR_CLEAR();
 		}
 
-		if (pkey == NULL) {
+		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
-			pkey = PEM_read_bio_PUBKEY(src, NULL, NULL, NULL);
+			pkey = PEM_read_bio_PUBKEY(src, NULL, cb, (void*)password);
+			if (check_import_wrong_pass())
+				wrong_pass = true;
 			private = false;
+			ERROR_CLEAR();
 		}
 
-		if (pkey == NULL) {
+		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
-			X509 *x509 = PEM_read_bio_X509(src, NULL, NULL, NULL);
+			X509 *x509 = PEM_read_bio_X509(src, NULL, cb, (void*)password);
+			if (check_import_wrong_pass())
+				wrong_pass = true;
 			if (x509 != NULL)
 				pkey = X509_get_pubkey(x509);
-			private = false;
 			X509_free(x509);
+			private = false;
+			ERROR_CLEAR();
 		}
 	}
 	/* Possible DER */
 	else {
-		if (pkey == NULL) {
+		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = d2i_PrivateKey_bio(src, NULL);
 			private = true;
+			ERROR_CLEAR();
 		}
 
-		if (pkey == NULL) {
+		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = d2i_PUBKEY_bio(src, NULL);
 			private = false;
+			ERROR_CLEAR();
 		}
 	}
 
 	BIO_free(src);
+
+	if (wrong_pass)
+		return YACA_ERROR_PASSWORD_INVALID;
 
 	if (pkey == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -872,16 +919,22 @@ API int yaca_key_import(yaca_key_h *key,
 	if (key == NULL || data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
+	/* allow an empty password, OpenSSL returns an error with "" */
+	if (password != NULL && password[0] == '\0')
+		password = NULL;
+
 	switch (key_type) {
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_DES:
 	case YACA_KEY_TYPE_IV:
+		if (password != NULL)
+			return YACA_ERROR_INVALID_ARGUMENT;
 		return import_simple(key, key_type, data, data_len);
 	case YACA_KEY_TYPE_RSA_PUB:
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_DSA_PRIV:
-		return import_evp(key, key_type, data, data_len);
+		return import_evp(key, key_type, password, data, data_len);
 	case YACA_KEY_TYPE_DH_PUB:
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_EC_PUB:
