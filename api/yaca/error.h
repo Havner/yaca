@@ -38,6 +38,7 @@ extern "C" {
  *  @brief Error enums
  */
 enum __yaca_error_code {
+	YACA_ERROR_NONE               =  0,
 	YACA_ERROR_INVALID_ARGUMENT   = -1,
 	YACA_ERROR_NOT_IMPLEMENTED    = -2,
 	YACA_ERROR_INTERNAL           = -3,
