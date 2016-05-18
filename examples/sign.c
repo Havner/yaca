@@ -98,7 +98,8 @@ finish:
 
 void sign_verify_hmac(void)
 {
-	char* signature = NULL;
+	char *signature1 = NULL;
+	char *signature2 = NULL;
 	size_t signature_len;
 
 	yaca_ctx_h ctx = YACA_CTX_NULL;
@@ -109,7 +110,7 @@ void sign_verify_hmac(void)
 		return;
 
 	// SIGN
-	if (yaca_sign_init(&ctx, YACA_DIGEST_SHA512, key) != 0)
+	if (yaca_sign_hmac_init(&ctx, YACA_DIGEST_SHA512, key) != 0)
 		goto finish;
 
 	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
@@ -118,32 +119,42 @@ void sign_verify_hmac(void)
 	if (yaca_get_sign_length(ctx, &signature_len) != 0)
 		goto finish;
 
-	if ((signature = yaca_malloc(signature_len)) == NULL)
+	if ((signature1 = yaca_malloc(signature_len)) == NULL)
 		goto finish;
 
-	if (yaca_sign_final(ctx, signature, &signature_len) != 0)
+	if (yaca_sign_final(ctx, signature1, &signature_len) != 0)
 		goto finish;
 
-	dump_hex(signature, signature_len, "HMAC Signature of lorem4096:");
+	dump_hex(signature1, signature_len, "HMAC Signature of lorem4096:");
 
 	// CLEANUP
 	yaca_ctx_free(ctx);
 	ctx = YACA_CTX_NULL;
 
 	// VERIFY
-	if (yaca_verify_init(&ctx, YACA_DIGEST_SHA512, key) != 0)
+	if (yaca_sign_hmac_init(&ctx, YACA_DIGEST_SHA512, key) != 0)
 		goto finish;
 
-	if (yaca_verify_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
+	if (yaca_sign_update(ctx, lorem4096, LOREM4096_SIZE) != 0)
 		goto finish;
 
-	if (yaca_verify_final(ctx, signature, signature_len) != 0)
+	if (yaca_get_sign_length(ctx, &signature_len) != 0)
+		goto finish;
+
+	if ((signature2 = yaca_malloc(signature_len)) == NULL)
+		goto finish;
+
+	if (yaca_sign_final(ctx, signature2, &signature_len) != 0)
+		goto finish;
+
+	if (yaca_memcmp(signature1, signature2, signature_len) != 0)
 		printf("HMAC verification failed\n");
 	else
 		printf("HMAC verification succesful\n");
 
 finish:
-	yaca_free(signature);
+	yaca_free(signature1);
+	yaca_free(signature2);
 	yaca_key_free(key);
 	yaca_ctx_free(ctx);
 }
