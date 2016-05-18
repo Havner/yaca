@@ -41,4 +41,6 @@ int write_file(const char *path, char *data, size_t data_len);
 
 int read_file(const char *path, char **data, size_t *data_len);
 
+int read_stdin_line(const char *prompt, char **string);
+
 #endif /* MISC_H */

@@ -21,6 +21,8 @@
  * @brief
  */
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -125,4 +127,31 @@ int read_file(const char *path, char **data, size_t *data_len)
 	fclose(f);
 	free(buf);
 	return ret;
+}
+
+int read_stdin_line(const char *prompt, char **string)
+{
+	char *buf = NULL;
+	char *ret;
+	size_t size;
+	ssize_t read;
+
+	if (prompt != NULL)
+		printf("%s", prompt);
+
+	read = getline(&buf, &size, stdin);
+	if (read <= 0) {
+		free(buf);
+		return -1;
+	}
+
+	ret = yaca_realloc(buf, read);
+	if (ret == NULL) {
+		free(buf);
+		return -1;
+	}
+	buf[read - 1] = '\0';
+
+	*string = buf;
+	return 0;
 }
