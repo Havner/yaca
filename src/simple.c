@@ -33,6 +33,7 @@
 #include <yaca/encrypt.h>
 #include <yaca/digest.h>
 #include <yaca/key.h>
+#include <yaca/sign.h>
 
 #include "internal.h"
 
@@ -234,5 +235,123 @@ err_free:
 	yaca_free(lplain);
 err:
 	yaca_ctx_free(ctx);
+	return ret;
+}
+
+static int sign(const yaca_ctx_h ctx, const char *data, size_t data_len,
+                char** signature, size_t* signature_len)
+{
+	int ret;
+
+	assert(signature != NULL);
+	assert(signature_len != NULL);
+
+	ret = yaca_sign_update(ctx, data, data_len);
+	if (ret != 0)
+		return ret;
+
+	ret = yaca_get_sign_length(ctx, signature_len);
+	if (ret != 0)
+		return ret;
+
+	*signature = yaca_malloc(*signature_len);
+	if (signature == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	ret = yaca_sign_final(ctx, *signature, signature_len);
+	if (ret != 0) {
+		yaca_free(*signature);
+		*signature = NULL;
+	}
+
+	return ret;
+}
+
+API int yaca_sign(yaca_digest_algo_e algo,
+                  const yaca_key_h key,
+                  const char *data,
+                  size_t data_len,
+                  char** signature,
+                  size_t* signature_len)
+{
+	int ret;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
+
+	ret = yaca_sign_init(&ctx, algo, key);
+	if (ret != 0)
+		return ret;
+
+	ret = sign(ctx, data, data_len, signature, signature_len);
+
+	yaca_ctx_free(ctx);
+
+	return ret;
+}
+
+API int yaca_verify(yaca_digest_algo_e algo,
+                    const yaca_key_h key,
+                    const char *data,
+                    size_t data_len,
+                    const char* signature,
+                    size_t signature_len)
+{
+	int ret;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
+
+	ret = yaca_verify_init(&ctx, algo, key);
+	if (ret != 0)
+		return ret;
+
+	ret = yaca_verify_update(ctx, data, data_len);
+	if (ret != 0)
+		goto free_ctx;
+
+	ret = yaca_verify_final(ctx, signature, signature_len);
+
+free_ctx:
+	yaca_ctx_free(ctx);
+
+	return ret;
+}
+
+API int yaca_hmac(yaca_digest_algo_e algo,
+                  const yaca_key_h key,
+                  const char *data,
+                  size_t data_len,
+                  char** mac,
+                  size_t* mac_len)
+{
+	int ret;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
+
+	ret = yaca_sign_hmac_init(&ctx, algo, key);
+	if (ret != 0)
+		return ret;
+
+	ret = sign(ctx, data, data_len, mac, mac_len);
+
+	yaca_ctx_free(ctx);
+
+	return ret;
+}
+
+API int yaca_cmac(yaca_enc_algo_e algo,
+                  const yaca_key_h key,
+                  const char *data,
+                  size_t data_len,
+                  char** mac,
+                  size_t* mac_len)
+{
+	int ret;
+	yaca_ctx_h ctx = YACA_CTX_NULL;
+
+	ret = yaca_sign_cmac_init(&ctx, algo, key);
+	if (ret != 0)
+		return ret;
+
+	ret = sign(ctx, data, data_len, mac, mac_len);
+
+	yaca_ctx_free(ctx);
+
 	return ret;
 }
