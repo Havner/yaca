@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
