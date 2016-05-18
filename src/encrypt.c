@@ -216,9 +216,10 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	const struct yaca_key_simple_s *liv;
 	struct yaca_encrypt_ctx_s *nc;
 	const EVP_CIPHER *cipher;
-	int key_bits;
+	size_t key_bits;
 	unsigned char *iv_data = NULL;
-	int iv_bits;
+	size_t iv_bits;
+	size_t iv_bits_check;
 	int ret;
 
 	if (ctx == NULL || sym_key == YACA_KEY_NULL)
@@ -237,10 +238,9 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	nc->ctx.get_output_length = get_encrypt_output_length;
 	nc->op_type = op_type;
 
-	ret = yaca_key_get_bits(sym_key);
-	if (ret < 0)
+	ret = yaca_key_get_bits(sym_key, &key_bits);
+	if (ret != 0)
 		goto err_free;
-	key_bits = ret;
 
 	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
 	if (ret != 0)
@@ -265,7 +265,12 @@ static int encrypt_init(yaca_ctx_h *ctx,
 			ret = YACA_ERROR_INVALID_ARGUMENT;
 			goto err_free;
 		}
-		if (iv_bits != yaca_key_get_bits(iv)) { /* IV length doesn't match cipher */
+		ret = yaca_key_get_bits(iv, &iv_bits_check);
+		if (ret != 0) {
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			goto err_free;
+		}
+		if (iv_bits != iv_bits_check) { /* IV length doesn't match cipher */
 			ret = YACA_ERROR_INVALID_ARGUMENT;
 			goto err_free;
 		}

@@ -222,7 +222,8 @@ static int open_init(yaca_ctx_h *ctx,
 	const struct yaca_key_simple_s *liv;
 	struct yaca_seal_ctx_s *nc;
 	const EVP_CIPHER *cipher;
-	int iv_bits;
+	size_t iv_bits;
+	size_t iv_bits_check;
 	int ret;
 
 	if (ctx == NULL || prv_key == YACA_KEY_NULL || sym_key == YACA_KEY_NULL)
@@ -271,7 +272,12 @@ static int open_init(yaca_ctx_h *ctx,
 	}
 
 	// TODO: handling of algorithms with variable IV length
-	if (iv_bits != yaca_key_get_bits(iv)) { /* IV length doesn't match cipher */
+	ret = yaca_key_get_bits(iv, &iv_bits_check);
+	if (ret != 0) {
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		goto err_free;
+	}
+	if (iv_bits != iv_bits_check) { /* IV length doesn't match cipher */
 		ret = YACA_ERROR_INVALID_ARGUMENT;
 		goto err_free;
 	}

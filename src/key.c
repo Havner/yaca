@@ -823,13 +823,29 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 	}
 }
 
-API int yaca_key_get_bits(const yaca_key_h key)
+API int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type)
+{
+	const struct yaca_key_s *lkey = (const struct yaca_key_s *)key;
+
+	if (lkey == NULL || key_type == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	*key_type = lkey->type;
+	return 0;
+}
+
+API int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits)
 {
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
-	if (simple_key != NULL)
-		return simple_key->bits;
+	if (key_bits == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	if (simple_key != NULL) {
+		*key_bits = simple_key->bits;
+		return 0;
+	}
 
 	if (evp_key != NULL) {
 		int ret;
@@ -842,7 +858,8 @@ API int yaca_key_get_bits(const yaca_key_h key)
 			return ret;
 		}
 
-		return ret;
+		*key_bits = ret;
+		return 0;
 	}
 
 	return YACA_ERROR_INVALID_ARGUMENT;
