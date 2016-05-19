@@ -292,7 +292,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	case YACA_KEY_TYPE_DSA_PRIV:
 		nc->op_type = OP_SIGN;
 		break;
-	case YACA_KEY_TYPE_ECDSA_PRIV:
+	case YACA_KEY_TYPE_EC_PRIV:
 		ret = YACA_ERROR_NOT_IMPLEMENTED;
 		goto free_ctx;
 	default:
@@ -413,7 +413,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 	case YACA_KEY_TYPE_DSA_PUB:
 		nc->op_type = OP_VERIFY_ASYMMETRIC;
 		break;
-	case YACA_KEY_TYPE_ECDSA_PUB:
+	case YACA_KEY_TYPE_EC_PUB:
 		ret = YACA_ERROR_NOT_IMPLEMENTED;
 		goto free_ctx;
 	default:

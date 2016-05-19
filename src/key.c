@@ -308,7 +308,7 @@ int import_evp(yaca_key_h *key,
 		break;
 
 	case EVP_PKEY_EC:
-		type = private ? YACA_KEY_TYPE_ECDSA_PRIV : YACA_KEY_TYPE_ECDSA_PUB;
+		type = private ? YACA_KEY_TYPE_EC_PRIV : YACA_KEY_TYPE_EC_PUB;
 		break;
 
 	default:
@@ -473,10 +473,8 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 
 		case YACA_KEY_TYPE_DH_PRIV:
 		case YACA_KEY_TYPE_DH_PUB:
-		case YACA_KEY_TYPE_ECDSA_PRIV:
-		case YACA_KEY_TYPE_ECDSA_PUB:
-		case YACA_KEY_TYPE_ECDH_PRIV:
-		case YACA_KEY_TYPE_ECDH_PUB:
+		case YACA_KEY_TYPE_EC_PRIV:
+		case YACA_KEY_TYPE_EC_PUB:
 			ret = YACA_ERROR_NOT_IMPLEMENTED;
 			goto free_bio;
 
@@ -505,10 +503,8 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 
 		case YACA_KEY_TYPE_DH_PRIV:
 		case YACA_KEY_TYPE_DH_PUB:
-		case YACA_KEY_TYPE_ECDSA_PRIV:
-		case YACA_KEY_TYPE_ECDSA_PUB:
-		case YACA_KEY_TYPE_ECDH_PRIV:
-		case YACA_KEY_TYPE_ECDH_PUB:
+		case YACA_KEY_TYPE_EC_PRIV:
+		case YACA_KEY_TYPE_EC_PUB:
 			ret = YACA_ERROR_NOT_IMPLEMENTED;
 			goto free_bio;
 
@@ -886,10 +882,8 @@ API int yaca_key_import(yaca_key_h *key,
 		return import_evp(key, key_type, data, data_len);
 	case YACA_KEY_TYPE_DH_PUB:
 	case YACA_KEY_TYPE_DH_PRIV:
-	case YACA_KEY_TYPE_ECDSA_PUB:
-	case YACA_KEY_TYPE_ECDSA_PRIV:
-	case YACA_KEY_TYPE_ECDH_PUB:
-	case YACA_KEY_TYPE_ECDH_PRIV:
+	case YACA_KEY_TYPE_EC_PUB:
+	case YACA_KEY_TYPE_EC_PRIV:
 		return YACA_ERROR_NOT_IMPLEMENTED;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -986,8 +980,7 @@ API int yaca_key_gen(yaca_key_h *key,
 		return 0;
 
 	case YACA_KEY_TYPE_DH_PRIV:
-	case YACA_KEY_TYPE_ECDSA_PRIV:
-	case YACA_KEY_TYPE_ECDH_PRIV:
+	case YACA_KEY_TYPE_EC_PRIV:
 		return YACA_ERROR_NOT_IMPLEMENTED;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -1044,8 +1037,8 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	case YACA_KEY_TYPE_DSA_PRIV:
 		(*pub_key)->type = YACA_KEY_TYPE_DSA_PUB;
 		break;
-	case YACA_KEY_TYPE_ECDSA_PRIV:
-		(*pub_key)->type = YACA_KEY_TYPE_ECDSA_PUB;
+	case YACA_KEY_TYPE_EC_PRIV:
+		(*pub_key)->type = YACA_KEY_TYPE_EC_PUB;
 		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;

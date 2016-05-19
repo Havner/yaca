@@ -124,7 +124,7 @@ int yaca_decrypt(yaca_enc_algo_e algo,
  *                            deduced based on key type. Supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PRIV,
  *                            - #YACA_KEY_TYPE_DSA_PRIV,
- *                            - #YACA_KEY_TYPE_ECDSA_PRIV.
+ *                            - #YACA_KEY_TYPE_EC_PRIV.
  * @param[in]  data           Data to be signed.
  * @param[in]  data_len       Length of the data.
  * @param[out] signature      Message signature. Will be allocated by the
@@ -149,7 +149,7 @@ int yaca_sign(yaca_digest_algo_e algo,
  *                            deduced based on key type. Supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PUB,
  *                            - #YACA_KEY_TYPE_DSA_PUB,
- *                            - #YACA_KEY_TYPE_ECDSA_PUB.
+ *                            - #YACA_KEY_TYPE_EC_PUB.
  * @param[in]  data           Signed data.
  * @param[in]  data_len       Length of the data.
  * @param[in]  signature      Message signature.

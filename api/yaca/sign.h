@@ -52,7 +52,7 @@ extern "C" {
  *                   on key type. Supported key types:
  *                   - #YACA_KEY_TYPE_RSA_PRIV,
  *                   - #YACA_KEY_TYPE_DSA_PRIV,
- *                   - #YACA_KEY_TYPE_ECDSA_PRIV.
+ *                   - #YACA_KEY_TYPE_EC_PRIV.
  *
  * @return 0 on success, negative on error.
  * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign_update(),
@@ -145,7 +145,7 @@ int yaca_sign_final(yaca_ctx_h ctx,
  *                   key type. Supported key types:
  *                   - #YACA_KEY_TYPE_RSA_PUB,
  *                   - #YACA_KEY_TYPE_DSA_PUB,
- *                   - #YACA_KEY_TYPE_ECDSA_PUB.
+ *                   - #YACA_KEY_TYPE_EC_PUB.
  *
  * @return 0 on success, negative on error.
  * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_verify_update(),
