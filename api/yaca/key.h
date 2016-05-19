@@ -179,7 +179,6 @@ void yaca_key_free(yaca_key_h key);
 /**
  * @defgroup  Key-Derivation  Advanced API for the key derivation.
  *
- * TODO: rethink separate group.
  * TODO: extended description and examples.
  *
  * @{
@@ -225,8 +224,8 @@ int yaca_key_derive_kea(const yaca_key_h prv_key,
  * @param[in]  password  User password as a NULL-terminated string.
  * @param[in]  salt      Salt, should be non-zero.
  * @param[in]  salt_len  Length of the salt.
- * @param[in]  iter      Number of iterations. (TODO: add enum to proposed number of iterations, pick sane defaults).
- * @param[in]  algo      Digest algorithm that should be used in key generation. (TODO: sane defaults).
+ * @param[in]  iter      Number of iterations.
+ * @param[in]  algo      Digest algorithm that should be used in key generation.
  * @param[in]  key_bits  Length of a key (in bits) to be generated.
  * @param[out] key       Newly generated key (must be freed with yaca_key_free()).
  *
