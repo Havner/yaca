@@ -49,7 +49,6 @@ BUILD_EXAMPLE("yaca-example-seal"         seal.c)
 BUILD_EXAMPLE("yaca-example-encrypt-gcm"  encrypt_aes_gcm.c)
 BUILD_EXAMPLE("yaca-example-sign"         sign.c)
 BUILD_EXAMPLE("yaca-example-key-exchange" key_exchange.c)
-BUILD_EXAMPLE("yaca-example-test"         test.c)
 BUILD_EXAMPLE("yaca-example-key-impexp"   key_import_export.c)
 
 INSTALL(FILES       ${COMMON_SOURCES}
