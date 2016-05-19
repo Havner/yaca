@@ -194,8 +194,7 @@ typedef enum {
 	 * RC2 encryption.
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 8-1024 bits in steps of 8 bits.
-	 * - Additional parameter, effective key bits: #YACA_PARAM_RC2_EFFECTIVE_KEY_BITS,
-	 * by default equals to 128
+	 * - Effective key bits parameter by default equals to 128.
 	 * - Supported block cipher modes:
 	 * #YACA_BCM_CBC,
 	 * #YACA_BCM_OFB,
@@ -309,8 +308,6 @@ typedef enum {
  */
 typedef enum {
 	YACA_PARAM_PADDING,                /**< Padding */
-
-	YACA_PARAM_RC2_EFFECTIVE_KEY_BITS, /**< RC2 effective key bits, 1-1024, 1 bit resolution */
 
 	YACA_PARAM_GCM_AAD,                /**< GCM Additional Authentication Data */
 	YACA_PARAM_GCM_TAG,                /**< GCM Tag bits */
