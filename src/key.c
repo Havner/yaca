@@ -482,15 +482,18 @@ free_bio:
 
 int export_evp(struct yaca_key_evp_s *evp_key,
                yaca_key_file_fmt_e key_file_fmt,
+               const char *password,
                char **data,
                size_t *data_len)
 {
 	assert(evp_key != NULL);
+	assert(password == NULL || password[0] != '\0');
 	assert(data != NULL);
 	assert(data_len != NULL);
 
 	int ret = 0;
 	BIO *mem;
+	const EVP_CIPHER *enc = NULL;
 	char *bio_data;
 	long bio_data_len;
 
@@ -501,6 +504,9 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		return ret;
 	}
 
+	if (password != NULL)
+		enc = EVP_aes_256_cbc();
+
 	switch (key_file_fmt) {
 
 	case YACA_KEY_FILE_FORMAT_PEM:
@@ -508,11 +514,11 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 
 		case YACA_KEY_TYPE_RSA_PRIV:
 			ret = PEM_write_bio_RSAPrivateKey(mem, EVP_PKEY_get0(evp_key->evp),
-			                                  NULL, NULL, 0, NULL, NULL);
+			                                  enc, NULL, 0, NULL, (void*)password);
 			break;
 		case YACA_KEY_TYPE_DSA_PRIV:
 			ret = PEM_write_bio_DSAPrivateKey(mem, EVP_PKEY_get0(evp_key->evp),
-			                                  NULL, NULL, 0, NULL, NULL);
+			                                  enc, NULL, 0, NULL, (void*)password);
 			break;
 
 		case YACA_KEY_TYPE_RSA_PUB:
@@ -958,6 +964,13 @@ API int yaca_key_export(const yaca_key_h key,
 	if (data == NULL || data_len == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
+	/* allow an empty password, OpenSSL returns an error with "" */
+	if (password != NULL && password[0] == '\0')
+		password = NULL;
+
+	if (password != NULL && simple_key != NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
 	if (key_fmt == YACA_KEY_FORMAT_DEFAULT &&
 	    key_file_fmt == YACA_KEY_FILE_FORMAT_RAW &&
 	    simple_key != NULL)
@@ -970,7 +983,7 @@ API int yaca_key_export(const yaca_key_h key,
 
 	if (key_fmt == YACA_KEY_FORMAT_DEFAULT &&
 	    evp_key != NULL)
-		return export_evp(evp_key, key_file_fmt, data, data_len);
+		return export_evp(evp_key, key_file_fmt, password, data, data_len);
 
 	if (key_fmt == YACA_KEY_FORMAT_PKCS8)
 		return YACA_ERROR_NOT_IMPLEMENTED;
