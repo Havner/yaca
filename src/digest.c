@@ -131,7 +131,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 	nc->ctx.get_output_length = get_digest_output_length;
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret < 0)
+	if (ret != 0)
 		goto free;
 
 	nc->mdctx = EVP_MD_CTX_create();

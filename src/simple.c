@@ -46,11 +46,11 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = yaca_digest_init(&ctx, algo);
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
 	ret = yaca_digest_update(ctx, data, data_len);
-	if (ret < 0)
+	if (ret != 0)
 		goto err;
 
 	ret = yaca_get_digest_length(ctx, &ldigest_len);
@@ -62,7 +62,7 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 		goto err;
 
 	ret = yaca_digest_final(ctx, ldigest, &ldigest_len);
-	if (ret < 0)
+	if (ret != 0)
 		goto err_free;
 
 	yaca_ctx_free(ctx);

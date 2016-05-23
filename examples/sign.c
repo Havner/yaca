@@ -216,7 +216,7 @@ int main()
 	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
 	// TODO simple?

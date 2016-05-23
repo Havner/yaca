@@ -58,22 +58,22 @@ void encrypt_decrypt_aes_gcm(void)
 	/// Key generation
 
 	ret = yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT); // key_type, key_len, *key ? looks imo much better
-	if (ret < 0)
+	if (ret != 0)
 		goto clean;
 
 	// use YACA_KEY_IV_128BIT & YACA_KEY_TYPE_IV or maybe YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC ?
 	ret = yaca_key_gen(&iv, YACA_KEY_TYPE_IV, YACA_KEY_IV_128BIT);
-	if (ret < 0)
+	if (ret != 0)
 		goto clean;
 
 	// use YACA_KEY_128BIT & YACA_KEY_TYPE_SYMMETRIC or maybe add YACA_KEY_AAD_128BIT & YACA_KEY_TYPE_AAD ?
 	ret = yaca_key_gen(&aad_key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_UNSAFE_128BIT);
-	if (ret < 0)
+	if (ret != 0)
 		goto clean;
 
 	// generate and export aad?
 	ret = yaca_key_export(aad_key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL, &aad, &aad_len);
-	if (ret < 0)
+	if (ret != 0)
 		goto clean;
 
 	/// Encryption
@@ -81,11 +81,11 @@ void encrypt_decrypt_aes_gcm(void)
 		size_t len;
 
 		ret = yaca_encrypt_init(&ctx, YACA_ENC_AES, YACA_BCM_GCM, key, iv);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		ret = yaca_get_output_length(ctx, LOREM4096_SIZE, &ciphertext_len);
@@ -102,19 +102,19 @@ void encrypt_decrypt_aes_gcm(void)
 			goto clean;
 
 		ret = yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, ciphertext, &len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		ciphertext_len = len;
 
 		ret = yaca_encrypt_final(ctx, ciphertext + len, &len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		ciphertext_len += len;
 
 		ret = yaca_ctx_get_param(ctx, YACA_PARAM_GCM_TAG, (void*)&tag, &tag_len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		dump_hex(ciphertext, 16, "Encrypted data (16 of %zu bytes): ", ciphertext_len);
@@ -127,11 +127,11 @@ void encrypt_decrypt_aes_gcm(void)
 		size_t len;
 
 		ret = yaca_decrypt_init(&ctx, YACA_ENC_AES, YACA_BCM_GCM, key, iv);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		ret = yaca_get_output_length(ctx, ciphertext_len, &plaintext_len);
@@ -148,17 +148,17 @@ void encrypt_decrypt_aes_gcm(void)
 			goto clean;
 
 		ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, plaintext, &len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		plaintext_len = len;
 
 		ret = yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG, tag, tag_len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		ret = yaca_encrypt_final(ctx, plaintext + len, &len);
-		if (ret < 0)
+		if (ret != 0)
 			goto clean;
 
 		plaintext_len += len;
@@ -184,7 +184,7 @@ int main()
 	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
 	encrypt_decrypt_aes_gcm();

@@ -186,7 +186,7 @@ int main()
 	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
 	yaca_enc_algo_e algo = YACA_ENC_AES;

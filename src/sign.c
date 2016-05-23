@@ -511,7 +511,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 	}
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret < 0)
+	if (ret != 0)
 		goto free_ctx;
 
 	nc->mdctx = EVP_MD_CTX_create();

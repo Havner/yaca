@@ -429,7 +429,7 @@ API int yaca_get_iv_bits(yaca_enc_algo_e algo,
 	int ret;
 
 	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
 	ret = EVP_CIPHER_iv_length(cipher);

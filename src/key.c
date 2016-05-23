@@ -1111,7 +1111,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret < 0)
+	if (ret != 0)
 		return ret;
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
