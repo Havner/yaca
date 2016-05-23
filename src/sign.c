@@ -36,7 +36,7 @@
 
 /* Operation type saved in context to recognize what
  * type of operation is performed and how to perform it.
-*/
+ */
 enum sign_op_type {
 	OP_SIGN = 0,
 	OP_VERIFY = 1
@@ -64,7 +64,9 @@ static struct yaca_sign_ctx_s *get_sign_ctx(const yaca_ctx_h ctx)
 	}
 }
 
-static int get_sign_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)
+static int get_sign_output_length(const yaca_ctx_h ctx,
+                                  size_t input_len,
+                                  size_t *output_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 
@@ -103,7 +105,10 @@ static void destroy_sign_context(yaca_ctx_h ctx)
 	c->mdctx = NULL;
 }
 
-int set_sign_param(yaca_ctx_h ctx, yaca_ex_param_e param, const void *value, size_t value_len)
+int set_sign_param(yaca_ctx_h ctx,
+                   yaca_ex_param_e param,
+                   const void *value,
+                   size_t value_len)
 {
 	int ret;
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
@@ -162,7 +167,10 @@ int set_sign_param(yaca_ctx_h ctx, yaca_ex_param_e param, const void *value, siz
 	return 0;
 }
 
-int get_sign_param(const yaca_ctx_h ctx, yaca_ex_param_e param, void **value, size_t *value_len)
+int get_sign_param(const yaca_ctx_h ctx,
+                   yaca_ex_param_e param,
+                   void **value,
+                   size_t *value_len)
 {
 	int ret;
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
@@ -227,8 +235,8 @@ int get_sign_param(const yaca_ctx_h ctx, yaca_ex_param_e param, void **value, si
 }
 
 API int yaca_sign_init(yaca_ctx_h *ctx,
-		       yaca_digest_algo_e algo,
-		       const yaca_key_h key)
+                       yaca_digest_algo_e algo,
+                       const yaca_key_h key)
 {
 	struct yaca_sign_ctx_s *nc = NULL;
 	const EVP_MD *md = NULL;
@@ -300,7 +308,7 @@ API int yaca_sign_hmac_init(yaca_ctx_h *ctx,
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
 
 	if (ctx == NULL || simple_key == NULL ||
-	   (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
+	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
@@ -364,7 +372,7 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
 
 	if (ctx == NULL || simple_key == NULL ||
-	   (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
+	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
@@ -440,8 +448,8 @@ free_ctx:
 }
 
 API int yaca_sign_update(yaca_ctx_h ctx,
-			 const char *data,
-			 size_t data_len)
+                         const char *data,
+                         size_t data_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 	int ret;
@@ -461,8 +469,8 @@ API int yaca_sign_update(yaca_ctx_h ctx,
 }
 
 API int yaca_sign_final(yaca_ctx_h ctx,
-			char *signature,
-			size_t *signature_len)
+                        char *signature,
+                        size_t *signature_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 	int ret;
@@ -482,8 +490,8 @@ API int yaca_sign_final(yaca_ctx_h ctx,
 }
 
 API int yaca_verify_init(yaca_ctx_h *ctx,
-			 yaca_digest_algo_e algo,
-			 const yaca_key_h key)
+                         yaca_digest_algo_e algo,
+                         const yaca_key_h key)
 {
 	struct yaca_sign_ctx_s *nc = NULL;
 	const EVP_MD *md = NULL;
@@ -544,8 +552,8 @@ free_ctx:
 }
 
 API int yaca_verify_update(yaca_ctx_h ctx,
-			   const char *data,
-			   size_t data_len)
+                           const char *data,
+                           size_t data_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 	int ret;
