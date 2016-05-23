@@ -571,14 +571,16 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 	ret = EVP_DigestVerifyFinal(c->mdctx,
 	                            (unsigned char *)signature,
 	                            signature_len);
+
 	if (ret == 1)
 		return 0;
 
-	if (ret == 0)
-		ret = YACA_ERROR_DATA_MISMATCH;
-	else
-		ret = YACA_ERROR_INTERNAL;
+	if (ret == 0) {
+		ERROR_CLEAR();
+		return YACA_ERROR_DATA_MISMATCH;
+	}
 
+	ret = YACA_ERROR_INTERNAL;
 	ERROR_DUMP(ret);
 	return ret;
 }
