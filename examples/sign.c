@@ -26,10 +26,142 @@
 #include <yaca/sign.h>
 #include <yaca/key.h>
 #include <yaca/error.h>
+#include <yaca/simple.h>
 
 #include "lorem.h"
 #include "misc.h"
 #include "../src/debug.h"
+
+// Signature creation and verification using simple API
+void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
+{
+	char* signature = NULL;
+	size_t signature_len;
+
+	yaca_key_h prv = YACA_KEY_NULL;
+	yaca_key_h pub = YACA_KEY_NULL;
+
+	// GENERATE
+	if (yaca_key_gen(&prv, type, YACA_KEY_1024BIT) != 0)
+		return;
+
+	if (yaca_key_extract_public(prv, &pub) != 0)
+		goto finish;
+
+	// SIGN
+	if (yaca_sign(YACA_DIGEST_SHA512,
+	              prv,
+	              lorem4096,
+	              LOREM4096_SIZE,
+	              &signature,
+	              &signature_len) != 0)
+		goto finish;
+
+	dump_hex(signature, signature_len, "[Simple API] %s Signature of lorem4096:", algo);
+
+	// VERIFY
+	if (yaca_verify(YACA_DIGEST_SHA512,
+	                pub,
+	                lorem4096,
+	                LOREM4096_SIZE,
+	                signature,
+	                signature_len) != 0)
+		printf("[Simple API] %s verification failed\n", algo);
+	else
+		printf("[Simple API] %s verification succesful\n", algo);
+
+finish:
+	yaca_free(signature);
+	yaca_key_free(prv);
+	yaca_key_free(pub);
+}
+
+void simple_sign_verify_hmac(void)
+{
+	char *signature1 = NULL;
+	char *signature2 = NULL;
+	size_t signature_len;
+
+	yaca_key_h key = YACA_KEY_NULL;
+
+	// GENERATE
+	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT) != 0)
+		return;
+
+	// SIGN
+	if (yaca_hmac(YACA_DIGEST_SHA512,
+	              key,
+	              lorem4096,
+	              LOREM4096_SIZE,
+	              &signature1,
+	              &signature_len) != 0)
+		goto finish;
+
+	dump_hex(signature1, signature_len, "[Simple API] HMAC Signature of lorem4096:");
+
+	// VERIFY
+	if (yaca_hmac(YACA_DIGEST_SHA512,
+	              key,
+	              lorem4096,
+	              LOREM4096_SIZE,
+	              &signature2,
+	              &signature_len) != 0)
+		goto finish;
+
+	if (yaca_memcmp(signature1, signature2, signature_len) != 0)
+		printf("[Simple API] HMAC verification failed\n");
+	else
+		printf("[Simple API] HMAC verification succesful\n");
+
+finish:
+	yaca_free(signature1);
+	yaca_free(signature2);
+	yaca_key_free(key);
+}
+
+void simple_sign_verify_cmac(void)
+{
+	char *signature1 = NULL;
+	char *signature2 = NULL;
+	size_t signature_len;
+
+	yaca_key_h key = YACA_KEY_NULL;
+
+	// GENERATE
+	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
+		return;
+
+	// SIGN
+	if (yaca_cmac(YACA_ENC_AES,
+	              key,
+	              lorem4096,
+	              LOREM4096_SIZE,
+	              &signature1,
+	              &signature_len) != 0)
+		goto finish;
+
+	dump_hex(signature1, signature_len, "[Simple API] CMAC Signature of lorem4096:");
+
+
+	// VERIFY
+	if (yaca_cmac(YACA_ENC_AES,
+	              key,
+	              lorem4096,
+	              LOREM4096_SIZE,
+	              &signature2,
+	              &signature_len) != 0)
+		goto finish;
+
+	if (yaca_memcmp(signature1, signature2, signature_len) != 0)
+		printf("[Simple API] CMAC verification failed\n");
+	else
+		printf("[Simple API] CMAC verification succesful\n");
+
+finish:
+	yaca_free(signature1);
+	yaca_free(signature2);
+	yaca_key_free(key);
+}
 
 // Signature creation and verification using advanced API
 void sign_verify_asym(yaca_key_type_e type, const char *algo)
@@ -68,7 +200,7 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	if (yaca_sign_final(ctx, signature, &signature_len) != 0)
 		goto finish;
 
-	dump_hex(signature, signature_len, "%s Signature of lorem4096:", algo);
+	dump_hex(signature, signature_len, "[Advanced API] %s Signature of lorem4096:", algo);
 
 	// CLEANUP
 	yaca_ctx_free(ctx);
@@ -85,9 +217,9 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 		goto finish;
 
 	if (yaca_verify_final(ctx, signature, signature_len) != 0)
-		printf("%s verification failed\n", algo);
+		printf("[Advanced API] %s verification failed\n", algo);
 	else
-		printf("%s verification succesful\n", algo);
+		printf("[Advanced API] %s verification succesful\n", algo);
 
 finish:
 	yaca_free(signature);
@@ -125,7 +257,7 @@ void sign_verify_hmac(void)
 	if (yaca_sign_final(ctx, signature1, &signature_len) != 0)
 		goto finish;
 
-	dump_hex(signature1, signature_len, "HMAC Signature of lorem4096:");
+	dump_hex(signature1, signature_len, "[Advanced API] HMAC Signature of lorem4096:");
 
 	// CLEANUP
 	yaca_ctx_free(ctx);
@@ -148,9 +280,9 @@ void sign_verify_hmac(void)
 		goto finish;
 
 	if (yaca_memcmp(signature1, signature2, signature_len) != 0)
-		printf("HMAC verification failed\n");
+		printf("[Advanced API] HMAC verification failed\n");
 	else
-		printf("HMAC verification succesful\n");
+		printf("[Advanced API] HMAC verification succesful\n");
 
 finish:
 	yaca_free(signature1);
@@ -188,7 +320,7 @@ void sign_verify_cmac(void)
 	if (yaca_sign_final(ctx, signature1, &signature_len))
 		goto finish;
 
-	dump_hex(signature1, signature_len, "CMAC Signature of lorem4096:");
+	dump_hex(signature1, signature_len, "[Advanced API] CMAC Signature of lorem4096:");
 
 	// CLEANUP
 	yaca_ctx_free(ctx);
@@ -211,9 +343,9 @@ void sign_verify_cmac(void)
 		goto finish;
 
 	if (yaca_memcmp(signature1, signature2, signature_len) != 0)
-		printf("CMAC verification failed\n");
+		printf("[Advanced API] CMAC verification failed\n");
 	else
-		printf("CMAC verification succesful\n");
+		printf("[Advanced API] CMAC verification succesful\n");
 
 finish:
 	yaca_free(signature1);
@@ -230,7 +362,10 @@ int main()
 	if (ret != 0)
 		return ret;
 
-	// TODO simple?
+	simple_sign_verify_asym(YACA_KEY_TYPE_RSA_PRIV, "RSA");
+	simple_sign_verify_asym(YACA_KEY_TYPE_DSA_PRIV, "DSA");
+	simple_sign_verify_cmac();
+	simple_sign_verify_hmac();
 
 	sign_verify_asym(YACA_KEY_TYPE_RSA_PRIV, "RSA");
 	sign_verify_asym(YACA_KEY_TYPE_DSA_PRIV, "DSA");
