@@ -25,6 +25,7 @@
 
 #include <yaca/crypto.h>
 #include <yaca/error.h>
+#include <yaca/key.h>
 
 #include "internal.h"
 
@@ -33,8 +34,7 @@
 */
 enum sign_op_type {
 	OP_SIGN = 0,
-	OP_VERIFY_SYMMETRIC = 1,
-	OP_VERIFY_ASYMMETRIC = 2
+	OP_VERIFY = 1
 };
 
 struct yaca_sign_ctx_s
@@ -221,85 +221,40 @@ int get_sign_param(const yaca_ctx_h ctx, yaca_ex_param_e param, void **value, si
 	return 0;
 }
 
-static int create_sign_pkey(const yaca_key_h key, EVP_PKEY **pkey)
-{
-	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
-	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
-
-	if (pkey == NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
-
-	if (simple_key != NULL)
-	{
-		*pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC,
-					     NULL,
-					     (unsigned char *)simple_key->d,
-					     simple_key->bits / 8);
-		if (*pkey == NULL) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
-		}
-
-		return 0;
-	}
-
-	if (evp_key != NULL)
-	{
-		*pkey = evp_key->evp;
-		/* Add a reference so we can free it afterwards anyway */
-		CRYPTO_add(&(*pkey)->references, 1, CRYPTO_LOCK_EVP_PKEY);
-
-		return 0;
-	}
-
-	return YACA_ERROR_INVALID_ARGUMENT;
-}
-
-/* TODO: error checking?
- * should DES and IV keys be rejected by us or silently let them work?
- */
 API int yaca_sign_init(yaca_ctx_h *ctx,
 		       yaca_digest_algo_e algo,
 		       const yaca_key_h key)
 {
 	struct yaca_sign_ctx_s *nc = NULL;
-	EVP_PKEY *pkey;
-	const EVP_MD *md;
+	const EVP_MD *md = NULL;
 	int ret;
+	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
-	if (ctx == NULL)
+	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	ret = create_sign_pkey(key, &pkey);
-	if (ret != 0)
-		return ret;
+	switch (key->type)
+	{
+	case YACA_KEY_TYPE_RSA_PRIV:
+	case YACA_KEY_TYPE_DSA_PRIV:
+		break;
+	case YACA_KEY_TYPE_EC_PRIV:
+		return YACA_ERROR_NOT_IMPLEMENTED;
+	default:
+		return YACA_ERROR_INVALID_ARGUMENT;
+	}
 
 	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
 	if (nc == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto free_key;
+		return  YACA_ERROR_OUT_OF_MEMORY;
 	}
 
+	nc->op_type = OP_SIGN;
 	nc->ctx.type = YACA_CTX_SIGN;
 	nc->ctx.ctx_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = get_sign_output_length;
 	nc->ctx.set_param = set_sign_param;
 	nc->ctx.get_param = get_sign_param;
-
-	switch (key->type)
-	{
-	case YACA_KEY_TYPE_SYMMETRIC:
-	case YACA_KEY_TYPE_RSA_PRIV:
-	case YACA_KEY_TYPE_DSA_PRIV:
-		nc->op_type = OP_SIGN;
-		break;
-	case YACA_KEY_TYPE_EC_PRIV:
-		ret = YACA_ERROR_NOT_IMPLEMENTED;
-		goto free_ctx;
-	default:
-		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free_ctx;
-	}
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != 0)
@@ -312,7 +267,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 		goto free_ctx;
 	}
 
-	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, pkey);
+	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -321,13 +276,73 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 
 	*ctx = (yaca_ctx_h)nc;
 
-	ret = 0;
+	return 0;
 
 free_ctx:
+	yaca_ctx_free((yaca_ctx_h)nc);
+
+	return ret;
+}
+
+API int yaca_sign_hmac_init(yaca_ctx_h *ctx,
+                            yaca_digest_algo_e algo,
+                            const yaca_key_h key)
+{
+	struct yaca_sign_ctx_s *nc = NULL;
+	EVP_PKEY *pkey = NULL;
+	const EVP_MD *md;
+	int ret;
+	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
+
+	if (ctx == NULL || simple_key == NULL ||
+	   (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
+	if (nc == NULL) {
+		return YACA_ERROR_OUT_OF_MEMORY;
+	}
+
+	nc->op_type = OP_SIGN;
+	nc->ctx.type = YACA_CTX_SIGN;
+	nc->ctx.ctx_destroy = destroy_sign_context;
+	nc->ctx.get_output_length = get_sign_output_length;
+
+	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC,
+	                            NULL,
+	                            (unsigned char *)simple_key->d,
+	                            simple_key->bits / 8);
+	if (pkey == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_ctx;
+	}
+
+	ret = digest_get_algorithm(algo, &md);
 	if (ret != 0)
-		yaca_ctx_free((yaca_ctx_h)nc);
-free_key:
+		goto free_pkey;
+
+	nc->mdctx = EVP_MD_CTX_create();
+	if (nc->mdctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pkey;
+	}
+
+	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, pkey);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto free_pkey;
+	}
+
+	*ctx = (yaca_ctx_h)nc;
+	return 0;
+
+free_pkey:
 	EVP_PKEY_free(pkey);
+free_ctx:
+	yaca_ctx_free((yaca_ctx_h)nc);
 
 	return ret;
 }
@@ -341,15 +356,11 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 	const EVP_CIPHER* cipher = NULL;
 	EVP_PKEY *pkey = NULL;
 	int ret;
-
-	if (ctx == NULL || key == NULL ||
-	   (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
-		return YACA_ERROR_INVALID_ARGUMENT;
-
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
 
-	 // the type is ok so we should be able to extract simple key
-	assert(simple_key != NULL);
+	if (ctx == NULL || simple_key == NULL ||
+	   (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
 	if (nc == NULL) {
@@ -470,45 +481,34 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 			 const yaca_key_h key)
 {
 	struct yaca_sign_ctx_s *nc = NULL;
-	EVP_PKEY *pkey;
-	const EVP_MD *md;
+	const EVP_MD *md = NULL;
 	int ret;
+	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
-	if (ctx == NULL)
+	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	ret = create_sign_pkey(key, &pkey);
-	if (ret != 0)
-		return ret;
-
-	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto free_key;
+	switch (key->type)
+	{
+	case YACA_KEY_TYPE_RSA_PUB:
+	case YACA_KEY_TYPE_DSA_PUB:
+		break;
+	case YACA_KEY_TYPE_EC_PUB:
+		return YACA_ERROR_NOT_IMPLEMENTED;
+	default:
+		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
+	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
+	if (nc == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	nc->op_type = OP_VERIFY;
 	nc->ctx.type = YACA_CTX_SIGN;
 	nc->ctx.ctx_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = NULL;
 	nc->ctx.set_param = set_sign_param;
 	nc->ctx.get_param = get_sign_param;
-
-	switch (key->type)
-	{
-	case YACA_KEY_TYPE_SYMMETRIC:
-		nc->op_type = OP_VERIFY_SYMMETRIC;
-		break;
-	case YACA_KEY_TYPE_RSA_PUB:
-	case YACA_KEY_TYPE_DSA_PUB:
-		nc->op_type = OP_VERIFY_ASYMMETRIC;
-		break;
-	case YACA_KEY_TYPE_EC_PUB:
-		ret = YACA_ERROR_NOT_IMPLEMENTED;
-		goto free_ctx;
-	default:
-		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free_ctx;
-	}
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != 0)
@@ -521,19 +521,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 		goto free_ctx;
 	}
 
-	switch (nc->op_type)
-	{
-	case OP_VERIFY_SYMMETRIC:
-		ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, pkey);
-		break;
-	case OP_VERIFY_ASYMMETRIC:
-		ret = EVP_DigestVerifyInit(nc->mdctx, NULL, md, NULL, pkey);
-		break;
-	default:
-		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free_ctx;
-	}
-
+	ret = EVP_DigestVerifyInit(nc->mdctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -542,13 +530,10 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 
 	*ctx = (yaca_ctx_h)nc;
 
-	ret = 0;
+	return 0;
 
 free_ctx:
-	if (ret != 0)
-		yaca_ctx_free((yaca_ctx_h)nc);
-free_key:
-	EVP_PKEY_free(pkey);
+	yaca_ctx_free((yaca_ctx_h)nc);
 
 	return ret;
 }
@@ -560,21 +545,10 @@ API int yaca_verify_update(yaca_ctx_h ctx,
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 	int ret;
 
-	if (c == NULL || data == NULL || data_len == 0)
+	if (c == NULL || data == NULL || data_len == 0 || c->op_type != OP_VERIFY)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	switch (c->op_type)
-	{
-	case OP_VERIFY_SYMMETRIC:
-		ret = EVP_DigestSignUpdate(c->mdctx, data, data_len);
-		break;
-	case OP_VERIFY_ASYMMETRIC:
-		ret = EVP_DigestVerifyUpdate(c->mdctx, data, data_len);
-		break;
-	default:
-		return YACA_ERROR_INVALID_ARGUMENT;
-	}
-
+	ret = EVP_DigestVerifyUpdate(c->mdctx, data, data_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -589,44 +563,22 @@ API int yaca_verify_final(yaca_ctx_h ctx,
                           size_t signature_len)
 {
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
-	char mac_cmp[signature_len];
-	size_t mac_cmp_len = signature_len;
 	int ret;
 
-	if (c == NULL || signature == NULL || signature_len == 0)
+	if (c == NULL || signature == NULL || signature_len == 0 || c->op_type != OP_VERIFY)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	switch (c->op_type)
-	{
-	case OP_VERIFY_SYMMETRIC:
-		ret = EVP_DigestSignFinal(c->mdctx,
-					  (unsigned char *)mac_cmp,
-					  &mac_cmp_len);
-		if (ret != 1) {
-			ret = YACA_ERROR_INTERNAL;
-			ERROR_DUMP(ret);
-			return ret;
-		}
-
-		if (signature_len != mac_cmp_len || CRYPTO_memcmp(signature, mac_cmp, signature_len) != 0)
-			return YACA_ERROR_DATA_MISMATCH;
-
+	ret = EVP_DigestVerifyFinal(c->mdctx,
+	                            (unsigned char *)signature,
+	                            signature_len);
+	if (ret == 1)
 		return 0;
-	case OP_VERIFY_ASYMMETRIC:
-		ret = EVP_DigestVerifyFinal(c->mdctx,
-					    (unsigned char *)signature,
-					    signature_len);
-		if (ret == 1)
-			return 0;
 
-		if (ret == 0)
-			ret = YACA_ERROR_DATA_MISMATCH;
-		else
-			ret = YACA_ERROR_INTERNAL;
+	if (ret == 0)
+		ret = YACA_ERROR_DATA_MISMATCH;
+	else
+		ret = YACA_ERROR_INTERNAL;
 
-		ERROR_DUMP(ret);
-		return ret;
-	default:
-		return YACA_ERROR_INVALID_ARGUMENT;
-	}
+	ERROR_DUMP(ret);
+	return ret;
 }
