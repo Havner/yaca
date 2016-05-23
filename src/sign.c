@@ -315,19 +315,16 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto ctx;
+		goto free_ctx;
 	}
 
 	*ctx = (yaca_ctx_h)nc;
 
 	ret = 0;
 
-ctx:
-	if (ret != 0)
-		EVP_MD_CTX_destroy(nc->mdctx);
 free_ctx:
 	if (ret != 0)
-		yaca_free(nc);
+		yaca_ctx_free((yaca_ctx_h)nc);
 free_key:
 	EVP_PKEY_free(pkey);
 
@@ -442,25 +439,22 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto ctx;
+		goto free_ctx;
 	}
 
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto ctx;
+		goto free_ctx;
 	}
 
 	*ctx = (yaca_ctx_h)nc;
 
 	ret = 0;
 
-ctx:
-	if (ret != 0)
-		EVP_MD_CTX_destroy(nc->mdctx);
 free_ctx:
 	if (ret != 0)
-		yaca_free(nc);
+		yaca_ctx_free((yaca_ctx_h)nc);
 free_key:
 	EVP_PKEY_free(pkey);
 
