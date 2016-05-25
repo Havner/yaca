@@ -16,6 +16,11 @@
  *  limitations under the License
  */
 
+/**
+ * @file crypto.c
+ * @brief
+ */
+
 #include <assert.h>
 #include <string.h>
 

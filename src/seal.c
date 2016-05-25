@@ -16,6 +16,11 @@
  *  limitations under the License
  */
 
+/**
+ * @file seal.c
+ * @brief
+ */
+
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>

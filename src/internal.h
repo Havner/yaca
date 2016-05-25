@@ -17,8 +17,8 @@
  */
 
 /**
- * @file encrypt.h
- * @brief Internal API
+ * @file internal.h
+ * @brief
  */
 
 #ifndef YACA_INTERNAL_H

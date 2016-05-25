@@ -16,6 +16,11 @@
  *  limitations under the License
  */
 
+/**
+ * @file digest.c
+ * @brief
+ */
+
 #include <assert.h>
 #include <stdint.h>
 

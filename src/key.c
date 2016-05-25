@@ -16,6 +16,11 @@
  *  limitations under the License
  */
 
+/**
+ * @file key.c
+ * @brief
+ */
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
