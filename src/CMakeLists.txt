@@ -47,9 +47,13 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
 ## Link libraries ##############################################################
 PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl capi-base-common)
 
+FIND_PACKAGE (Threads)
+
 INCLUDE_DIRECTORIES(${API_FOLDER})
 INCLUDE_DIRECTORIES(SYSTEM ${YACA_DEPS_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${YACA_DEPS_LIBRARIES})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+                      ${YACA_DEPS_LIBRARIES}
+                      ${CMAKE_THREAD_LIBS_INIT})
 
 ## Generate the pc file ########################################################
 CONFIGURE_FILE(${PC_FILE}.in ${CMAKE_CURRENT_BINARY_DIR}/${PC_FILE} @ONLY)

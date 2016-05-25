@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
@@ -34,19 +35,83 @@
 
 #include "internal.h"
 
+static pthread_mutex_t *mutexes = NULL;
+
+static void locking_callback(int mode, int type, const char* file, int line)
+{
+	/* Ignore NULL mutexes and lock/unlock error codes as we can't do anything
+	 * about them. */
+
+	if (mutexes == NULL)
+		return;
+
+	if (mode & CRYPTO_LOCK)
+		pthread_mutex_lock(&mutexes[type]);
+	else if (mode & CRYPTO_UNLOCK)
+		pthread_mutex_unlock(&mutexes[type]);
+}
+
+static unsigned long thread_id_callback()
+{
+	return pthread_self();
+}
+
+static void destroy_mutexes(int count)
+{
+	if (mutexes != NULL) {
+		for (int i = 0; i < count; i++) {
+			/* Ignore returned value as we can't do anything about it */
+			pthread_mutex_destroy(&mutexes[i]);
+		}
+		yaca_free(mutexes);
+		mutexes = NULL;
+	}
+}
+
 API int yaca_init(void)
 {
+	if (mutexes != NULL)
+		return YACA_ERROR_INTERNAL; // TODO introduce new one?
 
 	OPENSSL_init();
 	OpenSSL_add_all_digests();
 	OpenSSL_add_all_ciphers();
+
+	/* enable threads support */
+	mutexes = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
+	if (mutexes == NULL)
+		return YACA_ERROR_OUT_OF_MEMORY;
+
+	for (int i = 0; i < CRYPTO_num_locks(); i++) {
+		if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
+			int ret = 0;
+			switch (errno) {
+			case ENOMEM:
+				ret = YACA_ERROR_OUT_OF_MEMORY;
+				break;
+			case EAGAIN:
+			case EPERM:
+			case EBUSY:
+			case EINVAL:
+			default:
+				ret = YACA_ERROR_INTERNAL;
+			}
+			destroy_mutexes(i);
+
+			return ret;
+		}
+	}
+
+	CRYPTO_set_id_callback(thread_id_callback);
+	CRYPTO_set_locking_callback(locking_callback);
+
 	/*
 	  TODO:
-		We should prepare for multithreading. Either we or the user should setup static locks.
 		We should also decide on Openssl config.
 		Here's a good tutorial for initalization and cleanup: https://wiki.openssl.org/index.php/Library_Initialization
 		We should also initialize the entropy for random number generator: https://wiki.openssl.org/index.php/Random_Numbers#Initialization
 	*/
+
 	return 0;
 }
 
@@ -56,6 +121,12 @@ API void yaca_exit(void)
 	ERR_remove_thread_state(NULL);
 	EVP_cleanup();
 	CRYPTO_cleanup_all_ex_data();
+
+	/* threads support cleanup */
+	CRYPTO_set_id_callback(NULL);
+	CRYPTO_set_locking_callback(NULL);
+
+	destroy_mutexes(CRYPTO_num_locks());
 }
 
 API void *yaca_malloc(size_t size)
