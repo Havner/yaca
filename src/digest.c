@@ -22,14 +22,12 @@
  */
 
 #include <assert.h>
-#include <stdint.h>
 
 #include <openssl/evp.h>
-#include <openssl/err.h>
 
 #include <yaca/crypto.h>
+#include <yaca/digest.h>
 #include <yaca/error.h>
-#include <yaca/types.h>
 
 #include "internal.h"
 

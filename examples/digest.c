@@ -21,11 +21,11 @@
  * @brief
  */
 
-#include <stdio.h>
 #include <yaca/crypto.h>
 #include <yaca/digest.h>
 #include <yaca/simple.h>
 #include <yaca/error.h>
+
 #include "lorem.h"
 #include "misc.h"
 #include "../src/debug.h"

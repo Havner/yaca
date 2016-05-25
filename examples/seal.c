@@ -27,6 +27,7 @@
 #include <yaca/seal.h>
 #include <yaca/key.h>
 #include <yaca/error.h>
+
 #include "lorem.h"
 #include "misc.h"
 #include "../src/debug.h"

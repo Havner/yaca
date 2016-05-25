@@ -22,11 +22,7 @@
  */
 
 #include <assert.h>
-#include <limits.h>
 #include <stdint.h>
-
-#include <openssl/crypto.h>
-#include <openssl/rand.h>
 
 #include <yaca/crypto.h>
 #include <yaca/error.h>

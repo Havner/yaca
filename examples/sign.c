@@ -22,6 +22,7 @@
  */
 
 #include <stdio.h>
+
 #include <yaca/crypto.h>
 #include <yaca/sign.h>
 #include <yaca/key.h>

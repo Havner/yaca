@@ -24,14 +24,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-
-#include <yaca/crypto.h>
-#include <yaca/error.h>
-#include <yaca/key.h>
-#include <yaca/types.h>
 
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
@@ -39,8 +33,11 @@
 #include <openssl/pem.h>
 #include <openssl/des.h>
 
-#include "internal.h"
+#include <yaca/crypto.h>
+#include <yaca/error.h>
+#include <yaca/key.h>
 
+#include "internal.h"
 
 int base64_decode_length(const char *data, size_t data_len, size_t *len)
 {

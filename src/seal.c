@@ -22,11 +22,8 @@
  */
 
 #include <assert.h>
-#include <string.h>
 #include <stdint.h>
 
-#include <openssl/crypto.h>
-#include <openssl/rand.h>
 #include <openssl/evp.h>
 
 #include <yaca/crypto.h>

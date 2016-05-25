@@ -22,11 +22,11 @@
  */
 
 #include <stdio.h>
+
 #include <yaca/crypto.h>
-#include <yaca/encrypt.h>
 #include <yaca/key.h>
-#include <yaca/types.h>
 #include <yaca/error.h>
+
 #include "misc.h"
 #include "../src/debug.h"
 

@@ -21,13 +21,11 @@
  * @brief
  */
 
-#include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
 #include <openssl/err.h>
 
-#include <yaca/error.h>
 #include "internal.h"
 #include "debug.h"
 

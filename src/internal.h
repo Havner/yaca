@@ -25,6 +25,7 @@
 #define YACA_INTERNAL_H
 
 #include <stddef.h>
+
 #include <openssl/ossl_typ.h>
 #include <openssl/err.h>
 

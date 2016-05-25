@@ -25,9 +25,10 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include <openssl/bio.h>
+
 #include <yaca/crypto.h>
 
-#include <openssl/bio.h>
 #include "misc.h"
 
 void dump_hex(const char *buf, size_t dump_size, const char *fmt, ...)
