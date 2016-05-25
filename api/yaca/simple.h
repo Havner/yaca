@@ -50,6 +50,8 @@ extern "C" {
 /**
  * @brief  Calculate a digest of a buffer.
  *
+ * @since_tizen 3.0
+ *
  * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure).
  * @param[in]  data        Data from which the digest is to be calculated.
  * @param[in]  data_len    Length of the data.
@@ -68,6 +70,8 @@ int yaca_digest_calc(yaca_digest_algo_e algo,
 
 /**
  * @brief  Encrypt data using a symmetric cipher.
+ *
+ * @since_tizen 3.0
  *
  * @param[in]  algo        Encryption algorithm (select #YACA_ENC_AES if unsure).
  * @param[in]  bcm         Chaining mode (select #YACA_BCM_CBC if unsure).
@@ -94,6 +98,8 @@ int yaca_encrypt(yaca_enc_algo_e algo,
 /**
  * @brief  Decrypt data using a symmetric cipher.
  *
+ * @since_tizen 3.0
+ *
  * @param[in]  algo        Decryption algorithm that was used to encrypt the data.
  * @param[in]  bcm         Chaining mode that was used to encrypt the data.
  * @param[in]  sym_key     Symmetric encryption key that was used to encrypt the data.
@@ -118,6 +124,8 @@ int yaca_decrypt(yaca_enc_algo_e algo,
 
 /**
  * @brief  Create a signature using asymmetric private key.
+ *
+ * @since_tizen 3.0
  *
  * @param[in]  algo           Digest algorithm that will be used.
  * @param[in]  key            Private key that will be used. Algorithm is
@@ -144,6 +152,8 @@ int yaca_sign(yaca_digest_algo_e algo,
 /**
  * @brief  Verify a signature using asymmetric public key.
  *
+ * @since_tizen 3.0
+ *
  * @param[in]  algo           Digest algorithm that will be used.
  * @param[in]  key            Public key that will be used. Algorithm is
  *                            deduced based on key type. Supported key types:
@@ -169,8 +179,10 @@ int yaca_verify(yaca_digest_algo_e algo,
 /**
  * @brief  Calculate a HMAC of given message using symmetric key.
  *
- * For verification, calculate message HMAC and compare with received MAC using
- * yaca_memcmp().
+ * @since_tizen 3.0
+ *
+ * @remarks For verification, calculate message HMAC and compare with received MAC using
+ *          yaca_memcmp().
  *
  * @param[in]  algo      Digest algorithm that will be used.
  * @param[in]  key       Key that will be used. Supported key types:
@@ -195,8 +207,10 @@ int yaca_hmac(yaca_digest_algo_e algo,
 /**
  * @brief  Calculate a CMAC of given message using symmetric key.
  *
- * For verification, calculate message CMAC and compare with received MAC using
- * yaca_memcmp().
+ * @since_tizen 3.0
+ *
+ * @remarks For verification, calculate message CMAC and compare with received MAC using
+ *          yaca_memcmp().
  *
  * @param[in]  algo      Encryption algorithm that will be used.
  * @param[in]  key       Key that will be used. Supported key types:

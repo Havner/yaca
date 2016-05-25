@@ -46,6 +46,8 @@ extern "C" {
 /**
  * @brief  Initializes an asymmetric encryption context.
  *
+ * @since_tizen 3.0
+ *
  * @param[out] ctx           Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  pub_key       Public key of the peer that will receive the encrypted data.
  * @param[in]  algo          Symmetric algorithm that will be used.
@@ -68,6 +70,8 @@ int yaca_seal_init(yaca_ctx_h *ctx,
 /**
  * @brief  Encrypts piece of the data.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx         Context created by yaca_seal_init().
  * @param[in]     plain       Plain text to be encrypted.
  * @param[in]     plain_len   Length of the plain text.
@@ -87,6 +91,8 @@ int yaca_seal_update(yaca_ctx_h ctx,
 /**
  * @brief  Encrypts the final piece of the data.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx         A valid seal context.
  * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, see
  *                            yaca_get_block_length()).
@@ -101,6 +107,8 @@ int yaca_seal_final(yaca_ctx_h ctx,
 
 /**
  * @brief  Initializes an asymmetric decryption context.
+ *
+ * @since_tizen 3.0
  *
  * @param[out] ctx           Newly created context. Must be freed by yaca_ctx_free().
  * @param[in]  prv_key       Private key, part of the pair that was used for the encryption.
@@ -124,6 +132,8 @@ int yaca_open_init(yaca_ctx_h *ctx,
 /**
  * @brief  Decrypts piece of the data.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx         Context created by yaca_open_init().
  * @param[in]     cipher      Cipher text to be decrypted.
  * @param[in]     cipher_len  Length of the cipher text.
@@ -142,6 +152,8 @@ int yaca_open_update(yaca_ctx_h ctx,
 
 /**
  * @brief  Decrypts last chunk of sealed message.
+ *
+ * @since_tizen 3.0
  *
  * @param[in,out] ctx        A valid open context.
  * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, see

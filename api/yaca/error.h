@@ -24,9 +24,14 @@
 #ifndef YACA_ERROR_H
 #define YACA_ERROR_H
 
+#include <tizen.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+#define TIZEN_ERROR_YACA -0x01E30000
 
 /**
  * @defgroup  Error  Yet another Crypto API - error enums.
@@ -35,17 +40,20 @@ extern "C" {
  */
 
 /**
- *  @brief Error enums
+ * @brief Error enums
+ *
+ * @since_tizen 3.0
  */
 enum __yaca_error_code {
-	YACA_ERROR_NONE               =  0,
-	YACA_ERROR_INVALID_ARGUMENT   = -1,
-	YACA_ERROR_NOT_IMPLEMENTED    = -2,
-	YACA_ERROR_INTERNAL           = -3,
-	YACA_ERROR_TOO_BIG_ARGUMENT   = -4,
-	YACA_ERROR_OUT_OF_MEMORY      = -5,
-	YACA_ERROR_DATA_MISMATCH      = -6,
-	YACA_ERROR_PASSWORD_INVALID   = -7
+	YACA_ERROR_NONE               = TIZEN_ERROR_NONE,
+	YACA_ERROR_INVALID_ARGUMENT   = TIZEN_ERROR_INVALID_PARAMETER,
+
+	YACA_ERROR_NOT_IMPLEMENTED    = TIZEN_ERROR_YACA | 0x01,
+	YACA_ERROR_INTERNAL           = TIZEN_ERROR_YACA | 0x02,
+	YACA_ERROR_TOO_BIG_ARGUMENT   = TIZEN_ERROR_YACA | 0x03,
+	YACA_ERROR_OUT_OF_MEMORY      = TIZEN_ERROR_YACA | 0x04,
+	YACA_ERROR_DATA_MISMATCH      = TIZEN_ERROR_YACA | 0x05,
+	YACA_ERROR_PASSWORD_INVALID   = TIZEN_ERROR_YACA | 0x06
 };
 
 /**@}*/

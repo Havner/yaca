@@ -43,8 +43,10 @@ extern "C" {
 /**
  * @brief  Initializes a signature context for asymmetric signatures.
  *
- * For verification use yaca_verify_init(), yaca_verify_update() and
- * yaca_verify_final() functions with matching public key.
+ * @since_tizen 3.0
+ *
+ * @remarks For verification use yaca_verify_init(), yaca_verify_update() and
+ *          yaca_verify_final() functions with matching public key.
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
@@ -66,8 +68,10 @@ int yaca_sign_init(yaca_ctx_h *ctx,
 /**
  * @brief  Initializes a signature context for HMAC.
  *
- * For verification, calculate message HMAC and compare with received MAC using
- * yaca_memcmp().
+ * @since_tizen 3.0
+ *
+ * @remarks For verification, calculate message HMAC and compare with received MAC using
+ *          yaca_memcmp().
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
@@ -86,8 +90,10 @@ int yaca_sign_hmac_init(yaca_ctx_h *ctx,
 /**
  * @brief  Initializes a signature context for CMAC.
  *
- * For verification, calculate message CMAC and compare with received MAC using
- * yaca_memcmp().
+ * @since_tizen 3.0
+ *
+ * @remarks For verification, calculate message CMAC and compare with received MAC using
+ *          yaca_memcmp().
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Encryption algorithm that will be used.
@@ -106,6 +112,8 @@ int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 /**
  * @brief  Feeds the data into the digital signature or MAC algorithm.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx       Context created by yaca_sign_init(),
  *                          yaca_sign_hmac_init() or yaca_sign_cmac_init().
  * @param[in]     data      Data to be signed.
@@ -121,6 +129,8 @@ int yaca_sign_update(yaca_ctx_h ctx,
 
 /**
  * @brief  Calculates the final signature or MAC.
+ *
+ * @since_tizen 3.0
  *
  * @param[in,out] ctx              A valid sign context.
  * @param[out]    signature        Buffer for the MAC or the signature,
@@ -138,6 +148,8 @@ int yaca_sign_final(yaca_ctx_h ctx,
 
 /**
  * @brief  Initializes a signature verification context for asymmetric signatures
+ *
+ * @since_tizen 3.0
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
@@ -158,6 +170,8 @@ int yaca_verify_init(yaca_ctx_h *ctx,
 /**
  * @brief  Feeds the data into the digital signature verification algorithm.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx       Context created by yaca_verify_init().
  * @param[in]     data      Data to be verified.
  * @param[in]     data_len  Length of the data.
@@ -171,6 +185,8 @@ int yaca_verify_update(yaca_ctx_h ctx,
 
 /**
  * @brief  Performs the verification.
+ *
+ * @since_tizen 3.0
  *
  * @param[in,out] ctx            A valid verify context.
  * @param[in]     signature      Input signature (returned by yaca_sign_final()).

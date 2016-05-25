@@ -45,7 +45,7 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
                       VERSION    ${_LIB_VERSION_})
 
 ## Link libraries ##############################################################
-PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl)
+PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl capi-base-common)
 
 INCLUDE_DIRECTORIES(${API_FOLDER})
 INCLUDE_DIRECTORIES(SYSTEM ${YACA_DEPS_INCLUDE_DIRS})

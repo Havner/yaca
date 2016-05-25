@@ -46,6 +46,8 @@ extern "C" {
 /**
  * @brief  Get key's type.
  *
+ * @since_tizen 3.0
+ *
  * @param[in]  key       Key which type we return.
  * @param[out] key_type  Key type.
  *
@@ -55,6 +57,8 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
 
 /**
  * @brief  Get key's length (in bits).
+ *
+ * @since_tizen 3.0
  *
  * @param[in]  key       Key which length we return.
  * @param[out] key_bits  Key length in bits.
@@ -66,21 +70,23 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
 /**
  * @brief  Imports a key.
  *
- * This function imports a key trying to match it to the key_type specified.
- * It should autodetect both, key format and file format.
+ * @since_tizen 3.0
  *
- * For symmetric, IV and DES keys RAW binary format and BASE64 encoded
- * binary format are supported.
- * For asymmetric keys PEM and DER file formats are supported.
+ * @remarks This function imports a key trying to match it to the key_type specified.
+ *          It should autodetect both, key format and file format.
  *
- * Asymmetric keys can be in PKCS#1 or SSleay key formats (for RSA and
- * DSA respectively). Asymmetric private keys can also be in PKCS#8
- * format. Additionally it is possible to import public RSA key from
- * X509 certificate.
+ *          For symmetric, IV and DES keys RAW binary format and BASE64 encoded
+ *          binary format are supported.
+ *          For asymmetric keys PEM and DER file formats are supported.
  *
- * If the key is encrypted the algorithm will be autodetected and password
- * used. If it's not known if the key is encrypted one should pass NULL as
- * password and check for the YACA_ERROR_PASSWORD_INVALID return code.
+ *          Asymmetric keys can be in PKCS#1 or SSleay key formats (for RSA and
+ *          DSA respectively). Asymmetric private keys can also be in PKCS#8
+ *          format. Additionally it is possible to import public RSA key from
+ *          X509 certificate.
+ *
+ *          If the key is encrypted the algorithm will be autodetected and password
+ *          used. If it's not known if the key is encrypted one should pass NULL as
+ *          password and check for the YACA_ERROR_PASSWORD_INVALID return code.
  *
  * @param[out] key       Returned key (must be freed with yaca_key_free()).
  * @param[in]  key_type  Type of the key.
@@ -101,24 +107,26 @@ int yaca_key_import(yaca_key_h *key,
 /**
  * @brief  Exports a key to arbitrary format. Export may fail if key is HW-based.
  *
- * This function exports the key to an arbitrary key format and key file format.
+ * @since_tizen 3.0
  *
- * For key formats two values are allowed:
- * - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric keys (or IV),
- *                            for asymmetric keys it will choose PKCS#1 for RSA and SSLeay for DSA.
- * - #YACA_KEY_FORMAT_PKCS8:   this will only work for private asymmetric keys.
+ * @remarks This function exports the key to an arbitrary key format and key file format.
  *
- * The following file formats are supported:
- * - #YACA_KEY_FILE_FORMAT_RAW:    used only for symmetric, raw binary format
- * - #YACA_KEY_FILE_FORMAT_BASE64: used only for symmetric, BASE64 encoded binary form
- * - #YACA_KEY_FILE_FORMAT_PEM:    used only for asymmetric, PEM file format
- * - #YACA_KEY_FILE_FORMAT_DER:    used only for asymmetric, DER file format
+ *          For key formats two values are allowed:
+ *          - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric keys (or IV),
+ *                                      for asymmetric keys it will choose PKCS#1 for RSA and SSLeay for DSA.
+ *          - #YACA_KEY_FORMAT_PKCS8: this will only work for private asymmetric keys.
  *
- * If no password is provided the exported key will be unencrypted. Only private
- * RSA/DSA exported as PEM can be encrypted.
+ *          The following file formats are supported:
+ *          - #YACA_KEY_FILE_FORMAT_RAW:    used only for symmetric, raw binary format
+ *          - #YACA_KEY_FILE_FORMAT_BASE64: used only for symmetric, BASE64 encoded binary form
+ *          - #YACA_KEY_FILE_FORMAT_PEM:    used only for asymmetric, PEM file format
+ *          - #YACA_KEY_FILE_FORMAT_DER:    used only for asymmetric, DER file format
  *
- * TODO: document the default encryption algorithm (AES256 for FORMAT_DEFAULT,
- * unknown yet for the FORMAT_PKCS8)
+ *          If no password is provided the exported key will be unencrypted. Only private
+ *          RSA/DSA exported as PEM can be encrypted.
+ *
+ *          TODO:document the default encryption algorithm (AES256 for FORMAT_DEFAULT,
+ *          unknown yet for the FORMAT_PKCS8).
  *
  * @param[in]  key           Key to be exported.
  * @param[in]  key_fmt       Format of the key.
@@ -141,7 +149,9 @@ int yaca_key_export(const yaca_key_h key,
 /**
  * @brief  Generates a secure key (or an initialization vector).
  *
- * This function is used to generate symmetric and private asymmetric keys.
+ * @since_tizen 3.0
+ *
+ * @remarks This function is used to generate symmetric and private asymmetric keys.
  *
  * @param[out] key       Newly generated key (must be freed with yaca_key_free()).
  * @param[in]  key_type  Type of the key to be generated.
@@ -157,6 +167,8 @@ int yaca_key_gen(yaca_key_h *key,
 /**
  * @brief  Extracts public key from a private one.
  *
+ * @since_tizen 3.0
+ *
  * @param[in]  prv_key   Private key to extract the public one from.
  * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free()).
  *
@@ -167,6 +179,8 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
 
 /**
  * @brief  Frees the key created by the library. Passing YACA_KEY_NULL is allowed.
+ *
+ * @since_tizen 3.0
  *
  * @param key  Key to be freed.
  * @see yaca_key_import(), yaca_key_export(), yaca_key_gen()
@@ -220,6 +234,8 @@ int yaca_key_derive_kea(const yaca_key_h prv_key,
 
 /**
  * @brief  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
+ *
+ * @since_tizen 3.0
  *
  * @param[in]  password  User password as a NULL-terminated string.
  * @param[in]  salt      Salt, should be non-zero.

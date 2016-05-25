@@ -38,16 +38,22 @@ extern "C" {
 
 /**
  * @brief Context
+ *
+ * @since_tizen 3.0
  */
 typedef struct yaca_ctx_s *yaca_ctx_h;
 
 /**
  * @brief Key
+ *
+ * @since_tizen 3.0
  */
 typedef struct yaca_key_s *yaca_key_h;
 
 /**
  * @brief Key formats
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	YACA_KEY_FORMAT_DEFAULT,  /**< key is either PKCS#1 for RSA or SSLeay for DSA, also use this option for symmetric */
@@ -56,6 +62,8 @@ typedef enum {
 
 /**
  * @brief Key file formats
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	YACA_KEY_FILE_FORMAT_RAW,      /**< key file is in raw binary format, used for symmetric keys */
@@ -66,6 +74,8 @@ typedef enum {
 
 /**
  * @brief Key types, IV is considered as key
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	YACA_KEY_TYPE_SYMMETRIC,   /**< Generic symmetric cipher KEY */
@@ -88,6 +98,8 @@ typedef enum {
 
 /**
  * @brief Key length, It is possible to use arbitrary integer instead, this enums are placed here to avoid magic numbers.
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	YACA_KEY_IV_UNSAFE_24BIT = 24,    /**< 24-bit IV */
@@ -113,6 +125,8 @@ typedef enum {
 
 /**
  * @brief Message digest algorithms.
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	YACA_DIGEST_MD5,      /**< Message digest algorithm MD5  */
@@ -125,6 +139,8 @@ typedef enum {
 
 /**
  * @brief Symmetric encryption algorithms
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	/**
@@ -230,6 +246,8 @@ typedef enum {
 
 /**
  * @brief Chaining modes for block ciphers
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	/**
@@ -302,6 +320,8 @@ typedef enum {
 
 /**
  * @brief Non-standard parameters for algorithms
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	YACA_PARAM_PADDING,                /**< Padding */
@@ -317,6 +337,8 @@ typedef enum {
 
 /**
  * @brief Paddings supported by Yet Another Crypto API
+ *
+ * @since_tizen 3.0
  */
 typedef enum {
 	YACA_PADDING_NONE = 0,   /**< total number of data MUST multiple of block size, Default */

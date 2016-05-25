@@ -6,6 +6,7 @@ License:            Apache-2.0
 Group:              Security/Other
 Summary:            Yet Another Crypto API
 BuildRequires:      cmake
+BuildRequires:      pkgconfig(capi-base-common)
 BuildRequires:      pkgconfig(openssl)
 Requires(post):     /sbin/ldconfig
 Requires(postun):   /sbin/ldconfig

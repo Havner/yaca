@@ -44,6 +44,8 @@ extern "C" {
 /**
  * @brief  Initializes an encryption context.
  *
+ * @since_tizen 3.0
+ *
  * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo     Encryption algorithm that will be used.
  * @param[in]  bcm      Chaining mode that will be used.
@@ -61,6 +63,8 @@ int yaca_encrypt_init(yaca_ctx_h *ctx,
 
 /**
  * @brief  Encrypts chunk of the data.
+ *
+ * @since_tizen 3.0
  *
  * @param[in,out] ctx         Context created by yaca_encrypt_init().
  * @param[in]     plain       Plain text to be encrypted.
@@ -81,6 +85,8 @@ int yaca_encrypt_update(yaca_ctx_h ctx,
 /**
  * @brief  Encrypts the final chunk of the data.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx         A valid encrypt context.
  * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, see
  *                            yaca_get_block_length()).
@@ -95,6 +101,8 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
 
 /**
  * @brief  Initializes an decryption context.
+ *
+ * @since_tizen 3.0
  *
  * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo     Encryption algorithm that was used to encrypt the data.
@@ -113,6 +121,8 @@ int yaca_decrypt_init(yaca_ctx_h *ctx,
 
 /**
  * @brief  Decrypts chunk of the data.
+ *
+ * @since_tizen 3.0
  *
  * @param[in,out] ctx         Context created by yaca_decrypt_init().
  * @param[in]     cipher      Cipher text to be decrypted.
@@ -133,6 +143,8 @@ int yaca_decrypt_update(yaca_ctx_h ctx,
 /**
  * @brief  Decrypts the final chunk of the data.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx        A valid decrypt context.
  * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, see
  *                           yaca_get_block_length()).
@@ -148,8 +160,10 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
 /**
  * @brief  Returns the recomended/default length of the IV for a given encryption configuration.
  *
- * If returned iv_bits equals 0 that means that for this
- * specific algorithm and its parameters IV is not used.
+ * @since_tizen 3.0
+ *
+ * @remarks If returned iv_bits equals 0 that means that for this
+ *          specific algorithm and its parameters IV is not used.
  *
  * @param[in]  algo      Encryption algorithm.
  * @param[in]  bcm       Chain mode.

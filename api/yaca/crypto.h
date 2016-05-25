@@ -41,11 +41,15 @@ extern "C" {
 
 /**
  * @brief  NULL value for the crypto context.
+ *
+ * @since_tizen 3.0
  */
 #define YACA_CTX_NULL ((yaca_ctx_h) NULL)
 
 /**
  * @brief  Initializes the library. Must be called before any other crypto function.
+ *
+ * @since_tizen 3.0
  *
  * @return 0 on success, negative on error.
  * @see yaca_exit()
@@ -55,12 +59,16 @@ int yaca_init(void);
 /**
  * @brief  Closes the library. Must be called before exiting the application.
  *
+ * @since_tizen 3.0
+ *
  * @see yaca_init()
  */
 void yaca_exit(void);
 
 /**
  * @brief  Allocates the memory.
+ *
+ * @since_tizen 3.0
  *
  * @param[in] size  Size of the allocation (bytes).
  *
@@ -72,6 +80,8 @@ void *yaca_malloc(size_t size);
 /**
  * @brief  Allocates the zeroed memory.
  *
+ * @since_tizen 3.0
+ *
  * @param[in] size  Size of the allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated and zeroed memory otherwise.
@@ -81,6 +91,8 @@ void *yaca_zalloc(size_t size);
 
 /**
  * @brief  Re-allocates the memory.
+ *
+ * @since_tizen 3.0
  *
  * @param[in] addr  Address of the memory to be reallocated.
  * @param[in] size  Size of the new allocation (bytes).
@@ -94,6 +106,8 @@ void *yaca_realloc(void *addr, size_t size);
  * @brief  Frees the memory allocated by yaca_malloc(), yaca_zalloc(),
  *         yaca_realloc() or one of the cryptographic operations.
  *
+ * @since_tizen 3.0
+ *
  * @param[in] ptr  Pointer to the memory to be freed.
  * @see yaca_malloc(), yaca_zalloc(), yaca_realloc()
  *
@@ -102,6 +116,8 @@ void yaca_free(void *ptr);
 
 /**
  * @brief  Generates random data.
+ *
+ * @since_tizen 3.0
  *
  * @param[in,out] data      Pointer to the memory to be randomized.
  * @param[in]     data_len  Length of the memory to be randomized.
@@ -113,6 +129,8 @@ int yaca_rand_bytes(char *data, size_t data_len);
 /**
  * @brief  Sets the extended context parameters. Can only be called on an
  *         initialized context.
+ *
+ * @since_tizen 3.0
  *
  * @param[in,out] ctx        Previously initialized crypto context.
  * @param[in]     param      Parameter to be set.
@@ -131,6 +149,8 @@ int yaca_ctx_set_param(yaca_ctx_h ctx,
  * @brief  Returns the extended context parameters. Can only be called on an
  *         initialized context.
  *
+ * @since_tizen 3.0
+ *
  * @param[in]  ctx        Previously initialized crypto context.
  * @param[in]  param      Parameter to be read.
  * @param[out] value      Copy of the parameter value (must be freed with yaca_free()).
@@ -148,6 +168,8 @@ int yaca_ctx_get_param(const yaca_ctx_h ctx,
  * @brief  Destroys the crypto context. Must be called on all contexts that are
  *         no longer used. Passing YACA_CTX_NULL is allowed.
  *
+ * @since_tizen 3.0
+ *
  * @param[in,out] ctx  Crypto context.
  * @see #yaca_ctx_h
  *
@@ -157,6 +179,8 @@ void yaca_ctx_free(yaca_ctx_h ctx);
 /**
  * @brief  Returns the output length for a given algorithm. Can only be called
  *         on an initialized context.
+ *
+ * @since_tizen 3.0
  *
  * @param[in] ctx         Previously initialized crypto context.
  * @param[in] input_len   Length of the input data to be processed.
@@ -168,21 +192,29 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *outpu
 
 /**
  * @brief  Wrapper - returns the length of the digest (for a given context).
+ *
+ * @since_tizen 3.0
  */
 #define yaca_get_digest_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
 
 /**
  * @brief  Wrapper - returns the length of the signature (for a given context).
+ *
+ * @since_tizen 3.0
  */
 #define yaca_get_sign_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
 
 /**
  * @brief  Wrapper - returns the length of the block (for a given context).
+ *
+ * @since_tizen 3.0
  */
 #define yaca_get_block_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
 
 /**
  * @brief  Safely compares first @b len bytes of two buffers.
+ *
+ * @since_tizen 3.0
  *
  * @param[in]  first  Pointer to the first buffer.
  * @param[in]  second Pointer to the second buffer.
