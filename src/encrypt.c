@@ -218,8 +218,6 @@ static const char *encrypt_algo_to_str(yaca_enc_algo_e algo)
 		return "rc4";
 	case YACA_ENC_CAST5:
 		return "cast5";
-
-	case YACA_ENC_UNSAFE_SKIPJACK:  // TODO: add skipjack implementation
 	default:
 		return NULL;
 	}
@@ -291,8 +289,6 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 	case YACA_ENC_UNSAFE_RC4:
 		ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
 		break;
-	case YACA_ENC_UNSAFE_SKIPJACK:
-		//TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}

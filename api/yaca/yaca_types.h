@@ -235,12 +235,6 @@ typedef enum {
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
 	YACA_ENC_CAST5,
-
-	/**
-	 * SKIPJACK algorithm.
-	 * - Supported key length: 80 bits.
-	 */
-	YACA_ENC_UNSAFE_SKIPJACK
 } yaca_enc_algo_e;
 
 /**
