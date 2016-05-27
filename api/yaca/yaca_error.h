@@ -44,7 +44,7 @@ extern "C" {
  *
  * @since_tizen 3.0
  */
-enum __yaca_error_code {
+typedef enum {
 	YACA_ERROR_NONE               = TIZEN_ERROR_NONE,
 	YACA_ERROR_INVALID_ARGUMENT   = TIZEN_ERROR_INVALID_PARAMETER,
 
@@ -54,7 +54,7 @@ enum __yaca_error_code {
 	YACA_ERROR_OUT_OF_MEMORY      = TIZEN_ERROR_YACA | 0x04,
 	YACA_ERROR_DATA_MISMATCH      = TIZEN_ERROR_YACA | 0x05,
 	YACA_ERROR_PASSWORD_INVALID   = TIZEN_ERROR_YACA | 0x06
-};
+} yaca_error_e;
 
 /**@}*/
 
