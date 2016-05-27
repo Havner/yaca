@@ -253,7 +253,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	case YACA_KEY_TYPE_DSA_PRIV:
 		break;
 	case YACA_KEY_TYPE_EC_PRIV:
-		return YACA_ERROR_NOT_IMPLEMENTED;
+		//TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
@@ -508,7 +508,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 	case YACA_KEY_TYPE_DSA_PUB:
 		break;
 	case YACA_KEY_TYPE_EC_PUB:
-		return YACA_ERROR_NOT_IMPLEMENTED;
+		//TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}

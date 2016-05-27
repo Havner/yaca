@@ -292,8 +292,9 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 		ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
 		break;
 	case YACA_ENC_UNSAFE_SKIPJACK:
+		//TODO NOT_IMPLEMENTED
 	default:
-		return YACA_ERROR_NOT_IMPLEMENTED;
+		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
 	if (ret < 0)

@@ -530,9 +530,7 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_DH_PUB:
 		case YACA_KEY_TYPE_EC_PRIV:
 		case YACA_KEY_TYPE_EC_PUB:
-			ret = YACA_ERROR_NOT_IMPLEMENTED;
-			goto free_bio;
-
+			//TODO NOT_IMPLEMENTED
 		default:
 			ret = YACA_ERROR_INVALID_ARGUMENT;
 			goto free_bio;
@@ -560,9 +558,7 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_DH_PUB:
 		case YACA_KEY_TYPE_EC_PRIV:
 		case YACA_KEY_TYPE_EC_PUB:
-			ret = YACA_ERROR_NOT_IMPLEMENTED;
-			goto free_bio;
-
+			//TODO NOT_IMPLEMENTED
 		default:
 			ret = YACA_ERROR_INVALID_ARGUMENT;
 			goto free_bio;
@@ -945,7 +941,7 @@ API int yaca_key_import(yaca_key_h *key,
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_EC_PUB:
 	case YACA_KEY_TYPE_EC_PRIV:
-		return YACA_ERROR_NOT_IMPLEMENTED;
+		//TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
@@ -985,8 +981,9 @@ API int yaca_key_export(const yaca_key_h key,
 	    evp_key != NULL)
 		return export_evp(evp_key, key_file_fmt, password, data, data_len);
 
-	if (key_fmt == YACA_KEY_FORMAT_PKCS8)
-		return YACA_ERROR_NOT_IMPLEMENTED;
+	if (key_fmt == YACA_KEY_FORMAT_PKCS8) {
+		//TODO NOT_IMPLEMENTED
+	}
 
 	return YACA_ERROR_INVALID_ARGUMENT;
 }
@@ -1049,7 +1046,7 @@ API int yaca_key_gen(yaca_key_h *key,
 
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_EC_PRIV:
-		return YACA_ERROR_NOT_IMPLEMENTED;
+		//TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
@@ -1143,7 +1140,8 @@ API int yaca_key_derive_dh(const yaca_key_h prv_key,
                            const yaca_key_h pub_key,
                            yaca_key_h *sym_key)
 {
-	return YACA_ERROR_NOT_IMPLEMENTED;
+	//TODO NOT_IMPLEMENTED
+	return YACA_ERROR_INVALID_ARGUMENT;
 }
 
 API int yaca_key_derive_kea(const yaca_key_h prv_key,
@@ -1152,7 +1150,8 @@ API int yaca_key_derive_kea(const yaca_key_h prv_key,
                             const yaca_key_h pub_key_auth,
                             yaca_key_h *sym_key)
 {
-	return YACA_ERROR_NOT_IMPLEMENTED;
+	//TODO NOT_IMPLEMENTED
+	return YACA_ERROR_INVALID_ARGUMENT;
 }
 
 API int yaca_key_derive_pbkdf2(const char *password,
