@@ -29,7 +29,7 @@
 
 #include <openssl/bio.h>
 
-#include <yaca/crypto.h>
+#include <yaca_crypto.h>
 
 #include "misc.h"
 

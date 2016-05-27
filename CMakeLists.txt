@@ -73,7 +73,7 @@ IF("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
 ENDIF()
 
 ## Subdirectories ##############################################################
-SET(API_FOLDER ${PROJECT_SOURCE_DIR}/api)
+SET(API_FOLDER ${PROJECT_SOURCE_DIR}/api/yaca)
 SET(EXAMPLES_FOLDER ${PROJECT_SOURCE_DIR}/examples)
 SET(SRC_FOLDER ${PROJECT_SOURCE_DIR}/src)
 

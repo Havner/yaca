@@ -20,7 +20,7 @@
 # @author Krzysztof Jackiewicz (k.jackiewicz@samsung.com)
 #
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/api)
+INCLUDE_DIRECTORIES(${API_FOLDER})
 
 SET(COMMON_SOURCES  ${CMAKE_CURRENT_SOURCE_DIR}/lorem.c
                     ${CMAKE_CURRENT_SOURCE_DIR}/misc.c)

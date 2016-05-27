@@ -25,7 +25,7 @@
 #define YACA_DIGEST_H
 
 #include <stddef.h>
-#include <yaca/types.h>
+#include <yaca_types.h>
 
 #ifdef __cplusplus
 extern "C" {

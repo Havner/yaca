@@ -18,10 +18,10 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <yaca/crypto.h>
-#include <yaca/key.h>
-#include <yaca/types.h>
-#include <yaca/error.h>
+#include <yaca_crypto.h>
+#include <yaca_key.h>
+#include <yaca_types.h>
+#include <yaca_error.h>
 #include "misc.h"
 #include "../src/debug.h"
 

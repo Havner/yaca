@@ -26,10 +26,10 @@
 
 #include <openssl/evp.h>
 
-#include <yaca/crypto.h>
-#include <yaca/seal.h>
-#include <yaca/error.h>
-#include <yaca/key.h>
+#include <yaca_crypto.h>
+#include <yaca_seal.h>
+#include <yaca_error.h>
+#include <yaca_key.h>
 
 #include "internal.h"
 

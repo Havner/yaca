@@ -30,8 +30,8 @@
 #include <openssl/rand.h>
 #include <openssl/err.h>
 
-#include <yaca/crypto.h>
-#include <yaca/error.h>
+#include <yaca_crypto.h>
+#include <yaca_error.h>
 
 #include "internal.h"
 

@@ -29,7 +29,7 @@
 #include <openssl/ossl_typ.h>
 #include <openssl/err.h>
 
-#include <yaca/types.h>
+#include <yaca_types.h>
 
 #define API __attribute__ ((visibility ("default")))
 

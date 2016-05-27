@@ -25,9 +25,9 @@
 
 #include <openssl/evp.h>
 
-#include <yaca/crypto.h>
-#include <yaca/digest.h>
-#include <yaca/error.h>
+#include <yaca_crypto.h>
+#include <yaca_digest.h>
+#include <yaca_error.h>
 
 #include "internal.h"
 

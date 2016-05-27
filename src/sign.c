@@ -28,10 +28,10 @@
 #include <openssl/rsa.h>
 #include <openssl/cmac.h>
 
-#include <yaca/crypto.h>
-#include <yaca/sign.h>
-#include <yaca/error.h>
-#include <yaca/key.h>
+#include <yaca_crypto.h>
+#include <yaca_sign.h>
+#include <yaca_error.h>
+#include <yaca_key.h>
 
 #include "internal.h"
 
