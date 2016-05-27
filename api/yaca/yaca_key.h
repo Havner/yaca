@@ -17,7 +17,7 @@
  */
 
 /**
- * @file key.h
+ * @file yaca_key.h
  * @brief
  */
 
@@ -41,17 +41,17 @@ extern "C" {
 
 #define YACA_KEY_NULL ((yaca_key_h) NULL)
 
-// TODO: We need a way to import keys encrypted with hw (or other) keys. New function like yaca_key_load or sth??
-
 /**
  * @brief  Get key's type.
  *
  * @since_tizen 3.0
  *
- * @param[in]  key       Key which type we return.
- * @param[out] key_type  Key type.
+ * @param[in]  key       Key which type we return
+ * @param[out] key_type  Key type
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Either of the params is NULL
  */
 int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
 
@@ -60,10 +60,13 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  *
  * @since_tizen 3.0
  *
- * @param[in]  key       Key which length we return.
- * @param[out] key_bits  Key length in bits.
+ * @param[in]  key       Key which length we return
+ * @param[out] key_bits  Key length in bits
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Either of the params is NULL
+ * @retval #YACA_ERROR_INTERNAL Internal error
  */
 int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
 
@@ -86,16 +89,22 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  *
  *          If the key is encrypted the algorithm will be autodetected and password
  *          used. If it's not known if the key is encrypted one should pass NULL as
- *          password and check for the YACA_ERROR_PASSWORD_INVALID return code.
+ *          password and check for the #YACA_ERROR_PASSWORD_INVALID return code.
  *
- * @param[out] key       Returned key (must be freed with yaca_key_free()).
- * @param[in]  key_type  Type of the key.
- * @param[in]  password  null terminated password for the key (can be NULL).
- * @param[in]  data      Blob containing the key.
- * @param[in]  data_len  Size of the blob.
+ * @param[out] key       Returned key (must be freed with yaca_key_free())
+ * @param[in]  key_type  Type of the key
+ * @param[in]  password  null terminated password for the key (can be NULL)
+ * @param[in]  data      Blob containing the key
+ * @param[in]  data_len  Size of the blob
  *
- * @return YACA_ERROR_NONE on success, YACA_ERROR_PASSWORD_INVALID if wrong password given,
- *         negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
+ *                                      incorrect key_type or data_len too big)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ * @retval #YACA_ERROR_PASSWORD_INVALID Invalid password given or password was required
+ *                                      and none was given
  *
  * @see #yaca_key_type_e
  * @see yaca_key_export()
@@ -131,15 +140,20 @@ int yaca_key_import(yaca_key_h *key,
  *          TODO:document the default encryption algorithm (AES256 for FORMAT_DEFAULT,
  *          unknown yet for the FORMAT_PKCS8).
  *
- * @param[in]  key           Key to be exported.
- * @param[in]  key_fmt       Format of the key.
- * @param[in]  key_file_fmt  Format of the key file.
- * @param[in]  password      Password used for the encryption (can be NULL).
+ * @param[in]  key           Key to be exported
+ * @param[in]  key_fmt       Format of the key
+ * @param[in]  key_file_fmt  Format of the key file
+ * @param[in]  password      Password used for the encryption (can be NULL)
  * @param[out] data          Data, allocated by the library, containing exported key
- *                           (must be freed with yaca_free()).
- * @param[out] data_len      Size of the output data.
+ *                           (must be freed with yaca_free())
+ * @param[out] data_len      Size of the output data
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
+ *                                      incorrect key formats or data_len too big)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_fmt_e
  * @see #yaca_key_file_fmt_e
@@ -160,11 +174,16 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @remarks This function is used to generate symmetric and private asymmetric keys.
  *
- * @param[out] key       Newly generated key (must be freed with yaca_key_free()).
- * @param[in]  key_type  Type of the key to be generated.
- * @param[in]  key_bits  Length of the key (in bits) to be generated.
+ * @param[out] key       Newly generated key (must be freed with yaca_key_free())
+ * @param[in]  key_type  Type of the key to be generated
+ * @param[in]  key_bits  Length of the key (in bits) to be generated
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT key is NULL, incorrect key_type or
+ *                                      key_bits is not dividable by 8
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
  * @see #yaca_key_bits_e
@@ -179,10 +198,14 @@ int yaca_key_gen(yaca_key_h *key,
  *
  * @since_tizen 3.0
  *
- * @param[in]  prv_key   Private key to extract the public one from.
- * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free()).
+ * @param[in]  prv_key   Private key to extract the public one from
+ * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free())
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT prv_key is of incorrect type or pub_key is NULL
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_key_gen()
  * @see yaca_key_import()
@@ -195,12 +218,11 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
  *
  * @since_tizen 3.0
  *
- * @param key  Key to be freed.
+ * @param[in,out] key  Key to be freed
  *
  * @see yaca_key_import()
  * @see yaca_key_export()
  * @see yaca_key_gen()
- *
  */
 void yaca_key_free(yaca_key_h key);
 
@@ -219,15 +241,20 @@ void yaca_key_free(yaca_key_h key);
  *
  * @since_tizen 3.0
  *
- * @param[in]  password  User password as a NULL-terminated string.
- * @param[in]  salt      Salt, should be non-zero.
- * @param[in]  salt_len  Length of the salt.
- * @param[in]  iter      Number of iterations.
- * @param[in]  algo      Digest algorithm that should be used in key generation.
- * @param[in]  key_bits  Length of a key (in bits) to be generated.
- * @param[out] key       Newly generated key (must be freed with yaca_key_free()).
+ * @param[in]  password  User password as a NULL-terminated string
+ * @param[in]  salt      Salt, should be non-zero
+ * @param[in]  salt_len  Length of the salt
+ * @param[in]  iter      Number of iterations
+ * @param[in]  algo      Digest algorithm that should be used in key generation
+ * @param[in]  key_bits  Length of a key (in bits) to be generated
+ * @param[out] key       Newly generated key (must be freed with yaca_key_free())
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
+ *                                      incorrect algo or key_bits not dividable by 8)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  */
 int yaca_key_derive_pbkdf2(const char *password,
                            const char *salt,
@@ -236,10 +263,6 @@ int yaca_key_derive_pbkdf2(const char *password,
                            yaca_digest_algo_e algo,
                            size_t key_bits,
                            yaca_key_h *key);
-
-// TODO: specify
-//int yaca_key_wrap(yaca_key_h key, ??);
-//int yaca_key_unwrap(yaca_key_h key, ??);
 
 /**@}*/
 

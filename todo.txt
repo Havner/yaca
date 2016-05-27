@@ -4,3 +4,6 @@ Global:
 - Importing/exporting encrypted (passphrased) RSA keys
 - Support for OCB mode was added in OpenSSL 1.1.0
 - Remove debug function from examples
+- yaca_key_wrap(), yaca_key_unwrap()
+- We need a way to import keys encrypted with hw (or other) keys. New
+  function like yaca_key_load or sth?
