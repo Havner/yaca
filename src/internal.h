@@ -26,6 +26,7 @@
 
 #include <stddef.h>
 #include <openssl/ossl_typ.h>
+#include <openssl/err.h>
 
 #include <yaca/types.h>
 
@@ -102,5 +103,6 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);
 
 void error_dump(const char *file, int line, const char *function, int code);
 #define ERROR_DUMP(code) error_dump(__FILE__, __LINE__, __func__, (code))
+#define ERROR_CLEAR() ERR_clear_error()
 
 #endif /* YACA_INTERNAL_H */

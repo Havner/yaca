@@ -42,8 +42,10 @@ API void yaca_debug_set_error_cb(yaca_error_cb fn)
 
 void error_dump(const char *file, int line, const char *function, int code)
 {
-	if (error_cb == NULL)
+	if (error_cb == NULL) {
+		ERR_clear_error();
 		return;
+	}
 
 	static const size_t BUF_SIZE = 512;
 	static const char ELLIPSIS[] = "...\n";
