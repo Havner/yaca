@@ -88,7 +88,7 @@ static int get_seal_output_length(const yaca_ctx_h ctx, size_t input_len, size_t
 
 	if (input_len > 0) {
 		if ((size_t)block_size > SIZE_MAX - input_len + 1)
-			return YACA_ERROR_TOO_BIG_ARGUMENT;
+			return YACA_ERROR_INVALID_ARGUMENT;
 
 		*output_len = block_size + input_len - 1;
 	} else {

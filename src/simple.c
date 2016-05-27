@@ -112,7 +112,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 		goto err;
 
 	if (out_len > SIZE_MAX - lcipher_len) {
-		ret = YACA_ERROR_TOO_BIG_ARGUMENT;
+		ret = YACA_ERROR_INVALID_ARGUMENT;
 		goto err;
 	}
 
@@ -189,7 +189,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 		goto err;
 
 	if (out_len > SIZE_MAX - lplain_len) {
-		ret = YACA_ERROR_TOO_BIG_ARGUMENT;
+		ret = YACA_ERROR_INVALID_ARGUMENT;
 		goto err;
 	}
 

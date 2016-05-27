@@ -93,7 +93,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 
 	/* This is because of BIO_new_mem_buf() having its length param typed int */
 	if (data_len > INT_MAX)
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	/* First phase of correctness checking, calculate expected output length */
 	ret = base64_decode_length(data, data_len, &b64_len);
@@ -204,7 +204,7 @@ int import_simple(yaca_key_h *key,
 	}
 
 	if (key_data_len > SIZE_MAX - sizeof(struct yaca_key_simple_s)) {
-		ret = YACA_ERROR_TOO_BIG_ARGUMENT;
+		ret = YACA_ERROR_INVALID_ARGUMENT;
 		goto out;
 	}
 
@@ -278,7 +278,7 @@ int import_evp(yaca_key_h *key,
 
 	/* This is because of BIO_new_mem_buf() having its length param typed int */
 	if (data_len > INT_MAX)
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	src = BIO_new_mem_buf(data, data_len);
 	if (src == NULL) {
@@ -616,7 +616,7 @@ int gen_simple(struct yaca_key_simple_s **out, size_t key_bits)
 	size_t key_byte_len = key_bits / 8;
 
 	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
@@ -646,7 +646,7 @@ int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
 	size_t key_byte_len = key_bits / 8;
 
 	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
@@ -1175,7 +1175,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
-		return YACA_ERROR_TOO_BIG_ARGUMENT;
+		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
