@@ -373,6 +373,6 @@ int main()
 	sign_verify_hmac();
 	sign_verify_cmac();
 
-	yaca_exit(); // TODO: what about handing of return value from exit??
+	yaca_exit();
 	return ret;
 }

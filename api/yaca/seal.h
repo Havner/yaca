@@ -36,9 +36,9 @@ extern "C" {
  *
  * TODO: extended description and examples.
  *
- * TODO: Seal does more than just encrypt. It first generates the encryption key and IV,
- * then encrypts whole message using this key (and selected symmetric algorithm).
- * Finally it encrypts symmetric key with public key.
+ * @remarks Seal does more than just encrypt. It first generates the encryption key and IV,
+ *          then encrypts whole message using this key (and selected symmetric algorithm).
+ *          Finally it encrypts symmetric key with public key.
  *
  * @{
  */

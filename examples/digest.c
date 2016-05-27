@@ -91,6 +91,6 @@ int main()
 
 	digest_advanced();
 
-	yaca_exit(); // TODO: what about handing of return value from exit??
+	yaca_exit();
 	return ret;
 }

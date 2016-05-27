@@ -82,8 +82,11 @@ struct yaca_key_simple_s
  * - YACA_KEY_TYPE_RSA_PRIV
  * - YACA_KEY_TYPE_DSA_PUB
  * - YACA_KEY_TYPE_DSA_PRIV
+ * - YACA_KEY_TYPE_DH_PUB
+ * - YACA_KEY_TYPE_DH_PRIV
+ * - YACA_KEY_TYPE_EC_PUB
+ * - YACA_KEY_TYPE_EC_PRIV
  *
- * TODO: and possibly others (for every key that uses EVP_PKEY)
  */
 struct yaca_key_evp_s
 {
