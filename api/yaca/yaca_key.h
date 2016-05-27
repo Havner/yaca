@@ -51,7 +51,7 @@ extern "C" {
  * @param[in]  key       Key which type we return.
  * @param[out] key_type  Key type.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  */
 int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
 
@@ -63,7 +63,7 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  * @param[in]  key       Key which length we return.
  * @param[out] key_bits  Key length in bits.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  */
 int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
 
@@ -94,7 +94,7 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  * @param[in]  data      Blob containing the key.
  * @param[in]  data_len  Size of the blob.
  *
- * @return 0 on success, YACA_ERROR_PASSWORD_INVALID if wrong password given,
+ * @return YACA_ERROR_NONE on success, YACA_ERROR_PASSWORD_INVALID if wrong password given,
  *         negative on error.
  * @see #yaca_key_type_e, yaca_key_export(), yaca_key_free()
  */
@@ -136,7 +136,7 @@ int yaca_key_import(yaca_key_h *key,
  *                           (must be freed with yaca_free()).
  * @param[out] data_len      Size of the output data.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_key_fmt_e, #yaca_key_file_fmt_e, yaca_key_import(), yaca_key_free()
  */
 int yaca_key_export(const yaca_key_h key,
@@ -157,7 +157,7 @@ int yaca_key_export(const yaca_key_h key,
  * @param[in]  key_type  Type of the key to be generated.
  * @param[in]  key_bits  Length of the key (in bits) to be generated.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_key_type_e, #yaca_key_bits_e, yaca_key_free()
  */
 int yaca_key_gen(yaca_key_h *key,
@@ -172,7 +172,7 @@ int yaca_key_gen(yaca_key_h *key,
  * @param[in]  prv_key   Private key to extract the public one from.
  * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free()).
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_key_gen(), yaca_key_import(), yaca_key_free()
  */
 int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
@@ -206,7 +206,7 @@ void yaca_key_free(yaca_key_h key);
  * @param[out] sym_key  Shared secret, that can be used as a symmetric key
  *                      (must be freed with yaca_key_free()).
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  */
 int yaca_key_derive_dh(const yaca_key_h prv_key,
                        const yaca_key_h pub_key,
@@ -224,7 +224,7 @@ int yaca_key_derive_dh(const yaca_key_h prv_key,
  * @param[out] sym_key       Shared secret, that can be used as a symmetric key
  *                           (must be freed with yaca_key_free()).
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  */
 int yaca_key_derive_kea(const yaca_key_h prv_key,
                         const yaca_key_h pub_key,
@@ -245,7 +245,7 @@ int yaca_key_derive_kea(const yaca_key_h prv_key,
  * @param[in]  key_bits  Length of a key (in bits) to be generated.
  * @param[out] key       Newly generated key (must be freed with yaca_key_free()).
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  */
 int yaca_key_derive_pbkdf2(const char *password,
                            const char *salt,

@@ -51,7 +51,7 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_exit()
  */
 int yaca_init(void);
@@ -122,7 +122,7 @@ void yaca_free(void *ptr);
  * @param[in,out] data      Pointer to the memory to be randomized.
  * @param[in]     data_len  Length of the memory to be randomized.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  */
 int yaca_rand_bytes(char *data, size_t data_len);
 
@@ -137,7 +137,7 @@ int yaca_rand_bytes(char *data, size_t data_len);
  * @param[in]     value      Parameter value.
  * @param[in]     value_len  Length of the parameter value.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_ex_param_e, yaca_ctx_get_param()
  */
 int yaca_ctx_set_param(yaca_ctx_h ctx,
@@ -156,7 +156,7 @@ int yaca_ctx_set_param(yaca_ctx_h ctx,
  * @param[out] value      Copy of the parameter value (must be freed with yaca_free()).
  * @param[out] value_len  Length of the parameter value will be returned here.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_ex_param_e, yaca_ctx_set_param()
  */
 int yaca_ctx_get_param(const yaca_ctx_h ctx,
@@ -220,7 +220,7 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *outpu
  * @param[in]  second Pointer to the second buffer.
  * @param[in]  len    Length to compare.
  *
- * @return 0 when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
+ * @return YACA_ERROR_NONE when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
  */
 int yaca_memcmp(const void *first, const void *second, size_t len);
 

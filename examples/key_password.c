@@ -37,19 +37,19 @@ int main(int argc, char* argv[])
 	char *password = NULL;
 
 	ret = yaca_init();
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	ret = yaca_key_gen(&key, YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_1024BIT);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	ret = read_stdin_line("encryption pass: ", &password);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, password, &k, &kl);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	yaca_free(password);
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 	ret = yaca_key_import(&key, YACA_KEY_TYPE_RSA_PRIV, NULL, k, kl);
 	if (ret == YACA_ERROR_PASSWORD_INVALID) {
 		ret = read_stdin_line("decryption pass: ", &password);
-		if (ret != 0)
+		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		ret = yaca_key_import(&key, YACA_KEY_TYPE_RSA_PRIV, password, k, kl);
@@ -71,14 +71,14 @@ int main(int argc, char* argv[])
 		password = NULL;
 	}
 
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	yaca_free(k);
 	k = NULL;
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &k, &kl);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	printf("%.*s", (int)kl, k);
@@ -90,5 +90,5 @@ exit:
 
 	yaca_exit();
 
-	return 0;
+	return YACA_ERROR_NONE;
 }

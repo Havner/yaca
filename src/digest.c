@@ -60,7 +60,7 @@ static int get_digest_output_length(const yaca_ctx_h ctx, size_t input_len, size
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	*output_len = EVP_MD_CTX_size(c->mdctx);
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static void destroy_digest_context(yaca_ctx_h ctx)
@@ -76,7 +76,7 @@ static void destroy_digest_context(yaca_ctx_h ctx)
 
 int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
 {
-	int ret = 0;
+	int ret = YACA_ERROR_NONE;
 
 	if (!md)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -108,7 +108,7 @@ int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
 		break;
 	}
 
-	if (ret == 0 && *md == NULL) {
+	if (ret == YACA_ERROR_NONE && *md == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 	}
@@ -134,7 +134,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 	nc->ctx.get_output_length = get_digest_output_length;
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto free;
 
 	nc->mdctx = EVP_MD_CTX_create();
@@ -153,7 +153,7 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 
 	*ctx = (yaca_ctx_h)nc;
 
-	return 0;
+	return YACA_ERROR_NONE;
 
 ctx:
 	EVP_MD_CTX_destroy(nc->mdctx);
@@ -177,7 +177,7 @@ API int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len)
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len)
@@ -201,5 +201,5 @@ API int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len)
 
 	*digest_len = len;
 
-	return 0;
+	return YACA_ERROR_NONE;
 }

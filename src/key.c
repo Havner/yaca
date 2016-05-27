@@ -71,7 +71,7 @@ int base64_decode_length(const char *data, size_t data_len, size_t *len)
 	}
 
 	*len = data_len / 4 * 3 - padded;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 #define TMP_BUF_LEN 512
@@ -97,7 +97,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 
 	/* First phase of correctness checking, calculate expected output length */
 	ret = base64_decode_length(data, data_len, &b64_len);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	b64 = BIO_new(BIO_f_base64());
@@ -134,7 +134,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 			goto free_bio;
 		}
 
-		if (ret == 0)
+		if (ret == YACA_ERROR_NONE)
 			break;
 
 		if (BIO_write(dst, tmpbuf, ret) != ret) {
@@ -160,7 +160,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 
 	*output = dst;
 	dst = NULL;
-	ret = 0;
+	ret = YACA_ERROR_NONE;
 
 free_bio:
 	BIO_free_all(b64);
@@ -185,7 +185,7 @@ int import_simple(yaca_key_h *key,
 	struct yaca_key_simple_s *nk = NULL;
 
 	ret = base64_decode(data, data_len, &decoded);
-	if (ret == 0) {
+	if (ret == YACA_ERROR_NONE) {
 		/* Conversion successfull, get the BASE64 */
 		long len = BIO_get_mem_data(decoded, &key_data);
 		if (len <= 0 || key_data == NULL) {
@@ -230,7 +230,7 @@ int import_simple(yaca_key_h *key,
 	nk->key.type = key_type;
 
 	*key = (yaca_key_h)nk;
-	ret = 0;
+	ret = YACA_ERROR_NONE;
 
 out:
 	BIO_free_all(decoded);
@@ -381,7 +381,7 @@ int import_evp(yaca_key_h *key,
 	(*key)->type = type;
 
 	pkey = NULL;
-	ret = 0;
+	ret = YACA_ERROR_NONE;
 
 free:
 	EVP_PKEY_free(pkey);
@@ -407,7 +407,7 @@ int export_simple_raw(struct yaca_key_simple_s *simple_key,
 	memcpy(*data, simple_key->d, key_len);
 	*data_len = key_len;
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 int export_simple_base64(struct yaca_key_simple_s *simple_key,
@@ -472,7 +472,7 @@ int export_simple_base64(struct yaca_key_simple_s *simple_key,
 
 	memcpy(*data, bio_data, bio_data_len);
 	*data_len = bio_data_len;
-	ret = 0;
+	ret = YACA_ERROR_NONE;
 
 free_bio:
 	BIO_free_all(b64);
@@ -491,7 +491,7 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 	assert(data != NULL);
 	assert(data_len != NULL);
 
-	int ret = 0;
+	int ret = YACA_ERROR_NONE;
 	BIO *mem;
 	const EVP_CIPHER *enc = NULL;
 	char *bio_data;
@@ -604,7 +604,7 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 
 	memcpy(*data, bio_data, bio_data_len);
 	*data_len = bio_data_len;
-	ret = 0;
+	ret = YACA_ERROR_NONE;
 
 free_bio:
 	BIO_free_all(mem);
@@ -629,11 +629,11 @@ int gen_simple(struct yaca_key_simple_s **out, size_t key_bits)
 	nk->bits = key_bits;
 
 	ret = yaca_rand_bytes(nk->d, key_byte_len);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	*out = nk;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
@@ -675,7 +675,7 @@ int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
 
 	nk->bits = key_bits;
 	*out = nk;
-	return 0;
+	return YACA_ERROR_NONE;
 
 free_nk:
 	yaca_free(nk);
@@ -731,7 +731,7 @@ int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
 
 	*out = nk;
 	nk = NULL;
-	ret = 0;
+	ret = YACA_ERROR_NONE;
 
 free_ctx:
 	EVP_PKEY_CTX_free(ctx);
@@ -811,7 +811,7 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 
 	*out = nk;
 	nk = NULL;
-	ret = 0;
+	ret = YACA_ERROR_NONE;
 
 free_kctx:
 	EVP_PKEY_CTX_free(kctx);
@@ -882,7 +882,7 @@ API int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	*key_type = lkey->type;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits)
@@ -895,7 +895,7 @@ API int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits)
 
 	if (simple_key != NULL) {
 		*key_bits = simple_key->bits;
-		return 0;
+		return YACA_ERROR_NONE;
 	}
 
 	if (evp_key != NULL) {
@@ -910,7 +910,7 @@ API int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits)
 		}
 
 		*key_bits = ret;
-		return 0;
+		return YACA_ERROR_NONE;
 	}
 
 	return YACA_ERROR_INVALID_ARGUMENT;
@@ -1009,43 +1009,43 @@ API int yaca_key_gen(yaca_key_h *key,
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_IV:
 		ret = gen_simple(&nk_simple, key_bits);
-		if (ret != 0)
+		if (ret != YACA_ERROR_NONE)
 			return ret;
 
 		nk_simple->key.type = key_type;
 
 		*key = (yaca_key_h)nk_simple;
-		return 0;
+		return YACA_ERROR_NONE;
 
 	case YACA_KEY_TYPE_DES:
 		ret = gen_simple_des(&nk_simple, key_bits);
-		if (ret != 0)
+		if (ret != YACA_ERROR_NONE)
 			return ret;
 
 		nk_simple->key.type = key_type;
 
 		*key = (yaca_key_h)nk_simple;
-		return 0;
+		return YACA_ERROR_NONE;
 
 	case YACA_KEY_TYPE_RSA_PRIV:
 		ret = gen_evp_rsa(&nk_evp, key_bits);
-		if (ret != 0)
+		if (ret != YACA_ERROR_NONE)
 			return ret;
 
 		nk_evp->key.type = key_type;
 
 		*key = (yaca_key_h)nk_evp;
-		return 0;
+		return YACA_ERROR_NONE;
 
 	case YACA_KEY_TYPE_DSA_PRIV:
 		ret = gen_evp_dsa(&nk_evp, key_bits);
-		if (ret != 0)
+		if (ret != YACA_ERROR_NONE)
 			return ret;
 
 		nk_evp->key.type = key_type;
 
 		*key = (yaca_key_h)nk_evp;
-		return 0;
+		return YACA_ERROR_NONE;
 
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_EC_PRIV:
@@ -1113,7 +1113,7 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 		goto free_pkey;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 
 free_pkey:
 	EVP_PKEY_free(pkey);
@@ -1179,7 +1179,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 		return YACA_ERROR_TOO_BIG_ARGUMENT;
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
@@ -1199,7 +1199,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	}
 
 	*key = (yaca_key_h)nk;
-	return 0;
+	return YACA_ERROR_NONE;
 err:
 	yaca_free(nk);
 	return ret;

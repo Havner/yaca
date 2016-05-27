@@ -50,7 +50,7 @@ extern "C" {
  * @param[in]  sym_key  Symmetric key that will be used.
  * @param[in]  iv       Initialization vector that will be used.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_encrypt_update(), yaca_encrypt_final()
  */
 int yaca_encrypt_init(yaca_ctx_h *ctx,
@@ -71,7 +71,7 @@ int yaca_encrypt_init(yaca_ctx_h *ctx,
  *                            yaca_get_output_length()).
  * @param[out]    cipher_len  Length of the encrypted data, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_encrypt_init(), yaca_encrypt_final()
  */
 int yaca_encrypt_update(yaca_ctx_h ctx,
@@ -90,7 +90,7 @@ int yaca_encrypt_update(yaca_ctx_h ctx,
  *                            yaca_get_block_length()).
  * @param[out]    cipher_len  Length of the final piece, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_encrypt_init(), yaca_encrypt_update()
  */
 int yaca_encrypt_final(yaca_ctx_h ctx,
@@ -108,7 +108,7 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
  * @param[in]  sym_key  Symmetric key that was used to encrypt the data.
  * @param[in]  iv       Initialization vector that was used to encrypt the data.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_decrypt_update(), yaca_decrypt_final()
  */
 int yaca_decrypt_init(yaca_ctx_h *ctx,
@@ -129,7 +129,7 @@ int yaca_decrypt_init(yaca_ctx_h *ctx,
  *                            yaca_get_output_length()).
  * @param[out]    plain_len   Length of the decrypted data, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_decrypt_init(), yaca_decrypt_final()
  */
 int yaca_decrypt_update(yaca_ctx_h ctx,
@@ -148,7 +148,7 @@ int yaca_decrypt_update(yaca_ctx_h ctx,
  *                           yaca_get_block_length()).
  * @param[out]    plain_len  Length of the final piece, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_decrypt_init(), yaca_decrypt_update()
  */
 int yaca_decrypt_final(yaca_ctx_h ctx,
@@ -168,7 +168,7 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
  * @param[in]  key_bits  Key length in bits.
  * @param[out] iv_bits   Recommended IV length in bits.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  */
 int yaca_get_iv_bits(yaca_enc_algo_e algo,
                      yaca_block_cipher_mode_e bcm,

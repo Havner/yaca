@@ -32,14 +32,14 @@
 
 void digest_simple(void)
 {
-	int ret = 0;
+	int ret = YACA_ERROR_NONE;
 	char *digest;
 	size_t digest_len;
 
 	ret = yaca_digest_calc(YACA_DIGEST_SHA256,
 			       lorem1024,
 			       1024, &digest, &digest_len);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return;
 
 	dump_hex(digest, digest_len, "Message digest: ");
@@ -49,27 +49,27 @@ void digest_simple(void)
 
 void digest_advanced(void)
 {
-	int ret = 0;
+	int ret = YACA_ERROR_NONE;
 	yaca_ctx_h ctx;
 
 	ret = yaca_digest_init(&ctx, YACA_DIGEST_SHA256);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return;
 
 	ret = yaca_digest_update(ctx, lorem1024, 1024);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit_ctx;
 
 	size_t digest_len;
 	ret = yaca_get_digest_length(ctx, &digest_len);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto exit_ctx;
 
 	{
 		char digest[digest_len];
 
 		ret = yaca_digest_final(ctx, digest, &digest_len);
-		if (ret != 0)
+		if (ret != YACA_ERROR_NONE)
 			goto exit_ctx;
 
 		dump_hex(digest, digest_len, "Message digest: ");
@@ -84,7 +84,7 @@ int main()
 	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	digest_simple();

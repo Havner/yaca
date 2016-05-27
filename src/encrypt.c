@@ -96,7 +96,7 @@ static int get_encrypt_output_length(const yaca_ctx_h ctx, size_t input_len, siz
 		*output_len = block_size;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static int set_encrypt_param(yaca_ctx_h ctx,
@@ -153,7 +153,7 @@ static int set_encrypt_param(yaca_ctx_h ctx,
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static int get_encrypt_param(const yaca_ctx_h ctx,
@@ -197,7 +197,7 @@ static int get_encrypt_param(const yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 		break;
 	}
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static const char *encrypt_algo_to_str(yaca_enc_algo_e algo)
@@ -309,7 +309,7 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 	}
 
 	*cipher = lcipher;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static int encrypt_init(yaca_ctx_h *ctx,
@@ -349,11 +349,11 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	nc->tag_len = 0;
 
 	ret = yaca_key_get_bits(sym_key, &key_bits);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto err_free;
 
 	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto err_free;
 
 	ret = EVP_CIPHER_iv_length(cipher);
@@ -376,7 +376,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 			goto err_free;
 		}
 		ret = yaca_key_get_bits(iv, &iv_bits_check);
-		if (ret != 0) {
+		if (ret != YACA_ERROR_NONE) {
 			ret = YACA_ERROR_INVALID_ARGUMENT;
 			goto err_free;
 		}
@@ -463,7 +463,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	}
 
 	*ctx = (yaca_ctx_h)nc;
-	return 0;
+	return YACA_ERROR_NONE;
 
 err_ctx:
 	EVP_CIPHER_CTX_free(nc->cipher_ctx);
@@ -508,7 +508,7 @@ static int encrypt_update(yaca_ctx_h ctx,
 	}
 
 	*output_len = loutput_len;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static int encrypt_final(yaca_ctx_h ctx,
@@ -544,7 +544,7 @@ static int encrypt_final(yaca_ctx_h ctx,
 	}
 
 	*output_len = loutput_len;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_get_iv_bits(yaca_enc_algo_e algo,
@@ -556,7 +556,7 @@ API int yaca_get_iv_bits(yaca_enc_algo_e algo,
 	int ret;
 
 	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	ret = EVP_CIPHER_iv_length(cipher);
@@ -566,7 +566,7 @@ API int yaca_get_iv_bits(yaca_enc_algo_e algo,
 	}
 
 	*iv_bits = ret * 8;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_encrypt_init(yaca_ctx_h *ctx,

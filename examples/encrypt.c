@@ -50,21 +50,21 @@ void encrypt_simple(const yaca_enc_algo_e algo,
 
 	/* Key generation */
 	if (yaca_key_derive_pbkdf2("foo bar", "123456789", 10, 1000,
-	                           YACA_DIGEST_SHA256, key_bits, &key) != 0)
+	                           YACA_DIGEST_SHA256, key_bits, &key) != YACA_ERROR_NONE)
 		return;
 
-	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != 0)
+	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
 		goto exit;
 
-	if (iv_bits > 0 && yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != 0)
+	if (iv_bits > 0 && yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
 		goto exit;
 
-	if (yaca_encrypt(algo, bcm, key, iv, lorem4096, LOREM4096_SIZE, &enc, &enc_size) != 0)
+	if (yaca_encrypt(algo, bcm, key, iv, lorem4096, LOREM4096_SIZE, &enc, &enc_size) != YACA_ERROR_NONE)
 		goto exit;
 
 	dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
 
-	if (yaca_decrypt(algo, bcm, key, iv, enc, enc_size, &dec, &dec_size) != 0)
+	if (yaca_decrypt(algo, bcm, key, iv, enc, enc_size, &dec, &dec_size) != YACA_ERROR_NONE)
 		goto exit;
 
 	printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_size, dec);
@@ -100,24 +100,24 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Key generation */
-	if (yaca_key_gen(&key, key_type, key_bits) != 0)
+	if (yaca_key_gen(&key, key_type, key_bits) != YACA_ERROR_NONE)
 		return;
 
-	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != 0)
+	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
 		goto ex_key;
 
-	if (iv_bits > 0 && yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != 0)
+	if (iv_bits > 0 && yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
 		goto ex_key;
 
 	/* Encryption */
 	{
-		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != 0)
+		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto ex_iv;
 
-		if (yaca_get_block_length(ctx, &block_len) != 0)
+		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
 			goto ex_ctx;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto ex_ctx;
 
 		/* Calculate max output: size of update + final chunks */
@@ -126,11 +126,11 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 			goto ex_ctx;
 
 		out_size = enc_size;
-		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != 0)
+		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != YACA_ERROR_NONE)
 			goto ex_of;
 
 		rem = enc_size - out_size;
-		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != 0)
+		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
 			goto ex_of;
 
 		enc_size = rem + out_size;
@@ -143,13 +143,13 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 
 	/* Decryption */
 	{
-		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != 0)
+		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto ex_of;
 
-		if (yaca_get_block_length(ctx, &block_len) != 0)
+		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
 			goto ex_of;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto ex_of;
 
 		/* Calculate max output: size of update + final chunks */
@@ -158,11 +158,11 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 			goto ex_of;
 
 		out_size = dec_size;
-		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != 0)
+		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != YACA_ERROR_NONE)
 			goto ex_in;
 
 		rem = dec_size - out_size;
-		if (yaca_decrypt_final(ctx, dec + out_size, &rem) != 0)
+		if (yaca_decrypt_final(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
 			goto ex_in;
 
 		dec_size = rem + out_size;
@@ -187,7 +187,7 @@ int main()
 	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	yaca_enc_algo_e algo = YACA_ENC_AES;

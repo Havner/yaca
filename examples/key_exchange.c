@@ -45,11 +45,11 @@ void key_exchange_dh(void)
 
 	// generate  private, public key
 	ret = yaca_key_gen(&private_key, YACA_KEY_TYPE_DH_PRIV, YACA_KEY_2048BIT);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 	ret = yaca_key_extract_public(private_key, &public_key);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 	// get peer public key from file
@@ -72,12 +72,12 @@ void key_exchange_dh(void)
 
 	ret = yaca_key_import(&peer_key, YACA_KEY_TYPE_DH_PUB, NULL,
 			      buffer, size);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 	// derive secret
 	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 clean:
@@ -105,11 +105,11 @@ void key_exchange_ecdh(void)
 
 	// generate  private, public key
 	ret = yaca_key_gen(&private_key, YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 	ret = yaca_key_extract_public(private_key, &public_key);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 	// get peer public key from file
@@ -131,12 +131,12 @@ void key_exchange_ecdh(void)
 		goto clean;
 
 	ret = yaca_key_import(&peer_key, YACA_KEY_TYPE_EC_PUB, NULL, buffer, size);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 	// derive secret
 	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
 clean:
@@ -154,7 +154,7 @@ int main()
 	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	key_exchange_dh();

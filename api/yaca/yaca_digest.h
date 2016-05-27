@@ -47,7 +47,7 @@ extern "C" {
  * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free()).
  * @param[in]  algo  Digest algorithm that will be used.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_digest_algo_e, yaca_digest_update(), yaca_digest_final()
  */
 int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
@@ -61,7 +61,7 @@ int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
  * @param[in]     data      Data from which the digest is to be calculated.
  * @param[in]     data_len  Length of the data.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_digest_init(), yaca_digest_final()
  */
 int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len);
@@ -76,7 +76,7 @@ int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len);
  *                            see yaca_get_digest_length()).
  * @param[out]    digest_len  Length of the digest, actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_digest_init(), yaca_digest_update()
  */
 int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len);

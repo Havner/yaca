@@ -63,17 +63,17 @@ void encrypt_decrypt_aes_gcm(void)
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Key generation */
-	if (yaca_key_gen(&key, key_type, key_bits) != 0)
+	if (yaca_key_gen(&key, key_type, key_bits) != YACA_ERROR_NONE)
 		return;
 
 	/* IV generation */
-	if (yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != 0)
+	if (yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
 		goto clean;
 
 	if ((aad = yaca_zalloc(aad_size)) == NULL)
 		goto clean;
 
-	if (yaca_rand_bytes(aad, aad_size) != 0)
+	if (yaca_rand_bytes(aad, aad_size) != YACA_ERROR_NONE)
 		goto clean;
 
 	if ((tag = yaca_zalloc(tag_size)) == NULL)
@@ -81,17 +81,17 @@ void encrypt_decrypt_aes_gcm(void)
 
 	/* Encryption */
 	{
-		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != 0)
+		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Provide any AAD data */
-		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_size) != 0)
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_block_length(ctx, &block_len) != 0)
+		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Calculate max output: size of update + final chunks */
@@ -100,21 +100,21 @@ void encrypt_decrypt_aes_gcm(void)
 			goto clean;
 
 		out_size = enc_size;
-		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != 0)
+		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != YACA_ERROR_NONE)
 			goto clean;
 
 		rem = enc_size - out_size;
-		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != 0)
+		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
 			goto clean;
 
 		enc_size = rem + out_size;
 
 		/* Set the tag length and get the tag after final encryption */
 		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG_LEN,
-		                       (void*)&tag_size, sizeof(tag_size)) != 0)
+		                       (void*)&tag_size, sizeof(tag_size)) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_ctx_get_param(ctx, YACA_PARAM_GCM_TAG, (void**)tag, &tag_size) != 0)
+		if (yaca_ctx_get_param(ctx, YACA_PARAM_GCM_TAG, (void**)tag, &tag_size) != YACA_ERROR_NONE)
 			goto clean;
 
 		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
@@ -125,17 +125,17 @@ void encrypt_decrypt_aes_gcm(void)
 
 	/* Decryption */
 	{
-		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != 0)
+		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Provide any AAD data */
-		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_size) != 0)
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_block_length(ctx, &block_len) != 0)
+		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Calculate max output: size of update + final chunks */
@@ -144,16 +144,16 @@ void encrypt_decrypt_aes_gcm(void)
 			goto clean;
 
 		out_size = dec_size;
-		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != 0)
+		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != YACA_ERROR_NONE)
 			goto clean;
 
 		rem = dec_size - out_size;
 
 		/* Set expected tag value before final decryption */
-		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG, tag, tag_size) != 0)
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_GCM_TAG, tag, tag_size) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_decrypt_final(ctx, dec + out_size, &rem) != 0)
+		if (yaca_decrypt_final(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
 			goto clean;
 
 		dec_size = rem + out_size;
@@ -203,17 +203,17 @@ void encrypt_decrypt_aes_ccm(void)
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Key generation */
-	if (yaca_key_gen(&key, key_type, key_bits) != 0)
+	if (yaca_key_gen(&key, key_type, key_bits) != YACA_ERROR_NONE)
 		return;
 
 	/* IV generation */
-	if (yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != 0)
+	if (yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
 		goto clean;
 
 	if ((aad = yaca_zalloc(aad_size)) == NULL)
 		goto clean;
 
-	if (yaca_rand_bytes(aad, aad_size) != 0)
+	if (yaca_rand_bytes(aad, aad_size) != YACA_ERROR_NONE)
 		goto clean;
 
 	if ((tag = yaca_zalloc(tag_size)) == NULL)
@@ -221,25 +221,25 @@ void encrypt_decrypt_aes_ccm(void)
 
 	/* Encryption */
 	{
-		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != 0)
+		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Set tag length (optionally) */
 		if (yaca_ctx_set_param(ctx, YACA_PARAM_CCM_TAG_LEN,
-		                       (void*)&tag_size, sizeof(tag_size)) != 0)
+		                       (void*)&tag_size, sizeof(tag_size)) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* The total plain text length must be passed (only needed if AAD is passed) */
-		if (yaca_encrypt_update(ctx, NULL, LOREM4096_SIZE , NULL, &len) != 0)
+		if (yaca_encrypt_update(ctx, NULL, LOREM4096_SIZE , NULL, &len) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_ctx_set_param(ctx, YACA_PARAM_CCM_AAD, aad, aad_size) != 0)
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_CCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_block_length(ctx, &block_len) != 0)
+		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Calculate max output: size of update + final chunks */
@@ -248,17 +248,17 @@ void encrypt_decrypt_aes_ccm(void)
 			goto clean;
 
 		out_size = enc_size;
-		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != 0)
+		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != YACA_ERROR_NONE)
 			goto clean;
 
 		rem = enc_size - out_size;
-		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != 0)
+		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
 			goto clean;
 
 		enc_size = rem + out_size;
 
 		/* Get the tag after final encryption */
-		if (yaca_ctx_get_param(ctx, YACA_PARAM_CCM_TAG, (void**)tag, &tag_size) != 0)
+		if (yaca_ctx_get_param(ctx, YACA_PARAM_CCM_TAG, (void**)tag, &tag_size) != YACA_ERROR_NONE)
 			goto clean;
 
 		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
@@ -269,24 +269,24 @@ void encrypt_decrypt_aes_ccm(void)
 
 	/* Decryption */
 	{
-		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != 0)
+		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Set expected tag value */
-		if (yaca_ctx_set_param(ctx, YACA_PARAM_CCM_TAG, tag, tag_size) != 0)
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_CCM_TAG, tag, tag_size) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* The total encrypted text length must be passed (only needed if AAD is passed) */
-		if (yaca_decrypt_update(ctx, NULL, enc_size , NULL, &len) != 0)
+		if (yaca_decrypt_update(ctx, NULL, enc_size , NULL, &len) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_ctx_set_param(ctx, YACA_PARAM_CCM_AAD, aad, aad_size) != 0)
+		if (yaca_ctx_set_param(ctx, YACA_PARAM_CCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_block_length(ctx, &block_len) != 0)
+		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
 			goto clean;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != 0)
+		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto clean;
 
 		/* Calculate max output: size of update + final chunks */
@@ -297,7 +297,7 @@ void encrypt_decrypt_aes_ccm(void)
 		out_size = dec_size;
 		/* The tag verify is performed when you call the final yaca_decrypt_update(),
 		 * there is no call to yaca_decrypt_final() */
-		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != 0)
+		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != YACA_ERROR_NONE)
 			goto clean;
 
 		dec_size = out_size;
@@ -320,7 +320,7 @@ int main()
 	yaca_debug_set_error_cb(debug_func);
 
 	int ret = yaca_init();
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	encrypt_decrypt_aes_gcm();

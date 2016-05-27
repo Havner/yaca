@@ -56,7 +56,7 @@ extern "C" {
  *                   - #YACA_KEY_TYPE_DSA_PRIV,
  *                   - #YACA_KEY_TYPE_EC_PRIV.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign_update(),
  *      yaca_sign_final(), yaca_verify_init(), yaca_verify_update(),
  *      yaca_verify_final()
@@ -79,7 +79,7 @@ int yaca_sign_init(yaca_ctx_h *ctx,
  *                   - #YACA_KEY_TYPE_SYMMETRIC,
  *                   - #YACA_KEY_TYPE_DES.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign_update(),
  *      yaca_sign_final(), yaca_memcmp()
  */
@@ -101,7 +101,7 @@ int yaca_sign_hmac_init(yaca_ctx_h *ctx,
  *                   - #YACA_KEY_TYPE_SYMMETRIC,
  *                   - #YACA_KEY_TYPE_DES.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_key_type_e, #yaca_enc_algo_e, yaca_sign_update(),
  *      yaca_sign_final(), yaca_memcmp()
  */
@@ -119,7 +119,7 @@ int yaca_sign_cmac_init(yaca_ctx_h *ctx,
  * @param[in]     data      Data to be signed.
  * @param[in]     data_len  Length of the data.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_sign_init(), yaca_sign_final(), yaca_sign_hmac_init(),
  *      yaca_sign_cmac_init()
  */
@@ -138,7 +138,7 @@ int yaca_sign_update(yaca_ctx_h ctx,
  * @param[out]    signature_len    Length of the MAC or the signature,
  *                                 actual number of bytes written will be returned here.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_sign_init(), yaca_sign_update(), yaca_sign_hmac_init(),
  *      yaca_sign_cmac_init()
  */
@@ -159,7 +159,7 @@ int yaca_sign_final(yaca_ctx_h ctx,
  *                   - #YACA_KEY_TYPE_DSA_PUB,
  *                   - #YACA_KEY_TYPE_EC_PUB.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_verify_update(),
  *      yaca_verify_final()
  */
@@ -176,7 +176,7 @@ int yaca_verify_init(yaca_ctx_h *ctx,
  * @param[in]     data      Data to be verified.
  * @param[in]     data_len  Length of the data.
  *
- * @return 0 on success, negative on error.
+ * @return YACA_ERROR_NONE on success, negative on error.
  * @see yaca_verify_init(), yaca_verify_final()
  */
 int yaca_verify_update(yaca_ctx_h ctx,
@@ -192,7 +192,7 @@ int yaca_verify_update(yaca_ctx_h ctx,
  * @param[in]     signature      Input signature (returned by yaca_sign_final()).
  * @param[in]     signature_len  Size of the signature.
  *
- * @return 0 on success, YACA_ERROR_DATA_MISMATCH if verification fails,
+ * @return YACA_ERROR_NONE on success, YACA_ERROR_DATA_MISMATCH if verification fails,
  *         negative on error.
  * @see yaca_verify_init(), yaca_verify_update()
  */

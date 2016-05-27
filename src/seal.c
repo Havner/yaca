@@ -95,7 +95,7 @@ static int get_seal_output_length(const yaca_ctx_h ctx, size_t input_len, size_t
 		*output_len = block_size;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static int seal_init(yaca_ctx_h *ctx,
@@ -154,7 +154,7 @@ static int seal_init(yaca_ctx_h *ctx,
 	}
 
 	ret = encrypt_get_algorithm(algo, bcm, sym_key_bits, &cipher);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto err_key;
 
 	ret = EVP_CIPHER_iv_length(cipher);
@@ -198,7 +198,7 @@ static int seal_init(yaca_ctx_h *ctx,
 
 	*ctx = (yaca_ctx_h)nc;
 
-	return 0;
+	return YACA_ERROR_NONE;
 
 err_iv:
 	yaca_free(liv);
@@ -250,7 +250,7 @@ static int open_init(yaca_ctx_h *ctx,
 	nc->op_type = OP_OPEN;
 
 	ret = encrypt_get_algorithm(algo, bcm, sym_key_bits, &cipher);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto err_free;
 
 	ret = EVP_CIPHER_iv_length(cipher);
@@ -275,7 +275,7 @@ static int open_init(yaca_ctx_h *ctx,
 
 	// TODO: handling of algorithms with variable IV length
 	ret = yaca_key_get_bits(iv, &iv_bits_check);
-	if (ret != 0) {
+	if (ret != YACA_ERROR_NONE) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
 		goto err_free;
 	}
@@ -303,7 +303,7 @@ static int open_init(yaca_ctx_h *ctx,
 	}
 
 	*ctx = (yaca_ctx_h)nc;
-	return 0;
+	return YACA_ERROR_NONE;
 
 err_ctx:
 	EVP_CIPHER_CTX_free(nc->cipher_ctx);
@@ -343,7 +343,7 @@ static int seal_update(yaca_ctx_h ctx,
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static int seal_final(yaca_ctx_h ctx,
@@ -374,7 +374,7 @@ static int seal_final(yaca_ctx_h ctx,
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_seal_init(yaca_ctx_h *ctx,

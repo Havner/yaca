@@ -84,7 +84,7 @@ API int yaca_init(void)
 
 	for (int i = 0; i < CRYPTO_num_locks(); i++) {
 		if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
-			int ret = 0;
+			int ret = YACA_ERROR_NONE;
 			switch (errno) {
 			case ENOMEM:
 				ret = YACA_ERROR_OUT_OF_MEMORY;
@@ -112,7 +112,7 @@ API int yaca_init(void)
 		We should also initialize the entropy for random number generator: https://wiki.openssl.org/index.php/Random_Numbers#Initialization
 	*/
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API void yaca_exit(void)
@@ -166,7 +166,7 @@ API int yaca_rand_bytes(char *data, size_t data_len)
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
@@ -207,7 +207,7 @@ API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *o
 API int yaca_memcmp(const void *first, const void *second, size_t len)
 {
 	if (CRYPTO_memcmp(first, second, len) == 0)
-		return 0;
+		return YACA_ERROR_NONE;
 
 	return YACA_ERROR_DATA_MISMATCH;
 }

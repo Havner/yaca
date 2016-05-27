@@ -92,7 +92,7 @@ static int get_sign_output_length(const yaca_ctx_h ctx,
 	}
 
 	*output_len = len;
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 static void destroy_sign_context(yaca_ctx_h ctx)
@@ -165,7 +165,7 @@ int set_sign_param(yaca_ctx_h ctx,
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 int get_sign_param(const yaca_ctx_h ctx,
@@ -232,7 +232,7 @@ int get_sign_param(const yaca_ctx_h ctx,
 	memcpy(*value, &padding, sizeof(yaca_padding_e));
 	*value_len = sizeof(yaca_padding_e);
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_sign_init(yaca_ctx_h *ctx,
@@ -271,7 +271,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	nc->ctx.get_param = get_sign_param;
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto free_ctx;
 
 	nc->mdctx = EVP_MD_CTX_create();
@@ -290,7 +290,7 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 
 	*ctx = (yaca_ctx_h)nc;
 
-	return 0;
+	return YACA_ERROR_NONE;
 
 free_ctx:
 	yaca_ctx_free((yaca_ctx_h)nc);
@@ -333,7 +333,7 @@ API int yaca_sign_hmac_init(yaca_ctx_h *ctx,
 	}
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto free_pkey;
 
 	nc->mdctx = EVP_MD_CTX_create();
@@ -351,7 +351,7 @@ API int yaca_sign_hmac_init(yaca_ctx_h *ctx,
 	}
 
 	*ctx = (yaca_ctx_h)nc;
-	return 0;
+	return YACA_ERROR_NONE;
 
 free_pkey:
 	EVP_PKEY_free(pkey);
@@ -387,7 +387,7 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 	nc->ctx.get_output_length = get_sign_output_length;
 
 	ret = encrypt_get_algorithm(algo, YACA_BCM_CBC, simple_key->bits, &cipher);
-	if (ret != 0) {
+	if (ret != YACA_ERROR_NONE) {
 		goto free_ctx;
 	}
 
@@ -436,7 +436,7 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 	// TODO refactor error handling: set mdctx to NULL, set pkey to NULL
 
 	*ctx = (yaca_ctx_h)nc;
-	return 0;
+	return YACA_ERROR_NONE;
 
 free_pkey:
 	EVP_PKEY_free(pkey);
@@ -466,7 +466,7 @@ API int yaca_sign_update(yaca_ctx_h ctx,
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_sign_final(yaca_ctx_h ctx,
@@ -487,7 +487,7 @@ API int yaca_sign_final(yaca_ctx_h ctx,
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_verify_init(yaca_ctx_h *ctx,
@@ -525,7 +525,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 	nc->ctx.get_param = get_sign_param;
 
 	ret = digest_get_algorithm(algo, &md);
-	if (ret != 0)
+	if (ret != YACA_ERROR_NONE)
 		goto free_ctx;
 
 	nc->mdctx = EVP_MD_CTX_create();
@@ -544,7 +544,7 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 
 	*ctx = (yaca_ctx_h)nc;
 
-	return 0;
+	return YACA_ERROR_NONE;
 
 free_ctx:
 	yaca_ctx_free((yaca_ctx_h)nc);
@@ -569,7 +569,7 @@ API int yaca_verify_update(yaca_ctx_h ctx,
 		return ret;
 	}
 
-	return 0;
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_verify_final(yaca_ctx_h ctx,
@@ -587,9 +587,9 @@ API int yaca_verify_final(yaca_ctx_h ctx,
 	                            signature_len);
 
 	if (ret == 1)
-		return 0;
+		return YACA_ERROR_NONE;
 
-	if (ret == 0) {
+	if (ret == YACA_ERROR_NONE) {
 		ERROR_CLEAR();
 		return YACA_ERROR_DATA_MISMATCH;
 	}
