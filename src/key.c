@@ -1136,24 +1136,6 @@ API void yaca_key_free(yaca_key_h key)
 	}
 }
 
-API int yaca_key_derive_dh(const yaca_key_h prv_key,
-                           const yaca_key_h pub_key,
-                           yaca_key_h *sym_key)
-{
-	//TODO NOT_IMPLEMENTED
-	return YACA_ERROR_INVALID_ARGUMENT;
-}
-
-API int yaca_key_derive_kea(const yaca_key_h prv_key,
-                            const yaca_key_h pub_key,
-                            const yaca_key_h prv_key_auth,
-                            const yaca_key_h pub_key_auth,
-                            yaca_key_h *sym_key)
-{
-	//TODO NOT_IMPLEMENTED
-	return YACA_ERROR_INVALID_ARGUMENT;
-}
-
 API int yaca_key_derive_pbkdf2(const char *password,
                                const char *salt,
                                size_t salt_len,

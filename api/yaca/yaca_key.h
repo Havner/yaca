@@ -215,40 +215,6 @@ void yaca_key_free(yaca_key_h key);
  */
 
 /**
- * @brief  Derives a key using Diffie-Helmann or EC Diffie-Helmann key exchange protocol.
- *
- * @param[in]  prv_key  Our private key.
- * @param[in]  pub_key  Peer public key.
- * @param[out] sym_key  Shared secret, that can be used as a symmetric key
- *                      (must be freed with yaca_key_free()).
- *
- * @return YACA_ERROR_NONE on success, negative on error.
- */
-int yaca_key_derive_dh(const yaca_key_h prv_key,
-                       const yaca_key_h pub_key,
-                       yaca_key_h *sym_key);
-
-/**
- * @brief  Derives a key using KEA key exchange protocol.
- *
- * @param[in]  prv_key       Our DH private component.
- * @param[in]  pub_key       Peers' DH public component.
- * @param[in]  prv_key_auth  Our private key used to create signature on our
- *                           DH public component sent to peer to verify our identity.
- * @param[in]  pub_key_auth  Peers' public key used for signature verification
- *                           of pub_key from peer (peer authentication).
- * @param[out] sym_key       Shared secret, that can be used as a symmetric key
- *                           (must be freed with yaca_key_free()).
- *
- * @return YACA_ERROR_NONE on success, negative on error.
- */
-int yaca_key_derive_kea(const yaca_key_h prv_key,
-                        const yaca_key_h pub_key,
-                        const yaca_key_h prv_key_auth,
-                        const yaca_key_h pub_key_auth,
-                        yaca_key_h *sym_key);
-
-/**
  * @brief  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
  *
  * @since_tizen 3.0
