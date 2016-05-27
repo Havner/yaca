@@ -56,7 +56,7 @@ void encrypt_simple(const yaca_enc_algo_e algo,
 	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
 		goto exit;
 
-	if (iv_bits > 0 && yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
+	if (iv_bits > 0 && yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_encrypt(algo, bcm, key, iv, lorem4096, LOREM4096_SIZE, &enc, &enc_size) != YACA_ERROR_NONE)
@@ -100,13 +100,13 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Key generation */
-	if (yaca_key_gen(&key, key_type, key_bits) != YACA_ERROR_NONE)
+	if (yaca_key_gen(key_type, key_bits, &key) != YACA_ERROR_NONE)
 		return;
 
 	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
 		goto ex_key;
 
-	if (iv_bits > 0 && yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
+	if (iv_bits > 0 && yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto ex_key;
 
 	/* Encryption */

@@ -63,11 +63,11 @@ void encrypt_decrypt_aes_gcm(void)
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Key generation */
-	if (yaca_key_gen(&key, key_type, key_bits) != YACA_ERROR_NONE)
+	if (yaca_key_gen(key_type, key_bits, &key) != YACA_ERROR_NONE)
 		return;
 
 	/* IV generation */
-	if (yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
+	if (yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto clean;
 
 	if ((aad = yaca_zalloc(aad_size)) == NULL)
@@ -203,11 +203,11 @@ void encrypt_decrypt_aes_ccm(void)
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Key generation */
-	if (yaca_key_gen(&key, key_type, key_bits) != YACA_ERROR_NONE)
+	if (yaca_key_gen(key_type, key_bits, &key) != YACA_ERROR_NONE)
 		return;
 
 	/* IV generation */
-	if (yaca_key_gen(&iv, YACA_KEY_TYPE_IV, iv_bits) != YACA_ERROR_NONE)
+	if (yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto clean;
 
 	if ((aad = yaca_zalloc(aad_size)) == NULL)

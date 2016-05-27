@@ -44,7 +44,7 @@ void key_exchange_dh(void)
 	long size;
 
 	// generate  private, public key
-	ret = yaca_key_gen(&private_key, YACA_KEY_TYPE_DH_PRIV, YACA_KEY_2048BIT);
+	ret = yaca_key_gen(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_2048BIT, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
@@ -70,8 +70,8 @@ void key_exchange_dh(void)
 	if (1 != fread(buffer, size, 1, fp))
 		goto clean;
 
-	ret = yaca_key_import(&peer_key, YACA_KEY_TYPE_DH_PUB, NULL,
-			      buffer, size);
+	ret = yaca_key_import(YACA_KEY_TYPE_DH_PUB, NULL,
+	                      buffer, size, &peer_key);
 	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
@@ -104,7 +104,7 @@ void key_exchange_ecdh(void)
 	long size;
 
 	// generate  private, public key
-	ret = yaca_key_gen(&private_key, YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256);
+	ret = yaca_key_gen(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto clean;
 
@@ -130,7 +130,7 @@ void key_exchange_ecdh(void)
 	if (1 != fread(buffer, size, 1, fp))
 		goto clean;
 
-	ret = yaca_key_import(&peer_key, YACA_KEY_TYPE_EC_PUB, NULL, buffer, size);
+	ret = yaca_key_import(YACA_KEY_TYPE_EC_PUB, NULL, buffer, size, &peer_key);
 	if (ret != YACA_ERROR_NONE)
 		goto clean;
 

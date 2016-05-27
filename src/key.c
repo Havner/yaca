@@ -912,11 +912,11 @@ API int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits)
 	return YACA_ERROR_INVALID_ARGUMENT;
 }
 
-API int yaca_key_import(yaca_key_h *key,
-                        yaca_key_type_e key_type,
+API int yaca_key_import(yaca_key_type_e key_type,
                         const char *password,
                         const char *data,
-                        size_t data_len)
+                        size_t data_len,
+                        yaca_key_h *key)
 {
 	if (key == NULL || data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -990,9 +990,9 @@ API int yaca_key_export(const yaca_key_h key,
 
 // TODO: this NEEDS random number generator initialized
 // there is some other TODO elsewhere about it
-API int yaca_key_gen(yaca_key_h *key,
-                     yaca_key_type_e key_type,
-                     size_t key_bits)
+API int yaca_key_gen(yaca_key_type_e key_type,
+                     size_t key_bits,
+                     yaca_key_h *key)
 {
 	int ret;
 	struct yaca_key_simple_s *nk_simple = NULL;

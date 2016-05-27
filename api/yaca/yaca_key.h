@@ -91,11 +91,11 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  *          used. If it's not known if the key is encrypted one should pass NULL as
  *          password and check for the #YACA_ERROR_PASSWORD_INVALID return code.
  *
- * @param[out] key       Returned key (must be freed with yaca_key_free())
  * @param[in]  key_type  Type of the key
  * @param[in]  password  null terminated password for the key (can be NULL)
  * @param[in]  data      Blob containing the key
  * @param[in]  data_len  Size of the blob
+ * @param[out] key       Returned key (must be freed with yaca_key_free())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Succesful
@@ -110,11 +110,11 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  * @see yaca_key_export()
  * @see yaca_key_free()
  */
-int yaca_key_import(yaca_key_h *key,
-                    yaca_key_type_e key_type,
+int yaca_key_import(yaca_key_type_e key_type,
                     const char *password,
                     const char *data,
-                    size_t data_len);
+                    size_t data_len,
+                    yaca_key_h *key);
 
 /**
  * @brief  Exports a key to arbitrary format. Export may fail if key is HW-based.
@@ -174,9 +174,9 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @remarks This function is used to generate symmetric and private asymmetric keys.
  *
- * @param[out] key       Newly generated key (must be freed with yaca_key_free())
  * @param[in]  key_type  Type of the key to be generated
  * @param[in]  key_bits  Length of the key (in bits) to be generated
+ * @param[out] key       Newly generated key (must be freed with yaca_key_free())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Succesful
@@ -189,9 +189,9 @@ int yaca_key_export(const yaca_key_h key,
  * @see #yaca_key_bits_e
  * @see yaca_key_free()
  */
-int yaca_key_gen(yaca_key_h *key,
-                 yaca_key_type_e key_type,
-                 size_t key_bits);
+int yaca_key_gen(yaca_key_type_e key_type,
+                 size_t key_bits,
+                 yaca_key_h *key);
 
 /**
  * @brief  Extracts public key from a private one.

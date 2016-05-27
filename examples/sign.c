@@ -43,7 +43,7 @@ void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
 	yaca_key_h pub = YACA_KEY_NULL;
 
 	// GENERATE
-	if (yaca_key_gen(&prv, type, YACA_KEY_1024BIT) != YACA_ERROR_NONE)
+	if (yaca_key_gen(type, YACA_KEY_1024BIT, &prv) != YACA_ERROR_NONE)
 		return;
 
 	if (yaca_key_extract_public(prv, &pub) != YACA_ERROR_NONE)
@@ -86,7 +86,7 @@ void simple_sign_verify_hmac(void)
 	yaca_key_h key = YACA_KEY_NULL;
 
 	// GENERATE
-	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT) != YACA_ERROR_NONE)
+	if (yaca_key_gen(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT, &key) != YACA_ERROR_NONE)
 		return;
 
 	// SIGN
@@ -129,7 +129,7 @@ void simple_sign_verify_cmac(void)
 	yaca_key_h key = YACA_KEY_NULL;
 
 	// GENERATE
-	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
+	if (yaca_key_gen(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT, &key))
 		return;
 
 	// SIGN
@@ -176,7 +176,7 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	yaca_padding_e padding = YACA_PADDING_PKCS1_PSS;
 
 	// GENERATE
-	if (yaca_key_gen(&prv, type, YACA_KEY_1024BIT) != YACA_ERROR_NONE)
+	if (yaca_key_gen(type, YACA_KEY_1024BIT, &prv) != YACA_ERROR_NONE)
 		return;
 
 	if (yaca_key_extract_public(prv, &pub) != YACA_ERROR_NONE)
@@ -239,7 +239,7 @@ void sign_verify_hmac(void)
 	yaca_key_h key = YACA_KEY_NULL;
 
 	// GENERATE
-	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT) != YACA_ERROR_NONE)
+	if (yaca_key_gen(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT, &key) != YACA_ERROR_NONE)
 		return;
 
 	// SIGN
@@ -302,7 +302,7 @@ void sign_verify_cmac(void)
 	yaca_key_h key = YACA_KEY_NULL;
 
 	// GENERATE
-	if (yaca_key_gen(&key, YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT))
+	if (yaca_key_gen(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_256BIT, &key))
 		return;
 
 	// SIGN

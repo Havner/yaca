@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_key_gen(&key, YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_1024BIT);
+	ret = yaca_key_gen(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_1024BIT, &key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -57,13 +57,13 @@ int main(int argc, char* argv[])
 	password = NULL;
 	key = YACA_KEY_NULL;
 
-	ret = yaca_key_import(&key, YACA_KEY_TYPE_RSA_PRIV, NULL, k, kl);
+	ret = yaca_key_import(YACA_KEY_TYPE_RSA_PRIV, NULL, k, kl, &key);
 	if (ret == YACA_ERROR_PASSWORD_INVALID) {
 		ret = read_stdin_line("decryption pass: ", &password);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
-		ret = yaca_key_import(&key, YACA_KEY_TYPE_RSA_PRIV, password, k, kl);
+		ret = yaca_key_import(YACA_KEY_TYPE_RSA_PRIV, password, k, kl, &key);
 		if (ret == YACA_ERROR_PASSWORD_INVALID)
 			printf("invalid password\n");
 
