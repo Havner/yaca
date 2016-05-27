@@ -52,6 +52,7 @@ extern "C" {
  * @since_tizen 3.0
  *
  * @return YACA_ERROR_NONE on success, negative on error.
+ *
  * @see yaca_exit()
  */
 int yaca_init(void);
@@ -73,7 +74,10 @@ void yaca_exit(void);
  * @param[in] size  Size of the allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated memory otherwise.
- * @see yaca_zalloc(), yaca_realloc(), yaca_free()
+ *
+ * @see yaca_zalloc()
+ * @see yaca_realloc()
+ * @see yaca_free()
  */
 void *yaca_malloc(size_t size);
 
@@ -85,7 +89,10 @@ void *yaca_malloc(size_t size);
  * @param[in] size  Size of the allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated and zeroed memory otherwise.
- * @see yaca_malloc(), yaca_realloc(), yaca_free()
+ *
+ * @see yaca_malloc()
+ * @see yaca_realloc()
+ * @see yaca_free()
  */
 void *yaca_zalloc(size_t size);
 
@@ -98,7 +105,10 @@ void *yaca_zalloc(size_t size);
  * @param[in] size  Size of the new allocation (bytes).
  *
  * @return NULL on failure, pointer to allocated memory otherwise.
- * @see yaca_malloc(), yaca_zalloc(), yaca_free()
+ *
+ * @see yaca_malloc()
+ * @see yaca_zalloc()
+ * @see yaca_free()
  */
 void *yaca_realloc(void *addr, size_t size);
 
@@ -109,7 +119,10 @@ void *yaca_realloc(void *addr, size_t size);
  * @since_tizen 3.0
  *
  * @param[in] ptr  Pointer to the memory to be freed.
- * @see yaca_malloc(), yaca_zalloc(), yaca_realloc()
+ *
+ * @see yaca_malloc()
+ * @see yaca_zalloc()
+ * @see yaca_realloc()
  *
  */
 void yaca_free(void *ptr);
@@ -138,7 +151,9 @@ int yaca_rand_bytes(char *data, size_t data_len);
  * @param[in]     value_len  Length of the parameter value.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_ex_param_e, yaca_ctx_get_param()
+ *
+ * @see #yaca_ex_param_e
+ * @see yaca_ctx_get_param()
  */
 int yaca_ctx_set_param(yaca_ctx_h ctx,
                        yaca_ex_param_e param,
@@ -157,7 +172,9 @@ int yaca_ctx_set_param(yaca_ctx_h ctx,
  * @param[out] value_len  Length of the parameter value will be returned here.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_ex_param_e, yaca_ctx_set_param()
+ *
+ * @see #yaca_ex_param_e
+ * @see yaca_ctx_set_param()
  */
 int yaca_ctx_get_param(const yaca_ctx_h ctx,
                        yaca_ex_param_e param,
@@ -171,6 +188,7 @@ int yaca_ctx_get_param(const yaca_ctx_h ctx,
  * @since_tizen 3.0
  *
  * @param[in,out] ctx  Crypto context.
+ *
  * @see #yaca_ctx_h
  *
  */

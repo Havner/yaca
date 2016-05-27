@@ -57,7 +57,11 @@ extern "C" {
  * @param[out] iv            Generated initialization vector that will be used.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_seal_update(), yaca_seal_final()
+ *
+ * @see #yaca_enc_algo_e
+ * @see #yaca_block_cipher_mode_e
+ * @see yaca_seal_update()
+ * @see yaca_seal_final()
  */
 int yaca_seal_init(yaca_ctx_h *ctx,
                    const yaca_key_h pub_key,
@@ -80,7 +84,9 @@ int yaca_seal_init(yaca_ctx_h *ctx,
  * @param[out]    cipher_len  Length of the encrypted data, actual number of bytes written will be returned here.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_seal_init(), yaca_seal_final()
+ *
+ * @see yaca_seal_init()
+ * @see yaca_seal_final()
  */
 int yaca_seal_update(yaca_ctx_h ctx,
                      const char *plain,
@@ -99,7 +105,9 @@ int yaca_seal_update(yaca_ctx_h ctx,
  * @param[out]    cipher_len  Length of the final piece, actual number of bytes written will be returned here.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_seal_init(), yaca_seal_update()
+ *
+ * @see yaca_seal_init()
+ * @see yaca_seal_update()
  */
 int yaca_seal_final(yaca_ctx_h ctx,
                     char *cipher,
@@ -119,7 +127,11 @@ int yaca_seal_final(yaca_ctx_h ctx,
  * @param[in]  iv            Initialization vector that was used for the encryption.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_open_update(), yaca_open_final()
+ *
+ * @see #yaca_enc_algo_e
+ * @see #yaca_block_cipher_mode_e
+ * @see yaca_open_update()
+ * @see yaca_open_final()
  */
 int yaca_open_init(yaca_ctx_h *ctx,
                    const yaca_key_h prv_key,
@@ -142,7 +154,9 @@ int yaca_open_init(yaca_ctx_h *ctx,
  * @param[out]    plain_len   Length of the decrypted data, actual number of bytes written will be returned here.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_open_init(), yaca_open_final()
+ *
+ * @see yaca_open_init()
+ * @see yaca_open_final()
  */
 int yaca_open_update(yaca_ctx_h ctx,
                      const char *cipher,
@@ -161,7 +175,9 @@ int yaca_open_update(yaca_ctx_h ctx,
  * @param[out]    plain_len  Length of the final piece, actual number of bytes written will be returned here.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_open_init(), yaca_open_update()
+ *
+ * @see yaca_open_init()
+ * @see yaca_open_update()
  */
 int yaca_open_final(yaca_ctx_h ctx,
                     char *plain,

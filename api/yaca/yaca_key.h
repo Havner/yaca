@@ -96,7 +96,10 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  *
  * @return YACA_ERROR_NONE on success, YACA_ERROR_PASSWORD_INVALID if wrong password given,
  *         negative on error.
- * @see #yaca_key_type_e, yaca_key_export(), yaca_key_free()
+ *
+ * @see #yaca_key_type_e
+ * @see yaca_key_export()
+ * @see yaca_key_free()
  */
 int yaca_key_import(yaca_key_h *key,
                     yaca_key_type_e key_type,
@@ -137,7 +140,11 @@ int yaca_key_import(yaca_key_h *key,
  * @param[out] data_len      Size of the output data.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_fmt_e, #yaca_key_file_fmt_e, yaca_key_import(), yaca_key_free()
+ *
+ * @see #yaca_key_fmt_e
+ * @see #yaca_key_file_fmt_e
+ * @see yaca_key_import()
+ * @see yaca_key_free()
  */
 int yaca_key_export(const yaca_key_h key,
                     yaca_key_fmt_e key_fmt,
@@ -158,7 +165,10 @@ int yaca_key_export(const yaca_key_h key,
  * @param[in]  key_bits  Length of the key (in bits) to be generated.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_key_bits_e, yaca_key_free()
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_key_bits_e
+ * @see yaca_key_free()
  */
 int yaca_key_gen(yaca_key_h *key,
                  yaca_key_type_e key_type,
@@ -173,7 +183,10 @@ int yaca_key_gen(yaca_key_h *key,
  * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free()).
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_key_gen(), yaca_key_import(), yaca_key_free()
+ *
+ * @see yaca_key_gen()
+ * @see yaca_key_import()
+ * @see yaca_key_free()
  */
 int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
 
@@ -183,7 +196,10 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
  * @since_tizen 3.0
  *
  * @param key  Key to be freed.
- * @see yaca_key_import(), yaca_key_export(), yaca_key_gen()
+ *
+ * @see yaca_key_import()
+ * @see yaca_key_export()
+ * @see yaca_key_gen()
  *
  */
 void yaca_key_free(yaca_key_h key);

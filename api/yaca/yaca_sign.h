@@ -57,9 +57,14 @@ extern "C" {
  *                   - #YACA_KEY_TYPE_EC_PRIV.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign_update(),
- *      yaca_sign_final(), yaca_verify_init(), yaca_verify_update(),
- *      yaca_verify_final()
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_digest_algo_e
+ * @see yaca_sign_update()
+ * @see yaca_sign_final()
+ * @see yaca_verify_init()
+ * @see yaca_verify_update()
+ * @see yaca_verify_final()
  */
 int yaca_sign_init(yaca_ctx_h *ctx,
                    yaca_digest_algo_e algo,
@@ -80,8 +85,12 @@ int yaca_sign_init(yaca_ctx_h *ctx,
  *                   - #YACA_KEY_TYPE_DES.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign_update(),
- *      yaca_sign_final(), yaca_memcmp()
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_digest_algo_e
+ * @see yaca_sign_update()
+ * @see yaca_sign_final()
+ * @see yaca_memcmp()
  */
 int yaca_sign_hmac_init(yaca_ctx_h *ctx,
                         yaca_digest_algo_e algo,
@@ -102,8 +111,12 @@ int yaca_sign_hmac_init(yaca_ctx_h *ctx,
  *                   - #YACA_KEY_TYPE_DES.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_enc_algo_e, yaca_sign_update(),
- *      yaca_sign_final(), yaca_memcmp()
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_enc_algo_e
+ * @see yaca_sign_update()
+ * @see yaca_sign_final()
+ * @see yaca_memcmp()
  */
 int yaca_sign_cmac_init(yaca_ctx_h *ctx,
                         yaca_enc_algo_e algo,
@@ -120,8 +133,11 @@ int yaca_sign_cmac_init(yaca_ctx_h *ctx,
  * @param[in]     data_len  Length of the data.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_sign_init(), yaca_sign_final(), yaca_sign_hmac_init(),
- *      yaca_sign_cmac_init()
+ *
+ * @see yaca_sign_init()
+ * @see yaca_sign_final()
+ * @see yaca_sign_hmac_init()
+ * @see yaca_sign_cmac_init()
  */
 int yaca_sign_update(yaca_ctx_h ctx,
                      const char *data,
@@ -139,8 +155,11 @@ int yaca_sign_update(yaca_ctx_h ctx,
  *                                 actual number of bytes written will be returned here.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_sign_init(), yaca_sign_update(), yaca_sign_hmac_init(),
- *      yaca_sign_cmac_init()
+ *
+ * @see yaca_sign_init()
+ * @see yaca_sign_update()
+ * @see yaca_sign_hmac_init()
+ * @see yaca_sign_cmac_init()
  */
 int yaca_sign_final(yaca_ctx_h ctx,
                     char *signature,
@@ -160,8 +179,11 @@ int yaca_sign_final(yaca_ctx_h ctx,
  *                   - #YACA_KEY_TYPE_EC_PUB.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_verify_update(),
- *      yaca_verify_final()
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_digest_algo_e
+ * @see yaca_verify_update()
+ * @see yaca_verify_final()
  */
 int yaca_verify_init(yaca_ctx_h *ctx,
                      yaca_digest_algo_e algo,
@@ -177,7 +199,9 @@ int yaca_verify_init(yaca_ctx_h *ctx,
  * @param[in]     data_len  Length of the data.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see yaca_verify_init(), yaca_verify_final()
+ *
+ * @see yaca_verify_init()
+ * @see yaca_verify_final()
  */
 int yaca_verify_update(yaca_ctx_h ctx,
                        const char *data,
@@ -194,7 +218,9 @@ int yaca_verify_update(yaca_ctx_h ctx,
  *
  * @return YACA_ERROR_NONE on success, YACA_ERROR_DATA_MISMATCH if verification fails,
  *         negative on error.
- * @see yaca_verify_init(), yaca_verify_update()
+ *
+ * @see yaca_verify_init()
+ * @see yaca_verify_update()
  */
 int yaca_verify_final(yaca_ctx_h ctx,
                       const char *signature,

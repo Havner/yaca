@@ -60,6 +60,7 @@ extern "C" {
  * @param[out] digest_len  Length of message digest (depends on algorithm).
  *
  * @return YACA_ERROR_NONE on success, negative on error.
+ *
  * @see #yaca_digest_algo_e
  */
 int yaca_digest_calc(yaca_digest_algo_e algo,
@@ -84,7 +85,10 @@ int yaca_digest_calc(yaca_digest_algo_e algo,
  * @param[out] cipher_len  Length of the encrypted data (may be larger than decrypted).
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_decrypt()
+ *
+ * @see #yaca_enc_algo_e
+ * @see #yaca_block_cipher_mode_e
+ * @see yaca_decrypt()
  */
 int yaca_encrypt(yaca_enc_algo_e algo,
                  yaca_block_cipher_mode_e bcm,
@@ -111,7 +115,10 @@ int yaca_encrypt(yaca_enc_algo_e algo,
  * @param[out] plain_len   Length of the decrypted data.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_enc_algo_e, #yaca_block_cipher_mode_e, yaca_encrypt()
+ *
+ * @see #yaca_enc_algo_e
+ * @see #yaca_block_cipher_mode_e
+ * @see yaca_encrypt()
  */
 int yaca_decrypt(yaca_enc_algo_e algo,
                  yaca_block_cipher_mode_e bcm,
@@ -140,7 +147,10 @@ int yaca_decrypt(yaca_enc_algo_e algo,
  * @param[out] signature_len  Length of the signature.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_verify(),
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_digest_algo_e
+ * @see yaca_verify()
  */
 int yaca_sign(yaca_digest_algo_e algo,
               const yaca_key_h key,
@@ -167,7 +177,10 @@ int yaca_sign(yaca_digest_algo_e algo,
  *
  * @return YACA_ERROR_NONE on success, YACA_ERROR_SIGNATURE_INVALID if verification fails,
  *         negative on error.
- * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_sign(),
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_digest_algo_e
+ * @see yaca_sign()
  */
 int yaca_verify(yaca_digest_algo_e algo,
                 const yaca_key_h key,
@@ -195,7 +208,10 @@ int yaca_verify(yaca_digest_algo_e algo,
  * @param[out] mac_len   Length of the MAC.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_digest_algo_e, yaca_memcmp()
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_digest_algo_e
+ * @see yaca_memcmp()
  */
 int yaca_hmac(yaca_digest_algo_e algo,
               const yaca_key_h key,
@@ -223,7 +239,10 @@ int yaca_hmac(yaca_digest_algo_e algo,
  * @param[out] mac_len   Length of the MAC.
  *
  * @return YACA_ERROR_NONE on success, negative on error.
- * @see #yaca_key_type_e, #yaca_enc_algo_e, yaca_memcmp()
+ *
+ * @see #yaca_key_type_e
+ * @see #yaca_enc_algo_e
+ * @see yaca_memcmp()
  */
 int yaca_cmac(yaca_enc_algo_e algo,
               const yaca_key_h key,
