@@ -17,7 +17,7 @@
  */
 
 /**
- * @file encrypt.h
+ * @file yaca_encrypt.h
  * @brief
  */
 
@@ -44,13 +44,18 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free()).
- * @param[in]  algo     Encryption algorithm that will be used.
- * @param[in]  bcm      Chaining mode that will be used.
- * @param[in]  sym_key  Symmetric key that will be used.
- * @param[in]  iv       Initialization vector that will be used.
+ * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free())
+ * @param[in]  algo     Encryption algorithm that will be used
+ * @param[in]  bcm      Chaining mode that will be used
+ * @param[in]  sym_key  Symmetric key that will be used
+ * @param[in]  iv       Initialization vector that will be used
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ *                                      incorrect algo, bcm, invalid sym_key or iv)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_enc_algo_e
  * @see #yaca_block_cipher_mode_e
@@ -68,14 +73,19 @@ int yaca_encrypt_init(yaca_ctx_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_encrypt_init().
- * @param[in]     plain       Plain text to be encrypted.
- * @param[in]     plain_len   Length of the plain text.
- * @param[out]    cipher      Buffer for the encrypted data (must be allocated by client, see
- *                            yaca_get_output_length()).
- * @param[out]    cipher_len  Length of the encrypted data, actual number of bytes written will be returned here.
+ * @param[in,out] ctx         Context created by yaca_encrypt_init()
+ * @param[in]     plain       Plain text to be encrypted
+ * @param[in]     plain_len   Length of the plain text
+ * @param[out]    cipher      Buffer for the encrypted data
+ *                            (must be allocated by client, see yaca_get_output_length())
+ * @param[out]    cipher_len  Length of the encrypted data,
+ *                            actual number of bytes written will be returned here
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
+ *                                      incorrect context)
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_encrypt_init()
  * @see yaca_encrypt_final()
@@ -91,12 +101,17 @@ int yaca_encrypt_update(yaca_ctx_h ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         A valid encrypt context.
- * @param[out]    cipher      Final piece of the encrypted data (must be allocated by client, see
- *                            yaca_get_block_length()).
- * @param[out]    cipher_len  Length of the final piece, actual number of bytes written will be returned here.
+ * @param[in,out] ctx         A valid encrypt context
+ * @param[out]    cipher      Final piece of the encrypted data
+ *                            (must be allocated by client, see yaca_get_block_length())
+ * @param[out]    cipher_len  Length of the final piece,
+ *                            actual number of bytes written will be returned here
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ *                                      incorrect context)
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_encrypt_init()
  * @see yaca_encrypt_update()
@@ -110,13 +125,18 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free()).
- * @param[in]  algo     Encryption algorithm that was used to encrypt the data.
- * @param[in]  bcm      Chaining mode that was used to encrypt the data.
- * @param[in]  sym_key  Symmetric key that was used to encrypt the data.
- * @param[in]  iv       Initialization vector that was used to encrypt the data.
+ * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free())
+ * @param[in]  algo     Encryption algorithm that was used to encrypt the data
+ * @param[in]  bcm      Chaining mode that was used to encrypt the data
+ * @param[in]  sym_key  Symmetric key that was used to encrypt the data
+ * @param[in]  iv       Initialization vector that was used to encrypt the data
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ *                                      incorrect algo, bcm, invalid sym_key or iv)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_enc_algo_e
  * @see #yaca_block_cipher_mode_e
@@ -134,14 +154,19 @@ int yaca_decrypt_init(yaca_ctx_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_decrypt_init().
- * @param[in]     cipher      Cipher text to be decrypted.
- * @param[in]     cipher_len  Length of the cipher text.
- * @param[out]    plain       Buffer for the decrypted data (must be allocated by client, see
- *                            yaca_get_output_length()).
- * @param[out]    plain_len   Length of the decrypted data, actual number of bytes written will be returned here.
+ * @param[in,out] ctx         Context created by yaca_decrypt_init()
+ * @param[in]     cipher      Cipher text to be decrypted
+ * @param[in]     cipher_len  Length of the cipher text
+ * @param[out]    plain       Buffer for the decrypted data
+ *                            (must be allocated by client, see yaca_get_output_length())
+ * @param[out]    plain_len   Length of the decrypted data,
+ *                            actual number of bytes written will be returned here
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
+ *                                      incorrect context)
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_decrypt_init()
  * @see yaca_decrypt_final()
@@ -157,12 +182,17 @@ int yaca_decrypt_update(yaca_ctx_h ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx        A valid decrypt context.
- * @param[out]    plain      Final piece of the decrypted data (must be allocated by client, see
- *                           yaca_get_block_length()).
- * @param[out]    plain_len  Length of the final piece, actual number of bytes written will be returned here.
+ * @param[in,out] ctx        A valid decrypt context
+ * @param[out]    plain      Final piece of the decrypted data
+ *                           (must be allocated by client, see yaca_get_block_length())
+ * @param[out]    plain_len  Length of the final piece,
+ *                           actual number of bytes written will be returned here
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ *                                      incorrect context)
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_decrypt_init()
  * @see yaca_decrypt_update()
@@ -179,12 +209,17 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
  * @remarks If returned iv_bits equals 0 that means that for this
  *          specific algorithm and its parameters IV is not used.
  *
- * @param[in]  algo      Encryption algorithm.
- * @param[in]  bcm       Chain mode.
- * @param[in]  key_bits  Key length in bits.
- * @param[out] iv_bits   Recommended IV length in bits.
+ * @param[in]  algo      Encryption algorithm
+ * @param[in]  bcm       Chain mode
+ * @param[in]  key_bits  Key length in bits
+ * @param[out] iv_bits   Recommended IV length in bits
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ *                                      invalid algo, bcm or key_bits)
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ *
  */
 int yaca_get_iv_bits(yaca_enc_algo_e algo,
                      yaca_block_cipher_mode_e bcm,
