@@ -17,7 +17,7 @@
  */
 
 /**
- * @file crypto.h
+ * @file yaca_crypto.h
  * @brief
  */
 
@@ -51,7 +51,10 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_exit()
  */
@@ -71,9 +74,9 @@ void yaca_exit(void);
  *
  * @since_tizen 3.0
  *
- * @param[in] size  Size of the allocation (bytes).
+ * @param[in] size  Size of the allocation (bytes)
  *
- * @return NULL on failure, pointer to allocated memory otherwise.
+ * @return NULL on failure, pointer to allocated memory otherwise
  *
  * @see yaca_zalloc()
  * @see yaca_realloc()
@@ -86,9 +89,9 @@ void *yaca_malloc(size_t size);
  *
  * @since_tizen 3.0
  *
- * @param[in] size  Size of the allocation (bytes).
+ * @param[in] size  Size of the allocation (bytes)
  *
- * @return NULL on failure, pointer to allocated and zeroed memory otherwise.
+ * @return NULL on failure, pointer to allocated and zeroed memory otherwise
  *
  * @see yaca_malloc()
  * @see yaca_realloc()
@@ -101,10 +104,10 @@ void *yaca_zalloc(size_t size);
  *
  * @since_tizen 3.0
  *
- * @param[in] addr  Address of the memory to be reallocated.
- * @param[in] size  Size of the new allocation (bytes).
+ * @param[in] addr  Address of the memory to be reallocated
+ * @param[in] size  Size of the new allocation (bytes)
  *
- * @return NULL on failure, pointer to allocated memory otherwise.
+ * @return NULL on failure, pointer to allocated memory otherwise
  *
  * @see yaca_malloc()
  * @see yaca_zalloc()
@@ -118,12 +121,11 @@ void *yaca_realloc(void *addr, size_t size);
  *
  * @since_tizen 3.0
  *
- * @param[in] ptr  Pointer to the memory to be freed.
+ * @param[in] ptr  Pointer to the memory to be freed
  *
  * @see yaca_malloc()
  * @see yaca_zalloc()
  * @see yaca_realloc()
- *
  */
 void yaca_free(void *ptr);
 
@@ -132,10 +134,13 @@ void yaca_free(void *ptr);
  *
  * @since_tizen 3.0
  *
- * @param[in,out] data      Pointer to the memory to be randomized.
- * @param[in]     data_len  Length of the memory to be randomized.
+ * @param[in,out] data      Pointer to the memory to be randomized
+ * @param[in]     data_len  Length of the memory to be randomized
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0)
+ * @retval #YACA_ERROR_INTERNAL Internal error
  */
 int yaca_rand_bytes(char *data, size_t data_len);
 
@@ -145,12 +150,16 @@ int yaca_rand_bytes(char *data, size_t data_len);
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx        Previously initialized crypto context.
- * @param[in]     param      Parameter to be set.
- * @param[in]     value      Parameter value.
- * @param[in]     value_len  Length of the parameter value.
+ * @param[in,out] ctx        Previously initialized crypto context
+ * @param[in]     param      Parameter to be set
+ * @param[in]     value      Parameter value
+ * @param[in]     value_len  Length of the parameter value
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
+ *                                      incorrect context, invalid param)
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_ex_param_e
  * @see yaca_ctx_get_param()
@@ -166,12 +175,17 @@ int yaca_ctx_set_param(yaca_ctx_h ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in]  ctx        Previously initialized crypto context.
- * @param[in]  param      Parameter to be read.
- * @param[out] value      Copy of the parameter value (must be freed with yaca_free()).
- * @param[out] value_len  Length of the parameter value will be returned here.
+ * @param[in]  ctx        Previously initialized crypto context
+ * @param[in]  param      Parameter to be read
+ * @param[out] value      Copy of the parameter value (must be freed with yaca_free())
+ * @param[out] value_len  Length of the parameter value will be returned here
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ *                                      incorrect context, invalid param)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_ex_param_e
  * @see yaca_ctx_set_param()
@@ -183,11 +197,11 @@ int yaca_ctx_get_param(const yaca_ctx_h ctx,
 
 /**
  * @brief  Destroys the crypto context. Must be called on all contexts that are
- *         no longer used. Passing YACA_CTX_NULL is allowed.
+ *         no longer used. Passing #YACA_CTX_NULL is allowed.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx  Crypto context.
+ * @param[in,out] ctx  Crypto context
  *
  * @see #yaca_ctx_h
  *
@@ -200,11 +214,15 @@ void yaca_ctx_free(yaca_ctx_h ctx);
  *
  * @since_tizen 3.0
  *
- * @param[in] ctx         Previously initialized crypto context.
- * @param[in] input_len   Length of the input data to be processed.
- * @param[in] output_len  Required length of the output.
+ * @param[in]  ctx         Previously initialized crypto context
+ * @param[in]  input_len   Length of the input data to be processed
+ * @param[out] output_len  Required length of the output
  *
- * @return negative on error or length of output.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ *                                      incorrect context, invalid input_len)
+ * @retval #YACA_ERROR_INTERNAL Internal error
  */
 int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len);
 
@@ -234,11 +252,13 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *outpu
  *
  * @since_tizen 3.0
  *
- * @param[in]  first  Pointer to the first buffer.
- * @param[in]  second Pointer to the second buffer.
- * @param[in]  len    Length to compare.
+ * @param[in]  first  Pointer to the first buffer
+ * @param[in]  second Pointer to the second buffer
+ * @param[in]  len    Length to compare
  *
- * @return YACA_ERROR_NONE when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
+ * @return #YACA_ERROR_NONE when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_DATA_MISMATCH Buffers are different
  */
 int yaca_memcmp(const void *first, const void *second, size_t len);
 
