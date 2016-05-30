@@ -17,7 +17,7 @@
  */
 
 /**
- * @file types.h
+ * @file yaca_types.h
  * @brief
  */
 
@@ -37,31 +37,33 @@ extern "C" {
  */
 
 /**
- * @brief Context
+ * @brief Context.
  *
  * @since_tizen 3.0
  */
 typedef struct yaca_ctx_s *yaca_ctx_h;
 
 /**
- * @brief Key
+ * @brief Key.
  *
  * @since_tizen 3.0
  */
 typedef struct yaca_key_s *yaca_key_h;
 
 /**
- * @brief Key formats
+ * @brief Key formats.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_KEY_FORMAT_DEFAULT,  /**< key is either PKCS#1 for RSA or SSLeay for DSA, also use this option for symmetric */
-	YACA_KEY_FORMAT_PKCS8     /**< key is in PKCS#8, can only be used for asymmetric private keys */
+	/** Key is either PKCS#1 for RSA or SSLeay for DSA, also use this option for symmetric */
+	YACA_KEY_FORMAT_DEFAULT,
+	/** Key is in PKCS#8, can only be used for asymmetric private keys */
+	YACA_KEY_FORMAT_PKCS8
 } yaca_key_fmt_e;
 
 /**
- * @brief Key file formats
+ * @brief Key file formats.
  *
  * @since_tizen 3.0
  */
@@ -73,7 +75,7 @@ typedef enum {
 } yaca_key_file_fmt_e;
 
 /**
- * @brief Key types, IV is considered as key
+ * @brief Key types, IV is considered as key.
  *
  * @since_tizen 3.0
  */
@@ -96,7 +98,9 @@ typedef enum {
 } yaca_key_type_e;
 
 /**
- * @brief Key length, It is possible to use arbitrary integer instead, this enums are placed here to avoid magic numbers.
+ * @brief Key length.
+ *        It is possible to use arbitrary integer instead,
+ *        this enums are placed here to avoid magic numbers.
  *
  * @since_tizen 3.0
  */
@@ -137,7 +141,7 @@ typedef enum {
 } yaca_digest_algo_e;
 
 /**
- * @brief Symmetric encryption algorithms
+ * @brief Symmetric encryption algorithms.
  *
  * @since_tizen 3.0
  */
@@ -154,7 +158,7 @@ typedef enum {
 	 * #YACA_BCM_ECB,
 	 * #YACA_BCM_GCM,
 	 * #YACA_BCM_CCM,
-	 * #YACA_BCM_CTR,
+	 * #YACA_BCM_CTR
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
 	YACA_ENC_AES = 0,
@@ -238,7 +242,7 @@ typedef enum {
 } yaca_enc_algo_e;
 
 /**
- * @brief Chaining modes for block ciphers
+ * @brief Chaining modes for block ciphers.
  *
  * @since_tizen 3.0
  */
@@ -351,24 +355,24 @@ typedef enum {
 
 
 /**
- * @brief Non-standard parameters for algorithms
+ * @brief Non-standard parameters for algorithms.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_PARAM_PADDING,                /**< Padding */
+	YACA_PARAM_PADDING,      /**< Padding */
 
-	YACA_PARAM_GCM_AAD,                /**< GCM Additional Authentication Data */
-	YACA_PARAM_GCM_TAG,                /**< GCM Tag bits */
-	YACA_PARAM_GCM_TAG_LEN,            /**< GCM Tag length */
+	YACA_PARAM_GCM_AAD,      /**< GCM Additional Authentication Data */
+	YACA_PARAM_GCM_TAG,      /**< GCM Tag bits */
+	YACA_PARAM_GCM_TAG_LEN,  /**< GCM Tag length */
 
-	YACA_PARAM_CCM_AAD,                /**< CCM Additional Authentication Data */
-	YACA_PARAM_CCM_TAG,                /**< CCM Tag bits */
-	YACA_PARAM_CCM_TAG_LEN,            /**< CCM Tag length */
+	YACA_PARAM_CCM_AAD,      /**< CCM Additional Authentication Data */
+	YACA_PARAM_CCM_TAG,      /**< CCM Tag bits */
+	YACA_PARAM_CCM_TAG_LEN,  /**< CCM Tag length */
 } yaca_ex_param_e;
 
 /**
- * @brief Paddings supported by Yet Another Crypto API
+ * @brief Paddings supported by Yet Another Crypto API.
  *
  * @since_tizen 3.0
  */
