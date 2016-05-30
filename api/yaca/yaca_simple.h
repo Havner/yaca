@@ -17,7 +17,7 @@
  */
 
 /**
- * @file simple.h
+ * @file yaca_simple.h
  * @brief
  */
 
@@ -34,13 +34,13 @@ extern "C" {
 /**
  * @defgroup  Simple-API  Simple API.
  *
- *  This is simple API.
- *  Design constraints:
- *  - All operations are single-shot (no streaming possible)
- *  - Context is not used
- *  - For now only digest and symmetric ciphers are supported
- *  - GCM and CCM chaining is not supported
- *  - All outputs are allocated by the library
+ *  @remarks This is simple API.
+ *           Design constraints:
+ *           - All operations are single-shot (no streaming possible)
+ *           - Context is not used
+ *           - For now only digest and symmetric ciphers are supported
+ *           - GCM and CCM chaining is not supported
+ *           - All outputs are allocated by the library
  *
  * TODO: extended description and examples.
  *
@@ -52,14 +52,19 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure).
- * @param[in]  data        Data from which the digest is to be calculated.
- * @param[in]  data_len    Length of the data.
+ * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure)
+ * @param[in]  data        Data from which the digest is to be calculated
+ * @param[in]  data_len    Length of the data
  * @param[out] digest      Message digest, will be allocated by the library
- *                         (should be freed with yaca_free()).
- * @param[out] digest_len  Length of message digest (depends on algorithm).
+ *                         (should be freed with yaca_free())
+ * @param[out] digest_len  Length of message digest (depends on algorithm)
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
+ *                                      incorrect algo)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_digest_algo_e
  */
@@ -74,17 +79,22 @@ int yaca_digest_calc(yaca_digest_algo_e algo,
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo        Encryption algorithm (select #YACA_ENC_AES if unsure).
- * @param[in]  bcm         Chaining mode (select #YACA_BCM_CBC if unsure).
- * @param[in]  sym_key     Symmetric encryption key (see key.h for key generation functions).
- * @param[in]  iv          Initialization vector.
- * @param[in]  plain       Plain text to be encrypted.
- * @param[in]  plain_len   Length of the plain text.
+ * @param[in]  algo        Encryption algorithm (select #YACA_ENC_AES if unsure)
+ * @param[in]  bcm         Chaining mode (select #YACA_BCM_CBC if unsure)
+ * @param[in]  sym_key     Symmetric encryption key (see key.h for key generation functions)
+ * @param[in]  iv          Initialization vector
+ * @param[in]  plain       Plain text to be encrypted
+ * @param[in]  plain_len   Length of the plain text
  * @param[out] cipher      Encrypted data, will be allocated by the library
- *                         (should be freed with yaca_free()).
- * @param[out] cipher_len  Length of the encrypted data (may be larger than decrypted).
+ *                         (should be freed with yaca_free())
+ * @param[out] cipher_len  Length of the encrypted data (may be larger than decrypted)
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
+ *                                      incorrect algo, bcm, invalid sym_key, iv)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_enc_algo_e
  * @see #yaca_block_cipher_mode_e
@@ -104,17 +114,22 @@ int yaca_encrypt(yaca_enc_algo_e algo,
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo        Decryption algorithm that was used to encrypt the data.
- * @param[in]  bcm         Chaining mode that was used to encrypt the data.
- * @param[in]  sym_key     Symmetric encryption key that was used to encrypt the data.
- * @param[in]  iv          Initialization vector that was used to encrypt the data.
- * @param[in]  cipher      Cipher text to be decrypted.
- * @param[in]  cipher_len  Length of cipher text.
+ * @param[in]  algo        Decryption algorithm that was used to encrypt the data
+ * @param[in]  bcm         Chaining mode that was used to encrypt the data
+ * @param[in]  sym_key     Symmetric encryption key that was used to encrypt the data
+ * @param[in]  iv          Initialization vector that was used to encrypt the data
+ * @param[in]  cipher      Cipher text to be decrypted
+ * @param[in]  cipher_len  Length of cipher text
  * @param[out] plain       Decrypted data, will be allocated by the library
- *                         (should be freed with yaca_free()).
- * @param[out] plain_len   Length of the decrypted data.
+ *                         (should be freed with yaca_free())
+ * @param[out] plain_len   Length of the decrypted data
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
+ *                                      incorrect algo, bcm, invalid sym_key, iv)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_enc_algo_e
  * @see #yaca_block_cipher_mode_e
@@ -134,19 +149,24 @@ int yaca_decrypt(yaca_enc_algo_e algo,
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo           Digest algorithm that will be used.
- * @param[in]  key            Private key that will be used. Algorithm is
- *                            deduced based on key type. Supported key types:
+ * @param[in]  algo           Digest algorithm that will be used
+ * @param[in]  key            Private key that will be used, algorithm is
+ *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PRIV,
  *                            - #YACA_KEY_TYPE_DSA_PRIV,
- *                            - #YACA_KEY_TYPE_EC_PRIV.
- * @param[in]  data           Data to be signed.
- * @param[in]  data_len       Length of the data.
- * @param[out] signature      Message signature. Will be allocated by the
- *                            library. Should be freed with yaca_free().
- * @param[out] signature_len  Length of the signature.
+ *                            - #YACA_KEY_TYPE_EC_PRIV
+ * @param[in]  data           Data to be signed
+ * @param[in]  data_len       Length of the data
+ * @param[out] signature      Message signature, will be allocated by the
+ *                            library (should be freed with yaca_free())
+ * @param[out] signature_len  Length of the signature
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
+ *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
  * @see #yaca_digest_algo_e
@@ -164,19 +184,24 @@ int yaca_sign(yaca_digest_algo_e algo,
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo           Digest algorithm that will be used.
- * @param[in]  key            Public key that will be used. Algorithm is
- *                            deduced based on key type. Supported key types:
+ * @param[in]  algo           Digest algorithm that will be used
+ * @param[in]  key            Public key that will be used, algorithm is
+ *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PUB,
  *                            - #YACA_KEY_TYPE_DSA_PUB,
- *                            - #YACA_KEY_TYPE_EC_PUB.
- * @param[in]  data           Signed data.
- * @param[in]  data_len       Length of the data.
- * @param[in]  signature      Message signature.
- * @param[in]  signature_len  Length of the signature.
+ *                            - #YACA_KEY_TYPE_EC_PUB
+ * @param[in]  data           Signed data
+ * @param[in]  data_len       Length of the data
+ * @param[in]  signature      Message signature
+ * @param[in]  signature_len  Length of the signature
  *
- * @return YACA_ERROR_NONE on success, YACA_ERROR_SIGNATURE_INVALID if verification fails,
- *         negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
+ *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ * @retval #YACA_ERROR_DATA_MISMATCH The verification failed
  *
  * @see #yaca_key_type_e
  * @see #yaca_digest_algo_e
@@ -197,17 +222,22 @@ int yaca_verify(yaca_digest_algo_e algo,
  * @remarks For verification, calculate message HMAC and compare with received MAC using
  *          yaca_memcmp().
  *
- * @param[in]  algo      Digest algorithm that will be used.
- * @param[in]  key       Key that will be used. Supported key types:
+ * @param[in]  algo      Digest algorithm that will be used
+ * @param[in]  key       Key that will be used, supported key types:
  *                       - #YACA_KEY_TYPE_SYMMETRIC,
- *                       - #YACA_KEY_TYPE_DES.
- * @param[in]  data      Data to calculate HMAC from.
- * @param[in]  data_len  Length of the data.
- * @param[out] mac       MAC. Will be allocated by the library. Should be freed
- *                       with yaca_free().
- * @param[out] mac_len   Length of the MAC.
+ *                       - #YACA_KEY_TYPE_DES
+ * @param[in]  data      Data to calculate HMAC from
+ * @param[in]  data_len  Length of the data
+ * @param[out] mac       MAC, will be allocated by the library
+ *                       (should be freed with yaca_free())
+ * @param[out] mac_len   Length of the MAC
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
+ *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
  * @see #yaca_digest_algo_e
@@ -228,17 +258,22 @@ int yaca_hmac(yaca_digest_algo_e algo,
  * @remarks For verification, calculate message CMAC and compare with received MAC using
  *          yaca_memcmp().
  *
- * @param[in]  algo      Encryption algorithm that will be used.
- * @param[in]  key       Key that will be used. Supported key types:
+ * @param[in]  algo      Encryption algorithm that will be used
+ * @param[in]  key       Key that will be used, supported key types:
  *                       - #YACA_KEY_TYPE_SYMMETRIC,
- *                       - #YACA_KEY_TYPE_DES.
- * @param[in]  data      Data to calculate CMAC from.
- * @param[in]  data_len  Length of the data.
- * @param[out] mac       MAC. Will be allocated by the library. Should be freed
- *                       with yaca_free().
- * @param[out] mac_len   Length of the MAC.
+ *                       - #YACA_KEY_TYPE_DES
+ * @param[in]  data      Data to calculate CMAC from
+ * @param[in]  data_len  Length of the data
+ * @param[out] mac       MAC, will be allocated by the library
+ *                       (should be freed with yaca_free())
+ * @param[out] mac_len   Length of the MAC
  *
- * @return YACA_ERROR_NONE on success, negative on error.
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
+ *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
  * @see #yaca_enc_algo_e
