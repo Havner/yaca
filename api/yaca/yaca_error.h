@@ -17,7 +17,7 @@
  */
 
 /**
- * @file error.h
+ * @file yaca_error.h
  * @brief
  */
 
@@ -45,12 +45,18 @@ extern "C" {
  * @since_tizen 3.0
  */
 typedef enum {
+	/** Successful */
 	YACA_ERROR_NONE               = TIZEN_ERROR_NONE,
+	/** Invalid function parameter */
 	YACA_ERROR_INVALID_ARGUMENT   = TIZEN_ERROR_INVALID_PARAMETER,
+	/** Out of memory */
 	YACA_ERROR_OUT_OF_MEMORY      = TIZEN_ERROR_OUT_OF_MEMORY,
 
+	/** Internal error */
 	YACA_ERROR_INTERNAL           = TIZEN_ERROR_YACA | 0x01,
+	/** Data mismatch */
 	YACA_ERROR_DATA_MISMATCH      = TIZEN_ERROR_YACA | 0x02,
+	/** Invalid password */
 	YACA_ERROR_PASSWORD_INVALID   = TIZEN_ERROR_YACA | 0x03
 } yaca_error_e;
 
