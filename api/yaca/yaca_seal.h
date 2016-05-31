@@ -60,7 +60,7 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect algo, bcm, sym_key_bits, invalid prv_key)
+ *                                      incorrect algo, bcm, sym_key_bits, invalid pub_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *

@@ -151,7 +151,6 @@ int yaca_sign_cmac_init(yaca_ctx_h *ctx,
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect context)
- * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_sign_init()
@@ -178,7 +177,6 @@ int yaca_sign_update(yaca_ctx_h ctx,
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context)
- * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_sign_init()
@@ -232,7 +230,6 @@ int yaca_verify_init(yaca_ctx_h *ctx,
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect context)
- * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_verify_init()
@@ -255,7 +252,6 @@ int yaca_verify_update(yaca_ctx_h ctx,
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context)
- * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  * @retval #YACA_ERROR_DATA_MISMATCH The verification failed
  *
