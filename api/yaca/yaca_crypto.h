@@ -52,7 +52,7 @@ extern "C" {
  * @since_tizen 3.0
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -138,7 +138,7 @@ void yaca_free(void *ptr);
  * @param[in]     data_len  Length of the memory to be randomized
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
@@ -156,7 +156,7 @@ int yaca_rand_bytes(char *data, size_t data_len);
  * @param[in]     value_len  Length of the parameter value
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect context, invalid param)
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -181,7 +181,7 @@ int yaca_ctx_set_param(yaca_ctx_h ctx,
  * @param[out] value_len  Length of the parameter value will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context, invalid param)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -219,7 +219,7 @@ void yaca_ctx_free(yaca_ctx_h ctx);
  * @param[out] output_len  Required length of the output
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context, invalid input_len)
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -257,7 +257,7 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *outpu
  * @param[in]  len    Length to compare
  *
  * @return #YACA_ERROR_NONE when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_DATA_MISMATCH Buffers are different
  */
 int yaca_memcmp(const void *first, const void *second, size_t len);

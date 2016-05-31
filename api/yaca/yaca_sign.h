@@ -57,7 +57,7 @@ extern "C" {
  *                   - #YACA_KEY_TYPE_EC_PRIV
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -90,7 +90,7 @@ int yaca_sign_init(yaca_ctx_h *ctx,
  *                   - #YACA_KEY_TYPE_DES
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -121,7 +121,7 @@ int yaca_sign_hmac_init(yaca_ctx_h *ctx,
  *                   - #YACA_KEY_TYPE_DES
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -148,7 +148,7 @@ int yaca_sign_cmac_init(yaca_ctx_h *ctx,
  * @param[in]     data_len  Length of the data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect context)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -175,7 +175,7 @@ int yaca_sign_update(yaca_ctx_h ctx,
  *                                 actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -204,7 +204,7 @@ int yaca_sign_final(yaca_ctx_h ctx,
  *                   - #YACA_KEY_TYPE_EC_PUB
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -229,7 +229,7 @@ int yaca_verify_init(yaca_ctx_h *ctx,
  * @param[in]     data_len  Length of the data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect context)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -252,7 +252,7 @@ int yaca_verify_update(yaca_ctx_h ctx,
  * @param[in]     signature_len  Size of the signature
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error

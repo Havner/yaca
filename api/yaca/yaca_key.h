@@ -50,7 +50,7 @@ extern "C" {
  * @param[out] key_type  Key type
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Either of the params is NULL
  */
 int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
@@ -64,7 +64,7 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  * @param[out] key_bits  Key length in bits
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Either of the params is NULL
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
@@ -98,7 +98,7 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  * @param[out] key       Returned key (must be freed with yaca_key_free())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect key_type or data_len too big)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -149,7 +149,7 @@ int yaca_key_import(yaca_key_type_e key_type,
  * @param[out] data_len      Size of the output data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect key formats or data_len too big)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -179,7 +179,7 @@ int yaca_key_export(const yaca_key_h key,
  * @param[out] key       Newly generated key (must be freed with yaca_key_free())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT key is NULL, incorrect key_type or
  *                                      key_bits is not dividable by 8
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -202,7 +202,7 @@ int yaca_key_gen(yaca_key_type_e key_type,
  * @param[out] pub_key   Extracted public key (must be freed with yaca_key_free())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT prv_key is of incorrect type or pub_key is NULL
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -250,7 +250,7 @@ void yaca_key_free(yaca_key_h key);
  * @param[out] key       Newly generated key (must be freed with yaca_key_free())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect algo or key_bits not dividable by 8)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error

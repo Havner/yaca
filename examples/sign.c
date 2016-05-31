@@ -69,7 +69,7 @@ void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
 	                signature_len) != YACA_ERROR_NONE)
 		printf("[Simple API] %s verification failed\n", algo);
 	else
-		printf("[Simple API] %s verification succesful\n", algo);
+		printf("[Simple API] %s verification successful\n", algo);
 
 finish:
 	yaca_free(signature);
@@ -112,7 +112,7 @@ void simple_sign_verify_hmac(void)
 	if (yaca_memcmp(signature1, signature2, signature_len) != YACA_ERROR_NONE)
 		printf("[Simple API] HMAC verification failed\n");
 	else
-		printf("[Simple API] HMAC verification succesful\n");
+		printf("[Simple API] HMAC verification successful\n");
 
 finish:
 	yaca_free(signature1);
@@ -156,7 +156,7 @@ void simple_sign_verify_cmac(void)
 	if (yaca_memcmp(signature1, signature2, signature_len) != YACA_ERROR_NONE)
 		printf("[Simple API] CMAC verification failed\n");
 	else
-		printf("[Simple API] CMAC verification succesful\n");
+		printf("[Simple API] CMAC verification successful\n");
 
 finish:
 	yaca_free(signature1);
@@ -220,7 +220,7 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	if (yaca_verify_final(ctx, signature, signature_len) != YACA_ERROR_NONE)
 		printf("[Advanced API] %s verification failed\n", algo);
 	else
-		printf("[Advanced API] %s verification succesful\n", algo);
+		printf("[Advanced API] %s verification successful\n", algo);
 
 finish:
 	yaca_free(signature);
@@ -283,7 +283,7 @@ void sign_verify_hmac(void)
 	if (yaca_memcmp(signature1, signature2, signature_len) != YACA_ERROR_NONE)
 		printf("[Advanced API] HMAC verification failed\n");
 	else
-		printf("[Advanced API] HMAC verification succesful\n");
+		printf("[Advanced API] HMAC verification successful\n");
 
 finish:
 	yaca_free(signature1);
@@ -346,7 +346,7 @@ void sign_verify_cmac(void)
 	if (yaca_memcmp(signature1, signature2, signature_len) != YACA_ERROR_NONE)
 		printf("[Advanced API] CMAC verification failed\n");
 	else
-		printf("[Advanced API] CMAC verification succesful\n");
+		printf("[Advanced API] CMAC verification successful\n");
 
 finish:
 	yaca_free(signature1);

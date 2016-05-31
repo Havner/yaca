@@ -51,7 +51,7 @@ extern "C" {
  * @param[in]  iv       Initialization vector that will be used
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect algo, bcm, invalid sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -82,7 +82,7 @@ int yaca_encrypt_init(yaca_ctx_h *ctx,
  *                            actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect context)
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -108,7 +108,7 @@ int yaca_encrypt_update(yaca_ctx_h ctx,
  *                            actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context)
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -132,7 +132,7 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
  * @param[in]  iv       Initialization vector that was used to encrypt the data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect algo, bcm, invalid sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -163,7 +163,7 @@ int yaca_decrypt_init(yaca_ctx_h *ctx,
  *                            actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
  *                                      incorrect context)
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -189,7 +189,7 @@ int yaca_decrypt_update(yaca_ctx_h ctx,
  *                           actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      incorrect context)
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -215,7 +215,7 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
  * @param[out] iv_bits   Recommended IV length in bits
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
  *                                      invalid algo, bcm or key_bits)
  * @retval #YACA_ERROR_INTERNAL Internal error

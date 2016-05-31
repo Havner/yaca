@@ -60,7 +60,7 @@ extern "C" {
  * @param[out] digest_len  Length of message digest (depends on algorithm)
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
  *                                      incorrect algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -90,7 +90,7 @@ int yaca_digest_calc(yaca_digest_algo_e algo,
  * @param[out] cipher_len  Length of the encrypted data (may be larger than decrypted)
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
  *                                      incorrect algo, bcm, invalid sym_key, iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -125,7 +125,7 @@ int yaca_encrypt(yaca_enc_algo_e algo,
  * @param[out] plain_len   Length of the decrypted data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
  *                                      incorrect algo, bcm, invalid sym_key, iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -162,7 +162,7 @@ int yaca_decrypt(yaca_enc_algo_e algo,
  * @param[out] signature_len  Length of the signature
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -196,7 +196,7 @@ int yaca_sign(yaca_digest_algo_e algo,
  * @param[in]  signature_len  Length of the signature
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -233,7 +233,7 @@ int yaca_verify(yaca_digest_algo_e algo,
  * @param[out] mac_len   Length of the MAC
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
@@ -269,7 +269,7 @@ int yaca_hmac(yaca_digest_algo_e algo,
  * @param[out] mac_len   Length of the MAC
  *
  * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Succesful
+ * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
  *                                      incorrect algo, invalid key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
