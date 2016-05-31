@@ -174,6 +174,10 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @remarks This function is used to generate symmetric and private asymmetric keys.
  *
+ *          Supported key lengths:
+ *          - RSA: length >= 256bits
+ *          - DSA: length >= 512bits, multiple of 64
+ *
  * @param[in]  key_type  Type of the key to be generated
  * @param[in]  key_bits  Length of the key (in bits) to be generated
  * @param[out] key       Newly generated key (must be freed with yaca_key_free())

@@ -135,6 +135,10 @@ int error_handle(const char *file, int line, const char *function)
 	/* known errors */
 	} else {
 		switch (err) {
+		case ERR_PACK(ERR_LIB_RSA, RSA_F_PKEY_RSA_CTRL, RSA_R_INVALID_KEYBITS):
+		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_COMMAND_NOT_SUPPORTED):
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			break;
 		case ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT):
 		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT):
 			ret = YACA_ERROR_PASSWORD_INVALID;

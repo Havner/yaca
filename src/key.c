@@ -32,7 +32,6 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/des.h>
-#include <openssl/err.h>
 
 #include <yaca_crypto.h>
 #include <yaca_error.h>
@@ -203,7 +202,8 @@ int import_simple(yaca_key_h *key,
 		return ret;
 	}
 
-	if (key_data_len > SIZE_MAX - sizeof(struct yaca_key_simple_s)) {
+	/* key_bits has to fit in size_t */
+	if (key_data_len > SIZE_MAX / 8) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
 		goto out;
 	}
@@ -718,9 +718,6 @@ int gen_simple(struct yaca_key_simple_s **out, size_t key_bits)
 	struct yaca_key_simple_s *nk;
 	size_t key_byte_len = key_bits / 8;
 
-	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
-		return YACA_ERROR_INVALID_ARGUMENT;
-
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
@@ -747,9 +744,6 @@ int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
 	int ret;
 	struct yaca_key_simple_s *nk;
 	size_t key_byte_len = key_bits / 8;
-
-	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
-		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
 	if (nk == NULL)
@@ -815,8 +809,7 @@ int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
 
 	ret = EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bits);
 	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto free_ctx;
 	}
 
@@ -847,6 +840,11 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 	assert(key_bits > 0);
 	assert(key_bits % 8 == 0);
 
+	/* Openssl generates 512-bit key for key lengths smaller than 512. It also
+	 * rounds key size to multiplication of 64. */
+	if(key_bits < 512 || key_bits % 64 != 0)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
 	int ret;
 	struct yaca_key_evp_s *nk;
 	EVP_PKEY_CTX *pctx;
@@ -874,8 +872,7 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 
 	ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bits);
 	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto free_pctx;
 	}
 
@@ -1234,9 +1231,6 @@ API int yaca_key_derive_pbkdf2(const char *password,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	if (key_bits % 8) /* Key length must be multiple of 8-bits */
-		return YACA_ERROR_INVALID_ARGUMENT;
-
-	if (key_byte_len > SIZE_MAX - sizeof(struct yaca_key_simple_s))
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = digest_get_algorithm(algo, &md);
