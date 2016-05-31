@@ -480,29 +480,17 @@ free_bio:
 	return ret;
 }
 
-int export_evp(struct yaca_key_evp_s *evp_key,
-               yaca_key_file_fmt_e key_file_fmt,
-               const char *password,
-               char **data,
-               size_t *data_len)
+int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
+                           yaca_key_file_fmt_e key_file_fmt,
+                           const char *password,
+                           BIO *mem)
 {
 	assert(evp_key != NULL);
 	assert(password == NULL || password[0] != '\0');
-	assert(data != NULL);
-	assert(data_len != NULL);
+	assert(mem != NULL);
 
-	int ret = YACA_ERROR_NONE;
-	BIO *mem;
+	int ret;
 	const EVP_CIPHER *enc = NULL;
-	char *bio_data;
-	long bio_data_len;
-
-	mem = BIO_new(BIO_s_mem());
-	if (mem == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
 
 	if (password != NULL)
 		enc = EVP_aes_256_cbc();
@@ -531,9 +519,8 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_EC_PRIV:
 		case YACA_KEY_TYPE_EC_PUB:
 			//TODO NOT_IMPLEMENTED
-			ret = YACA_ERROR_INVALID_ARGUMENT;
 		default:
-			goto free_bio;
+			return YACA_ERROR_INVALID_ARGUMENT;
 		}
 
 		break;
@@ -559,23 +546,130 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_EC_PRIV:
 		case YACA_KEY_TYPE_EC_PUB:
 			//TODO NOT_IMPLEMENTED
-			ret = YACA_ERROR_INVALID_ARGUMENT;
 		default:
-			goto free_bio;
+			return YACA_ERROR_INVALID_ARGUMENT;
 		}
 
 		break;
 
 	default:
-		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free_bio;
+		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		return ret;
 	}
+
+	return YACA_ERROR_NONE;
+}
+
+int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
+                         yaca_key_file_fmt_e key_file_fmt,
+                         const char *password,
+                         BIO *mem)
+{
+	assert(evp_key != NULL);
+	assert(password == NULL || password[0] != '\0');
+	assert(mem != NULL);
+
+	int ret;
+	int nid = -1;
+
+	if (password != NULL)
+		nid = NID_pbeWithMD5AndDES_CBC;
+
+	switch (key_file_fmt) {
+
+	case YACA_KEY_FILE_FORMAT_PEM:
+		switch (evp_key->key.type) {
+
+		case YACA_KEY_TYPE_RSA_PRIV:
+		case YACA_KEY_TYPE_DSA_PRIV:
+			ret = PEM_write_bio_PKCS8PrivateKey_nid(mem, evp_key->evp, nid,
+			                                        NULL, 0, NULL, (void*)password);
+			break;
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
+			//TODO NOT_IMPLEMENTED ?
+		default:
+			/* Public keys are not supported by PKCS8 */
+			return YACA_ERROR_INVALID_ARGUMENT;
+		}
+
+		break;
+
+	case YACA_KEY_FILE_FORMAT_DER:
+		switch (evp_key->key.type) {
+
+		case YACA_KEY_TYPE_RSA_PRIV:
+		case YACA_KEY_TYPE_DSA_PRIV:
+			ret = i2d_PKCS8PrivateKey_nid_bio(mem, evp_key->evp, nid,
+			                                  NULL, 0, NULL, (void*)password);
+			break;
+
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
+			//TODO NOT_IMPLEMENTED ?
+		default:
+			/* Public keys are not supported by PKCS8 */
+			return YACA_ERROR_INVALID_ARGUMENT;
+		}
+
+		break;
+
+	default:
+		return YACA_ERROR_INVALID_ARGUMENT;
+	}
+
+	if (ret <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	return YACA_ERROR_NONE;
+}
+
+int export_evp(struct yaca_key_evp_s *evp_key,
+               yaca_key_fmt_e key_fmt,
+               yaca_key_file_fmt_e key_file_fmt,
+               const char *password,
+               char **data,
+               size_t *data_len)
+{
+	assert(evp_key != NULL);
+	assert(password == NULL || password[0] != '\0');
+	assert(data != NULL);
+	assert(data_len != NULL);
+
+	int ret = YACA_ERROR_NONE;
+	BIO *mem;
+	char *bio_data;
+	long bio_data_len;
+
+	mem = BIO_new(BIO_s_mem());
+	if (mem == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	switch (key_fmt) {
+	case YACA_KEY_FORMAT_DEFAULT:
+		ret = export_evp_default_bio(evp_key, key_file_fmt, password, mem);
+		break;
+	case YACA_KEY_FORMAT_PKCS8:
+		ret = export_evp_pkcs8_bio(evp_key, key_file_fmt, password, mem);
+		break;
+	default:
+		ret = YACA_ERROR_INVALID_ARGUMENT;
+		break;
+	}
+
+	if (ret != YACA_ERROR_NONE)
+		goto free_bio;
 
 	ret = BIO_flush(mem);
 	if (ret <= 0) {
@@ -976,14 +1070,9 @@ API int yaca_key_export(const yaca_key_h key,
 	    simple_key != NULL)
 		return export_simple_base64(simple_key, data, data_len);
 
-	if (key_fmt == YACA_KEY_FORMAT_DEFAULT &&
-	    evp_key != NULL)
-		return export_evp(evp_key, key_file_fmt, password, data, data_len);
-
-	if (key_fmt == YACA_KEY_FORMAT_PKCS8) {
-		//TODO NOT_IMPLEMENTED
-		return YACA_ERROR_INVALID_ARGUMENT;
-	}
+	if (evp_key != NULL)
+		return export_evp(evp_key, key_fmt, key_file_fmt,
+		                  password, data, data_len);
 
 	return YACA_ERROR_INVALID_ARGUMENT;
 }
