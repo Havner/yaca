@@ -26,6 +26,8 @@
 
 #include <openssl/err.h>
 
+#include <yaca_error.h>
+
 #include "internal.h"
 #include "debug.h"
 
@@ -36,6 +38,26 @@ static bool error_strings_loaded = false;
 API void yaca_debug_set_error_cb(yaca_error_cb fn)
 {
 	error_cb = fn;
+}
+
+char *error_translate(yaca_error_e err)
+{
+	switch (err) {
+	case YACA_ERROR_NONE:
+		return "YACA_ERROR_NONE";
+	case YACA_ERROR_INVALID_ARGUMENT:
+		return "YACA_ERROR_INVALID_ARGUMENT";
+	case YACA_ERROR_OUT_OF_MEMORY:
+		return "YACA_ERROR_OUT_OF_MEMORY";
+	case YACA_ERROR_INTERNAL:
+		return "YACA_ERROR_INTERNAL";
+	case YACA_ERROR_DATA_MISMATCH:
+		return "YACA_ERROR_DATA_MISMATCH";
+	case YACA_ERROR_PASSWORD_INVALID:
+		return "YACA_ERROR_PASSWORD_INVALID";
+	default:
+		return NULL;
+	}
 }
 
 // TODO use peeking function to intercept common errors
@@ -54,8 +76,13 @@ void error_dump(const char *file, int line, const char *function, int code)
 	char buf[BUF_SIZE];
 	unsigned long err;
 	size_t written;
+	const char *err_str = error_translate(code);
 
-	written = snprintf(buf, BUF_SIZE, "%s:%d %s() API error: %d\n", file, line, function, code);
+	written = snprintf(buf, BUF_SIZE, "%s:%d %s() API error: ", file, line, function);
+	if (err_str != NULL)
+		written += snprintf(buf + written, BUF_SIZE - written, "%s\n", err_str);
+	else
+		written += snprintf(buf + written, BUF_SIZE - written, "0x%X\n", code);
 
 	while ((err = ERR_get_error()) != 0 && written < BUF_SIZE - 1) {
 		if (!error_strings_loaded) {
