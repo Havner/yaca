@@ -31,8 +31,7 @@
 
 #include "internal.h"
 
-struct yaca_digest_ctx_s
-{
+struct yaca_digest_ctx_s {
 	struct yaca_ctx_s ctx;
 
 	EVP_MD_CTX *mdctx;
@@ -43,8 +42,7 @@ static struct yaca_digest_ctx_s *get_digest_ctx(const yaca_ctx_h ctx)
 	if (ctx == YACA_CTX_NULL)
 		return NULL;
 
-	switch (ctx->type)
-	{
+	switch (ctx->type) {
 	case YACA_CTX_DIGEST:
 		return (struct yaca_digest_ctx_s *)ctx;
 	default:
@@ -83,8 +81,7 @@ int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md)
 
 	*md = NULL;
 
-	switch (algo)
-	{
+	switch (algo) {
 	case YACA_DIGEST_MD5:
 		*md = EVP_md5();
 		break;

@@ -31,10 +31,9 @@
 
 #include <yaca_types.h>
 
-#define API __attribute__ ((visibility ("default")))
+#define API __attribute__ ((visibility("default")))
 
-enum yaca_ctx_type_e
-{
+enum yaca_ctx_type_e {
 	YACA_CTX_INVALID = 0,
 	YACA_CTX_DIGEST,
 	YACA_CTX_SIGN,
@@ -43,8 +42,7 @@ enum yaca_ctx_type_e
 };
 
 /* Base structure for crypto contexts - to be inherited */
-struct yaca_ctx_s
-{
+struct yaca_ctx_s {
 	enum yaca_ctx_type_e type;
 
 	void (*ctx_destroy)(const yaca_ctx_h ctx);
@@ -57,8 +55,7 @@ struct yaca_ctx_s
 
 
 /* Base structure for crypto keys - to be inherited */
-struct yaca_key_s
-{
+struct yaca_key_s {
 	yaca_key_type_e type;
 };
 
@@ -68,8 +65,7 @@ struct yaca_key_s
  * - YACA_KEY_TYPE_DES
  * - YACA_KEY_TYPE_IV
  */
-struct yaca_key_simple_s
-{
+struct yaca_key_simple_s {
 	struct yaca_key_s key;
 
 	size_t bits;
@@ -88,8 +84,7 @@ struct yaca_key_simple_s
  * - YACA_KEY_TYPE_EC_PRIV
  *
  */
-struct yaca_key_evp_s
-{
+struct yaca_key_evp_s {
 	struct yaca_key_s key;
 
 	EVP_PKEY *evp;

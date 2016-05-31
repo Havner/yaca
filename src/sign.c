@@ -43,8 +43,7 @@ enum sign_op_type {
 	OP_VERIFY = 1
 };
 
-struct yaca_sign_ctx_s
-{
+struct yaca_sign_ctx_s {
 	struct yaca_ctx_s ctx;
 
 	EVP_MD_CTX *mdctx;
@@ -56,8 +55,7 @@ static struct yaca_sign_ctx_s *get_sign_ctx(const yaca_ctx_h ctx)
 	if (ctx == YACA_CTX_NULL)
 		return NULL;
 
-	switch (ctx->type)
-	{
+	switch (ctx->type) {
 	case YACA_CTX_SIGN:
 		return (struct yaca_sign_ctx_s *)ctx;
 	default:
@@ -209,7 +207,7 @@ int get_sign_param(const yaca_ctx_h ctx,
 		return ret;
 	}
 
-	switch(pad) {
+	switch (pad) {
 	case RSA_X931_PADDING:
 		padding = YACA_PADDING_X931;
 		break;
@@ -247,21 +245,20 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	switch (key->type)
-	{
+	switch (key->type) {
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PRIV:
 		break;
 	case YACA_KEY_TYPE_EC_PRIV:
 		//TODO NOT_IMPLEMENTED
+		return YACA_ERROR_INVALID_ARGUMENT;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
 	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL) {
+	if (nc == NULL)
 		return  YACA_ERROR_OUT_OF_MEMORY;
-	}
 
 	nc->op_type = OP_SIGN;
 	nc->ctx.type = YACA_CTX_SIGN;
@@ -313,9 +310,8 @@ API int yaca_sign_hmac_init(yaca_ctx_h *ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL) {
+	if (nc == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
-	}
 
 	nc->op_type = OP_SIGN;
 	nc->ctx.type = YACA_CTX_SIGN;
@@ -377,9 +373,8 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL) {
+	if (nc == NULL)
 		return YACA_ERROR_OUT_OF_MEMORY;
-	}
 
 	nc->op_type = OP_SIGN;
 	nc->ctx.type = YACA_CTX_SIGN;
@@ -387,9 +382,8 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 	nc->ctx.get_output_length = get_sign_output_length;
 
 	ret = encrypt_get_algorithm(algo, YACA_BCM_CBC, simple_key->bits, &cipher);
-	if (ret != YACA_ERROR_NONE) {
+	if (ret != YACA_ERROR_NONE)
 		goto free_ctx;
-	}
 
 	// create and initialize low level CMAC context
 	cmac_ctx = CMAC_CTX_new();
@@ -481,7 +475,7 @@ API int yaca_sign_final(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 
 	ret = EVP_DigestSignFinal(c->mdctx, (unsigned char *)signature, signature_len);
-	if(ret != 1) {
+	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
@@ -502,13 +496,13 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	switch (key->type)
-	{
+	switch (key->type) {
 	case YACA_KEY_TYPE_RSA_PUB:
 	case YACA_KEY_TYPE_DSA_PUB:
 		break;
 	case YACA_KEY_TYPE_EC_PUB:
 		//TODO NOT_IMPLEMENTED
+		return YACA_ERROR_INVALID_ARGUMENT;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}

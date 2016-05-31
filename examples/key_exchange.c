@@ -57,7 +57,7 @@ void key_exchange_dh(void)
 	fp = fopen("key.pub", "r");
 	if (!fp) goto clean;
 
-	fseek(fp ,0L ,SEEK_END);
+	fseek(fp, 0L, SEEK_END);
 	size = ftell(fp);
 	rewind(fp);
 
@@ -117,7 +117,7 @@ void key_exchange_ecdh(void)
 	if (fp == NULL)
 		goto clean;
 
-	fseek(fp ,0L ,SEEK_END);
+	fseek(fp, 0L, SEEK_END);
 	size = ftell(fp);
 	rewind(fp);
 

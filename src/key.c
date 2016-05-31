@@ -126,7 +126,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 	BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
 	/* Try to decode */
-	for(;;) {
+	for (;;) {
 		ret = BIO_read(b64, tmpbuf, TMP_BUF_LEN);
 		if (ret < 0) {
 			ret = YACA_ERROR_INTERNAL;
@@ -531,8 +531,8 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_EC_PRIV:
 		case YACA_KEY_TYPE_EC_PUB:
 			//TODO NOT_IMPLEMENTED
-		default:
 			ret = YACA_ERROR_INVALID_ARGUMENT;
+		default:
 			goto free_bio;
 		}
 
@@ -559,8 +559,8 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_EC_PRIV:
 		case YACA_KEY_TYPE_EC_PUB:
 			//TODO NOT_IMPLEMENTED
-		default:
 			ret = YACA_ERROR_INVALID_ARGUMENT;
+		default:
 			goto free_bio;
 		}
 
@@ -828,8 +828,7 @@ struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 	if (key == YACA_KEY_NULL)
 		return NULL;
 
-	switch (key->type)
-	{
+	switch (key->type) {
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_DES:
 	case YACA_KEY_TYPE_IV:
@@ -853,8 +852,7 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 	if (key == YACA_KEY_NULL)
 		return NULL;
 
-	switch (key->type)
-	{
+	switch (key->type) {
 	case YACA_KEY_TYPE_RSA_PUB:
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PUB:
@@ -942,6 +940,7 @@ API int yaca_key_import(yaca_key_type_e key_type,
 	case YACA_KEY_TYPE_EC_PUB:
 	case YACA_KEY_TYPE_EC_PRIV:
 		//TODO NOT_IMPLEMENTED
+		return YACA_ERROR_INVALID_ARGUMENT;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
@@ -983,6 +982,7 @@ API int yaca_key_export(const yaca_key_h key,
 
 	if (key_fmt == YACA_KEY_FORMAT_PKCS8) {
 		//TODO NOT_IMPLEMENTED
+		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
 	return YACA_ERROR_INVALID_ARGUMENT;
@@ -1001,8 +1001,7 @@ API int yaca_key_gen(yaca_key_type_e key_type,
 	if (key == NULL || key_bits == 0 || key_bits % 8 != 0)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	switch(key_type)
-	{
+	switch (key_type) {
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_IV:
 		ret = gen_simple(&nk_simple, key_bits);
@@ -1047,6 +1046,7 @@ API int yaca_key_gen(yaca_key_type_e key_type,
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_EC_PRIV:
 		//TODO NOT_IMPLEMENTED
+		return YACA_ERROR_INVALID_ARGUMENT;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
@@ -1094,8 +1094,7 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	nk->evp = pkey;
 	*pub_key = (yaca_key_h)nk;
 
-	switch(prv_key->type)
-	{
+	switch (prv_key->type) {
 	case YACA_KEY_TYPE_RSA_PRIV:
 		(*pub_key)->type = YACA_KEY_TYPE_RSA_PUB;
 		break;

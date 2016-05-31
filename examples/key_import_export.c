@@ -36,7 +36,7 @@ int key_import_export_sym(yaca_key_h sym)
 
 	char *raw = NULL;
 	size_t raw_len;
-	char *b64= NULL;
+	char *b64 = NULL;
 	size_t b64_len;
 
 	yaca_key_h raw_imported = YACA_KEY_NULL;

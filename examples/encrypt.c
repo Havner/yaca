@@ -196,14 +196,14 @@ int main()
 	size_t key_bits = YACA_KEY_256BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
-	encrypt_advanced(algo, bcm, key_type,key_bits);
+	encrypt_advanced(algo, bcm, key_type, key_bits);
 
 	algo = YACA_ENC_3DES_3TDEA;
 	bcm = YACA_BCM_OFB;
 	key_type = YACA_KEY_TYPE_DES;
 	key_bits = YACA_KEY_192BIT;
 
-	encrypt_advanced(algo, bcm, key_type,key_bits);
+	encrypt_advanced(algo, bcm, key_type, key_bits);
 
 	algo = YACA_ENC_CAST5;
 	bcm = YACA_BCM_CFB;
@@ -211,7 +211,7 @@ int main()
 	key_bits = YACA_KEY_UNSAFE_40BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
-	encrypt_advanced(algo, bcm, key_type,key_bits);
+	encrypt_advanced(algo, bcm, key_type, key_bits);
 
 	algo = YACA_ENC_UNSAFE_RC2;
 	bcm = YACA_BCM_CBC;
@@ -219,7 +219,7 @@ int main()
 	key_bits = YACA_KEY_UNSAFE_8BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
-	encrypt_advanced(algo, bcm, key_type,key_bits);
+	encrypt_advanced(algo, bcm, key_type, key_bits);
 
 	algo = YACA_ENC_UNSAFE_RC4;
 	bcm = YACA_BCM_NONE;
@@ -227,7 +227,7 @@ int main()
 	key_bits = YACA_KEY_2048BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
-	encrypt_advanced(algo, bcm, key_type,key_bits);
+	encrypt_advanced(algo, bcm, key_type, key_bits);
 
 	yaca_exit();
 

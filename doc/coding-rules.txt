@@ -44,6 +44,8 @@ Note: No single space allowed
 -Exception: Where the closing race is followed by a continuation of the same statement, else should follow close brace '}',
 while should follow close brace '}'
 
+[M06] [BRC_M_EUS] Open braces for enum, union and struct go on the same line.
+
 [R06] [BRC_R_SST] Do not unnecessarily use braces where a single statement will do.
 -Exception: if one branch of a conditional statement is a single statement, use braces in both branches.
 
@@ -89,15 +91,12 @@ Note: this is rule of thumb except for Public API. Public API has prefix (<libra
 - Line length
     - soft limit (can be broken if expression will be more readable) 80 chars,
     - hard limit 100 characters (should not be broken)
-- Enums, structs, unions etc. should use brackets in newline (like functions)
 - Typedefs should be used only where necessary (for example to make private implementations)
 - Function arguments should either fit one line, or each parameter should be placed in separate line
 
 --------------------------------------------------------------------------------
 3. Tizen rules that should NOT be followed
 --------------------------------------------------------------------------------
-[M06] [BRC_M_EUS] Open braces for enum, union and struct go on the same line.
-Note: They go in new line - the same way as for functions
 
 [R17] Local functions whose scope is limited to the current source file have "static" keyword and names started with "__".
 Note: static functions should not include "prefix" but can have arbitrary names (see R16).

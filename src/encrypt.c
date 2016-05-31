@@ -38,8 +38,7 @@ enum encrypt_op_type {
 	OP_DECRYPT = 1
 };
 
-struct yaca_encrypt_ctx_s
-{
+struct yaca_encrypt_ctx_s {
 	struct yaca_ctx_s ctx;
 
 	EVP_CIPHER_CTX *cipher_ctx;
@@ -52,8 +51,7 @@ static struct yaca_encrypt_ctx_s *get_encrypt_ctx(const yaca_ctx_h ctx)
 	if (ctx == YACA_CTX_NULL)
 		return NULL;
 
-	switch (ctx->type)
-	{
+	switch (ctx->type) {
 	case YACA_CTX_ENCRYPT:
 		return (struct yaca_encrypt_ctx_s *)ctx;
 	default:
@@ -111,8 +109,7 @@ static int set_encrypt_param(yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	assert(c->cipher_ctx != NULL);
 
-	switch(param)
-	{
+	switch (param) {
 	case YACA_PARAM_GCM_AAD:
 	case YACA_PARAM_CCM_AAD:
 		if (EVP_EncryptUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
@@ -167,8 +164,7 @@ static int get_encrypt_param(const yaca_ctx_h ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	assert(c->cipher_ctx != NULL);
 
-	switch(param)
-	{
+	switch (param) {
 	case YACA_PARAM_GCM_TAG:
 		if (c->tag_len == 0)
 			return YACA_ERROR_INVALID_ARGUMENT;
@@ -202,8 +198,7 @@ static int get_encrypt_param(const yaca_ctx_h ctx,
 
 static const char *encrypt_algo_to_str(yaca_enc_algo_e algo)
 {
-	switch(algo)
-	{
+	switch (algo) {
 	case YACA_ENC_AES:
 		return "aes";
 	case YACA_ENC_UNSAFE_DES:
@@ -266,8 +261,7 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 	    cipher == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	switch(algo)
-	{
+	switch (algo) {
 	case YACA_ENC_AES:
 		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s",
 		               algo_name, key_bits, bcm_name);
@@ -616,6 +610,6 @@ API int yaca_decrypt_final(yaca_ctx_h ctx,
 			   char *plain,
 			   size_t *plain_len)
 {
-	return encrypt_final(ctx,(unsigned char*)plain, plain_len,
+	return encrypt_final(ctx, (unsigned char*)plain, plain_len,
 			     OP_DECRYPT);
 }

@@ -127,7 +127,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto err_free;
 
-	assert (out_len <= lcipher_len);
+	assert(out_len <= lcipher_len);
 
 	written = out_len;
 	out_len = lcipher_len - written;
@@ -136,7 +136,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 		goto err_free;
 
 	written += out_len;
-	assert (written <= lcipher_len);
+	assert(written <= lcipher_len);
 
 	rcipher = yaca_realloc(lcipher, written);
 	if (rcipher == NULL) {

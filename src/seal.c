@@ -38,8 +38,7 @@ enum seal_op_type {
 	OP_OPEN = 1
 };
 
-struct yaca_seal_ctx_s
-{
+struct yaca_seal_ctx_s {
 	struct yaca_ctx_s ctx;
 
 	EVP_CIPHER_CTX *cipher_ctx;
@@ -51,8 +50,7 @@ static struct yaca_seal_ctx_s *get_seal_ctx(const yaca_ctx_h ctx)
 	if (ctx == YACA_CTX_NULL)
 		return NULL;
 
-	switch (ctx->type)
-	{
+	switch (ctx->type) {
 	case YACA_CTX_SEAL:
 		return (struct yaca_seal_ctx_s *)ctx;
 	default:

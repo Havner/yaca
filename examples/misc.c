@@ -87,7 +87,7 @@ int read_file(const char *path, char **data, size_t *data_len)
 	if (f == NULL)
 		return -1;
 
-	for(;;) {
+	for (;;) {
 		size_t read = fread(tmp, 1, BUF_SIZE, f);
 
 		if (read > 0) {
