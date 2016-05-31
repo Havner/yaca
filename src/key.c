@@ -239,7 +239,7 @@ out:
 
 bool check_import_wrong_pass()
 {
-	unsigned long err = ERR_peek_last_error();
+	unsigned long err = ERR_peek_error();
 	unsigned long err_bad_password_1 = ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT);
 	unsigned long err_bad_password_2 = ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT);
 
@@ -324,6 +324,15 @@ int import_evp(yaca_key_h *key,
 	}
 	/* Possible DER */
 	else {
+		if (pkey == NULL && !wrong_pass) {
+			BIO_reset(src);
+			pkey = d2i_PKCS8PrivateKey_bio(src, NULL, cb, (void*)password);
+			if (check_import_wrong_pass())
+				wrong_pass = true;
+			private = true;
+			ERROR_CLEAR();
+		}
+
 		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = d2i_PrivateKey_bio(src, NULL);
