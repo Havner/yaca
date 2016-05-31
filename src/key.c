@@ -1086,8 +1086,6 @@ API int yaca_key_export(const yaca_key_h key,
 	return YACA_ERROR_INVALID_ARGUMENT;
 }
 
-// TODO: this NEEDS random number generator initialized
-// there is some other TODO elsewhere about it
 API int yaca_key_gen(yaca_key_type_e key_type,
                      size_t key_bits,
                      yaca_key_h *key)

@@ -74,6 +74,21 @@ API int yaca_init(void)
 		return YACA_ERROR_INTERNAL; // TODO introduce new one?
 
 	OPENSSL_init();
+
+	/* This should never fail on a /dev/random equipped system. If it does it
+	 * means we might need to figure out another way of a truly random seed.
+	 * https://wiki.openssl.org/index.php/Random_Numbers
+	 *
+	 * Another things to maybe consider for the future:
+	 * - entropy on a mobile device (no mouse/keyboard)
+	 * - fork safety: https://wiki.openssl.org/index.php/Random_fork-safety
+	 * - hardware random generator (RdRand on new Intels, Samsung hardware?)
+	 */
+	if (RAND_status() != 1) {
+		ERROR_DUMP(YACA_ERROR_INTERNAL);
+		return YACA_ERROR_INTERNAL;
+	}
+
 	OpenSSL_add_all_digests();
 	OpenSSL_add_all_ciphers();
 
@@ -120,6 +135,7 @@ API void yaca_exit(void)
 	ERR_free_strings();
 	ERR_remove_thread_state(NULL);
 	EVP_cleanup();
+	RAND_cleanup();
 	CRYPTO_cleanup_all_ex_data();
 
 	/* threads support cleanup */
