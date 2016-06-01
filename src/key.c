@@ -783,6 +783,7 @@ free_nk:
 	return ret;
 }
 
+// TODO: consider merging gen_evp_*, they share awful lot of common code
 int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
 {
 	assert(out != NULL);
@@ -1100,50 +1101,36 @@ API int yaca_key_gen(yaca_key_type_e key_type,
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_IV:
 		ret = gen_simple(&nk_simple, key_bits);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
-
-		nk_simple->key.type = key_type;
-
-		*key = (yaca_key_h)nk_simple;
-		return YACA_ERROR_NONE;
-
+		break;
 	case YACA_KEY_TYPE_DES:
 		ret = gen_simple_des(&nk_simple, key_bits);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
-
-		nk_simple->key.type = key_type;
-
-		*key = (yaca_key_h)nk_simple;
-		return YACA_ERROR_NONE;
-
+		break;
 	case YACA_KEY_TYPE_RSA_PRIV:
 		ret = gen_evp_rsa(&nk_evp, key_bits);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
-
-		nk_evp->key.type = key_type;
-
-		*key = (yaca_key_h)nk_evp;
-		return YACA_ERROR_NONE;
-
+		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
 		ret = gen_evp_dsa(&nk_evp, key_bits);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
-
-		nk_evp->key.type = key_type;
-
-		*key = (yaca_key_h)nk_evp;
-		return YACA_ERROR_NONE;
-
+		break;
 //	case YACA_KEY_TYPE_DH_PRIV:
 //	case YACA_KEY_TYPE_EC_PRIV:
 //		TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
+
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	if (nk_simple != NULL) {
+		nk_simple->key.type = key_type;
+		*key = (yaca_key_h)nk_simple;
+	} else if (nk_evp != NULL) {
+		nk_evp->key.type = key_type;
+		*key = (yaca_key_h)nk_evp;
+	}
+
+	return YACA_ERROR_NONE;
+
 }
 
 API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
