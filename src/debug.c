@@ -25,6 +25,7 @@
 #include <string.h>
 
 #include <openssl/err.h>
+#include <openssl/pem.h>
 
 #include <yaca_error.h>
 
@@ -59,9 +60,6 @@ char *error_translate(yaca_error_e err)
 		return NULL;
 	}
 }
-
-// TODO use peeking function to intercept common errors
-//unsigned long ERR_peek_error();
 
 void error_dump(const char *file, int line, const char *function, int code)
 {
@@ -114,3 +112,40 @@ void error_dump(const char *file, int line, const char *function, int code)
 	(*error_cb)(buf);
 }
 
+int error_handle(const char *file, int line, const char *function)
+{
+	int ret;
+	unsigned long err = ERR_peek_error();
+
+	/* fatal errors */
+	if (ERR_FATAL_ERROR(err) > 0) {
+		switch (ERR_GET_REASON(err)) {
+		case ERR_R_MALLOC_FAILURE:
+			ret = YACA_ERROR_OUT_OF_MEMORY;
+			break;
+		case ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED:
+		case ERR_R_PASSED_NULL_PARAMETER:
+			ret = YACA_ERROR_INVALID_ARGUMENT;
+			break;
+		case ERR_R_INTERNAL_ERROR:
+		case ERR_R_DISABLED:
+		default:
+			ret = YACA_ERROR_INTERNAL;
+		}
+	/* known errors */
+	} else {
+		switch (err) {
+		case ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT):
+		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT):
+			ret = YACA_ERROR_PASSWORD_INVALID;
+			break;
+		default:
+			error_dump(file, line, function, YACA_ERROR_INTERNAL);
+			ret = YACA_ERROR_INTERNAL;
+		}
+	}
+
+	/* remove all errors from queue */
+	ERR_clear_error();
+	return ret;
+}

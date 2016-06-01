@@ -100,4 +100,18 @@ void error_dump(const char *file, int line, const char *function, int code);
 #define ERROR_DUMP(code) error_dump(__FILE__, __LINE__, __func__, (code))
 #define ERROR_CLEAR() ERR_clear_error()
 
+/**
+ * Function responsible for translating the openssl error to yaca error and
+ * clearing/dumping the openssl error queue. Use only after openssl function
+ * failure.
+ *
+ * The function checks only first error in the queue. If the function doesn't
+ * find any error in openssl queue or is not able to translate it, it will
+ * return YACA_ERROR_INTERNAL and dump openssl errors if any. If the
+ * translation succeeds the function will clear the error queue and return the
+ * result of translation.
+ */
+int error_handle(const char *file, int line, const char *function);
+#define ERROR_HANDLE() error_handle(__FILE__, __LINE__, __func__)
+
 #endif /* YACA_INTERNAL_H */
