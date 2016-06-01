@@ -31,13 +31,20 @@ extern "C" {
 #endif
 
 
-#define TIZEN_ERROR_YACA -0x01E30000
-
 /**
- * @defgroup  Error  Yet another Crypto API - error enums.
- *
+ * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
  */
+
+/**
+ *  Note:  Error  Yet another Crypto API - error enums.
+ *
+ */
+
+/* define it temporary until this code goes into capi-base-common package */
+#ifndef TIZEN_ERROR_YACA
+#define TIZEN_ERROR_YACA -0x01E30000
+#endif
 
 /**
  * @brief Enumeration of YACA error values.
@@ -60,7 +67,9 @@ typedef enum {
 	YACA_ERROR_INVALID_PASSWORD   = TIZEN_ERROR_YACA | 0x03
 } yaca_error_e;
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */

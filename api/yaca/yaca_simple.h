@@ -32,7 +32,12 @@ extern "C" {
 #endif
 
 /**
- * @defgroup  Simple-API  Simple API.
+ * @addtogroup CAPI_YACA_SIMPLE_MODULE
+ * @{
+ */
+
+/**
+ * Note:  Simple-API  Simple API.
  *
  *  @remarks  This is simple API.
  *            Design constraints:
@@ -42,7 +47,6 @@ extern "C" {
  *            - GCM and CCM chaining is not supported
  *            - All outputs are allocated by the library
  *
- * @{
  */
 
 /**
@@ -294,7 +298,9 @@ int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
                                char **mac,
                                size_t *mac_len);
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */

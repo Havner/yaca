@@ -32,10 +32,14 @@ extern "C" {
 #endif
 
 /**
- * @defgroup  Non-Crypto  Yet Another Crypto API - non crypto related functions.
- *
- *
+ * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
+ */
+
+/**
+ * Note:  Non-Crypto  Yet Another Crypto API - non crypto related functions.
+ *
+ *
  */
 
 /**
@@ -282,7 +286,9 @@ int yaca_context_get_output_length(const yaca_context_h ctx,
                                    size_t input_len,
                                    size_t *output_len);
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */

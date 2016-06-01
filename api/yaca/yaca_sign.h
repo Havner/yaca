@@ -32,10 +32,14 @@ extern "C" {
 #endif
 
 /**
- * @defgroup  Advanced-Integrity  Advanced API for the integrity handling - HMAC, CMAC and digital signature.
- *
- *
+ * @addtogroup CAPI_YACA_INTEGRITY_MODULE
  * @{
+ */
+
+/**
+ * Note:  Advanced-Integrity  Advanced API for the integrity handling - HMAC, CMAC and digital signature.
+ *
+ *
  */
 
 /**
@@ -272,7 +276,9 @@ int yaca_verify_finalize(yaca_context_h ctx,
                          const char *signature,
                          size_t signature_len);
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */

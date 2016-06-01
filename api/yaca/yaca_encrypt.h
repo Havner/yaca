@@ -32,10 +32,14 @@ extern "C" {
 #endif
 
 /**
- * @defgroup  Advanced-Encryption-Symmetric  Advanced API for the symmetric encryption.
- *
- *
+ * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
+ */
+
+/**
+ * Note:  Advanced-Encryption-Symmetric  Advanced API for the symmetric encryption.
+ *
+ *
  */
 
 /**
@@ -235,7 +239,9 @@ int yaca_decrypt_finalize(yaca_context_h ctx,
                           char *plaintext,
                           size_t *plaintext_len);
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */

@@ -32,10 +32,14 @@ extern "C" {
 #endif
 
 /**
- * @defgroup  Advanced-Digest  Advanced API for the message digests.
- *
- *
+ * @addtogroup CAPI_YACA_INTEGRITY_MODULE
  * @{
+ */
+
+/**
+ * Note:  Advanced-Digest  Advanced API for the message digests.
+ *
+ *
  */
 
 /**
@@ -108,7 +112,9 @@ int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len);
  */
 int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_len);
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */

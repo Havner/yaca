@@ -29,10 +29,14 @@ extern "C" {
 #endif
 
 /**
- * @defgroup Crypto-Types Yet Another Crypto API - types.
- *
- *
+ * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
+ */
+
+/**
+ * Note: Crypto-Types Yet Another Crypto API - types.
+ *
+ *
  */
 
 /**
@@ -429,7 +433,9 @@ typedef enum {
 	YACA_PADDING_PKCS1_PSS,
 } yaca_padding_e;
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */

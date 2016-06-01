@@ -32,10 +32,14 @@ extern "C" {
 #endif
 
 /**
- * @defgroup  Key  Advanced API for the key and IV handling.
- *
- *
+ * @addtogroup CAPI_YACA_KEY_MODULE
  * @{
+ */
+
+/**
+ * Note:  Key  Advanced API for the key and IV handling.
+ *
+ *
  */
 
 /**
@@ -253,13 +257,11 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
  */
 void yaca_key_destroy(yaca_key_h key);
 
-/**@}*/
 
 /**
- * @defgroup  Key-Derivation  Advanced API for the key derivation.
+ * Note:  Key-Derivation  Advanced API for the key derivation.
  *
  *
- * @{
  */
 
 /**
@@ -295,7 +297,9 @@ int yaca_key_derive_pbkdf2(const char *password,
                            size_t key_bit_len,
                            yaca_key_h *key);
 
-/**@}*/
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 } /* extern */
