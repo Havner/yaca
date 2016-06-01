@@ -89,12 +89,6 @@ typedef enum {
 
 	YACA_KEY_TYPE_DSA_PUB,     /**< Digital Signature Algorithm public key */
 	YACA_KEY_TYPE_DSA_PRIV,    /**< Digital Signature Algorithm private key */
-
-	YACA_KEY_TYPE_DH_PUB,      /**< Diffie-Hellman public key */
-	YACA_KEY_TYPE_DH_PRIV,     /**< Diffie-Hellman private key */
-
-	YACA_KEY_TYPE_EC_PUB,      /**< Elliptic Curve public key (for DSA and DH) */
-	YACA_KEY_TYPE_EC_PRIV,     /**< Elliptic Curve private key (for DSA and DH) */
 } yaca_key_type_e;
 
 /**
@@ -109,9 +103,6 @@ typedef enum {
 	YACA_KEY_IV_64BIT = 64,           /**< 64-bit IV */
 	YACA_KEY_IV_128BIT = 128,         /**< 128-bit IV */
 	YACA_KEY_IV_256BIT = 256,         /**< 256-bit IV */
-	YACA_KEY_CURVE_P192 = 192,        /**< ECC: P192 curve */
-	YACA_KEY_CURVE_P256 = 256,        /**< ECC: P-256 curve */
-	YACA_KEY_CURVE_P384 = 384,        /**< ECC: SECP-384 curve */
 	YACA_KEY_UNSAFE_8BIT = 8,
 	YACA_KEY_UNSAFE_40BIT = 40,
 	YACA_KEY_UNSAFE_64BIT = 64,
