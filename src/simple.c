@@ -41,7 +41,7 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 {
 	yaca_ctx_h ctx;
 	int ret;
-	char *ldigest;
+	char *ldigest = NULL;
 	size_t ldigest_len;
 
 	if (data == NULL || data_len == 0 || digest == NULL || digest_len == NULL)
@@ -53,30 +53,28 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 
 	ret = yaca_digest_update(ctx, data, data_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err;
+		goto exit;
 
 	ret = yaca_get_digest_length(ctx, &ldigest_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err;
+		goto exit;
 
 	ldigest = yaca_malloc(ldigest_len);
-	if (!ldigest)
-		goto err;
+	if (ldigest == NULL)
+		goto exit;
 
 	ret = yaca_digest_final(ctx, ldigest, &ldigest_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
-
-	yaca_ctx_free(ctx);
+		goto exit;
 
 	*digest_len = ldigest_len;
 	*digest = ldigest;
-	return YACA_ERROR_NONE;
+	ldigest = NULL;
 
-err_free:
+exit:
 	yaca_free(ldigest);
-err:
 	yaca_ctx_free(ctx);
+
 	return ret;
 }
 
@@ -91,8 +89,8 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 {
 	yaca_ctx_h ctx;
 	int ret;
-	char *lcipher;
-	char *rcipher;
+	char *lcipher = NULL;
+	char *rcipher = NULL;
 	size_t out_len, lcipher_len, written;
 
 	if (plain == NULL || plain_len == 0 || cipher == NULL || cipher_len == NULL ||
@@ -105,27 +103,27 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 
 	ret = yaca_get_block_length(ctx, &lcipher_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err;
+		goto exit;
 
 	ret = yaca_get_output_length(ctx, plain_len, &out_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err;
+		goto exit;
 
 	if (out_len > SIZE_MAX - lcipher_len) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err;
+		goto exit;
 	}
 
 	lcipher_len += out_len;
 
 	lcipher = yaca_malloc(lcipher_len);
 	if (lcipher == NULL)
-		goto err;
+		goto exit;
 
 	out_len = lcipher_len;
 	ret = yaca_encrypt_update(ctx, plain, plain_len, lcipher, &out_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
+		goto exit;
 
 	assert(out_len <= lcipher_len);
 
@@ -133,7 +131,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	out_len = lcipher_len - written;
 	ret = yaca_encrypt_final(ctx, lcipher + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
+		goto exit;
 
 	written += out_len;
 	assert(written <= lcipher_len);
@@ -141,19 +139,18 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	rcipher = yaca_realloc(lcipher, written);
 	if (rcipher == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto err_free;
+		goto exit;
 	}
-
-	yaca_ctx_free(ctx);
 
 	*cipher = rcipher;
 	*cipher_len = written;
-	return YACA_ERROR_NONE;
+	lcipher = NULL;
+	ret = YACA_ERROR_NONE;
 
-err_free:
+exit:
 	yaca_free(lcipher);
-err:
 	yaca_ctx_free(ctx);
+
 	return ret;
 }
 
@@ -168,8 +165,8 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 {
 	yaca_ctx_h ctx;
 	int ret;
-	char *lplain;
-	char *rplain;
+	char *lplain = NULL;
+	char *rplain = NULL;
 	size_t out_len, lplain_len, written;
 
 	if (cipher == NULL || cipher_len == 0 || plain == NULL || plain_len == NULL ||
@@ -182,27 +179,27 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 
 	ret = yaca_get_block_length(ctx, &lplain_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err;
+		goto exit;
 
 	ret = yaca_get_output_length(ctx, cipher_len, &out_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err;
+		goto exit;
 
 	if (out_len > SIZE_MAX - lplain_len) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err;
+		goto exit;
 	}
 
 	lplain_len += out_len;
 
 	lplain = yaca_malloc(lplain_len);
-	if (!lplain)
-		goto err;
+	if (lplain == NULL)
+		goto exit;
 
 	out_len = lplain_len;
 	ret = yaca_decrypt_update(ctx, cipher, cipher_len, lplain, &out_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
+		goto exit;
 
 	assert(out_len <= lplain_len);
 
@@ -210,7 +207,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	out_len = lplain_len - written;
 	ret = yaca_decrypt_final(ctx, lplain + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
+		goto exit;
 
 	written += out_len;
 	assert(written <= lplain_len);
@@ -218,19 +215,18 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	rplain = yaca_realloc(lplain, written);
 	if (rplain == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto err_free;
+		goto exit;
 	}
-
-	yaca_ctx_free(ctx);
 
 	*plain = rplain;
 	*plain_len = written;
-	return YACA_ERROR_NONE;
+	lplain = NULL;
+	ret = YACA_ERROR_NONE;
 
-err_free:
+exit:
 	yaca_free(lplain);
-err:
 	yaca_ctx_free(ctx);
+
 	return ret;
 }
 
@@ -300,11 +296,11 @@ API int yaca_verify(yaca_digest_algo_e algo,
 
 	ret = yaca_verify_update(ctx, data, data_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free_ctx;
+		goto exit;
 
 	ret = yaca_verify_final(ctx, signature, signature_len);
 
-free_ctx:
+exit:
 	yaca_ctx_free(ctx);
 
 	return ret;

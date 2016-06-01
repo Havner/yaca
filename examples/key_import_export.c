@@ -50,7 +50,7 @@ int key_import_export_sym(yaca_key_h sym)
 		return ret;
 	ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, b64, b64_len, &b64_imported);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\n\t***** BASE64 exported key: *****\n%.*s\n", (int)b64_len, b64);
 	yaca_free(b64);
@@ -58,7 +58,7 @@ int key_import_export_sym(yaca_key_h sym)
 
 	ret = yaca_key_export(b64_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64, NULL, &b64, &b64_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\t***** BASE64 imported key: *****\n%.*s\n", (int)b64_len, b64);
 
@@ -67,10 +67,10 @@ int key_import_export_sym(yaca_key_h sym)
 
 	ret = yaca_key_export(sym, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL, &raw, &raw_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 	ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, raw, raw_len, &raw_imported);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	dump_hex(raw, raw_len, "\n\t***** RAW exported key: *****");
 	yaca_free(raw);
@@ -78,13 +78,11 @@ int key_import_export_sym(yaca_key_h sym)
 
 	ret = yaca_key_export(raw_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL, &raw, &raw_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	dump_hex(raw, raw_len, "\t***** RAW imported key: *****");
 
-	ret = YACA_ERROR_NONE;
-
-free:
+exit:
 	yaca_key_free(raw_imported);
 	yaca_key_free(b64_imported);
 	yaca_free(raw);
@@ -122,7 +120,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 		return ret;
 	ret = yaca_key_import(priv_type, NULL, pem_prv, pem_prv_len, &pem_prv_imported);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\n\t***** %s PEM exported private key: *****\n%.*s", algo, (int)pem_prv_len, pem_prv);
 	yaca_free(pem_prv);
@@ -130,7 +128,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	ret = yaca_key_export(pem_prv_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pem_prv, &pem_prv_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\t***** %s PEM imported private key: *****\n%.*s", algo, (int)pem_prv_len, pem_prv);
 
@@ -139,10 +137,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	ret = yaca_key_export(priv, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_prv, &der_prv_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 	ret = yaca_key_import(priv_type, NULL, der_prv, der_prv_len, &der_prv_imported);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	dump_hex(der_prv, der_prv_len, "\n\t***** %s DER exported private key: *****", algo);
 	yaca_free(der_prv);
@@ -150,7 +148,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	ret = yaca_key_export(der_prv_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_prv, &der_prv_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	dump_hex(der_prv, der_prv_len, "\t***** %s DER imported private key: *****", algo);
 
@@ -159,10 +157,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	ret = yaca_key_export(pub, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pem_pub, &pem_pub_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 	ret = yaca_key_import(pub_type, NULL, pem_pub, pem_pub_len, &pem_pub_imported);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\n\t***** %s PEM exported public key: *****\n%.*s", algo, (int)pem_pub_len, pem_pub);
 	yaca_free(pem_pub);
@@ -170,7 +168,7 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	ret = yaca_key_export(pem_pub_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pem_pub, &pem_pub_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\t***** %s PEM imported public key: *****\n%.*s", algo, (int)pem_pub_len, pem_pub);
 
@@ -179,10 +177,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	ret = yaca_key_export(pub, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_pub, &der_pub_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 	ret = yaca_key_import(pub_type, NULL, der_pub, der_pub_len, &der_pub_imported);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	dump_hex(der_pub, der_pub_len, "\n\t***** %s DER exported public key: *****", algo);
 	yaca_free(der_pub);
@@ -190,13 +188,11 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 
 	ret = yaca_key_export(der_pub_imported, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER, NULL, &der_pub, &der_pub_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	dump_hex(der_pub, der_pub_len, "\t***** %s DER imported public key: *****", algo);
 
-	ret = YACA_ERROR_NONE;
-
-free:
+exit:
 	yaca_key_free(der_pub_imported);
 	yaca_key_free(pem_pub_imported);
 	yaca_key_free(der_prv_imported);
@@ -226,22 +222,21 @@ int key_import_x509(void)
 
 	ret = yaca_key_import(YACA_KEY_TYPE_RSA_PUB, NULL, pub, pub_len, &rsa_pub_from_cert);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	yaca_free(pub);
 	pub = NULL;
 
 	ret = yaca_key_export(rsa_pub_from_cert, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM, NULL, &pub, &pub_len);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\n\t***** RSA X509 imported public key: *****\n%.*s", (int)pub_len, pub);
 
-	ret = YACA_ERROR_NONE;
-
-free:
+exit:
 	yaca_key_free(rsa_pub_from_cert);
 	yaca_free(pub);
+
 	return ret;
 }
 
@@ -266,19 +261,19 @@ int main()
 
 	ret = yaca_key_gen(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_1024BIT, &rsa_priv);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	ret = yaca_key_extract_public(rsa_priv, &rsa_pub);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	ret = yaca_key_gen(YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_1024BIT, &dsa_priv);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	ret = yaca_key_extract_public(dsa_priv, &dsa_pub);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	printf("\t***************************************\n");
 	printf("\t************** SYMMETRIC **************\n");
@@ -316,13 +311,13 @@ int main()
 	else
 		printf("\n\t*********** X509 - failure ************\n\n");
 
-free:
+exit:
 	yaca_key_free(dsa_pub);
 	yaca_key_free(dsa_priv);
 	yaca_key_free(rsa_pub);
 	yaca_key_free(rsa_priv);
 	yaca_key_free(sym);
-exit:
+
 	yaca_exit();
 
 	return ret;

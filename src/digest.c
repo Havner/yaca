@@ -132,30 +132,29 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
-		goto free;
+		goto exit;
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free;
+		goto exit;
 	}
 
 	ret = EVP_DigestInit(nc->mdctx, md);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto ctx;
+		goto exit;
 	}
 
 	*ctx = (yaca_ctx_h)nc;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
 
-	return YACA_ERROR_NONE;
+exit:
+	yaca_ctx_free((yaca_ctx_h)nc);
 
-ctx:
-	EVP_MD_CTX_destroy(nc->mdctx);
-free:
-	yaca_free(nc);
 	return ret;
 }
 

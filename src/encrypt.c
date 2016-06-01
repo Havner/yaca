@@ -341,42 +341,42 @@ static int encrypt_init(yaca_ctx_h *ctx,
 
 	ret = yaca_key_get_bits(sym_key, &key_bits);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
+		goto exit;
 
 	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
+		goto exit;
 
 	ret = EVP_CIPHER_iv_length(cipher);
 	if (ret < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_free;
+		goto exit;
 	}
 
 	iv_bits = ret * 8;
 	if (iv_bits == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_free;
+		goto exit;
 	}
 
 	if (iv_bits != 0) { /* cipher requires iv*/
 		liv = key_get_simple(iv);
 		if (liv == NULL) { /* iv was not provided */
 			ret = YACA_ERROR_INVALID_ARGUMENT;
-			goto err_free;
+			goto exit;
 		}
 		ret = yaca_key_get_bits(iv, &iv_bits_check);
 		if (ret != YACA_ERROR_NONE) {
 			ret = YACA_ERROR_INVALID_ARGUMENT;
-			goto err_free;
+			goto exit;
 		}
 		/* IV length doesn't match cipher (GCM & CCM supports variable IV length) */
 		if (iv_bits != iv_bits_check &&
 		    bcm != YACA_BCM_GCM &&
 		    bcm != YACA_BCM_CCM) {
 			ret = YACA_ERROR_INVALID_ARGUMENT;
-			goto err_free;
+			goto exit;
 		}
 		iv_data = (unsigned char*)liv->d;
 	}
@@ -385,7 +385,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	if (nc->cipher_ctx == NULL) {
 		ret =  YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_free;
+		goto exit;
 	}
 
 	switch (op_type) {
@@ -397,13 +397,13 @@ static int encrypt_init(yaca_ctx_h *ctx,
 		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_ctx;
+		goto exit;
 	}
 
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_ctx;
+		goto exit;
 	}
 
 	/* Handling of algorithms with variable key length */
@@ -411,7 +411,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 	if (ret != 1) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
 		ERROR_DUMP(ret);
-		goto err_ctx;
+		goto exit;
 	}
 
 	/* Handling of algorithms with variable IV length */
@@ -427,7 +427,7 @@ static int encrypt_init(yaca_ctx_h *ctx,
 		if (ret != 1) {
 			ret = YACA_ERROR_INVALID_ARGUMENT;
 			ERROR_DUMP(ret);
-			goto err_ctx;
+			goto exit;
 		}
 	}
 
@@ -444,22 +444,22 @@ static int encrypt_init(yaca_ctx_h *ctx,
 		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_ctx;
+		goto exit;
 	}
 
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_ctx;
+		goto exit;
 	}
 
 	*ctx = (yaca_ctx_h)nc;
-	return YACA_ERROR_NONE;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
 
-err_ctx:
-	EVP_CIPHER_CTX_free(nc->cipher_ctx);
-err_free:
-	yaca_free(nc);
+exit:
+	yaca_ctx_free((yaca_ctx_h)nc);
+
 	return ret;
 }
 

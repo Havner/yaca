@@ -60,32 +60,32 @@ void encrypt_seal(void)
 		return;
 
 	if (yaca_key_extract_public(key_priv, &key_pub) != YACA_ERROR_NONE)
-		goto ex_prvk;
+		goto exit;
 
 	/* Encrypt a.k.a. seal */
 	{
 		if (yaca_seal_init(&ctx, key_pub, algo, bcm, key_bits, &aes_key, &iv) != YACA_ERROR_NONE)
-			goto ex_pubk;
+			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
-			goto ex_ak;
+			goto exit;
 
 		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
-			goto ex_ak;
+			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
 		enc_size = output_len + block_len;
 		if ((enc = yaca_malloc(enc_size)) == NULL)
-			goto ex_ak;
+			goto exit;
 
 		/* Seal and finalize */
 		out_size = enc_size;
 		if (yaca_seal_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		rem = enc_size - out_size;
 		if (yaca_seal_final(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		enc_size = rem + out_size;
 
@@ -98,44 +98,40 @@ void encrypt_seal(void)
 	/* Decrypt a.k.a. open */
 	{
 		if (yaca_open_init(&ctx, key_priv, algo, bcm, key_bits, aes_key, iv) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
 		dec_size = output_len + block_len;
 		if ((dec = yaca_malloc(dec_size)) == NULL)
-			goto ex_of;
+			goto exit;
 
 		/* Open and finalize */
 		out_size = dec_size;
 		if (yaca_open_update(ctx, enc, enc_size, dec, &out_size) != YACA_ERROR_NONE)
-			goto ex_in;
+			goto exit;
 
 		rem = dec_size - out_size;
 		if (yaca_open_final(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
-			goto ex_in;
+			goto exit;
 
 		dec_size = rem + out_size;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n", dec_size, dec);
 	}
 
-ex_in:
+exit:
 	yaca_free(dec);
-ex_of:
 	yaca_free(enc);
-ex_ak:
 	yaca_ctx_free(ctx);
 	yaca_key_free(aes_key);
 	yaca_key_free(iv);
-ex_pubk:
 	yaca_key_free(key_pub);
-ex_prvk:
 	yaca_key_free(key_priv);
 }
 

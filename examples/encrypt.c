@@ -70,7 +70,6 @@ void encrypt_simple(const yaca_enc_algo_e algo,
 	printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_size, dec);
 
 exit:
-
 	yaca_free(enc);
 	yaca_free(dec);
 	yaca_key_free(iv);
@@ -104,34 +103,34 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 		return;
 
 	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
-		goto ex_key;
+		goto exit;
 
 	if (iv_bits > 0 && yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
-		goto ex_key;
+		goto exit;
 
 	/* Encryption */
 	{
 		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
-			goto ex_iv;
+			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
-			goto ex_ctx;
+			goto exit;
 
 		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
-			goto ex_ctx;
+			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
 		enc_size = output_len + block_len;
 		if ((enc = yaca_malloc(enc_size)) == NULL)
-			goto ex_ctx;
+			goto exit;
 
 		out_size = enc_size;
 		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_size) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		rem = enc_size - out_size;
 		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		enc_size = rem + out_size;
 
@@ -144,41 +143,37 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 	/* Decryption */
 	{
 		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
-			goto ex_of;
+			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
 		dec_size = output_len + block_len;
 		if ((dec = yaca_malloc(dec_size)) == NULL)
-			goto ex_of;
+			goto exit;
 
 		out_size = dec_size;
 		if (yaca_decrypt_update(ctx, enc, enc_size, dec, &out_size) != YACA_ERROR_NONE)
-			goto ex_in;
+			goto exit;
 
 		rem = dec_size - out_size;
 		if (yaca_decrypt_final(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
-			goto ex_in;
+			goto exit;
 
 		dec_size = rem + out_size;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_size, dec);
 	}
 
-ex_in:
+exit:
 	yaca_free(dec);
-ex_of:
 	yaca_free(enc);
-ex_ctx:
 	yaca_ctx_free(ctx);
-ex_iv:
 	yaca_key_free(iv);
-ex_key:
 	yaca_key_free(key);
 }
 

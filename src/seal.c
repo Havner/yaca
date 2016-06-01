@@ -105,8 +105,8 @@ static int seal_init(yaca_ctx_h *ctx,
                      yaca_key_h *iv)
 {
 	struct yaca_key_evp_s *lpub;
-	struct yaca_key_simple_s *lkey;
-	struct yaca_key_simple_s *liv;
+	struct yaca_key_simple_s *lkey = NULL;
+	struct yaca_key_simple_s *liv = NULL;
 	struct yaca_seal_ctx_s *nc;
 	const EVP_CIPHER *cipher;
 	int pub_key_length;
@@ -134,39 +134,39 @@ static int seal_init(yaca_ctx_h *ctx,
 	if (nc->cipher_ctx == NULL) {
 		ret =  YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_free;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_size(lpub->evp);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_ctx;
+		goto exit;
 	}
 
 	pub_key_length = ret;
 	lkey = yaca_zalloc(sizeof(struct yaca_key_simple_s) + pub_key_length);
 	if (lkey == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto err_ctx;
+		goto exit;
 	}
 
 	ret = encrypt_get_algorithm(algo, bcm, sym_key_bits, &cipher);
 	if (ret != YACA_ERROR_NONE)
-		goto err_key;
+		goto exit;
 
 	ret = EVP_CIPHER_iv_length(cipher);
 	if (ret < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_key;
+		goto exit;
 	}
 
 	iv_length = ret;
 	liv = yaca_zalloc(sizeof(struct yaca_key_simple_s) + iv_length);
 	if (liv == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto err_key;
+		goto exit;
 	}
 
 	unsigned char *key_data = (unsigned char*)lkey->d;
@@ -183,29 +183,28 @@ static int seal_init(yaca_ctx_h *ctx,
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_iv;
+		goto exit;
 	}
 
 	lkey->bits = key_data_length * 8;
 	lkey->key.type = YACA_KEY_TYPE_SYMMETRIC;
 	*sym_key = (yaca_key_h)lkey;
+	lkey = NULL;
 
 	liv->bits = iv_length * 8;
 	liv->key.type = YACA_KEY_TYPE_IV;
 	*iv = (yaca_key_h)liv;
+	liv = NULL;
 
 	*ctx = (yaca_ctx_h)nc;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
 
-	return YACA_ERROR_NONE;
-
-err_iv:
+exit:
 	yaca_free(liv);
-err_key:
 	yaca_free(lkey);
-err_ctx:
-	EVP_CIPHER_CTX_free(nc->cipher_ctx);
-err_free:
-	yaca_free(nc);
+	yaca_ctx_free((yaca_ctx_h)nc);
+
 	return ret;
 }
 
@@ -249,44 +248,44 @@ static int open_init(yaca_ctx_h *ctx,
 
 	ret = encrypt_get_algorithm(algo, bcm, sym_key_bits, &cipher);
 	if (ret != YACA_ERROR_NONE)
-		goto err_free;
+		goto exit;
 
 	ret = EVP_CIPHER_iv_length(cipher);
 	if (ret < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_free;
+		goto exit;
 	}
 
 	iv_bits = ret * 8;
 	if (iv_bits == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_free;
+		goto exit;
 	}
 
 	liv = key_get_simple(iv);
 	/* cipher requires iv, but none was provided, or provided wrong iv */
 	if (iv_bits != 0 && (liv == NULL || liv->key.type != YACA_KEY_TYPE_IV)) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_free;
+		goto exit;
 	}
 
 	// TODO: handling of algorithms with variable IV length
 	ret = yaca_key_get_bits(iv, &iv_bits_check);
 	if (ret != YACA_ERROR_NONE) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_free;
+		goto exit;
 	}
 	if (iv_bits != iv_bits_check) { /* IV length doesn't match cipher */
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto err_free;
+		goto exit;
 	}
 
 	nc->cipher_ctx = EVP_CIPHER_CTX_new();
 	if (nc->cipher_ctx == NULL) {
 		ret =  YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_free;
+		goto exit;
 	}
 
 	ret = EVP_OpenInit(nc->cipher_ctx, cipher,
@@ -297,16 +296,16 @@ static int open_init(yaca_ctx_h *ctx,
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err_ctx;
+		goto exit;
 	}
 
 	*ctx = (yaca_ctx_h)nc;
-	return YACA_ERROR_NONE;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
 
-err_ctx:
-	EVP_CIPHER_CTX_free(nc->cipher_ctx);
-err_free:
-	yaca_free(nc);
+exit:
+	yaca_ctx_free((yaca_ctx_h)nc);
+
 	return ret;
 }
 

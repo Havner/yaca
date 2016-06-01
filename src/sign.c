@@ -268,27 +268,27 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
-		goto free_ctx;
+		goto exit;
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
 	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
 	*ctx = (yaca_ctx_h)nc;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
 
-	return YACA_ERROR_NONE;
-
-free_ctx:
+exit:
 	yaca_ctx_free((yaca_ctx_h)nc);
 
 	return ret;
@@ -324,33 +324,35 @@ API int yaca_sign_hmac_init(yaca_ctx_h *ctx,
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
-		goto free_pkey;
+		goto exit;
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_pkey;
+		goto exit;
 	}
 
 	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, pkey);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_pkey;
+		goto exit;
 	}
 
-	*ctx = (yaca_ctx_h)nc;
-	return YACA_ERROR_NONE;
+	pkey = NULL;
 
-free_pkey:
+	*ctx = (yaca_ctx_h)nc;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
+
+exit:
 	EVP_PKEY_free(pkey);
-free_ctx:
 	yaca_ctx_free((yaca_ctx_h)nc);
 
 	return ret;
@@ -382,60 +384,60 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 
 	ret = encrypt_get_algorithm(algo, YACA_BCM_CBC, simple_key->bits, &cipher);
 	if (ret != YACA_ERROR_NONE)
-		goto free_ctx;
+		goto exit;
 
 	// create and initialize low level CMAC context
 	cmac_ctx = CMAC_CTX_new();
 	if (cmac_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
-	if (CMAC_Init(cmac_ctx, simple_key->d, simple_key->bits/8, cipher, NULL) != 1) {
+	if (CMAC_Init(cmac_ctx, simple_key->d, simple_key->bits / 8, cipher, NULL) != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		// TODO refactor error handling: use single cleanup label
-		goto free_cmac_ctx;
+		goto exit;
 	}
 
 	// create key and assign CMAC context to it
 	pkey = EVP_PKEY_new();
-	if (!pkey) {
+	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_cmac_ctx;
+		goto exit;
 	}
 
 	if (EVP_PKEY_assign(pkey, EVP_PKEY_CMAC, cmac_ctx) != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_pkey;
+		goto exit;
 	}
-	// TODO refactor error handling: set cmac_ctx to NULL
+
+	cmac_ctx = NULL;
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_pkey;
+		goto exit;
 	}
 
 	if (EVP_DigestSignInit(nc->mdctx, NULL, NULL, NULL, pkey) != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_pkey;
+		goto exit;
 	}
-	// TODO refactor error handling: set mdctx to NULL, set pkey to NULL
+
+	pkey = NULL;
 
 	*ctx = (yaca_ctx_h)nc;
-	return YACA_ERROR_NONE;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
 
-free_pkey:
+exit:
 	EVP_PKEY_free(pkey);
-free_cmac_ctx:
 	CMAC_CTX_free(cmac_ctx);
-free_ctx:
 	yaca_ctx_free((yaca_ctx_h)nc);
 
 	return ret;
@@ -518,27 +520,27 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
-		goto free_ctx;
+		goto exit;
 
 	nc->mdctx = EVP_MD_CTX_create();
 	if (nc->mdctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
 	ret = EVP_DigestVerifyInit(nc->mdctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
 	*ctx = (yaca_ctx_h)nc;
+	nc = NULL;
+	ret = YACA_ERROR_NONE;
 
-	return YACA_ERROR_NONE;
-
-free_ctx:
+exit:
 	yaca_ctx_free((yaca_ctx_h)nc);
 
 	return ret;

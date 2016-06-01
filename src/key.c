@@ -110,7 +110,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 	if (src == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	BIO_push(b64, src);
@@ -119,7 +119,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 	if (dst == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
@@ -130,7 +130,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 		if (ret < 0) {
 			ret = YACA_ERROR_INTERNAL;
 			ERROR_DUMP(ret);
-			goto free_bio;
+			goto exit;
 		}
 
 		if (ret == YACA_ERROR_NONE)
@@ -139,7 +139,7 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 		if (BIO_write(dst, tmpbuf, ret) != ret) {
 			ret = YACA_ERROR_INTERNAL;
 			ERROR_DUMP(ret);
-			goto free_bio;
+			goto exit;
 		}
 	}
 
@@ -150,18 +150,18 @@ int base64_decode(const char *data, size_t data_len, BIO **output)
 	if (out_len < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 	if ((size_t)out_len != b64_len) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free_bio;
+		goto exit;
 	}
 
 	*output = dst;
 	dst = NULL;
 	ret = YACA_ERROR_NONE;
 
-free_bio:
+exit:
 	BIO_free_all(b64);
 	BIO_free_all(dst);
 
@@ -205,7 +205,7 @@ int import_simple(yaca_key_h *key,
 	/* key_bits has to fit in size_t */
 	if (key_data_len > SIZE_MAX / 8) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto out;
+		goto exit;
 	}
 
 	/* DES key length verification */
@@ -215,14 +215,14 @@ int import_simple(yaca_key_h *key,
 		    key_bits != YACA_KEY_UNSAFE_128BIT &&
 		    key_bits != YACA_KEY_192BIT) {
 			ret = YACA_ERROR_INVALID_ARGUMENT;
-			goto out;
+			goto exit;
 		}
 	}
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_data_len);
 	if (nk == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto out;
+		goto exit;
 	}
 
 	memcpy(nk->d, key_data, key_data_len);
@@ -230,10 +230,12 @@ int import_simple(yaca_key_h *key,
 	nk->key.type = key_type;
 
 	*key = (yaca_key_h)nk;
+	nk = NULL;
 	ret = YACA_ERROR_NONE;
 
-out:
+exit:
 	BIO_free_all(decoded);
+
 	return ret;
 }
 
@@ -371,18 +373,18 @@ int import_evp(yaca_key_h *key,
 
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free;
+		goto exit;
 	}
 
 	if (type != key_type) {
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free;
+		goto exit;
 	}
 
 	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
 	if (nk == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
-		goto free;
+		goto exit;
 	}
 
 	nk->evp = pkey;
@@ -392,8 +394,9 @@ int import_evp(yaca_key_h *key,
 	pkey = NULL;
 	ret = YACA_ERROR_NONE;
 
-free:
+exit:
 	EVP_PKEY_free(pkey);
+
 	return ret;
 }
 
@@ -445,7 +448,7 @@ int export_simple_base64(struct yaca_key_simple_s *simple_key,
 	if (mem == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	BIO_push(b64, mem);
@@ -455,35 +458,35 @@ int export_simple_base64(struct yaca_key_simple_s *simple_key,
 	if (ret <= 0 || (unsigned)ret != key_len) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	ret = BIO_flush(b64);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	bio_data_len = BIO_get_mem_data(mem, &bio_data);
 	if (bio_data_len <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	*data = yaca_malloc(bio_data_len);
 	if (*data == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	memcpy(*data, bio_data, bio_data_len);
 	*data_len = bio_data_len;
 	ret = YACA_ERROR_NONE;
 
-free_bio:
+exit:
 	BIO_free_all(b64);
 
 	return ret;
@@ -678,35 +681,36 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 	}
 
 	if (ret != YACA_ERROR_NONE)
-		goto free_bio;
+		goto exit;
 
 	ret = BIO_flush(mem);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	bio_data_len = BIO_get_mem_data(mem, &bio_data);
 	if (bio_data_len <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	*data = yaca_malloc(bio_data_len);
 	if (*data == NULL) {
 		ret = YACA_ERROR_OUT_OF_MEMORY;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	memcpy(*data, bio_data, bio_data_len);
 	*data_len = bio_data_len;
 	ret = YACA_ERROR_NONE;
 
-free_bio:
+exit:
 	BIO_free_all(mem);
+
 	return ret;
 }
 
@@ -752,28 +756,37 @@ int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
 	DES_cblock *des_key = (DES_cblock*)nk->d;
 	if (key_byte_len >= 8) {
 		ret = DES_random_key(des_key);
-		if (ret != 1)
-			goto free_nk;
+		if (ret != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
 	}
 	if (key_byte_len >= 16) {
 		ret = DES_random_key(des_key + 1);
-		if (ret != 1)
-			goto free_nk;
+		if (ret != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
 	}
 	if (key_byte_len >= 24) {
 		ret = DES_random_key(des_key + 2);
-		if (ret != 1)
-			goto free_nk;
+		if (ret != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
 	}
 
 	nk->bits = key_bits;
 	*out = nk;
-	return YACA_ERROR_NONE;
+	nk = NULL;
+	ret = YACA_ERROR_NONE;
 
-free_nk:
+exit:
 	yaca_free(nk);
-	ret = YACA_ERROR_INTERNAL;
-	ERROR_DUMP(ret);
+
 	return ret;
 }
 
@@ -797,38 +810,38 @@ int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
 	if (ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_nk;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_keygen_init(ctx);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bits);
 	if (ret != 1) {
 		ret = ERROR_HANDLE();
-		goto free_ctx;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_keygen(ctx, &pkey);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_ctx;
+		goto exit;
 	}
 
 	nk->evp = pkey;
-
+	pkey = NULL;
 	*out = nk;
 	nk = NULL;
+
 	ret = YACA_ERROR_NONE;
 
-free_ctx:
+exit:
 	EVP_PKEY_CTX_free(ctx);
-free_nk:
 	yaca_free(nk);
 
 	return ret;
@@ -847,8 +860,8 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 
 	int ret;
 	struct yaca_key_evp_s *nk;
-	EVP_PKEY_CTX *pctx;
-	EVP_PKEY_CTX *kctx;
+	EVP_PKEY_CTX *pctx = NULL;
+	EVP_PKEY_CTX *kctx = NULL;
 	EVP_PKEY *pkey = NULL;
 	EVP_PKEY *params = NULL;
 
@@ -860,63 +873,61 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 	if (pctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_nk;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_paramgen_init(pctx);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_pctx;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bits);
 	if (ret != 1) {
 		ret = ERROR_HANDLE();
-		goto free_pctx;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_paramgen(pctx, &params);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_pctx;
+		goto exit;
 	}
 
 	kctx = EVP_PKEY_CTX_new(params, NULL);
 	if (kctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_params;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_keygen_init(kctx);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_kctx;
+		goto exit;
 	}
 
 	ret = EVP_PKEY_keygen(kctx, &pkey);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_kctx;
+		goto exit;
 	}
 
 	nk->evp = pkey;
-
+	pkey = NULL;
 	*out = nk;
 	nk = NULL;
+
 	ret = YACA_ERROR_NONE;
 
-free_kctx:
+exit:
 	EVP_PKEY_CTX_free(kctx);
-free_params:
 	EVP_PKEY_free(params);
-free_pctx:
 	EVP_PKEY_CTX_free(pctx);
-free_nk:
 	yaca_free(nk);
 
 	return ret;
@@ -1135,8 +1146,8 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	int ret;
 	struct yaca_key_evp_s *evp_key = key_get_evp(prv_key);
 	struct yaca_key_evp_s *nk;
-	BIO *mem;
-	EVP_PKEY *pkey;
+	BIO *mem = NULL;
+	EVP_PKEY *pkey = NULL;
 
 	if (prv_key == YACA_KEY_NULL || evp_key == NULL || pub_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -1149,51 +1160,50 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	if (mem == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_nk;
+		goto exit;
 	}
 
 	ret = i2d_PUBKEY_bio(mem, evp_key->evp);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	pkey = d2i_PUBKEY_bio(mem, NULL);
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto free_bio;
+		goto exit;
 	}
 
 	BIO_free(mem);
 	mem = NULL;
 
-	nk->evp = pkey;
-	*pub_key = (yaca_key_h)nk;
-
 	switch (prv_key->type) {
 	case YACA_KEY_TYPE_RSA_PRIV:
-		(*pub_key)->type = YACA_KEY_TYPE_RSA_PUB;
+		nk->key.type = YACA_KEY_TYPE_RSA_PUB;
 		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
-		(*pub_key)->type = YACA_KEY_TYPE_DSA_PUB;
+		nk->key.type = YACA_KEY_TYPE_DSA_PUB;
 		break;
 //	case YACA_KEY_TYPE_EC_PRIV:
-//		(*pub_key)->type = YACA_KEY_TYPE_EC_PUB;
+//		nk->key.type = YACA_KEY_TYPE_EC_PUB;
 //		break;
 	default:
 		ret = YACA_ERROR_INVALID_ARGUMENT;
-		goto free_pkey;
+		goto exit;
 	}
 
-	return YACA_ERROR_NONE;
+	nk->evp = pkey;
+	pkey = NULL;
+	*pub_key = (yaca_key_h)nk;
+	nk = NULL;
+	ret = YACA_ERROR_NONE;
 
-free_pkey:
+exit:
 	EVP_PKEY_free(pkey);
-free_bio:
 	BIO_free(mem);
-free_nk:
 	yaca_free(nk);
 
 	return ret;
@@ -1250,12 +1260,14 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
-		goto err;
+		goto exit;
 	}
 
 	*key = (yaca_key_h)nk;
-	return YACA_ERROR_NONE;
-err:
+	nk = NULL;
+	ret = YACA_ERROR_NONE;
+exit:
 	yaca_free(nk);
+
 	return ret;
 }

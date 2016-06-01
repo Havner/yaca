@@ -48,16 +48,16 @@ void key_exchange_dh(void)
 	// generate  private, public key
 	ret = yaca_key_gen(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_2048BIT, &private_key);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
 	ret = yaca_key_extract_public(private_key, &public_key);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
 	// get peer public key from file
 	// add helper to read key from file to buffer?
 	fp = fopen("key.pub", "r");
-	if (!fp) goto clean;
+	if (!fp) goto exit;
 
 	fseek(fp, 0L, SEEK_END);
 	size = ftell(fp);
@@ -66,23 +66,23 @@ void key_exchange_dh(void)
 	/* allocate memory for entire content */
 	buffer = yaca_malloc(size+1);
 	if (buffer == NULL)
-		goto clean;
+		goto exit;
 
 	/* copy the file into the buffer */
 	if (1 != fread(buffer, size, 1, fp))
-		goto clean;
+		goto exit;
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DH_PUB, NULL,
 	                      buffer, size, &peer_key);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
 	// derive secret
 	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
-clean:
+exit:
 	yaca_key_free(private_key);
 	yaca_key_free(public_key);
 	yaca_key_free(peer_key);
@@ -111,16 +111,16 @@ void key_exchange_ecdh(void)
 	// generate  private, public key
 	ret = yaca_key_gen(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256, &private_key);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
 	ret = yaca_key_extract_public(private_key, &public_key);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
 	// get peer public key from file
 	fp = fopen("key.pub", "r");
 	if (fp == NULL)
-		goto clean;
+		goto exit;
 
 	fseek(fp, 0L, SEEK_END);
 	size = ftell(fp);
@@ -129,22 +129,22 @@ void key_exchange_ecdh(void)
 	/* allocate memory for entire content */
 	buffer = yaca_malloc(size+1);
 	if (buffer == NULL)
-		goto clean;
+		goto exit;
 
 	/* copy the file into the buffer */
 	if (1 != fread(buffer, size, 1, fp))
-		goto clean;
+		goto exit;
 
 	ret = yaca_key_import(YACA_KEY_TYPE_EC_PUB, NULL, buffer, size, &peer_key);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
 	// derive secret
 	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
 	if (ret != YACA_ERROR_NONE)
-		goto clean;
+		goto exit;
 
-clean:
+exit:
 	yaca_key_free(private_key);
 	yaca_key_free(public_key);
 	yaca_key_free(peer_key);

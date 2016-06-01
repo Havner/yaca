@@ -58,24 +58,24 @@ void digest_advanced(void)
 
 	ret = yaca_digest_update(ctx, lorem1024, 1024);
 	if (ret != YACA_ERROR_NONE)
-		goto exit_ctx;
+		goto exit;
 
 	size_t digest_len;
 	ret = yaca_get_digest_length(ctx, &digest_len);
 	if (ret != YACA_ERROR_NONE)
-		goto exit_ctx;
+		goto exit;
 
 	{
 		char digest[digest_len];
 
 		ret = yaca_digest_final(ctx, digest, &digest_len);
 		if (ret != YACA_ERROR_NONE)
-			goto exit_ctx;
+			goto exit;
 
 		dump_hex(digest, digest_len, "Message digest: ");
 	}
 
-exit_ctx:
+exit:
 	yaca_ctx_free(ctx);
 }
 
