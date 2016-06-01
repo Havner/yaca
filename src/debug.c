@@ -87,13 +87,12 @@ void error_dump(const char *file, int line, const char *function, int code)
 	while ((err = ERR_get_error()) != 0 && written < BUF_SIZE - 1) {
 		if (!error_strings_loaded) {
 			/*
-			 * Both these functions are thread-safe as long as static locks are
-			 * installed according to doc so calling them twice won't break
+			 * This function is thread-safe as long as static locks are
+			 * installed according to doc so calling it twice won't break
 			 * anything and I don't want to use synchronization mechanisms
 			 * here.
 			 */
 			ERR_load_crypto_strings();
-			ERR_clear_error();
 			error_strings_loaded = true;
 		}
 
