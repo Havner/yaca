@@ -35,7 +35,7 @@ void dump_hex(const char *buf,
 	      size_t dump_size,
 	      const char *fmt, ...);
 
-void debug_func(const char* buf);
+void debug_func(const char *buf);
 
 int write_file(const char *path, char *data, size_t data_len);
 

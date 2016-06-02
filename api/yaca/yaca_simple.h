@@ -142,7 +142,7 @@ int yaca_decrypt(yaca_enc_algo_e algo,
                  const char *cipher,
                  size_t cipher_len,
                  char **plain,
-                 size_t * plain_len);
+                 size_t *plain_len);
 
 /**
  * @brief  Create a signature using asymmetric private key.
@@ -176,8 +176,8 @@ int yaca_sign(yaca_digest_algo_e algo,
               const yaca_key_h key,
               const char *data,
               size_t data_len,
-              char** signature,
-              size_t* signature_len);
+              char **signature,
+              size_t *signature_len);
 
 /**
  * @brief  Verify a signature using asymmetric public key.
@@ -211,7 +211,7 @@ int yaca_verify(yaca_digest_algo_e algo,
                 const yaca_key_h key,
                 const char *data,
                 size_t data_len,
-                const char* signature,
+                const char *signature,
                 size_t signature_len);
 
 /**
@@ -247,8 +247,8 @@ int yaca_hmac(yaca_digest_algo_e algo,
               const yaca_key_h key,
               const char *data,
               size_t data_len,
-              char** mac,
-              size_t* mac_len);
+              char **mac,
+              size_t *mac_len);
 
 /**
  * @brief  Calculate a CMAC of given message using symmetric key.
@@ -283,8 +283,8 @@ int yaca_cmac(yaca_enc_algo_e algo,
               const yaca_key_h key,
               const char *data,
               size_t data_len,
-              char** mac,
-              size_t* mac_len);
+              char **mac,
+              size_t *mac_len);
 
 /**@}*/
 

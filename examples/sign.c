@@ -36,7 +36,7 @@
 // Signature creation and verification using simple API
 void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
 {
-	char* signature = NULL;
+	char *signature = NULL;
 	size_t signature_len;
 
 	yaca_key_h prv = YACA_KEY_NULL;
@@ -167,7 +167,7 @@ exit:
 // Signature creation and verification using advanced API
 void sign_verify_asym(yaca_key_type_e type, const char *algo)
 {
-	char* signature = NULL;
+	char *signature = NULL;
 	size_t signature_len;
 
 	yaca_ctx_h ctx = YACA_CTX_NULL;

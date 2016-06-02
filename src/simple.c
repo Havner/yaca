@@ -231,7 +231,7 @@ exit:
 }
 
 static int sign(const yaca_ctx_h ctx, const char *data, size_t data_len,
-                char** signature, size_t* signature_len)
+                char **signature, size_t *signature_len)
 {
 	int ret;
 
@@ -263,8 +263,8 @@ API int yaca_sign(yaca_digest_algo_e algo,
                   const yaca_key_h key,
                   const char *data,
                   size_t data_len,
-                  char** signature,
-                  size_t* signature_len)
+                  char **signature,
+                  size_t *signature_len)
 {
 	int ret;
 	yaca_ctx_h ctx = YACA_CTX_NULL;
@@ -284,7 +284,7 @@ API int yaca_verify(yaca_digest_algo_e algo,
                     const yaca_key_h key,
                     const char *data,
                     size_t data_len,
-                    const char* signature,
+                    const char *signature,
                     size_t signature_len)
 {
 	int ret;
@@ -310,8 +310,8 @@ API int yaca_hmac(yaca_digest_algo_e algo,
                   const yaca_key_h key,
                   const char *data,
                   size_t data_len,
-                  char** mac,
-                  size_t* mac_len)
+                  char **mac,
+                  size_t *mac_len)
 {
 	int ret;
 	yaca_ctx_h ctx = YACA_CTX_NULL;
@@ -331,8 +331,8 @@ API int yaca_cmac(yaca_enc_algo_e algo,
                   const yaca_key_h key,
                   const char *data,
                   size_t data_len,
-                  char** mac,
-                  size_t* mac_len)
+                  char **mac,
+                  size_t *mac_len)
 {
 	int ret;
 	yaca_ctx_h ctx = YACA_CTX_NULL;
