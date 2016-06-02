@@ -139,7 +139,7 @@ void yaca_free(void *ptr);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
 int yaca_rand_bytes(char *data, size_t data_len);
@@ -157,8 +157,8 @@ int yaca_rand_bytes(char *data, size_t data_len);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
- *                                      incorrect context, invalid param)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
+ *                                      invalid context or param)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_ex_param_e
@@ -182,13 +182,14 @@ int yaca_ctx_set_param(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect context, invalid param)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid context or param)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_ex_param_e
  * @see yaca_ctx_set_param()
+ * @see yaca_free()
  */
 int yaca_ctx_get_param(const yaca_ctx_h ctx,
                        yaca_ex_param_e param,
@@ -220,8 +221,8 @@ void yaca_ctx_free(yaca_ctx_h ctx);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect context, invalid input_len)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid context or input_len)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
 int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len);

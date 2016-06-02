@@ -61,8 +61,8 @@ extern "C" {
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect algo, bcm, sym_key_bits, invalid pub_key)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid algo, bcm, sym_key_bits or pub_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -71,6 +71,7 @@ extern "C" {
  * @see yaca_seal_update()
  * @see yaca_seal_final()
  * @see yaca_key_free()
+ * @see yaca_ctx_free()
  */
 int yaca_seal_init(yaca_ctx_h *ctx,
                    const yaca_key_h pub_key,
@@ -95,12 +96,13 @@ int yaca_seal_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_seal_init()
  * @see yaca_seal_final()
+ * @see yaca_get_output_length()
  */
 int yaca_seal_update(yaca_ctx_h ctx,
                      const char *plain,
@@ -121,12 +123,13 @@ int yaca_seal_update(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_seal_init()
  * @see yaca_seal_update()
+ * @see yaca_get_block_length()
  */
 int yaca_seal_final(yaca_ctx_h ctx,
                     char *cipher,
@@ -148,9 +151,8 @@ int yaca_seal_final(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect algo, bcm, sym_key_bits,
- *                                      invalid prv_key, sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid algo, bcm, sym_key_bits, prv_key, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -158,6 +160,7 @@ int yaca_seal_final(yaca_ctx_h ctx,
  * @see #yaca_block_cipher_mode_e
  * @see yaca_open_update()
  * @see yaca_open_final()
+ * @see yaca_ctx_free()
  */
 int yaca_open_init(yaca_ctx_h *ctx,
                    const yaca_key_h prv_key,
@@ -182,12 +185,13 @@ int yaca_open_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_open_init()
  * @see yaca_open_final()
+ * @see yaca_get_output_length()
  */
 int yaca_open_update(yaca_ctx_h ctx,
                      const char *cipher,
@@ -208,12 +212,13 @@ int yaca_open_update(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_open_init()
  * @see yaca_open_update()
+ * @see yaca_get_block_length()
  */
 int yaca_open_final(yaca_ctx_h ctx,
                     char *plain,

@@ -49,14 +49,15 @@ extern "C" {
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect algo)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_digest_algo_e
  * @see yaca_digest_update()
  * @see yaca_digest_final()
+ * @see yaca_ctx_free()
  */
 int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
 
@@ -71,8 +72,8 @@ int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_digest_init()
@@ -93,12 +94,13 @@ int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_digest_init()
  * @see yaca_digest_update()
+ * @see yaca_get_digest_length()
  */
 int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len);
 

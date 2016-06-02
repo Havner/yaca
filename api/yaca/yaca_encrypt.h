@@ -52,8 +52,8 @@ extern "C" {
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect algo, bcm, invalid sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -61,6 +61,7 @@ extern "C" {
  * @see #yaca_block_cipher_mode_e
  * @see yaca_encrypt_update()
  * @see yaca_encrypt_final()
+ * @see yaca_ctx_free()
  */
 int yaca_encrypt_init(yaca_ctx_h *ctx,
                       yaca_enc_algo_e algo,
@@ -83,12 +84,13 @@ int yaca_encrypt_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_encrypt_init()
  * @see yaca_encrypt_final()
+ * @see yaca_get_output_length()
  */
 int yaca_encrypt_update(yaca_ctx_h ctx,
                         const char *plain,
@@ -109,12 +111,13 @@ int yaca_encrypt_update(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_encrypt_init()
  * @see yaca_encrypt_update()
+ * @see yaca_get_output_length()
  */
 int yaca_encrypt_final(yaca_ctx_h ctx,
                        char *cipher,
@@ -133,8 +136,8 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect algo, bcm, invalid sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -142,6 +145,7 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
  * @see #yaca_block_cipher_mode_e
  * @see yaca_decrypt_update()
  * @see yaca_decrypt_final()
+ * @see yaca_ctx_free()
  */
 int yaca_decrypt_init(yaca_ctx_h *ctx,
                       yaca_enc_algo_e algo,
@@ -164,12 +168,13 @@ int yaca_decrypt_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_decrypt_init()
  * @see yaca_decrypt_final()
+ * @see yaca_get_output_length()
  */
 int yaca_decrypt_update(yaca_ctx_h ctx,
                         const char *cipher,
@@ -190,19 +195,20 @@ int yaca_decrypt_update(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
- *                                      incorrect context)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
+ *                                      invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_decrypt_init()
  * @see yaca_decrypt_update()
+ * @see yaca_get_block_length()
  */
 int yaca_decrypt_final(yaca_ctx_h ctx,
                        char *plain,
                        size_t *plain_len);
 
 /**
- * @brief  Returns the recomended/default length of the IV for a given encryption configuration.
+ * @brief  Returns the recommended/default length of the IV for a given encryption configuration.
  *
  * @since_tizen 3.0
  *
@@ -216,7 +222,7 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL,
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
  *                                      invalid algo, bcm or key_bits)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *

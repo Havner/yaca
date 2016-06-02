@@ -61,12 +61,13 @@ extern "C" {
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
- *                                      incorrect algo)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
+ *                                      invalid algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_digest_algo_e
+ * @see yaca_free()
  */
 int yaca_digest_calc(yaca_digest_algo_e algo,
                      const char *data,
@@ -91,14 +92,15 @@ int yaca_digest_calc(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
- *                                      incorrect algo, bcm, invalid sym_key, iv)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
+ *                                      invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_enc_algo_e
  * @see #yaca_block_cipher_mode_e
  * @see yaca_decrypt()
+ * @see yaca_free()
  */
 int yaca_encrypt(yaca_enc_algo_e algo,
                  yaca_block_cipher_mode_e bcm,
@@ -126,14 +128,15 @@ int yaca_encrypt(yaca_enc_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
- *                                      incorrect algo, bcm, invalid sym_key, iv)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
+ *                                      invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_enc_algo_e
  * @see #yaca_block_cipher_mode_e
  * @see yaca_encrypt()
+ * @see yaca_free()
  */
 int yaca_decrypt(yaca_enc_algo_e algo,
                  yaca_block_cipher_mode_e bcm,
@@ -154,7 +157,6 @@ int yaca_decrypt(yaca_enc_algo_e algo,
  *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PRIV,
  *                            - #YACA_KEY_TYPE_DSA_PRIV,
- *                            - #YACA_KEY_TYPE_EC_PRIV
  * @param[in]  data           Data to be signed
  * @param[in]  data_len       Length of the data
  * @param[out] signature      Message signature, will be allocated by the
@@ -163,14 +165,15 @@ int yaca_decrypt(yaca_enc_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
- *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
+ *                                      invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
  * @see #yaca_digest_algo_e
  * @see yaca_verify()
+ * @see yaca_free()
  */
 int yaca_sign(yaca_digest_algo_e algo,
               const yaca_key_h key,
@@ -189,7 +192,6 @@ int yaca_sign(yaca_digest_algo_e algo,
  *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PUB,
  *                            - #YACA_KEY_TYPE_DSA_PUB,
- *                            - #YACA_KEY_TYPE_EC_PUB
  * @param[in]  data           Signed data
  * @param[in]  data_len       Length of the data
  * @param[in]  signature      Message signature
@@ -197,8 +199,8 @@ int yaca_sign(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
- *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
+ *                                      invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  * @retval #YACA_ERROR_DATA_MISMATCH The verification failed
@@ -234,14 +236,15 @@ int yaca_verify(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
- *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
+ *                                      invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
  * @see #yaca_digest_algo_e
  * @see yaca_memcmp()
+ * @see yaca_free()
  */
 int yaca_hmac(yaca_digest_algo_e algo,
               const yaca_key_h key,
@@ -270,14 +273,15 @@ int yaca_hmac(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have bogus values (NULL, 0
- *                                      incorrect algo, invalid key)
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
+ *                                      invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
  * @see #yaca_enc_algo_e
  * @see yaca_memcmp()
+ * @see yaca_free()
  */
 int yaca_cmac(yaca_enc_algo_e algo,
               const yaca_key_h key,
