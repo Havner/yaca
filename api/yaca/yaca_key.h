@@ -39,6 +39,11 @@ extern "C" {
  * @{
  */
 
+/**
+ * @brief  NULL value for yaca_key_h type.
+ *
+ * @since_tizen 3.0
+ */
 #define YACA_KEY_NULL ((yaca_key_h) NULL)
 
 /**
@@ -76,7 +81,7 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  * @since_tizen 3.0
  *
  * @remarks This function imports a key trying to match it to the key_type specified.
- *          It should autodetect both, key format and file format.
+ *          It should autodetect both the key format and the file format.
  *
  *          For symmetric, IV and DES keys RAW binary format and BASE64 encoded
  *          binary format are supported.
@@ -246,7 +251,7 @@ void yaca_key_free(yaca_key_h key);
  * @since_tizen 3.0
  *
  * @param[in]  password  User password as a NULL-terminated string
- * @param[in]  salt      Salt, should be non-zero
+ * @param[in]  salt      Salt, should be a non-empty string
  * @param[in]  salt_len  Length of the salt
  * @param[in]  iter      Number of iterations
  * @param[in]  algo      Digest algorithm that should be used in key generation

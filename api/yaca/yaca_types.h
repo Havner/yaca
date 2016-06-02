@@ -51,7 +51,7 @@ typedef struct yaca_ctx_s *yaca_ctx_h;
 typedef struct yaca_key_s *yaca_key_h;
 
 /**
- * @brief Key formats.
+ * @brief Enumeration of YACA key formats.
  *
  * @since_tizen 3.0
  */
@@ -63,46 +63,57 @@ typedef enum {
 } yaca_key_fmt_e;
 
 /**
- * @brief Key file formats.
+ * @brief Enumeration of YACA key file formats.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_KEY_FILE_FORMAT_RAW,      /**< key file is in raw binary format, used for symmetric keys */
-	YACA_KEY_FILE_FORMAT_BASE64,   /**< key file is encoded in ASCII-base64, used for symmetric keys */
-	YACA_KEY_FILE_FORMAT_PEM,      /**< key file is in PEM file format, used for asymmetric keys */
-	YACA_KEY_FILE_FORMAT_DER       /**< key file is in DER file format, used for asymmetric keys */
+	/** Key file is in raw binary format, used for symmetric keys */
+	YACA_KEY_FILE_FORMAT_RAW,
+	/** Key file is encoded in ASCII-base64, used for symmetric keys */
+	YACA_KEY_FILE_FORMAT_BASE64,
+	/** Key file is in PEM file format, used for asymmetric keys */
+	YACA_KEY_FILE_FORMAT_PEM,
+	/** Key file is in DER file format, used for asymmetric keys */
+	YACA_KEY_FILE_FORMAT_DER
 } yaca_key_file_fmt_e;
 
 /**
- * @brief Key types, IV is considered as key.
+ * @brief Enumeration of YACA key types, IV is considered as key.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_KEY_TYPE_SYMMETRIC,   /**< Generic symmetric cipher KEY */
-	YACA_KEY_TYPE_DES,         /**< DES* key - must be handled differently because of parity bits */
-	YACA_KEY_TYPE_IV,          /**< Initialization Vector for symmetric algorithms */
+	/** Generic symmetric cipher KEY */
+	YACA_KEY_TYPE_SYMMETRIC,
+	/** DES* key - must be handled differently because of parity bits */
+	YACA_KEY_TYPE_DES,
+	/** Initialization Vector for symmetric algorithms */
+	YACA_KEY_TYPE_IV,
 
-	YACA_KEY_TYPE_RSA_PUB,     /**< RSA public key */
-	YACA_KEY_TYPE_RSA_PRIV,    /**< RSA private key */
+	/** RSA public key */
+	YACA_KEY_TYPE_RSA_PUB,
+	/** RSA private key */
+	YACA_KEY_TYPE_RSA_PRIV,
 
-	YACA_KEY_TYPE_DSA_PUB,     /**< Digital Signature Algorithm public key */
-	YACA_KEY_TYPE_DSA_PRIV,    /**< Digital Signature Algorithm private key */
+	/** Digital Signature Algorithm public key */
+	YACA_KEY_TYPE_DSA_PUB,
+	/** Digital Signature Algorithm private key */
+	YACA_KEY_TYPE_DSA_PRIV,
 } yaca_key_type_e;
 
 /**
- * @brief Key length.
+ * @brief Enumeration of YACA key lengths.
  *        It is possible to use arbitrary integer instead,
  *        this enums are placed here to avoid magic numbers.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_KEY_IV_UNSAFE_24BIT = 24,    /**< 24-bit IV */
-	YACA_KEY_IV_64BIT = 64,           /**< 64-bit IV */
-	YACA_KEY_IV_128BIT = 128,         /**< 128-bit IV */
-	YACA_KEY_IV_256BIT = 256,         /**< 256-bit IV */
+	YACA_KEY_IV_UNSAFE_24BIT = 24,
+	YACA_KEY_IV_64BIT = 64,
+	YACA_KEY_IV_128BIT = 128,
+	YACA_KEY_IV_256BIT = 256,
 	YACA_KEY_UNSAFE_8BIT = 8,
 	YACA_KEY_UNSAFE_40BIT = 40,
 	YACA_KEY_UNSAFE_64BIT = 64,
@@ -118,21 +129,27 @@ typedef enum {
 } yaca_key_bits_e;
 
 /**
- * @brief Message digest algorithms.
+ * @brief Enumeration of YACA message digest algorithms.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_DIGEST_MD5,      /**< Message digest algorithm MD5  */
-	YACA_DIGEST_SHA1,     /**< Message digest algorithm SHA1  */
-	YACA_DIGEST_SHA224,   /**< Message digest algorithm SHA2, 224bit  */
-	YACA_DIGEST_SHA256,   /**< Message digest algorithm SHA2, 256bit  */
-	YACA_DIGEST_SHA384,   /**< Message digest algorithm SHA2, 384bit  */
-	YACA_DIGEST_SHA512,   /**< Message digest algorithm SHA2, 512bit  */
+	/** Message digest algorithm MD5 */
+	YACA_DIGEST_MD5,
+	/** Message digest algorithm SHA1 */
+	YACA_DIGEST_SHA1,
+	/** Message digest algorithm SHA2, 224bit */
+	YACA_DIGEST_SHA224,
+	/** Message digest algorithm SHA2, 256bit */
+	YACA_DIGEST_SHA256,
+	/** Message digest algorithm SHA2, 384bit */
+	YACA_DIGEST_SHA384,
+	/** Message digest algorithm SHA2, 512bit */
+	YACA_DIGEST_SHA512,
 } yaca_digest_algo_e;
 
 /**
- * @brief Symmetric encryption algorithms.
+ * @brief Enumeration of YACA symmetric encryption algorithms.
  *
  * @since_tizen 3.0
  */
@@ -233,7 +250,7 @@ typedef enum {
 } yaca_enc_algo_e;
 
 /**
- * @brief Chaining modes for block ciphers.
+ * @brief Enumeration of YACA chaining modes for block ciphers.
  *
  * @since_tizen 3.0
  */
@@ -346,34 +363,43 @@ typedef enum {
 
 
 /**
- * @brief Non-standard parameters for algorithms.
+ * @brief Enumeration of YACA non-standard parameters for algorithms.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_PARAM_PADDING,      /**< Padding */
+	/** Padding */
+	YACA_PARAM_PADDING,
 
-	YACA_PARAM_GCM_AAD,      /**< GCM Additional Authentication Data */
-	YACA_PARAM_GCM_TAG,      /**< GCM Tag bits */
-	YACA_PARAM_GCM_TAG_LEN,  /**< GCM Tag length */
+	/** GCM Additional Authentication Data */
+	YACA_PARAM_GCM_AAD,
+	/** GCM Tag bits */
+	YACA_PARAM_GCM_TAG,
+	/** GCM Tag length */
+	YACA_PARAM_GCM_TAG_LEN,
 
-	YACA_PARAM_CCM_AAD,      /**< CCM Additional Authentication Data */
-	YACA_PARAM_CCM_TAG,      /**< CCM Tag bits */
-	YACA_PARAM_CCM_TAG_LEN,  /**< CCM Tag length */
+	/** CCM Additional Authentication Data */
+	YACA_PARAM_CCM_AAD,
+	/** CCM Tag bits */
+	YACA_PARAM_CCM_TAG,
+	/** CCM Tag length */
+	YACA_PARAM_CCM_TAG_LEN
 } yaca_ex_param_e;
 
 /**
- * @brief Paddings supported by Yet Another Crypto API.
+ * @brief Enumeration of YACA paddings.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_PADDING_NONE = 0,   /**< total number of data MUST multiple of block size, Default */
-	YACA_PADDING_X931,       /**< RSA X9.31 padding*/
-	YACA_PADDING_PKCS1,      /**< RSA signature/verify operations */
-	YACA_PADDING_PKCS1_PSS,  /**< RSA signature/verify operations */
-	YACA_PADDING_SSLV23,     /**< RSA SSLv23 */
-	YACA_PADDING_PKCS1_OAEP  /**< RSA encrypt/decrypt operations */
+	/** The total number of data bytes MUST be a multiple of block size */
+	YACA_PADDING_NONE = 0,
+	/** RSA X9.31 padding */
+	YACA_PADDING_X931,
+	/** RSA signature/verify operations */
+	YACA_PADDING_PKCS1,
+	/** RSA signature/verify operations */
+	YACA_PADDING_PKCS1_PSS,
 } yaca_padding_e;
 
 /**@}*/

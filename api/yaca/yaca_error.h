@@ -40,7 +40,7 @@ extern "C" {
  */
 
 /**
- * @brief Error enums
+ * @brief Enumeration of YACA error values.
  *
  * @since_tizen 3.0
  */

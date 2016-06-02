@@ -55,7 +55,9 @@ extern "C" {
  * @param[in]  sym_key_bits  Symmetric key length (in bits) that will be generated
  * @param[out] sym_key       Generated symmetric key that will be used,
  *                           it is encrypted with peer's public key
+ *                           (must be freed with yaca_key_free())
  * @param[out] iv            Generated initialization vector that will be used
+ *                           (must be freed with yaca_key_free())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -68,6 +70,7 @@ extern "C" {
  * @see #yaca_block_cipher_mode_e
  * @see yaca_seal_update()
  * @see yaca_seal_final()
+ * @see yaca_key_free()
  */
 int yaca_seal_init(yaca_ctx_h *ctx,
                    const yaca_key_h pub_key,
