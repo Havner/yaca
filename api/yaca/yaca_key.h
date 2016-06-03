@@ -83,16 +83,16 @@ int yaca_key_get_bits(const yaca_key_h key, size_t *key_bits);
  * @remarks This function imports a key trying to match it to the key_type specified.
  *          It should autodetect both the key format and the file format.
  *
- *          For symmetric, IV and DES keys RAW binary format and BASE64 encoded
+ * @remarks For symmetric, IV and DES keys RAW binary format and BASE64 encoded
  *          binary format are supported.
  *          For asymmetric keys PEM and DER file formats are supported.
  *
- *          Asymmetric keys can be in PKCS#1 or SSleay key formats (for RSA and
+ * @remarks Asymmetric keys can be in PKCS#1 or SSleay key formats (for RSA and
  *          DSA respectively). Asymmetric private keys can also be in PKCS#8
  *          format. Additionally it is possible to import public RSA key from
  *          X509 certificate.
  *
- *          If the key is encrypted the algorithm will be autodetected and password
+ * @remarks If the key is encrypted the algorithm will be autodetected and password
  *          used. If it's not known if the key is encrypted one should pass NULL as
  *          password and check for the #YACA_ERROR_PASSWORD_INVALID return code.
  *
@@ -126,24 +126,25 @@ int yaca_key_import(yaca_key_type_e key_type,
  *
  * @since_tizen 3.0
  *
- * @remarks This function exports the key to an arbitrary key format and key file format.
+ * @remarks  This function exports the key to an arbitrary key format and key file format.
  *
- *          For key formats two values are allowed:
- *          - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric keys (or IV),
- *                                      for asymmetric keys it will choose PKCS#1 for RSA and SSLeay for DSA.
- *          - #YACA_KEY_FORMAT_PKCS8: this will only work for private asymmetric keys.
+ * @remarks  For key formats two values are allowed:
+ *           - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric
+ *                                       keys (or IV), for asymmetric keys it will choose PKCS#1
+ *                                       for RSA and SSLeay for DSA.
+ *           - #YACA_KEY_FORMAT_PKCS8: this will only work for private asymmetric keys.
  *
- *          The following file formats are supported:
- *          - #YACA_KEY_FILE_FORMAT_RAW:    used only for symmetric, raw binary format
- *          - #YACA_KEY_FILE_FORMAT_BASE64: used only for symmetric, BASE64 encoded binary form
- *          - #YACA_KEY_FILE_FORMAT_PEM:    used only for asymmetric, PEM file format
- *          - #YACA_KEY_FILE_FORMAT_DER:    used only for asymmetric, DER file format
+ * @remarks  The following file formats are supported:
+ *           - #YACA_KEY_FILE_FORMAT_RAW:    used only for symmetric, raw binary format
+ *           - #YACA_KEY_FILE_FORMAT_BASE64: used only for symmetric, BASE64 encoded binary form
+ *           - #YACA_KEY_FILE_FORMAT_PEM:    used only for asymmetric, PEM file format
+ *           - #YACA_KEY_FILE_FORMAT_DER:    used only for asymmetric, DER file format
  *
- *          If no password is provided the exported key will be unencrypted. Only private
- *          RSA/DSA exported as PEM can be encrypted.
+ * @remarks  If no password is provided the exported key will be unencrypted. Only private
+ *           RSA/DSA exported as PEM can be encrypted.
  *
- *          TODO:document the default encryption algorithm (AES256 for FORMAT_DEFAULT,
- *          unknown yet for the FORMAT_PKCS8).
+ * @remarks  TODO:document the default encryption algorithm (AES256 for FORMAT_DEFAULT,
+ *           unknown yet for the FORMAT_PKCS8).
  *
  * @param[in]  key           Key to be exported
  * @param[in]  key_fmt       Format of the key
