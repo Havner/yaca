@@ -219,11 +219,9 @@ int import_simple(yaca_key_h *key,
 		}
 	}
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_data_len);
-	if (nk == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_data_len, (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
 	memcpy(nk->d, key_data, key_data_len);
 	nk->bits = key_data_len * 8;
@@ -381,11 +379,9 @@ int import_evp(yaca_key_h *key,
 		goto exit;
 	}
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
-	if (nk == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
 	nk->evp = pkey;
 	*key = (yaca_key_h)nk;
@@ -404,17 +400,16 @@ int export_simple_raw(struct yaca_key_simple_s *simple_key,
                       char **data,
                       size_t *data_len)
 {
+	int ret;
 	assert(simple_key != NULL);
 	assert(data != NULL);
 	assert(data_len != NULL);
 
 	size_t key_len = simple_key->bits / 8;
 
-	*data = yaca_malloc(key_len);
-	if (*data == NULL) {
-		ERROR_DUMP(YACA_ERROR_OUT_OF_MEMORY);
-		return YACA_ERROR_OUT_OF_MEMORY;
-	}
+	ret = yaca_malloc(key_len, (void**)data);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	memcpy(*data, simple_key->d, key_len);
 	*data_len = key_len;
@@ -475,12 +470,9 @@ int export_simple_base64(struct yaca_key_simple_s *simple_key,
 		goto exit;
 	}
 
-	*data = yaca_malloc(bio_data_len);
-	if (*data == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
-		ERROR_DUMP(ret);
+	ret = yaca_malloc(bio_data_len, (void**)data);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
 	memcpy(*data, bio_data, bio_data_len);
 	*data_len = bio_data_len;
@@ -697,12 +689,9 @@ int export_evp(struct yaca_key_evp_s *evp_key,
 		goto exit;
 	}
 
-	*data = yaca_malloc(bio_data_len);
-	if (*data == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
-		ERROR_DUMP(ret);
+	ret = yaca_malloc(bio_data_len, (void**)data);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
 	memcpy(*data, bio_data, bio_data_len);
 	*data_len = bio_data_len;
@@ -722,9 +711,9 @@ int gen_simple(struct yaca_key_simple_s **out, size_t key_bits)
 	struct yaca_key_simple_s *nk;
 	size_t key_byte_len = key_bits / 8;
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len, (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nk->bits = key_bits;
 
@@ -749,9 +738,9 @@ int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
 	struct yaca_key_simple_s *nk;
 	size_t key_byte_len = key_bits / 8;
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len, (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	DES_cblock *des_key = (DES_cblock*)nk->d;
 	if (key_byte_len >= 8) {
@@ -802,9 +791,9 @@ int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
 	EVP_PKEY_CTX *ctx;
 	EVP_PKEY *pkey = NULL;
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
 	if (ctx == NULL) {
@@ -865,9 +854,9 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 	EVP_PKEY *pkey = NULL;
 	EVP_PKEY *params = NULL;
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
 	if (pctx == NULL) {
@@ -1152,9 +1141,9 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	if (prv_key == YACA_KEY_NULL || evp_key == NULL || pub_key == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_evp_s));
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	mem = BIO_new(BIO_s_mem());
 	if (mem == NULL) {
@@ -1209,7 +1198,7 @@ exit:
 	return ret;
 }
 
-API void yaca_key_free(yaca_key_h key)
+API int yaca_key_free(yaca_key_h key)
 {
 	struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	struct yaca_key_evp_s *evp_key = key_get_evp(key);
@@ -1221,6 +1210,8 @@ API void yaca_key_free(yaca_key_h key)
 		EVP_PKEY_free(evp_key->evp);
 		yaca_free(evp_key);
 	}
+
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_key_derive_pbkdf2(const char *password,
@@ -1247,9 +1238,9 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nk = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len);
-	if (nk == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len, (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nk->bits = key_bits;
 	nk->key.type = YACA_KEY_TYPE_SYMMETRIC; // TODO: how to handle other keys?

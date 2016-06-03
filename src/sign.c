@@ -223,9 +223,9 @@ int get_sign_param(const yaca_ctx_h ctx,
 		return ret;
 	}
 
-	*value = yaca_malloc(sizeof(yaca_padding_e));
-	if (*value == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_malloc(sizeof(yaca_padding_e), value);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	memcpy(*value, &padding, sizeof(yaca_padding_e));
 	*value_len = sizeof(yaca_padding_e);
@@ -255,9 +255,9 @@ API int yaca_sign_init(yaca_ctx_h *ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL)
-		return  YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nc->op_type = OP_SIGN;
 	nc->ctx.type = YACA_CTX_SIGN;
@@ -308,9 +308,9 @@ API int yaca_sign_hmac_init(yaca_ctx_h *ctx,
 	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nc->op_type = OP_SIGN;
 	nc->ctx.type = YACA_CTX_SIGN;
@@ -373,9 +373,9 @@ API int yaca_sign_cmac_init(yaca_ctx_h *ctx,
 	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nc->op_type = OP_SIGN;
 	nc->ctx.type = YACA_CTX_SIGN;
@@ -507,9 +507,9 @@ API int yaca_verify_init(yaca_ctx_h *ctx,
 		return YACA_ERROR_INVALID_ARGUMENT;
 	}
 
-	nc = yaca_zalloc(sizeof(struct yaca_sign_ctx_s));
-	if (nc == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nc->op_type = OP_VERIFY;
 	nc->ctx.type = YACA_CTX_SIGN;

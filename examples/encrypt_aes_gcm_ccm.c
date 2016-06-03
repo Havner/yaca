@@ -70,13 +70,13 @@ void encrypt_decrypt_aes_gcm(void)
 	if (yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((aad = yaca_zalloc(aad_size)) == NULL)
+	if (yaca_zalloc(aad_size, (void**)&aad) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_rand_bytes(aad, aad_size) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((tag = yaca_zalloc(tag_size)) == NULL)
+	if (yaca_zalloc(tag_size, (void**)&tag) != YACA_ERROR_NONE)
 		goto exit;
 
 	/* Encryption */
@@ -96,7 +96,7 @@ void encrypt_decrypt_aes_gcm(void)
 
 		/* Calculate max output: size of update + final chunks */
 		enc_size = output_len + block_len;
-		if ((enc = yaca_malloc(enc_size)) == NULL)
+		if (yaca_malloc(enc_size, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
 		out_size = enc_size;
@@ -140,7 +140,7 @@ void encrypt_decrypt_aes_gcm(void)
 
 		/* Calculate max output: size of update + final chunks */
 		dec_size = output_len + block_len;
-		if ((dec = yaca_malloc(dec_size)) == NULL)
+		if (yaca_malloc(dec_size, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
 		out_size = dec_size;
@@ -210,13 +210,13 @@ void encrypt_decrypt_aes_ccm(void)
 	if (yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((aad = yaca_zalloc(aad_size)) == NULL)
+	if (yaca_zalloc(aad_size, (void**)&aad) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_rand_bytes(aad, aad_size) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((tag = yaca_zalloc(tag_size)) == NULL)
+	if (yaca_zalloc(tag_size, (void**)&tag) != YACA_ERROR_NONE)
 		goto exit;
 
 	/* Encryption */
@@ -244,7 +244,7 @@ void encrypt_decrypt_aes_ccm(void)
 
 		/* Calculate max output: size of update + final chunks */
 		enc_size = output_len + block_len;
-		if ((enc = yaca_malloc(enc_size)) == NULL)
+		if (yaca_malloc(enc_size, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
 		out_size = enc_size;
@@ -291,7 +291,7 @@ void encrypt_decrypt_aes_ccm(void)
 
 		/* Calculate max output: size of update + final chunks */
 		dec_size = output_len + block_len;
-		if ((dec = yaca_malloc(dec_size)) == NULL)
+		if (yaca_malloc(dec_size, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
 		out_size = dec_size;

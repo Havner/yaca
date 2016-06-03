@@ -229,11 +229,14 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
  *
  * @param[in,out] key  Key to be freed
  *
+ * @return #YACA_ERROR_NONE on success
+ * @retval #YACA_ERROR_NONE Successful
+ *
  * @see yaca_key_import()
  * @see yaca_key_export()
  * @see yaca_key_gen()
  */
-void yaca_key_free(yaca_key_h key);
+int yaca_key_free(yaca_key_h key);
 
 /**@}*/
 

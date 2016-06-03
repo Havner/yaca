@@ -66,54 +66,74 @@ int yaca_init(void);
  * @since_tizen 3.0
  *
  * @see yaca_init()
+ *
+ * @return #YACA_ERROR_NONE on success
+ * @retval #YACA_ERROR_NONE Successful
  */
-void yaca_exit(void);
+int yaca_exit(void);
 
 /**
  * @brief  Allocates the memory.
  *
  * @since_tizen 3.0
  *
- * @param[in] size  Size of the allocation (bytes)
+ * @param[in]  size   Size of the allocation (bytes)
+ * @param[out] memory Allocated memory
  *
- * @return NULL on failure, pointer to allocated memory otherwise
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  *
  * @see yaca_zalloc()
  * @see yaca_realloc()
  * @see yaca_free()
  */
-void *yaca_malloc(size_t size);
+int yaca_malloc(size_t size, void **memory);
 
 /**
  * @brief  Allocates the zeroed memory.
  *
  * @since_tizen 3.0
  *
- * @param[in] size  Size of the allocation (bytes)
+ * @param[in]  size    Size of the allocation (bytes)
+ * @param[out] memory  Allocated memory
  *
- * @return NULL on failure, pointer to allocated and zeroed memory otherwise
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  *
  * @see yaca_malloc()
  * @see yaca_realloc()
  * @see yaca_free()
  */
-void *yaca_zalloc(size_t size);
+int yaca_zalloc(size_t size, void **memory);
 
 /**
  * @brief  Re-allocates the memory.
  *
  * @since_tizen 3.0
  *
- * @param[in] addr  Address of the memory to be reallocated
- * @param[in] size  Size of the new allocation (bytes)
+ * @remarks  In case of failure the function doesn't free the memory pointed by @b memory.
  *
- * @return NULL on failure, pointer to allocated memory otherwise
+ * @remarks  If @b *memory is NULL then the call is equivalent to yaca_malloc().
+ *
+ * @remarks  If the function fails the contents of @b memory will be left unchanged.
+ *
+ * @param[in]     size    Size of the new allocation (bytes)
+ * @param[in,out] memory  Memory to be reallocated
+ *
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  *
  * @see yaca_malloc()
  * @see yaca_zalloc()
  * @see yaca_free()
  */
-void *yaca_realloc(void *addr, size_t size);
+int yaca_realloc(size_t size, void **memory);
 
 /**
  * @brief  Frees the memory allocated by yaca_malloc(), yaca_zalloc(),
@@ -123,11 +143,14 @@ void *yaca_realloc(void *addr, size_t size);
  *
  * @param[in] ptr  Pointer to the memory to be freed
  *
+ * @return #YACA_ERROR_NONE on success
+ * @retval #YACA_ERROR_NONE Successful
+ *
  * @see yaca_malloc()
  * @see yaca_zalloc()
  * @see yaca_realloc()
  */
-void yaca_free(void *ptr);
+int yaca_free(void *ptr);
 
 /**
  * @brief  Generates random data.
@@ -204,10 +227,13 @@ int yaca_ctx_get_param(const yaca_ctx_h ctx,
  *
  * @param[in,out] ctx  Crypto context
  *
+ * @return #YACA_ERROR_NONE on success
+ * @retval #YACA_ERROR_NONE Successful
+ *
  * @see #yaca_ctx_h
  *
  */
-void yaca_ctx_free(yaca_ctx_h ctx);
+int yaca_ctx_free(yaca_ctx_h ctx);
 
 /**
  * @brief  Returns the output length for a given algorithm. Can only be called

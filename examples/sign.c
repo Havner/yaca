@@ -195,7 +195,7 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	if (yaca_get_sign_length(ctx, &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((signature = yaca_malloc(signature_len)) == NULL)
+	if (yaca_malloc(signature_len, (void**)&signature) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_sign_final(ctx, signature, &signature_len) != YACA_ERROR_NONE)
@@ -252,7 +252,7 @@ void sign_verify_hmac(void)
 	if (yaca_get_sign_length(ctx, &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((signature1 = yaca_malloc(signature_len)) == NULL)
+	if (yaca_malloc(signature_len, (void**)&signature1) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_sign_final(ctx, signature1, &signature_len) != YACA_ERROR_NONE)
@@ -274,7 +274,7 @@ void sign_verify_hmac(void)
 	if (yaca_get_sign_length(ctx, &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((signature2 = yaca_malloc(signature_len)) == NULL)
+	if (yaca_malloc(signature_len, (void**)&signature2) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_sign_final(ctx, signature2, &signature_len) != YACA_ERROR_NONE)
@@ -315,7 +315,7 @@ void sign_verify_cmac(void)
 	if (yaca_get_sign_length(ctx, &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((signature1 = yaca_malloc(signature_len)) == NULL)
+	if (yaca_malloc(signature_len, (void**)&signature1) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_sign_final(ctx, signature1, &signature_len))
@@ -337,7 +337,7 @@ void sign_verify_cmac(void)
 	if (yaca_get_sign_length(ctx, &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
-	if ((signature2 = yaca_malloc(signature_len)) == NULL)
+	if (yaca_malloc(signature_len, (void**)&signature2) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_sign_final(ctx, signature2, &signature_len))

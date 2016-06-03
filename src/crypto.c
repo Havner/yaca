@@ -70,6 +70,7 @@ static void destroy_mutexes(int count)
 
 API int yaca_init(void)
 {
+	int ret;
 	if (mutexes != NULL)
 		return YACA_ERROR_INTERNAL; // TODO introduce new one?
 
@@ -93,9 +94,9 @@ API int yaca_init(void)
 	OpenSSL_add_all_ciphers();
 
 	/* enable threads support */
-	mutexes = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
-	if (mutexes == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t), (void**)&mutexes);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	for (int i = 0; i < CRYPTO_num_locks(); i++) {
 		if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
@@ -130,7 +131,7 @@ API int yaca_init(void)
 	return YACA_ERROR_NONE;
 }
 
-API void yaca_exit(void)
+API int yaca_exit(void)
 {
 	ERR_free_strings();
 	ERR_remove_thread_state(NULL);
@@ -143,29 +144,56 @@ API void yaca_exit(void)
 	CRYPTO_set_locking_callback(NULL);
 
 	destroy_mutexes(CRYPTO_num_locks());
+
+	return YACA_ERROR_NONE;
 }
 
-API void *yaca_malloc(size_t size)
+API int yaca_malloc(size_t size, void **memory)
 {
-	return OPENSSL_malloc(size);
+	if (size == 0 || memory == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	*memory = OPENSSL_malloc(size);
+	if (*memory == NULL) {
+		ERROR_DUMP(YACA_ERROR_OUT_OF_MEMORY);
+		return YACA_ERROR_OUT_OF_MEMORY;
+	}
+
+	return YACA_ERROR_NONE;
 }
 
-API void *yaca_zalloc(size_t size)
+API int yaca_zalloc(size_t size, void **memory)
 {
-	void *blob = OPENSSL_malloc(size);
-	if (blob != NULL)
-		memset(blob, 0, size);
-	return blob;
+	int ret = yaca_malloc(size, memory);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	memset(*memory, 0, size);
+
+	return YACA_ERROR_NONE;
 }
 
-API void *yaca_realloc(void *addr, size_t size)
+API int yaca_realloc(size_t size, void **memory)
 {
-	return OPENSSL_realloc(addr, size);
+	if (size == 0 || memory == NULL)
+		return YACA_ERROR_INVALID_ARGUMENT;
+
+	void *tmp = OPENSSL_realloc(*memory, size);
+	if (tmp == NULL) {
+		ERROR_DUMP(YACA_ERROR_OUT_OF_MEMORY);
+		return YACA_ERROR_OUT_OF_MEMORY;
+	}
+
+	*memory = tmp;
+
+	return YACA_ERROR_NONE;
 }
 
-API void yaca_free(void *ptr)
+API int yaca_free(void *ptr)
 {
 	OPENSSL_free(ptr);
+
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_rand_bytes(char *data, size_t data_len)
@@ -203,13 +231,15 @@ API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
 	return ctx->get_param(ctx, param, value, value_len);
 }
 
-API void yaca_ctx_free(yaca_ctx_h ctx)
+API int yaca_ctx_free(yaca_ctx_h ctx)
 {
 	if (ctx != YACA_CTX_NULL) {
 		assert(ctx->ctx_destroy != NULL);
 		ctx->ctx_destroy(ctx);
 		yaca_free(ctx);
 	}
+
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)

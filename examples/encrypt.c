@@ -121,7 +121,7 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 
 		/* Calculate max output: size of update + final chunks */
 		enc_size = output_len + block_len;
-		if ((enc = yaca_malloc(enc_size)) == NULL)
+		if (yaca_malloc(enc_size, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
 		out_size = enc_size;
@@ -153,7 +153,7 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 
 		/* Calculate max output: size of update + final chunks */
 		dec_size = output_len + block_len;
-		if ((dec = yaca_malloc(dec_size)) == NULL)
+		if (yaca_malloc(dec_size, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
 		out_size = dec_size;

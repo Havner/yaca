@@ -59,8 +59,8 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ldigest = yaca_malloc(ldigest_len);
-	if (ldigest == NULL)
+	ret = yaca_malloc(ldigest_len, (void**)&ldigest);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	ret = yaca_digest_final(ctx, ldigest, &ldigest_len);
@@ -90,7 +90,6 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	yaca_ctx_h ctx;
 	int ret;
 	char *lcipher = NULL;
-	char *rcipher = NULL;
 	size_t out_len, lcipher_len, written;
 
 	if (plain == NULL || plain_len == 0 || cipher == NULL || cipher_len == NULL ||
@@ -116,8 +115,8 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 
 	lcipher_len += out_len;
 
-	lcipher = yaca_malloc(lcipher_len);
-	if (lcipher == NULL)
+	ret = yaca_malloc(lcipher_len, (void**)&lcipher);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	out_len = lcipher_len;
@@ -136,13 +135,11 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 	written += out_len;
 	assert(written <= lcipher_len);
 
-	rcipher = yaca_realloc(lcipher, written);
-	if (rcipher == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_realloc(written, (void**)&lcipher);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
-	*cipher = rcipher;
+	*cipher = lcipher;
 	*cipher_len = written;
 	lcipher = NULL;
 	ret = YACA_ERROR_NONE;
@@ -166,7 +163,6 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	yaca_ctx_h ctx;
 	int ret;
 	char *lplain = NULL;
-	char *rplain = NULL;
 	size_t out_len, lplain_len, written;
 
 	if (cipher == NULL || cipher_len == 0 || plain == NULL || plain_len == NULL ||
@@ -192,8 +188,8 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 
 	lplain_len += out_len;
 
-	lplain = yaca_malloc(lplain_len);
-	if (lplain == NULL)
+	ret = yaca_malloc(lplain_len, (void**)&lplain);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	out_len = lplain_len;
@@ -212,13 +208,11 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	written += out_len;
 	assert(written <= lplain_len);
 
-	rplain = yaca_realloc(lplain, written);
-	if (rplain == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_realloc(written, (void**)&lplain);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
-	*plain = rplain;
+	*plain = lplain;
 	*plain_len = written;
 	lplain = NULL;
 	ret = YACA_ERROR_NONE;
@@ -246,9 +240,9 @@ static int sign(const yaca_ctx_h ctx, const char *data, size_t data_len,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	*signature = yaca_malloc(*signature_len);
-	if (signature == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_malloc(*signature_len, (void**)signature);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	ret = yaca_sign_final(ctx, *signature, signature_len);
 	if (ret != YACA_ERROR_NONE) {

@@ -122,9 +122,9 @@ API int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo)
 	if (ctx == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	nc = yaca_zalloc(sizeof(struct yaca_digest_ctx_s));
-	if (nc == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_digest_ctx_s), (void**)&nc);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nc->ctx.type = YACA_CTX_DIGEST;
 	nc->ctx.ctx_destroy = destroy_digest_context;

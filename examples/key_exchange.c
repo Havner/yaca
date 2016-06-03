@@ -64,8 +64,7 @@ void key_exchange_dh(void)
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = yaca_malloc(size+1);
-	if (buffer == NULL)
+	if (yaca_malloc(size + 1, (void**)&buffer) != YACA_ERROR_NONE)
 		goto exit;
 
 	/* copy the file into the buffer */
@@ -127,8 +126,7 @@ void key_exchange_ecdh(void)
 	rewind(fp);
 
 	/* allocate memory for entire content */
-	buffer = yaca_malloc(size+1);
-	if (buffer == NULL)
+	if (yaca_malloc(size + 1, (void**)&buffer) != YACA_ERROR_NONE)
 		goto exit;
 
 	/* copy the file into the buffer */

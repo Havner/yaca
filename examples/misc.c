@@ -30,6 +30,7 @@
 #include <openssl/bio.h>
 
 #include <yaca_crypto.h>
+#include <yaca_error.h>
 
 #include "misc.h"
 
@@ -92,18 +93,15 @@ int read_file(const char *path, char **data, size_t *data_len)
 
 		if (read > 0) {
 			if (buf == NULL) {
-				buf = yaca_malloc(read);
-				if (buf == NULL) {
+				if (yaca_malloc(read, (void**)&buf) != YACA_ERROR_NONE) {
 					ret = -1;
 					break;
 				}
 			} else {
-				char *new_buf = yaca_realloc(buf, buf_len + read);
-				if (new_buf == NULL) {
+				if (yaca_realloc(buf_len + read, (void**)&buf) != YACA_ERROR_NONE) {
 					ret = -1;
 					break;
 				}
-				buf = new_buf;
 			}
 
 			memcpy(buf + buf_len, tmp, read);
@@ -132,7 +130,6 @@ int read_file(const char *path, char **data, size_t *data_len)
 int read_stdin_line(const char *prompt, char **string)
 {
 	char *buf = NULL;
-	char *ret;
 	size_t size;
 	ssize_t read;
 
@@ -145,8 +142,7 @@ int read_stdin_line(const char *prompt, char **string)
 		return -1;
 	}
 
-	ret = yaca_realloc(buf, read);
-	if (ret == NULL) {
+	if (yaca_realloc(read, (void**)&buf) != YACA_ERROR_NONE) {
 		free(buf);
 		return -1;
 	}

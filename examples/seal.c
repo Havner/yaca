@@ -75,7 +75,7 @@ void encrypt_seal(void)
 
 		/* Calculate max output: size of update + final chunks */
 		enc_size = output_len + block_len;
-		if ((enc = yaca_malloc(enc_size)) == NULL)
+		if (yaca_malloc(enc_size, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Seal and finalize */
@@ -108,7 +108,7 @@ void encrypt_seal(void)
 
 		/* Calculate max output: size of update + final chunks */
 		dec_size = output_len + block_len;
-		if ((dec = yaca_malloc(dec_size)) == NULL)
+		if (yaca_malloc(dec_size, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Open and finalize */

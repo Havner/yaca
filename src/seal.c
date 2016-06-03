@@ -124,9 +124,9 @@ static int seal_init(yaca_ctx_h *ctx,
 	lpub = key_get_evp(pub_key);
 	assert(lpub);
 
-	nc = yaca_zalloc(sizeof(struct yaca_seal_ctx_s));
-	if (nc == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_seal_ctx_s), (void**)&nc);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nc->ctx.type = YACA_CTX_SEAL;
 	nc->ctx.ctx_destroy = destroy_seal_ctx;
@@ -148,11 +148,9 @@ static int seal_init(yaca_ctx_h *ctx,
 	}
 
 	pub_key_length = ret;
-	lkey = yaca_zalloc(sizeof(struct yaca_key_simple_s) + pub_key_length);
-	if (lkey == NULL) {
-		ret = YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + pub_key_length, (void**)&lkey);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 	key_data = (unsigned char*)lkey->d;
 
 	ret = encrypt_get_algorithm(algo, bcm, sym_key_bits, &cipher);
@@ -168,11 +166,9 @@ static int seal_init(yaca_ctx_h *ctx,
 
 	iv_length = ret;
 	if (iv_length > 0) {
-		liv = yaca_zalloc(sizeof(struct yaca_key_simple_s) + iv_length);
-		if (liv == NULL) {
-			ret = YACA_ERROR_OUT_OF_MEMORY;
+		ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + iv_length, (void**)&liv);
+		if (ret != YACA_ERROR_NONE)
 			goto exit;
-		}
 		iv_data = (unsigned char*)liv->d;
 	}
 
@@ -245,9 +241,9 @@ static int open_init(yaca_ctx_h *ctx,
 	if (lkey == NULL || lkey->key.type != YACA_KEY_TYPE_SYMMETRIC)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	nc = yaca_zalloc(sizeof(struct yaca_seal_ctx_s));
-	if (nc == NULL)
-		return YACA_ERROR_OUT_OF_MEMORY;
+	ret = yaca_zalloc(sizeof(struct yaca_seal_ctx_s), (void**)&nc);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	nc->ctx.type = YACA_CTX_SEAL;
 	nc->ctx.ctx_destroy = destroy_seal_ctx;
