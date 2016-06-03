@@ -92,16 +92,9 @@ int read_file(const char *path, char **data, size_t *data_len)
 		size_t read = fread(tmp, 1, BUF_SIZE, f);
 
 		if (read > 0) {
-			if (buf == NULL) {
-				if (yaca_malloc(read, (void**)&buf) != YACA_ERROR_NONE) {
-					ret = -1;
-					break;
-				}
-			} else {
-				if (yaca_realloc(buf_len + read, (void**)&buf) != YACA_ERROR_NONE) {
-					ret = -1;
-					break;
-				}
+			if (yaca_realloc(buf_len + read, (void**)&buf) != YACA_ERROR_NONE) {
+				ret = -1;
+				break;
 			}
 
 			memcpy(buf + buf_len, tmp, read);
