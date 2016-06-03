@@ -93,6 +93,8 @@ static int get_encrypt_output_length(const yaca_ctx_h ctx, size_t input_len, siz
 	} else {
 		*output_len = block_size;
 	}
+	if (*output_len == 0)
+		return YACA_ERROR_INTERNAL;
 
 	return YACA_ERROR_NONE;
 }

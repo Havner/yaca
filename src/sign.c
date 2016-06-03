@@ -79,14 +79,14 @@ static int get_sign_output_length(const yaca_ctx_h ctx,
 
 	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(c->mdctx->pctx);
 	if (pkey == NULL) {
-		ERROR_DUMP(YACA_ERROR_INVALID_ARGUMENT);
-		return YACA_ERROR_INVALID_ARGUMENT;
+		ERROR_DUMP(YACA_ERROR_INTERNAL);
+		return YACA_ERROR_INTERNAL;
 	}
 
-	size_t len = EVP_PKEY_size(pkey);
+	int len = EVP_PKEY_size(pkey);
 	if (len <= 0) {
-		ERROR_DUMP(YACA_ERROR_INVALID_ARGUMENT);
-		return YACA_ERROR_INVALID_ARGUMENT;
+		ERROR_DUMP(YACA_ERROR_INTERNAL);
+		return YACA_ERROR_INTERNAL;
 	}
 
 	*output_len = len;

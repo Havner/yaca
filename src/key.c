@@ -407,6 +407,8 @@ int export_simple_raw(struct yaca_key_simple_s *simple_key,
 
 	size_t key_len = simple_key->bits / 8;
 
+	assert(key_len > 0);
+
 	ret = yaca_malloc(key_len, (void**)data);
 	if (ret != YACA_ERROR_NONE)
 		return ret;

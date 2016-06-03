@@ -57,7 +57,12 @@ static int get_digest_output_length(const yaca_ctx_h ctx, size_t input_len, size
 	if (c == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
 
-	*output_len = EVP_MD_CTX_size(c->mdctx);
+	int md_size = EVP_MD_CTX_size(c->mdctx);
+	if (md_size <= 0)
+		return YACA_ERROR_INTERNAL;
+
+	*output_len = md_size;
+
 	return YACA_ERROR_NONE;
 }
 

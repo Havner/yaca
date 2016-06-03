@@ -94,32 +94,34 @@ API int yaca_init(void)
 	OpenSSL_add_all_ciphers();
 
 	/* enable threads support */
-	ret = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t), (void**)&mutexes);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
-
-	for (int i = 0; i < CRYPTO_num_locks(); i++) {
-		if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
-			int ret = YACA_ERROR_NONE;
-			switch (errno) {
-			case ENOMEM:
-				ret = YACA_ERROR_OUT_OF_MEMORY;
-				break;
-			case EAGAIN:
-			case EPERM:
-			case EBUSY:
-			case EINVAL:
-			default:
-				ret = YACA_ERROR_INTERNAL;
-			}
-			destroy_mutexes(i);
-
+	if (CRYPTO_num_locks() > 0) {
+		ret = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t), (void**)&mutexes);
+		if (ret != YACA_ERROR_NONE)
 			return ret;
-		}
-	}
 
-	CRYPTO_set_id_callback(thread_id_callback);
-	CRYPTO_set_locking_callback(locking_callback);
+		for (int i = 0; i < CRYPTO_num_locks(); i++) {
+			if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
+				int ret = YACA_ERROR_NONE;
+				switch (errno) {
+				case ENOMEM:
+					ret = YACA_ERROR_OUT_OF_MEMORY;
+					break;
+				case EAGAIN:
+				case EPERM:
+				case EBUSY:
+				case EINVAL:
+				default:
+					ret = YACA_ERROR_INTERNAL;
+				}
+				destroy_mutexes(i);
+
+				return ret;
+			}
+		}
+
+		CRYPTO_set_id_callback(thread_id_callback);
+		CRYPTO_set_locking_callback(locking_callback);
+	}
 
 	/*
 	  TODO:

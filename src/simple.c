@@ -59,6 +59,8 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
+	assert(ldigest_len > 0);
+
 	ret = yaca_malloc(ldigest_len, (void**)&ldigest);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -115,6 +117,8 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 
 	lcipher_len += out_len;
 
+	assert(lcipher_len > 0);
+
 	ret = yaca_malloc(lcipher_len, (void**)&lcipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -133,7 +137,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 		goto exit;
 
 	written += out_len;
-	assert(written <= lcipher_len);
+	assert(written <= lcipher_len && written > 0);
 
 	ret = yaca_realloc(written, (void**)&lcipher);
 	if (ret != YACA_ERROR_NONE)
@@ -187,6 +191,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 	}
 
 	lplain_len += out_len;
+	assert(lplain_len > 0);
 
 	ret = yaca_malloc(lplain_len, (void**)&lplain);
 	if (ret != YACA_ERROR_NONE)
@@ -206,7 +211,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 		goto exit;
 
 	written += out_len;
-	assert(written <= lplain_len);
+	assert(written <= lplain_len && written > 0);
 
 	ret = yaca_realloc(written, (void**)&lplain);
 	if (ret != YACA_ERROR_NONE)
@@ -239,6 +244,8 @@ static int sign(const yaca_ctx_h ctx, const char *data, size_t data_len,
 	ret = yaca_get_sign_length(ctx, signature_len);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
+
+	assert(*signature_len > 0);
 
 	ret = yaca_malloc(*signature_len, (void**)signature);
 	if (ret != YACA_ERROR_NONE)
