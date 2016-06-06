@@ -249,9 +249,9 @@ static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
 }
 
 int encrypt_get_algorithm(yaca_enc_algo_e algo,
-			  yaca_block_cipher_mode_e bcm,
-			  size_t key_bits,
-			  const EVP_CIPHER **cipher)
+                          yaca_block_cipher_mode_e bcm,
+                          size_t key_bits,
+                          const EVP_CIPHER **cipher)
 {
 	char cipher_name[32];
 	const char *algo_name = encrypt_algo_to_str(algo);
@@ -306,11 +306,11 @@ int encrypt_get_algorithm(yaca_enc_algo_e algo,
 }
 
 static int encrypt_init(yaca_ctx_h *ctx,
-			yaca_enc_algo_e algo,
-			yaca_block_cipher_mode_e bcm,
-			const yaca_key_h sym_key,
-			const yaca_key_h iv,
-			enum encrypt_op_type op_type)
+                        yaca_enc_algo_e algo,
+                        yaca_block_cipher_mode_e bcm,
+                        const yaca_key_h sym_key,
+                        const yaca_key_h iv,
+                        enum encrypt_op_type op_type)
 {
 	const struct yaca_key_simple_s *lkey;
 	const struct yaca_key_simple_s *liv;
@@ -466,11 +466,11 @@ exit:
 }
 
 static int encrypt_update(yaca_ctx_h ctx,
-			  const unsigned char *input,
-			  size_t input_len,
-			  unsigned char *output,
-			  size_t *output_len,
-			  enum encrypt_op_type op_type)
+                          const unsigned char *input,
+                          size_t input_len,
+                          unsigned char *output,
+                          size_t *output_len,
+                          enum encrypt_op_type op_type)
 {
 	struct yaca_encrypt_ctx_s *c = get_encrypt_ctx(ctx);
 	int ret;
@@ -484,11 +484,11 @@ static int encrypt_update(yaca_ctx_h ctx,
 	switch (op_type) {
 	case OP_ENCRYPT:
 		ret = EVP_EncryptUpdate(c->cipher_ctx, output, &loutput_len,
-					input, input_len);
+		                        input, input_len);
 		break;
 	case OP_DECRYPT:
 		ret = EVP_DecryptUpdate(c->cipher_ctx, output, &loutput_len,
-					input, input_len);
+		                        input, input_len);
 		break;
 	default:
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -505,9 +505,9 @@ static int encrypt_update(yaca_ctx_h ctx,
 }
 
 static int encrypt_final(yaca_ctx_h ctx,
-			 unsigned char *output,
-			 size_t *output_len,
-			 enum encrypt_op_type op_type)
+                         unsigned char *output,
+                         size_t *output_len,
+                         enum encrypt_op_type op_type)
 {
 	struct yaca_encrypt_ctx_s *c = get_encrypt_ctx(ctx);
 	int ret;
@@ -563,55 +563,55 @@ API int yaca_get_iv_bits(yaca_enc_algo_e algo,
 }
 
 API int yaca_encrypt_init(yaca_ctx_h *ctx,
-			  yaca_enc_algo_e algo,
-			  yaca_block_cipher_mode_e bcm,
-			  const yaca_key_h sym_key,
-			  const yaca_key_h iv)
+                          yaca_enc_algo_e algo,
+                          yaca_block_cipher_mode_e bcm,
+                          const yaca_key_h sym_key,
+                          const yaca_key_h iv)
 {
 	return encrypt_init(ctx, algo, bcm, sym_key, iv, OP_ENCRYPT);
 }
 
 API int yaca_encrypt_update(yaca_ctx_h ctx,
-			    const char *plain,
-			    size_t plain_len,
-			    char *cipher,
-			    size_t *cipher_len)
+                            const char *plain,
+                            size_t plain_len,
+                            char *cipher,
+                            size_t *cipher_len)
 {
 	return encrypt_update(ctx, (const unsigned char*)plain, plain_len,
-			      (unsigned char*)cipher, cipher_len, OP_ENCRYPT);
+	                      (unsigned char*)cipher, cipher_len, OP_ENCRYPT);
 }
 
 API int yaca_encrypt_final(yaca_ctx_h ctx,
-			   char *cipher,
-			   size_t *cipher_len)
+                           char *cipher,
+                           size_t *cipher_len)
 {
 	return encrypt_final(ctx, (unsigned char*)cipher,
-			     cipher_len, OP_ENCRYPT);
+	                     cipher_len, OP_ENCRYPT);
 }
 
 API int yaca_decrypt_init(yaca_ctx_h *ctx,
-			  yaca_enc_algo_e algo,
-			  yaca_block_cipher_mode_e bcm,
-			  const yaca_key_h sym_key,
-			  const yaca_key_h iv)
+                          yaca_enc_algo_e algo,
+                          yaca_block_cipher_mode_e bcm,
+                          const yaca_key_h sym_key,
+                          const yaca_key_h iv)
 {
 	return encrypt_init(ctx, algo, bcm, sym_key, iv, OP_DECRYPT);
 }
 
 API int yaca_decrypt_update(yaca_ctx_h ctx,
-			    const char *cipher,
-			    size_t cipher_len,
-			    char *plain,
-			    size_t *plain_len)
+                            const char *cipher,
+                            size_t cipher_len,
+                            char *plain,
+                            size_t *plain_len)
 {
 	return encrypt_update(ctx, (const unsigned char*)cipher, cipher_len,
-			      (unsigned char*)plain, plain_len, OP_DECRYPT);
+	                      (unsigned char*)plain, plain_len, OP_DECRYPT);
 }
 
 API int yaca_decrypt_final(yaca_ctx_h ctx,
-			   char *plain,
-			   size_t *plain_len)
+                           char *plain,
+                           size_t *plain_len)
 {
 	return encrypt_final(ctx, (unsigned char*)plain, plain_len,
-			     OP_DECRYPT);
+	                     OP_DECRYPT);
 }

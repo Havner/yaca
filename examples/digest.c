@@ -37,8 +37,8 @@ void digest_simple(void)
 	size_t digest_len;
 
 	ret = yaca_digest_calc(YACA_DIGEST_SHA256,
-			       lorem1024,
-			       1024, &digest, &digest_len);
+	                       lorem1024,
+	                       1024, &digest, &digest_len);
 	if (ret != YACA_ERROR_NONE)
 		return;
 

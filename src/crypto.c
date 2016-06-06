@@ -124,11 +124,11 @@ API int yaca_init(void)
 	}
 
 	/*
-	  TODO:
-		We should also decide on Openssl config.
-		Here's a good tutorial for initalization and cleanup: https://wiki.openssl.org/index.php/Library_Initialization
-		We should also initialize the entropy for random number generator: https://wiki.openssl.org/index.php/Random_Numbers#Initialization
-	*/
+	 * TODO:
+	 * - We should also decide on Openssl config.
+	 * - Here's a good tutorial for initalization and cleanup: https://wiki.openssl.org/index.php/Library_Initialization
+	 * - We should also initialize the entropy for random number generator: https://wiki.openssl.org/index.php/Random_Numbers#Initialization
+	 */
 
 	return YACA_ERROR_NONE;
 }
@@ -216,7 +216,7 @@ API int yaca_rand_bytes(char *data, size_t data_len)
 }
 
 API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
-			   const void *value, size_t value_len)
+                           const void *value, size_t value_len)
 {
 	if (ctx == YACA_CTX_NULL || ctx->set_param == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;
@@ -225,7 +225,7 @@ API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
 }
 
 API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
-			   void **value, size_t *value_len)
+                           void **value, size_t *value_len)
 {
 	if (ctx == YACA_CTX_NULL || ctx->get_param == NULL)
 		return YACA_ERROR_INVALID_ARGUMENT;

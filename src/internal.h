@@ -48,9 +48,9 @@ struct yaca_ctx_s {
 	void (*ctx_destroy)(const yaca_ctx_h ctx);
 	int (*get_output_length)(const yaca_ctx_h ctx, size_t input_len, size_t *output_len);
 	int (*set_param)(yaca_ctx_h ctx, yaca_ex_param_e param,
-			 const void *value, size_t value_len);
+	                 const void *value, size_t value_len);
 	int (*get_param)(const yaca_ctx_h ctx, yaca_ex_param_e param,
-			 void **value, size_t *value_len);
+	                 void **value, size_t *value_len);
 };
 
 

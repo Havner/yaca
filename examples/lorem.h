@@ -27,7 +27,7 @@
 #include <stddef.h>
 
 /**
-  Test strings, sizes include null-termination
+ * Test strings, sizes include null-termination
  */
 extern const char lorem8[];
 extern const char lorem16[];
