@@ -25,7 +25,7 @@
 #include "misc.h"
 #include "../src/debug.h"
 
-void example_password(const yaca_key_h key, yaca_key_fmt_e key_fmt)
+void example_password(const yaca_key_h key, yaca_key_format_e key_fmt)
 {
 	char *k = NULL;
 	size_t kl;
@@ -45,13 +45,13 @@ void example_password(const yaca_key_h key, yaca_key_fmt_e key_fmt)
 	password = NULL;
 
 	ret = yaca_key_import(YACA_KEY_TYPE_RSA_PRIV, NULL, k, kl, &lkey);
-	if (ret == YACA_ERROR_PASSWORD_INVALID) {
+	if (ret == YACA_ERROR_INVALID_PASSWORD) {
 		ret = read_stdin_line("decryption pass: ", &password);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		ret = yaca_key_import(YACA_KEY_TYPE_RSA_PRIV, password, k, kl, &lkey);
-		if (ret == YACA_ERROR_PASSWORD_INVALID)
+		if (ret == YACA_ERROR_INVALID_PASSWORD)
 			printf("invalid password\n");
 
 		yaca_free(password);
@@ -73,7 +73,7 @@ void example_password(const yaca_key_h key, yaca_key_fmt_e key_fmt)
 exit:
 	yaca_free(k);
 	yaca_free(password);
-	yaca_key_free(lkey);
+	yaca_key_destroy(lkey);
 }
 
 int main(int argc, char *argv[])
@@ -83,11 +83,11 @@ int main(int argc, char *argv[])
 
 	yaca_debug_set_error_cb(debug_func);
 
-	ret = yaca_init();
+	ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_key_gen(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_1024BIT, &key);
+	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_LENGTH_1024BIT, &key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
 	example_password(key, YACA_KEY_FORMAT_PKCS8);
 
 exit:
-	yaca_key_free(key);
-	yaca_exit();
+	yaca_key_destroy(key);
+	yaca_cleanup();
 
 	return 0;
 }

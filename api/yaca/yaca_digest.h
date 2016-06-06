@@ -44,42 +44,42 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free())
+ * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Digest algorithm that will be used
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_digest_algo_e
+ * @see #yaca_digest_algorithm_e
  * @see yaca_digest_update()
- * @see yaca_digest_final()
- * @see yaca_ctx_free()
+ * @see yaca_digest_finalize()
+ * @see yaca_context_destroy()
  */
-int yaca_digest_init(yaca_ctx_h *ctx, yaca_digest_algo_e algo);
+int yaca_digest_initialize(yaca_context_h *ctx, yaca_digest_algorithm_e algo);
 
 /**
  * @brief  Feeds the data into the message digest algorithm.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx       Context created by yaca_digest_init()
+ * @param[in,out] ctx       Context created by yaca_digest_initialize()
  * @param[in]     data      Data from which the digest is to be calculated
  * @param[in]     data_len  Length of the data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_digest_init()
- * @see yaca_digest_final()
+ * @see yaca_digest_initialize()
+ * @see yaca_digest_finalize()
  */
-int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len);
+int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len);
 
 /**
  * @brief  Calculates the final digest.
@@ -94,15 +94,15 @@ int yaca_digest_update(yaca_ctx_h ctx, const char *data, size_t data_len);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_digest_init()
+ * @see yaca_digest_initialize()
  * @see yaca_digest_update()
  * @see yaca_get_digest_length()
  */
-int yaca_digest_final(yaca_ctx_h ctx, char *digest, size_t *digest_len);
+int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_len);
 
 /**@}*/
 

@@ -42,14 +42,14 @@ enum yaca_ctx_type_e {
 };
 
 /* Base structure for crypto contexts - to be inherited */
-struct yaca_ctx_s {
+struct yaca_context_s {
 	enum yaca_ctx_type_e type;
 
-	void (*ctx_destroy)(const yaca_ctx_h ctx);
-	int (*get_output_length)(const yaca_ctx_h ctx, size_t input_len, size_t *output_len);
-	int (*set_param)(yaca_ctx_h ctx, yaca_ex_param_e param,
+	void (*ctx_destroy)(const yaca_context_h ctx);
+	int (*get_output_length)(const yaca_context_h ctx, size_t input_len, size_t *output_len);
+	int (*set_param)(yaca_context_h ctx, yaca_property_e param,
 	                 const void *value, size_t value_len);
-	int (*get_param)(const yaca_ctx_h ctx, yaca_ex_param_e param,
+	int (*get_param)(const yaca_context_h ctx, yaca_property_e param,
 	                 void **value, size_t *value_len);
 };
 
@@ -86,9 +86,9 @@ struct yaca_key_evp_s {
 	EVP_PKEY *evp;
 };
 
-int digest_get_algorithm(yaca_digest_algo_e algo, const EVP_MD **md);
+int digest_get_algorithm(yaca_digest_algorithm_e algo, const EVP_MD **md);
 
-int encrypt_get_algorithm(yaca_enc_algo_e algo,
+int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           yaca_block_cipher_mode_e bcm,
                           size_t key_bits,
                           const EVP_CIPHER **cipher);

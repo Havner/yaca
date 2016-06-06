@@ -36,7 +36,7 @@ void digest_simple(void)
 	char *digest;
 	size_t digest_len;
 
-	ret = yaca_digest_calc(YACA_DIGEST_SHA256,
+	ret = yaca_simple_calculate_digest(YACA_DIGEST_SHA256,
 	                       lorem1024,
 	                       1024, &digest, &digest_len);
 	if (ret != YACA_ERROR_NONE)
@@ -50,9 +50,9 @@ void digest_simple(void)
 void digest_advanced(void)
 {
 	int ret = YACA_ERROR_NONE;
-	yaca_ctx_h ctx;
+	yaca_context_h ctx;
 
-	ret = yaca_digest_init(&ctx, YACA_DIGEST_SHA256);
+	ret = yaca_digest_initialize(&ctx, YACA_DIGEST_SHA256);
 	if (ret != YACA_ERROR_NONE)
 		return;
 
@@ -68,7 +68,7 @@ void digest_advanced(void)
 	{
 		char digest[digest_len];
 
-		ret = yaca_digest_final(ctx, digest, &digest_len);
+		ret = yaca_digest_finalize(ctx, digest, &digest_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
@@ -76,14 +76,14 @@ void digest_advanced(void)
 	}
 
 exit:
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 }
 
 int main()
 {
 	yaca_debug_set_error_cb(debug_func);
 
-	int ret = yaca_init();
+	int ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -91,6 +91,6 @@ int main()
 
 	digest_advanced();
 
-	yaca_exit();
+	yaca_cleanup();
 	return ret;
 }

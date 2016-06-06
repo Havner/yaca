@@ -41,7 +41,7 @@ extern "C" {
  *
  * @since_tizen 3.0
  */
-typedef struct yaca_ctx_s *yaca_ctx_h;
+typedef struct yaca_context_s *yaca_context_h;
 
 /**
  * @brief Key.
@@ -60,7 +60,7 @@ typedef enum {
 	YACA_KEY_FORMAT_DEFAULT,
 	/** Key is in PKCS#8, can only be used for asymmetric private keys */
 	YACA_KEY_FORMAT_PKCS8
-} yaca_key_fmt_e;
+} yaca_key_format_e;
 
 /**
  * @brief Enumeration of YACA key file formats.
@@ -76,7 +76,7 @@ typedef enum {
 	YACA_KEY_FILE_FORMAT_PEM,
 	/** Key file is in DER file format, used for asymmetric keys */
 	YACA_KEY_FILE_FORMAT_DER
-} yaca_key_file_fmt_e;
+} yaca_key_file_format_e;
 
 /**
  * @brief Enumeration of YACA key types, IV is considered as key.
@@ -105,28 +105,28 @@ typedef enum {
 /**
  * @brief Enumeration of YACA key lengths.
  *        It is possible to use arbitrary integer instead,
- *        this enums are placed here to avoid magic numbers.
+ *        this enum values are placed here to avoid magic numbers.
  *
  * @since_tizen 3.0
  */
 typedef enum {
-	YACA_KEY_IV_UNSAFE_24BIT = 24,
-	YACA_KEY_IV_64BIT = 64,
-	YACA_KEY_IV_128BIT = 128,
-	YACA_KEY_IV_256BIT = 256,
-	YACA_KEY_UNSAFE_8BIT = 8,
-	YACA_KEY_UNSAFE_40BIT = 40,
-	YACA_KEY_UNSAFE_64BIT = 64,
-	YACA_KEY_UNSAFE_80BIT = 80,
-	YACA_KEY_UNSAFE_128BIT = 128,
-	YACA_KEY_192BIT = 192,
-	YACA_KEY_256BIT = 256,
-	YACA_KEY_512BIT = 512,
-	YACA_KEY_1024BIT = 1024,
-	YACA_KEY_2048BIT = 2048,
-	YACA_KEY_3072BIT = 3072,
-	YACA_KEY_4096BIT = 4096
-} yaca_key_bits_e;
+	YACA_KEY_LENGTH_IV_UNSAFE_24BIT = 24,
+	YACA_KEY_LENGTH_IV_64BIT = 64,
+	YACA_KEY_LENGTH_IV_128BIT = 128,
+	YACA_KEY_LENGTH_IV_256BIT = 256,
+	YACA_KEY_LENGTH_UNSAFE_8BIT = 8,
+	YACA_KEY_LENGTH_UNSAFE_40BIT = 40,
+	YACA_KEY_LENGTH_UNSAFE_64BIT = 64,
+	YACA_KEY_LENGTH_UNSAFE_80BIT = 80,
+	YACA_KEY_LENGTH_UNSAFE_128BIT = 128,
+	YACA_KEY_LENGTH_192BIT = 192,
+	YACA_KEY_LENGTH_256BIT = 256,
+	YACA_KEY_LENGTH_512BIT = 512,
+	YACA_KEY_LENGTH_1024BIT = 1024,
+	YACA_KEY_LENGTH_2048BIT = 2048,
+	YACA_KEY_LENGTH_3072BIT = 3072,
+	YACA_KEY_LENGTH_4096BIT = 4096
+} yaca_key_bit_length_e;
 
 /**
  * @brief Enumeration of YACA message digest algorithms.
@@ -146,7 +146,7 @@ typedef enum {
 	YACA_DIGEST_SHA384,
 	/** Message digest algorithm SHA2, 512bit */
 	YACA_DIGEST_SHA512,
-} yaca_digest_algo_e;
+} yaca_digest_algorithm_e;
 
 /**
  * @brief Enumeration of YACA symmetric encryption algorithms.
@@ -169,7 +169,7 @@ typedef enum {
 	 * #YACA_BCM_CTR
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
-	YACA_ENC_AES = 0,
+	YACA_ENCRYPT_AES = 0,
 
 	/**
 	 * DES encryption.
@@ -183,7 +183,7 @@ typedef enum {
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
-	YACA_ENC_UNSAFE_DES,
+	YACA_ENCRYPT_UNSAFE_DES,
 
 	/**
 	 * 3DES 2-key encryption.
@@ -197,7 +197,7 @@ typedef enum {
 	 * - Use double DES keys to perform corresponding 2-key 3DES encryption.
 
 	 */
-	YACA_ENC_UNSAFE_3DES_2TDEA,
+	YACA_ENCRYPT_UNSAFE_3DES_2TDEA,
 
 	/**
 	 * 3DES 3-key encryption.
@@ -212,7 +212,7 @@ typedef enum {
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 * - Use triple DES keys to perform corresponding 3-key 3DES encryption.
 	 */
-	YACA_ENC_3DES_3TDEA,
+	YACA_ENCRYPT_3DES_3TDEA,
 
 	/**
 	 * RC2 encryption.
@@ -225,7 +225,7 @@ typedef enum {
 	 * #YACA_BCM_CFB,
 	 * #YACA_BCM_ECB
 	 */
-	YACA_ENC_UNSAFE_RC2,
+	YACA_ENCRYPT_UNSAFE_RC2,
 
 	/**
 	 * RC4 encryption.
@@ -233,7 +233,7 @@ typedef enum {
 	 * - Supported key lengths: 40–2048 bits in steps of 8 bits.
 	 * This cipher doesn't support block cipher modes, use #YACA_BCM_NONE instead.
 	 */
-	YACA_ENC_UNSAFE_RC4,
+	YACA_ENCRYPT_UNSAFE_RC4,
 
 	/**
 	 * CAST5 encryption.
@@ -246,8 +246,8 @@ typedef enum {
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
 	 */
-	YACA_ENC_CAST5,
-} yaca_enc_algo_e;
+	YACA_ENCRYPT_CAST5,
+} yaca_encrypt_algorithm_e;
 
 /**
  * @brief Enumeration of YACA chaining modes for block ciphers.
@@ -283,20 +283,20 @@ typedef enum {
 	 * This is a variable IV length mode (recommended 96 bits IV).
 	 *
 	 * Supported parameters:
-	 * - #YACA_PARAM_GCM_TAG_LEN = GCM tag length\n
+	 * - #YACA_PROPERTY_GCM_TAG_LEN = GCM tag length\n
 	 *   Supported tag lengths: @c 32, @c 64, @c 96, @c 104, @c 112, @c 120, @c 128,
 	 *   (recommended 128 bits tag).\n
-	 *   Set after yaca_encrypt_final() and before yaca_ctx_get_param(#YACA_PARAM_GCM_TAG)
+	 *   Set after yaca_encrypt_finalize() and before yaca_context_get_property(#YACA_PROPERTY_GCM_TAG)
 	 *   in encryption operation.\n\n
 	 *
-	 * - #YACA_PARAM_GCM_TAG = GCM tag\n
-	 *   Get after yaca_encrypt_final() in encryption operation.\n
-	 *   Set before yaca_decrypt_final() in decryption operation.\n\n
+	 * - #YACA_PROPERTY_GCM_TAG = GCM tag\n
+	 *   Get after yaca_encrypt_finalize() in encryption operation.\n
+	 *   Set before yaca_decrypt_finalize() in decryption operation.\n\n
 	 *
-	 * - #YACA_PARAM_GCM_AAD = additional authentication data (optional)\n
-	 *   Set after yaca_encrypt_init() and before yaca_encrypt_update()
+	 * - #YACA_PROPERTY_GCM_AAD = additional authentication data (optional)\n
+	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()
 	 *   in encryption operation.\n
-	 *   Set after yaca_decrypt_init() and before yaca_decrypt_update()
+	 *   Set after yaca_decrypt_initialize() and before yaca_decrypt_update()
 	 *   in decryption operation.\n\n
 	 *
 	 *   @see examples/encrypt_aes_gcm_ccm.c
@@ -333,26 +333,26 @@ typedef enum {
 	 * Supported IV lengths: 56-104 bits in steps of 8 bits (recommended 56 bits IV).\n\n
 	 *
 	 * Supported parameters:
-	 * - #YACA_PARAM_CCM_TAG_LEN = CCM tag length\n
+	 * - #YACA_PROPERTY_CCM_TAG_LEN = CCM tag length\n
 	 *   Supported tag lengths: 32-128 bits in step of 16 bits (recommended 96 bits tag).\n
-	 *   Set after yaca_encrypt_init() and before yaca_encrypt_update()
+	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()
 	 *   in encryption operation.\n\n
 	 *
-	 * - #YACA_PARAM_CCM_TAG = CCM tag\n
-	 *   Get after yaca_encrypt_final() in encryption operation.\n
-	 *   Set after yaca_decrypt_init() and before yaca_decrypt_update()
+	 * - #YACA_PROPERTY_CCM_TAG = CCM tag\n
+	 *   Get after yaca_encrypt_finalize() in encryption operation.\n
+	 *   Set after yaca_decrypt_initialize() and before yaca_decrypt_update()
 	 *   in decryption operation.\n\n
 	 *
-	 * - #YACA_PARAM_CCM_AAD = additional authentication data (optional)\n
+	 * - #YACA_PROPERTY_CCM_AAD = additional authentication data (optional)\n
 	 *   The total plain text length must be passed to yaca_encrypt_update()
 	 *   if AAD is used.\n
-	 *   Set after yaca_encrypt_init() and before yaca_encrypt_update()
+	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()
 	 *   in encryption operation.\n
 	 *   You can only call yaca_encrypt_update() once for AAD and once for the plain text.\n\n
 	 *
 	 *   The total encrypted text length must be passed to yaca_decrypt_update()
 	 *   if AAD is used.\n
-	 *   Set after yaca_decrypt_init() and before yaca_decrypt_update()
+	 *   Set after yaca_decrypt_initialize() and before yaca_decrypt_update()
 	 *   in decryption operation.\n\n
 	 *
 	 *   @see examples/encrypt_aes_gcm_ccm.c
@@ -363,28 +363,28 @@ typedef enum {
 
 
 /**
- * @brief Enumeration of YACA non-standard parameters for algorithms.
+ * @brief Enumeration of YACA non-standard properties for algorithms.
  *
  * @since_tizen 3.0
  */
 typedef enum {
 	/** Padding */
-	YACA_PARAM_PADDING,
+	YACA_PROPERTY_PADDING,
 
 	/** GCM Additional Authentication Data */
-	YACA_PARAM_GCM_AAD,
+	YACA_PROPERTY_GCM_AAD,
 	/** GCM Tag bits */
-	YACA_PARAM_GCM_TAG,
+	YACA_PROPERTY_GCM_TAG,
 	/** GCM Tag length */
-	YACA_PARAM_GCM_TAG_LEN,
+	YACA_PROPERTY_GCM_TAG_LEN,
 
 	/** CCM Additional Authentication Data */
-	YACA_PARAM_CCM_AAD,
+	YACA_PROPERTY_CCM_AAD,
 	/** CCM Tag bits */
-	YACA_PARAM_CCM_TAG,
+	YACA_PROPERTY_CCM_TAG,
 	/** CCM Tag length */
-	YACA_PARAM_CCM_TAG_LEN
-} yaca_ex_param_e;
+	YACA_PROPERTY_CCM_TAG_LEN
+} yaca_property_e;
 
 /**
  * @brief Enumeration of YACA paddings.

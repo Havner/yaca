@@ -45,10 +45,10 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @remarks For verification use yaca_verify_init(), yaca_verify_update() and
- *          yaca_verify_final() functions with matching public key.
+ * @remarks For verification use yaca_verify_initialize(), yaca_verify_update() and
+ *          yaca_verify_finalize() functions with matching public key.
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free())
+ * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Digest algorithm that will be used
  * @param[in]  key   Private key that will be used, algorithm is deduced based
  *                   on key type, supported key types:
@@ -57,23 +57,23 @@ extern "C" {
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
- * @see #yaca_digest_algo_e
+ * @see #yaca_digest_algorithm_e
  * @see yaca_sign_update()
- * @see yaca_sign_final()
- * @see yaca_verify_init()
+ * @see yaca_sign_finalize()
+ * @see yaca_verify_initialize()
  * @see yaca_verify_update()
- * @see yaca_verify_final()
- * @see yaca_ctx_free()
+ * @see yaca_verify_finalize()
+ * @see yaca_context_destroy()
  */
-int yaca_sign_init(yaca_ctx_h *ctx,
-                   yaca_digest_algo_e algo,
-                   const yaca_key_h key);
+int yaca_sign_initialize(yaca_context_h *ctx,
+                         yaca_digest_algorithm_e algo,
+                         const yaca_key_h key);
 
 /**
  * @brief  Initializes a signature context for HMAC.
@@ -83,7 +83,7 @@ int yaca_sign_init(yaca_ctx_h *ctx,
  * @remarks For verification, calculate message HMAC and compare with received MAC using
  *          yaca_memcmp().
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free())
+ * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Digest algorithm that will be used
  * @param[in]  key   Symmetric key that will be used, supported key types:
  *                   - #YACA_KEY_TYPE_SYMMETRIC,
@@ -91,21 +91,21 @@ int yaca_sign_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
- * @see #yaca_digest_algo_e
+ * @see #yaca_digest_algorithm_e
  * @see yaca_sign_update()
- * @see yaca_sign_final()
+ * @see yaca_sign_finalize()
  * @see yaca_memcmp()
- * @see yaca_ctx_free()
+ * @see yaca_context_destroy()
  */
-int yaca_sign_hmac_init(yaca_ctx_h *ctx,
-                        yaca_digest_algo_e algo,
-                        const yaca_key_h key);
+int yaca_sign_initialize_hmac(yaca_context_h *ctx,
+                              yaca_digest_algorithm_e algo,
+                              const yaca_key_h key);
 
 /**
  * @brief  Initializes a signature context for CMAC.
@@ -115,7 +115,7 @@ int yaca_sign_hmac_init(yaca_ctx_h *ctx,
  * @remarks For verification, calculate message CMAC and compare with received MAC using
  *          yaca_memcmp().
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free())
+ * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Encryption algorithm that will be used
  * @param[in]  key   Symmetric key that will be used, supported key types:
  *                   - #YACA_KEY_TYPE_SYMMETRIC,
@@ -123,44 +123,44 @@ int yaca_sign_hmac_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
- * @see #yaca_enc_algo_e
+ * @see #yaca_encrypt_algorithm_e
  * @see yaca_sign_update()
- * @see yaca_sign_final()
+ * @see yaca_sign_finalize()
  * @see yaca_memcmp()
- * @see yaca_ctx_free()
+ * @see yaca_context_destroy()
  */
-int yaca_sign_cmac_init(yaca_ctx_h *ctx,
-                        yaca_enc_algo_e algo,
-                        const yaca_key_h key);
+int yaca_sign_initialize_cmac(yaca_context_h *ctx,
+                              yaca_encrypt_algorithm_e algo,
+                              const yaca_key_h key);
 
 /**
  * @brief  Feeds the data into the digital signature or MAC algorithm.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx       Context created by yaca_sign_init(),
- *                          yaca_sign_hmac_init() or yaca_sign_cmac_init()
+ * @param[in,out] ctx       Context created by yaca_sign_initialize(),
+ *                          yaca_sign_initialize_hmac() or yaca_sign_initialize_cmac()
  * @param[in]     data      Data to be signed
  * @param[in]     data_len  Length of the data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_sign_init()
- * @see yaca_sign_final()
- * @see yaca_sign_hmac_init()
- * @see yaca_sign_cmac_init()
+ * @see yaca_sign_initialize()
+ * @see yaca_sign_finalize()
+ * @see yaca_sign_initialize_hmac()
+ * @see yaca_sign_initialize_cmac()
  */
-int yaca_sign_update(yaca_ctx_h ctx,
+int yaca_sign_update(yaca_context_h ctx,
                      const char *data,
                      size_t data_len);
 
@@ -177,26 +177,26 @@ int yaca_sign_update(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_sign_init()
+ * @see yaca_sign_initialize()
  * @see yaca_sign_update()
- * @see yaca_sign_hmac_init()
- * @see yaca_sign_cmac_init()
+ * @see yaca_sign_initialize_hmac()
+ * @see yaca_sign_initialize_cmac()
  * @see yaca_get_sign_length()
  */
-int yaca_sign_final(yaca_ctx_h ctx,
-                    char *signature,
-                    size_t *signature_len);
+int yaca_sign_finalize(yaca_context_h ctx,
+                       char *signature,
+                       size_t *signature_len);
 
 /**
  * @brief  Initializes a signature verification context for asymmetric signatures
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_ctx_free())
+ * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Digest algorithm that will be used
  * @param[in]  key   Public key that will be used, algorithm is deduced based on
  *                   key type, supported key types:
@@ -205,40 +205,40 @@ int yaca_sign_final(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
- * @see #yaca_digest_algo_e
+ * @see #yaca_digest_algorithm_e
  * @see yaca_verify_update()
- * @see yaca_verify_final()
- * @see yaca_ctx_free()
+ * @see yaca_verify_finalize()
+ * @see yaca_context_destroy()
  */
-int yaca_verify_init(yaca_ctx_h *ctx,
-                     yaca_digest_algo_e algo,
-                     const yaca_key_h key);
+int yaca_verify_initialize(yaca_context_h *ctx,
+                           yaca_digest_algorithm_e algo,
+                           const yaca_key_h key);
 
 /**
  * @brief  Feeds the data into the digital signature verification algorithm.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx       Context created by yaca_verify_init()
+ * @param[in,out] ctx       Context created by yaca_verify_initialize()
  * @param[in]     data      Data to be verified
  * @param[in]     data_len  Length of the data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_verify_init()
- * @see yaca_verify_final()
+ * @see yaca_verify_initialize()
+ * @see yaca_verify_finalize()
  */
-int yaca_verify_update(yaca_ctx_h ctx,
+int yaca_verify_update(yaca_context_h ctx,
                        const char *data,
                        size_t data_len);
 
@@ -248,23 +248,23 @@ int yaca_verify_update(yaca_ctx_h ctx,
  * @since_tizen 3.0
  *
  * @param[in,out] ctx            A valid verify context
- * @param[in]     signature      Input signature (returned by yaca_sign_final())
+ * @param[in]     signature      Input signature (returned by yaca_sign_finalize())
  * @param[in]     signature_len  Size of the signature
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  * @retval #YACA_ERROR_DATA_MISMATCH The verification failed
  *
- * @see yaca_verify_init()
+ * @see yaca_verify_initialize()
  * @see yaca_verify_update()
- * @see yaca_sign_final()
+ * @see yaca_sign_finalize()
  */
-int yaca_verify_final(yaca_ctx_h ctx,
-                      const char *signature,
-                      size_t signature_len);
+int yaca_verify_finalize(yaca_context_h ctx,
+                         const char *signature,
+                         size_t signature_len);
 
 /**@}*/
 

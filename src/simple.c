@@ -33,21 +33,21 @@
 
 #include "internal.h"
 
-API int yaca_digest_calc(yaca_digest_algo_e algo,
-                         const char *data,
-                         size_t data_len,
-                         char **digest,
-                         size_t *digest_len)
+API int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
+                                     const char *data,
+                                     size_t data_len,
+                                     char **digest,
+                                     size_t *digest_len)
 {
-	yaca_ctx_h ctx;
+	yaca_context_h ctx;
 	int ret;
 	char *ldigest = NULL;
 	size_t ldigest_len;
 
 	if (data == NULL || data_len == 0 || digest == NULL || digest_len == NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_digest_init(&ctx, algo);
+	ret = yaca_digest_initialize(&ctx, algo);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -65,7 +65,7 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_digest_final(ctx, ldigest, &ldigest_len);
+	ret = yaca_digest_finalize(ctx, ldigest, &ldigest_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -75,30 +75,30 @@ API int yaca_digest_calc(yaca_digest_algo_e algo,
 
 exit:
 	yaca_free(ldigest);
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 
 	return ret;
 }
 
-API int yaca_encrypt(yaca_enc_algo_e algo,
-                     yaca_block_cipher_mode_e bcm,
-                     const yaca_key_h sym_key,
-                     const yaca_key_h iv,
-                     const char *plain,
-                     size_t plain_len,
-                     char **cipher,
-                     size_t *cipher_len)
+API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
+                            yaca_block_cipher_mode_e bcm,
+                            const yaca_key_h sym_key,
+                            const yaca_key_h iv,
+                            const char *plain,
+                            size_t plain_len,
+                            char **cipher,
+                            size_t *cipher_len)
 {
-	yaca_ctx_h ctx;
+	yaca_context_h ctx;
 	int ret;
 	char *lcipher = NULL;
 	size_t out_len, lcipher_len, written;
 
 	if (plain == NULL || plain_len == 0 || cipher == NULL || cipher_len == NULL ||
 	    sym_key == YACA_KEY_NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_encrypt_init(&ctx, algo, bcm, sym_key, iv);
+	ret = yaca_encrypt_initialize(&ctx, algo, bcm, sym_key, iv);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -111,7 +111,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 		goto exit;
 
 	if (out_len > SIZE_MAX - lcipher_len) {
-		ret = YACA_ERROR_INVALID_ARGUMENT;
+		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
 
@@ -132,7 +132,7 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 
 	written = out_len;
 	out_len = lcipher_len - written;
-	ret = yaca_encrypt_final(ctx, lcipher + written, &out_len);
+	ret = yaca_encrypt_finalize(ctx, lcipher + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -150,30 +150,30 @@ API int yaca_encrypt(yaca_enc_algo_e algo,
 
 exit:
 	yaca_free(lcipher);
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 
 	return ret;
 }
 
-API int yaca_decrypt(yaca_enc_algo_e algo,
-                     yaca_block_cipher_mode_e bcm,
-                     const yaca_key_h sym_key,
-                     const yaca_key_h iv,
-                     const char *cipher,
-                     size_t cipher_len,
-                     char **plain,
-                     size_t *plain_len)
+API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
+                            yaca_block_cipher_mode_e bcm,
+                            const yaca_key_h sym_key,
+                            const yaca_key_h iv,
+                            const char *cipher,
+                            size_t cipher_len,
+                            char **plain,
+                            size_t *plain_len)
 {
-	yaca_ctx_h ctx;
+	yaca_context_h ctx;
 	int ret;
 	char *lplain = NULL;
 	size_t out_len, lplain_len, written;
 
 	if (cipher == NULL || cipher_len == 0 || plain == NULL || plain_len == NULL ||
 	    sym_key == YACA_KEY_NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_decrypt_init(&ctx, algo, bcm, sym_key, iv);
+	ret = yaca_decrypt_initialize(&ctx, algo, bcm, sym_key, iv);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -186,7 +186,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 		goto exit;
 
 	if (out_len > SIZE_MAX - lplain_len) {
-		ret = YACA_ERROR_INVALID_ARGUMENT;
+		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
 
@@ -206,7 +206,7 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 
 	written = out_len;
 	out_len = lplain_len - written;
-	ret = yaca_decrypt_final(ctx, lplain + written, &out_len);
+	ret = yaca_decrypt_finalize(ctx, lplain + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -224,12 +224,12 @@ API int yaca_decrypt(yaca_enc_algo_e algo,
 
 exit:
 	yaca_free(lplain);
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 
 	return ret;
 }
 
-static int sign(const yaca_ctx_h ctx, const char *data, size_t data_len,
+static int sign(const yaca_context_h ctx, const char *data, size_t data_len,
                 char **signature, size_t *signature_len)
 {
 	int ret;
@@ -251,7 +251,7 @@ static int sign(const yaca_ctx_h ctx, const char *data, size_t data_len,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_sign_final(ctx, *signature, signature_len);
+	ret = yaca_sign_finalize(ctx, *signature, signature_len);
 	if (ret != YACA_ERROR_NONE) {
 		yaca_free(*signature);
 		*signature = NULL;
@@ -260,38 +260,38 @@ static int sign(const yaca_ctx_h ctx, const char *data, size_t data_len,
 	return ret;
 }
 
-API int yaca_sign(yaca_digest_algo_e algo,
-                  const yaca_key_h key,
-                  const char *data,
-                  size_t data_len,
-                  char **signature,
-                  size_t *signature_len)
+API int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
+                                        const yaca_key_h key,
+                                        const char *data,
+                                        size_t data_len,
+                                        char **signature,
+                                        size_t *signature_len)
 {
 	int ret;
-	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_context_h ctx = YACA_CONTEXT_NULL;
 
-	ret = yaca_sign_init(&ctx, algo, key);
+	ret = yaca_sign_initialize(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	ret = sign(ctx, data, data_len, signature, signature_len);
 
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 
 	return ret;
 }
 
-API int yaca_verify(yaca_digest_algo_e algo,
-                    const yaca_key_h key,
-                    const char *data,
-                    size_t data_len,
-                    const char *signature,
-                    size_t signature_len)
+API int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
+                                     const yaca_key_h key,
+                                     const char *data,
+                                     size_t data_len,
+                                     const char *signature,
+                                     size_t signature_len)
 {
 	int ret;
-	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_context_h ctx = YACA_CONTEXT_NULL;
 
-	ret = yaca_verify_init(&ctx, algo, key);
+	ret = yaca_verify_initialize(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -299,52 +299,52 @@ API int yaca_verify(yaca_digest_algo_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_verify_final(ctx, signature, signature_len);
+	ret = yaca_verify_finalize(ctx, signature, signature_len);
 
 exit:
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 
 	return ret;
 }
 
-API int yaca_hmac(yaca_digest_algo_e algo,
-                  const yaca_key_h key,
-                  const char *data,
-                  size_t data_len,
-                  char **mac,
-                  size_t *mac_len)
+API int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
+                                   const yaca_key_h key,
+                                   const char *data,
+                                   size_t data_len,
+                                   char **mac,
+                                   size_t *mac_len)
 {
 	int ret;
-	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_context_h ctx = YACA_CONTEXT_NULL;
 
-	ret = yaca_sign_hmac_init(&ctx, algo, key);
+	ret = yaca_sign_initialize_hmac(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	ret = sign(ctx, data, data_len, mac, mac_len);
 
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 
 	return ret;
 }
 
-API int yaca_cmac(yaca_enc_algo_e algo,
-                  const yaca_key_h key,
-                  const char *data,
-                  size_t data_len,
-                  char **mac,
-                  size_t *mac_len)
+API int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
+                                   const yaca_key_h key,
+                                   const char *data,
+                                   size_t data_len,
+                                   char **mac,
+                                   size_t *mac_len)
 {
 	int ret;
-	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_context_h ctx = YACA_CONTEXT_NULL;
 
-	ret = yaca_sign_cmac_init(&ctx, algo, key);
+	ret = yaca_sign_initialize_cmac(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	ret = sign(ctx, data, data_len, mac, mac_len);
 
-	yaca_ctx_free(ctx);
+	yaca_context_destroy(ctx);
 
 	return ret;
 }

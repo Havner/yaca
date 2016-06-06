@@ -46,7 +46,7 @@ void key_exchange_dh(void)
 	long size;
 
 	// generate  private, public key
-	ret = yaca_key_gen(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_2048BIT, &private_key);
+	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_LENGTH_2048BIT, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -82,10 +82,10 @@ void key_exchange_dh(void)
 		goto exit;
 
 exit:
-	yaca_key_free(private_key);
-	yaca_key_free(public_key);
-	yaca_key_free(peer_key);
-	yaca_key_free(secret);
+	yaca_key_destroy(private_key);
+	yaca_key_destroy(public_key);
+	yaca_key_destroy(peer_key);
+	yaca_key_destroy(secret);
 	if (fp != NULL)
 		fclose(fp);
 	yaca_free(buffer);
@@ -108,7 +108,7 @@ void key_exchange_ecdh(void)
 	long size;
 
 	// generate  private, public key
-	ret = yaca_key_gen(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256, &private_key);
+	ret = yaca_key_generate(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -143,10 +143,10 @@ void key_exchange_ecdh(void)
 		goto exit;
 
 exit:
-	yaca_key_free(private_key);
-	yaca_key_free(public_key);
-	yaca_key_free(peer_key);
-	yaca_key_free(secret);
+	yaca_key_destroy(private_key);
+	yaca_key_destroy(public_key);
+	yaca_key_destroy(peer_key);
+	yaca_key_destroy(secret);
 	if (fp != NULL)
 		fclose(fp);
 	yaca_free(buffer);
@@ -157,13 +157,13 @@ int main()
 {
 	yaca_debug_set_error_cb(debug_func);
 
-	int ret = yaca_init();
+	int ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	key_exchange_dh();
 	key_exchange_ecdh();
 
-	yaca_exit();
+	yaca_cleanup();
 	return ret;
 }

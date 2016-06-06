@@ -83,8 +83,8 @@ int key_import_export_sym(yaca_key_h sym)
 	dump_hex(raw, raw_len, "\t***** RAW imported key: *****");
 
 exit:
-	yaca_key_free(raw_imported);
-	yaca_key_free(b64_imported);
+	yaca_key_destroy(raw_imported);
+	yaca_key_destroy(b64_imported);
 	yaca_free(raw);
 	yaca_free(b64);
 
@@ -193,10 +193,10 @@ int key_import_export_asym(yaca_key_h priv, yaca_key_h pub,
 	dump_hex(der_pub, der_pub_len, "\t***** %s DER imported public key: *****", algo);
 
 exit:
-	yaca_key_free(der_pub_imported);
-	yaca_key_free(pem_pub_imported);
-	yaca_key_free(der_prv_imported);
-	yaca_key_free(pem_prv_imported);
+	yaca_key_destroy(der_pub_imported);
+	yaca_key_destroy(pem_pub_imported);
+	yaca_key_destroy(der_prv_imported);
+	yaca_key_destroy(pem_prv_imported);
 	yaca_free(der_pub);
 	yaca_free(pem_pub);
 	yaca_free(der_prv);
@@ -234,7 +234,7 @@ int key_import_x509(void)
 	printf("\n\t***** RSA X509 imported public key: *****\n%.*s", (int)pub_len, pub);
 
 exit:
-	yaca_key_free(rsa_pub_from_cert);
+	yaca_key_destroy(rsa_pub_from_cert);
 	yaca_free(pub);
 
 	return ret;
@@ -249,17 +249,17 @@ int main()
 	yaca_key_h dsa_pub = YACA_KEY_NULL;
 	int ret;
 
-	ret = yaca_init();
+	ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	yaca_debug_set_error_cb(debug_func);
 
-	ret = yaca_key_gen(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_1024BIT, &sym);
+	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_1024BIT, &sym);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_key_gen(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_1024BIT, &rsa_priv);
+	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_LENGTH_1024BIT, &rsa_priv);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -267,7 +267,7 @@ int main()
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_key_gen(YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_1024BIT, &dsa_priv);
+	ret = yaca_key_generate(YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_LENGTH_1024BIT, &dsa_priv);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -312,13 +312,13 @@ int main()
 		printf("\n\t*********** X509 - failure ************\n\n");
 
 exit:
-	yaca_key_free(dsa_pub);
-	yaca_key_free(dsa_priv);
-	yaca_key_free(rsa_pub);
-	yaca_key_free(rsa_priv);
-	yaca_key_free(sym);
+	yaca_key_destroy(dsa_pub);
+	yaca_key_destroy(dsa_priv);
+	yaca_key_destroy(rsa_pub);
+	yaca_key_destroy(rsa_priv);
+	yaca_key_destroy(sym);
 
-	yaca_exit();
+	yaca_cleanup();
 
 	return ret;
 }

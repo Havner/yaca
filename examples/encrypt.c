@@ -33,7 +33,7 @@
 #include "misc.h"
 #include "../src/debug.h"
 
-void encrypt_simple(const yaca_enc_algo_e algo,
+void encrypt_simple(const yaca_encrypt_algorithm_e algo,
                     const yaca_block_cipher_mode_e bcm,
                     const size_t key_bits)
 {
@@ -53,18 +53,18 @@ void encrypt_simple(const yaca_enc_algo_e algo,
 	                           YACA_DIGEST_SHA256, key_bits, &key) != YACA_ERROR_NONE)
 		return;
 
-	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
+	if (yaca_encrypt_get_iv_bit_length(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
 		goto exit;
 
-	if (iv_bits > 0 && yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
+	if (iv_bits > 0 && yaca_key_generate(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto exit;
 
-	if (yaca_encrypt(algo, bcm, key, iv, lorem4096, LOREM4096_SIZE, &enc, &enc_size) != YACA_ERROR_NONE)
+	if (yaca_simple_encrypt(algo, bcm, key, iv, lorem4096, LOREM4096_SIZE, &enc, &enc_size) != YACA_ERROR_NONE)
 		goto exit;
 
 	dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
 
-	if (yaca_decrypt(algo, bcm, key, iv, enc, enc_size, &dec, &dec_size) != YACA_ERROR_NONE)
+	if (yaca_simple_decrypt(algo, bcm, key, iv, enc, enc_size, &dec, &dec_size) != YACA_ERROR_NONE)
 		goto exit;
 
 	printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_size, dec);
@@ -72,16 +72,16 @@ void encrypt_simple(const yaca_enc_algo_e algo,
 exit:
 	yaca_free(enc);
 	yaca_free(dec);
-	yaca_key_free(iv);
-	yaca_key_free(key);
+	yaca_key_destroy(iv);
+	yaca_key_destroy(key);
 }
 
-void encrypt_advanced(const yaca_enc_algo_e algo,
+void encrypt_advanced(const yaca_encrypt_algorithm_e algo,
                       const yaca_block_cipher_mode_e bcm,
                       const yaca_key_type_e key_type,
                       const size_t key_bits)
 {
-	yaca_ctx_h ctx = YACA_CTX_NULL;
+	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h key = YACA_KEY_NULL;
 	yaca_key_h iv = YACA_KEY_NULL;
 	size_t iv_bits;
@@ -99,18 +99,18 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Key generation */
-	if (yaca_key_gen(key_type, key_bits, &key) != YACA_ERROR_NONE)
+	if (yaca_key_generate(key_type, key_bits, &key) != YACA_ERROR_NONE)
 		return;
 
-	if (yaca_get_iv_bits(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
+	if (yaca_encrypt_get_iv_bit_length(algo, bcm, key_bits, &iv_bits) != YACA_ERROR_NONE)
 		goto exit;
 
-	if (iv_bits > 0 && yaca_key_gen(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
+	if (iv_bits > 0 && yaca_key_generate(YACA_KEY_TYPE_IV, iv_bits, &iv) != YACA_ERROR_NONE)
 		goto exit;
 
 	/* Encryption */
 	{
-		if (yaca_encrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
+		if (yaca_encrypt_initialize(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
@@ -129,20 +129,20 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 			goto exit;
 
 		rem = enc_size - out_size;
-		if (yaca_encrypt_final(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
+		if (yaca_encrypt_finalize(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
 		enc_size = rem + out_size;
 
 		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
 
-		yaca_ctx_free(ctx);
-		ctx = YACA_CTX_NULL;
+		yaca_context_destroy(ctx);
+		ctx = YACA_CONTEXT_NULL;
 	}
 
 	/* Decryption */
 	{
-		if (yaca_decrypt_init(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
+		if (yaca_decrypt_initialize(&ctx, algo, bcm, key, iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
@@ -161,7 +161,7 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 			goto exit;
 
 		rem = dec_size - out_size;
-		if (yaca_decrypt_final(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
+		if (yaca_decrypt_finalize(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
 		dec_size = rem + out_size;
@@ -172,59 +172,59 @@ void encrypt_advanced(const yaca_enc_algo_e algo,
 exit:
 	yaca_free(dec);
 	yaca_free(enc);
-	yaca_ctx_free(ctx);
-	yaca_key_free(iv);
-	yaca_key_free(key);
+	yaca_context_destroy(ctx);
+	yaca_key_destroy(iv);
+	yaca_key_destroy(key);
 }
 
 int main()
 {
 	yaca_debug_set_error_cb(debug_func);
 
-	int ret = yaca_init();
+	int ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	yaca_enc_algo_e algo = YACA_ENC_AES;
+	yaca_encrypt_algorithm_e algo = YACA_ENCRYPT_AES;
 	yaca_block_cipher_mode_e bcm = YACA_BCM_ECB;
 	yaca_key_type_e key_type = YACA_KEY_TYPE_SYMMETRIC;
-	size_t key_bits = YACA_KEY_256BIT;
+	size_t key_bits = YACA_KEY_LENGTH_256BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
 	encrypt_advanced(algo, bcm, key_type, key_bits);
 
-	algo = YACA_ENC_3DES_3TDEA;
+	algo = YACA_ENCRYPT_3DES_3TDEA;
 	bcm = YACA_BCM_OFB;
 	key_type = YACA_KEY_TYPE_DES;
-	key_bits = YACA_KEY_192BIT;
+	key_bits = YACA_KEY_LENGTH_192BIT;
 
 	encrypt_advanced(algo, bcm, key_type, key_bits);
 
-	algo = YACA_ENC_CAST5;
+	algo = YACA_ENCRYPT_CAST5;
 	bcm = YACA_BCM_CFB;
 	key_type = YACA_KEY_TYPE_SYMMETRIC;
-	key_bits = YACA_KEY_UNSAFE_40BIT;
+	key_bits = YACA_KEY_LENGTH_UNSAFE_40BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
 	encrypt_advanced(algo, bcm, key_type, key_bits);
 
-	algo = YACA_ENC_UNSAFE_RC2;
+	algo = YACA_ENCRYPT_UNSAFE_RC2;
 	bcm = YACA_BCM_CBC;
 	key_type = YACA_KEY_TYPE_SYMMETRIC;
-	key_bits = YACA_KEY_UNSAFE_8BIT;
+	key_bits = YACA_KEY_LENGTH_UNSAFE_8BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
 	encrypt_advanced(algo, bcm, key_type, key_bits);
 
-	algo = YACA_ENC_UNSAFE_RC4;
+	algo = YACA_ENCRYPT_UNSAFE_RC4;
 	bcm = YACA_BCM_NONE;
 	key_type = YACA_KEY_TYPE_SYMMETRIC;
-	key_bits = YACA_KEY_2048BIT;
+	key_bits = YACA_KEY_LENGTH_2048BIT;
 
 	encrypt_simple(algo, bcm, key_bits);
 	encrypt_advanced(algo, bcm, key_type, key_bits);
 
-	yaca_exit();
+	yaca_cleanup();
 
 	return ret;
 }

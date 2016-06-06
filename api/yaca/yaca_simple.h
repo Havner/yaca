@@ -61,26 +61,26 @@ extern "C" {
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
- *                                      invalid algo)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ *                                       invalid algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_digest_algo_e
+ * @see #yaca_digest_algorithm_e
  * @see yaca_free()
  */
-int yaca_digest_calc(yaca_digest_algo_e algo,
-                     const char *data,
-                     size_t data_len,
-                     char **digest,
-                     size_t *digest_len);
+int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
+                                 const char *data,
+                                 size_t data_len,
+                                 char **digest,
+                                 size_t *digest_len);
 
 /**
  * @brief  Encrypt data using a symmetric cipher.
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo        Encryption algorithm (select #YACA_ENC_AES if unsure)
+ * @param[in]  algo        Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
  * @param[in]  bcm         Chaining mode (select #YACA_BCM_CBC if unsure)
  * @param[in]  sym_key     Symmetric encryption key (see key.h for key generation functions)
  * @param[in]  iv          Initialization vector
@@ -92,24 +92,24 @@ int yaca_digest_calc(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
- *                                      invalid algo, bcm, sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ *                                       invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_enc_algo_e
+ * @see #yaca_encrypt_algorithm_e
  * @see #yaca_block_cipher_mode_e
- * @see yaca_decrypt()
+ * @see yaca_simple_decrypt()
  * @see yaca_free()
  */
-int yaca_encrypt(yaca_enc_algo_e algo,
-                 yaca_block_cipher_mode_e bcm,
-                 const yaca_key_h sym_key,
-                 const yaca_key_h iv,
-                 const char *plain,
-                 size_t plain_len,
-                 char **cipher,
-                 size_t *cipher_len);
+int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
+                        yaca_block_cipher_mode_e bcm,
+                        const yaca_key_h sym_key,
+                        const yaca_key_h iv,
+                        const char *plain,
+                        size_t plain_len,
+                        char **cipher,
+                        size_t *cipher_len);
 
 /**
  * @brief  Decrypt data using a symmetric cipher.
@@ -128,24 +128,24 @@ int yaca_encrypt(yaca_enc_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
- *                                      invalid algo, bcm, sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ *                                       invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_enc_algo_e
+ * @see #yaca_encrypt_algorithm_e
  * @see #yaca_block_cipher_mode_e
- * @see yaca_encrypt()
+ * @see yaca_simple_encrypt()
  * @see yaca_free()
  */
-int yaca_decrypt(yaca_enc_algo_e algo,
-                 yaca_block_cipher_mode_e bcm,
-                 const yaca_key_h sym_key,
-                 const yaca_key_h iv,
-                 const char *cipher,
-                 size_t cipher_len,
-                 char **plain,
-                 size_t *plain_len);
+int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
+                        yaca_block_cipher_mode_e bcm,
+                        const yaca_key_h sym_key,
+                        const yaca_key_h iv,
+                        const char *cipher,
+                        size_t cipher_len,
+                        char **plain,
+                        size_t *plain_len);
 
 /**
  * @brief  Create a signature using asymmetric private key.
@@ -165,22 +165,22 @@ int yaca_decrypt(yaca_enc_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
- * @see #yaca_digest_algo_e
- * @see yaca_verify()
+ * @see #yaca_digest_algorithm_e
+ * @see yaca_simple_verify_signature()
  * @see yaca_free()
  */
-int yaca_sign(yaca_digest_algo_e algo,
-              const yaca_key_h key,
-              const char *data,
-              size_t data_len,
-              char **signature,
-              size_t *signature_len);
+int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
+                                    const yaca_key_h key,
+                                    const char *data,
+                                    size_t data_len,
+                                    char **signature,
+                                    size_t *signature_len);
 
 /**
  * @brief  Verify a signature using asymmetric public key.
@@ -199,22 +199,22 @@ int yaca_sign(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  * @retval #YACA_ERROR_DATA_MISMATCH The verification failed
  *
  * @see #yaca_key_type_e
- * @see #yaca_digest_algo_e
- * @see yaca_sign()
+ * @see #yaca_digest_algorithm_e
+ * @see yaca_simple_calculate_signature()
  */
-int yaca_verify(yaca_digest_algo_e algo,
-                const yaca_key_h key,
-                const char *data,
-                size_t data_len,
-                const char *signature,
-                size_t signature_len);
+int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
+                                 const yaca_key_h key,
+                                 const char *data,
+                                 size_t data_len,
+                                 const char *signature,
+                                 size_t signature_len);
 
 /**
  * @brief  Calculate a HMAC of given message using symmetric key.
@@ -236,22 +236,22 @@ int yaca_verify(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
- * @see #yaca_digest_algo_e
+ * @see #yaca_digest_algorithm_e
  * @see yaca_memcmp()
  * @see yaca_free()
  */
-int yaca_hmac(yaca_digest_algo_e algo,
-              const yaca_key_h key,
-              const char *data,
-              size_t data_len,
-              char **mac,
-              size_t *mac_len);
+int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
+                               const yaca_key_h key,
+                               const char *data,
+                               size_t data_len,
+                               char **mac,
+                               size_t *mac_len);
 
 /**
  * @brief  Calculate a CMAC of given message using symmetric key.
@@ -273,22 +273,22 @@ int yaca_hmac(yaca_digest_algo_e algo,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0
- *                                      invalid algo or key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ *                                       invalid algo or key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_type_e
- * @see #yaca_enc_algo_e
+ * @see #yaca_encrypt_algorithm_e
  * @see yaca_memcmp()
  * @see yaca_free()
  */
-int yaca_cmac(yaca_enc_algo_e algo,
-              const yaca_key_h key,
-              const char *data,
-              size_t data_len,
-              char **mac,
-              size_t *mac_len);
+int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
+                               const yaca_key_h key,
+                               const char *data,
+                               size_t data_len,
+                               char **mac,
+                               size_t *mac_len);
 
 /**@}*/
 

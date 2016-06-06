@@ -44,7 +44,7 @@ extern "C" {
  *
  * @since_tizen 3.0
  */
-#define YACA_CTX_NULL ((yaca_ctx_h) NULL)
+#define YACA_CONTEXT_NULL ((yaca_context_h) NULL)
 
 /**
  * @brief  Initializes the library. Must be called before any other crypto function.
@@ -56,21 +56,21 @@ extern "C" {
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_exit()
+ * @see yaca_cleanup()
  */
-int yaca_init(void);
+int yaca_initialize(void);
 
 /**
  * @brief  Closes the library. Must be called before exiting the application.
  *
  * @since_tizen 3.0
  *
- * @see yaca_init()
- *
  * @return #YACA_ERROR_NONE on success
  * @retval #YACA_ERROR_NONE Successful
+ *
+ * @see yaca_initialize()
  */
-int yaca_exit(void);
+int yaca_cleanup(void);
 
 /**
  * @brief  Allocates the memory.
@@ -82,7 +82,7 @@ int yaca_exit(void);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  *
  * @see yaca_zalloc()
@@ -101,7 +101,7 @@ int yaca_malloc(size_t size, void **memory);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  *
  * @see yaca_malloc()
@@ -126,7 +126,7 @@ int yaca_zalloc(size_t size, void **memory);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  *
  * @see yaca_malloc()
@@ -153,6 +153,21 @@ int yaca_realloc(size_t size, void **memory);
 int yaca_free(void *ptr);
 
 /**
+ * @brief  Safely compares first @b len bytes of two buffers.
+ *
+ * @since_tizen 3.0
+ *
+ * @param[in]  first  Pointer to the first buffer
+ * @param[in]  second Pointer to the second buffer
+ * @param[in]  len    Length to compare
+ *
+ * @return #YACA_ERROR_NONE when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_DATA_MISMATCH Buffers are different
+ */
+int yaca_memcmp(const void *first, const void *second, size_t len);
+
+/**
  * @brief  Generates random data.
  *
  * @since_tizen 3.0
@@ -162,66 +177,66 @@ int yaca_free(void *ptr);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
-int yaca_rand_bytes(char *data, size_t data_len);
+int yaca_randomize_bytes(char *data, size_t data_len);
 
 /**
- * @brief  Sets the extended context parameters. Can only be called on an
+ * @brief  Sets the non-standard context properties. Can only be called on an
  *         initialized context.
  *
  * @since_tizen 3.0
  *
  * @param[in,out] ctx        Previously initialized crypto context
- * @param[in]     param      Parameter to be set
- * @param[in]     value      Parameter value
- * @param[in]     value_len  Length of the parameter value
+ * @param[in]     param      Property to be set
+ * @param[in]     value      Property value
+ * @param[in]     value_len  Length of the property value
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
- *                                      invalid context or param)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
+ *                                       invalid ctx or param)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_ex_param_e
- * @see yaca_ctx_get_param()
+ * @see #yaca_property_e
+ * @see yaca_context_get_property()
  */
-int yaca_ctx_set_param(yaca_ctx_h ctx,
-                       yaca_ex_param_e param,
-                       const void *value,
-                       size_t value_len);
+int yaca_context_set_property(yaca_context_h ctx,
+                              yaca_property_e param,
+                              const void *value,
+                              size_t value_len);
 
 /**
- * @brief  Returns the extended context parameters. Can only be called on an
+ * @brief  Returns the non-standard context properties. Can only be called on an
  *         initialized context.
  *
  * @since_tizen 3.0
  *
  * @param[in]  ctx        Previously initialized crypto context
- * @param[in]  param      Parameter to be read
- * @param[out] value      Copy of the parameter value (must be freed with yaca_free())
- * @param[out] value_len  Length of the parameter value will be returned here
+ * @param[in]  param      Property to be read
+ * @param[out] value      Copy of the property value (must be freed with yaca_free())
+ * @param[out] value_len  Length of the property value will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid context or param)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid ctx or param)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_ex_param_e
- * @see yaca_ctx_set_param()
+ * @see #yaca_property_e
+ * @see yaca_context_set_property()
  * @see yaca_free()
  */
-int yaca_ctx_get_param(const yaca_ctx_h ctx,
-                       yaca_ex_param_e param,
-                       void **value,
-                       size_t *value_len);
+int yaca_context_get_property(const yaca_context_h ctx,
+                              yaca_property_e param,
+                              void **value,
+                              size_t *value_len);
 
 /**
  * @brief  Destroys the crypto context. Must be called on all contexts that are
- *         no longer used. Passing #YACA_CTX_NULL is allowed.
+ *         no longer used. Passing #YACA_CONTEXT_NULL is allowed.
  *
  * @since_tizen 3.0
  *
@@ -230,10 +245,10 @@ int yaca_ctx_get_param(const yaca_ctx_h ctx,
  * @return #YACA_ERROR_NONE on success
  * @retval #YACA_ERROR_NONE Successful
  *
- * @see #yaca_ctx_h
+ * @see #yaca_context_h
  *
  */
-int yaca_ctx_free(yaca_ctx_h ctx);
+int yaca_context_destroy(yaca_context_h ctx);
 
 /**
  * @brief  Returns the output length for a given algorithm. Can only be called
@@ -247,11 +262,11 @@ int yaca_ctx_free(yaca_ctx_h ctx);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid context or input_len)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid context or input_len)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
-int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len);
+int yaca_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len);
 
 /**
  * @brief  Wrapper - returns the length of the digest (for a given context).
@@ -273,21 +288,6 @@ int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *outpu
  * @since_tizen 3.0
  */
 #define yaca_get_block_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
-
-/**
- * @brief  Safely compares first @b len bytes of two buffers.
- *
- * @since_tizen 3.0
- *
- * @param[in]  first  Pointer to the first buffer
- * @param[in]  second Pointer to the second buffer
- * @param[in]  len    Length to compare
- *
- * @return #YACA_ERROR_NONE when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
- * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_DATA_MISMATCH Buffers are different
- */
-int yaca_memcmp(const void *first, const void *second, size_t len);
 
 /**@}*/
 

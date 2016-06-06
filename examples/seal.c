@@ -34,10 +34,10 @@
 
 void encrypt_seal(void)
 {
-	const yaca_enc_algo_e algo = YACA_ENC_AES;
+	const yaca_encrypt_algorithm_e algo = YACA_ENCRYPT_AES;
 	const yaca_block_cipher_mode_e bcm = YACA_BCM_CBC;
-	const size_t key_bits = YACA_KEY_256BIT;
-	yaca_ctx_h ctx = YACA_CTX_NULL;
+	const size_t key_bits = YACA_KEY_LENGTH_256BIT;
+	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h key_pub = YACA_KEY_NULL;
 	yaca_key_h key_priv = YACA_KEY_NULL;
 	yaca_key_h aes_key = YACA_KEY_NULL;
@@ -56,7 +56,7 @@ void encrypt_seal(void)
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
 
 	/* Generate key pair */
-	if (yaca_key_gen(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_4096BIT, &key_priv) != YACA_ERROR_NONE)
+	if (yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_LENGTH_4096BIT, &key_priv) != YACA_ERROR_NONE)
 		return;
 
 	if (yaca_key_extract_public(key_priv, &key_pub) != YACA_ERROR_NONE)
@@ -64,7 +64,7 @@ void encrypt_seal(void)
 
 	/* Encrypt a.k.a. seal */
 	{
-		if (yaca_seal_init(&ctx, key_pub, algo, bcm, key_bits, &aes_key, &iv) != YACA_ERROR_NONE)
+		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bits, &aes_key, &iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
@@ -84,20 +84,20 @@ void encrypt_seal(void)
 			goto exit;
 
 		rem = enc_size - out_size;
-		if (yaca_seal_final(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
+		if (yaca_seal_finalize(ctx, enc + out_size, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
 		enc_size = rem + out_size;
 
 		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_size);
 
-		yaca_ctx_free(ctx);
-		ctx = YACA_CTX_NULL;
+		yaca_context_destroy(ctx);
+		ctx = YACA_CONTEXT_NULL;
 	}
 
 	/* Decrypt a.k.a. open */
 	{
-		if (yaca_open_init(&ctx, key_priv, algo, bcm, key_bits, aes_key, iv) != YACA_ERROR_NONE)
+		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bits, aes_key, iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
@@ -117,7 +117,7 @@ void encrypt_seal(void)
 			goto exit;
 
 		rem = dec_size - out_size;
-		if (yaca_open_final(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
+		if (yaca_open_finalize(ctx, dec + out_size, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
 		dec_size = rem + out_size;
@@ -128,23 +128,23 @@ void encrypt_seal(void)
 exit:
 	yaca_free(dec);
 	yaca_free(enc);
-	yaca_ctx_free(ctx);
-	yaca_key_free(aes_key);
-	yaca_key_free(iv);
-	yaca_key_free(key_pub);
-	yaca_key_free(key_priv);
+	yaca_context_destroy(ctx);
+	yaca_key_destroy(aes_key);
+	yaca_key_destroy(iv);
+	yaca_key_destroy(key_pub);
+	yaca_key_destroy(key_priv);
 }
 
 int main()
 {
 	yaca_debug_set_error_cb(debug_func);
 
-	int ret = yaca_init();
+	int ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	encrypt_seal();
 
-	yaca_exit();
+	yaca_cleanup();
 	return ret;
 }

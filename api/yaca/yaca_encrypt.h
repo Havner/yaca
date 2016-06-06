@@ -44,7 +44,7 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free())
+ * @param[out] ctx      Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo     Encryption algorithm that will be used
  * @param[in]  bcm      Chaining mode that will be used
  * @param[in]  sym_key  Symmetric key that will be used
@@ -52,29 +52,29 @@ extern "C" {
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo, bcm, sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_enc_algo_e
+ * @see #yaca_encrypt_algorithm_e
  * @see #yaca_block_cipher_mode_e
  * @see yaca_encrypt_update()
- * @see yaca_encrypt_final()
- * @see yaca_ctx_free()
+ * @see yaca_encrypt_finalize()
+ * @see yaca_context_destroy()
  */
-int yaca_encrypt_init(yaca_ctx_h *ctx,
-                      yaca_enc_algo_e algo,
-                      yaca_block_cipher_mode_e bcm,
-                      const yaca_key_h sym_key,
-                      const yaca_key_h iv);
+int yaca_encrypt_initialize(yaca_context_h *ctx,
+                            yaca_encrypt_algorithm_e algo,
+                            yaca_block_cipher_mode_e bcm,
+                            const yaca_key_h sym_key,
+                            const yaca_key_h iv);
 
 /**
  * @brief  Encrypts chunk of the data.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_encrypt_init()
+ * @param[in,out] ctx         Context created by yaca_encrypt_initialize()
  * @param[in]     plain       Plain text to be encrypted
  * @param[in]     plain_len   Length of the plain text
  * @param[out]    cipher      Buffer for the encrypted data
@@ -84,15 +84,15 @@ int yaca_encrypt_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_encrypt_init()
- * @see yaca_encrypt_final()
+ * @see yaca_encrypt_initialize()
+ * @see yaca_encrypt_finalize()
  * @see yaca_get_output_length()
  */
-int yaca_encrypt_update(yaca_ctx_h ctx,
+int yaca_encrypt_update(yaca_context_h ctx,
                         const char *plain,
                         size_t plain_len,
                         char *cipher,
@@ -111,24 +111,24 @@ int yaca_encrypt_update(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_encrypt_init()
+ * @see yaca_encrypt_initialize()
  * @see yaca_encrypt_update()
  * @see yaca_get_output_length()
  */
-int yaca_encrypt_final(yaca_ctx_h ctx,
-                       char *cipher,
-                       size_t *cipher_len);
+int yaca_encrypt_finalize(yaca_context_h ctx,
+                          char *cipher,
+                          size_t *cipher_len);
 
 /**
  * @brief  Initializes an decryption context.
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx      Newly created context (must be freed with yaca_ctx_free())
+ * @param[out] ctx      Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo     Encryption algorithm that was used to encrypt the data
  * @param[in]  bcm      Chaining mode that was used to encrypt the data
  * @param[in]  sym_key  Symmetric key that was used to encrypt the data
@@ -136,29 +136,29 @@ int yaca_encrypt_final(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo, bcm, sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo, bcm, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see #yaca_enc_algo_e
+ * @see #yaca_encrypt_algorithm_e
  * @see #yaca_block_cipher_mode_e
  * @see yaca_decrypt_update()
- * @see yaca_decrypt_final()
- * @see yaca_ctx_free()
+ * @see yaca_decrypt_finalize()
+ * @see yaca_context_destroy()
  */
-int yaca_decrypt_init(yaca_ctx_h *ctx,
-                      yaca_enc_algo_e algo,
-                      yaca_block_cipher_mode_e bcm,
-                      const yaca_key_h sym_key,
-                      const yaca_key_h iv);
+int yaca_decrypt_initialize(yaca_context_h *ctx,
+                            yaca_encrypt_algorithm_e algo,
+                            yaca_block_cipher_mode_e bcm,
+                            const yaca_key_h sym_key,
+                            const yaca_key_h iv);
 
 /**
  * @brief  Decrypts chunk of the data.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_decrypt_init()
+ * @param[in,out] ctx         Context created by yaca_decrypt_initialize()
  * @param[in]     cipher      Cipher text to be decrypted
  * @param[in]     cipher_len  Length of the cipher text
  * @param[out]    plain       Buffer for the decrypted data
@@ -168,15 +168,15 @@ int yaca_decrypt_init(yaca_ctx_h *ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL, 0,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_decrypt_init()
- * @see yaca_decrypt_final()
+ * @see yaca_decrypt_initialize()
+ * @see yaca_decrypt_finalize()
  * @see yaca_get_output_length()
  */
-int yaca_decrypt_update(yaca_ctx_h ctx,
+int yaca_decrypt_update(yaca_context_h ctx,
                         const char *cipher,
                         size_t cipher_len,
                         char *plain,
@@ -195,17 +195,17 @@ int yaca_decrypt_update(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid context)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid context)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
- * @see yaca_decrypt_init()
+ * @see yaca_decrypt_initialize()
  * @see yaca_decrypt_update()
  * @see yaca_get_block_length()
  */
-int yaca_decrypt_final(yaca_ctx_h ctx,
-                       char *plain,
-                       size_t *plain_len);
+int yaca_decrypt_finalize(yaca_context_h ctx,
+                          char *plain,
+                          size_t *plain_len);
 
 /**
  * @brief  Returns the recommended/default length of the IV for a given encryption configuration.
@@ -222,15 +222,15 @@ int yaca_decrypt_final(yaca_ctx_h ctx,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_ARGUMENT Required parameters have incorrect values (NULL,
- *                                      invalid algo, bcm or key_bits)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo, bcm or key_bits)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  */
-int yaca_get_iv_bits(yaca_enc_algo_e algo,
-                     yaca_block_cipher_mode_e bcm,
-                     size_t key_bits,
-                     size_t *iv_bits);
+int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
+                                   yaca_block_cipher_mode_e bcm,
+                                   size_t key_bits,
+                                   size_t *iv_bits);
 
 /**@}*/
 

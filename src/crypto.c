@@ -68,7 +68,7 @@ static void destroy_mutexes(int count)
 	}
 }
 
-API int yaca_init(void)
+API int yaca_initialize(void)
 {
 	int ret;
 	if (mutexes != NULL)
@@ -133,7 +133,7 @@ API int yaca_init(void)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_exit(void)
+API int yaca_cleanup(void)
 {
 	ERR_free_strings();
 	ERR_remove_thread_state(NULL);
@@ -153,7 +153,7 @@ API int yaca_exit(void)
 API int yaca_malloc(size_t size, void **memory)
 {
 	if (size == 0 || memory == NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	*memory = OPENSSL_malloc(size);
 	if (*memory == NULL) {
@@ -178,7 +178,7 @@ API int yaca_zalloc(size_t size, void **memory)
 API int yaca_realloc(size_t size, void **memory)
 {
 	if (size == 0 || memory == NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	void *tmp = OPENSSL_realloc(*memory, size);
 	if (tmp == NULL) {
@@ -198,12 +198,12 @@ API int yaca_free(void *ptr)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_rand_bytes(char *data, size_t data_len)
+API int yaca_randomize_bytes(char *data, size_t data_len)
 {
 	int ret;
 
 	if (data == NULL || data_len == 0)
-		return YACA_ERROR_INVALID_ARGUMENT;
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = RAND_bytes((unsigned char *)data, data_len);
 	if (ret != 1) {
@@ -215,27 +215,27 @@ API int yaca_rand_bytes(char *data, size_t data_len)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_ctx_set_param(yaca_ctx_h ctx, yaca_ex_param_e param,
-                           const void *value, size_t value_len)
+API int yaca_context_set_property(yaca_context_h ctx, yaca_property_e param,
+                                  const void *value, size_t value_len)
 {
-	if (ctx == YACA_CTX_NULL || ctx->set_param == NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+	if (ctx == YACA_CONTEXT_NULL || ctx->set_param == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	return ctx->set_param(ctx, param, value, value_len);
 }
 
-API int yaca_ctx_get_param(const yaca_ctx_h ctx, yaca_ex_param_e param,
-                           void **value, size_t *value_len)
+API int yaca_context_get_property(const yaca_context_h ctx, yaca_property_e param,
+                                  void **value, size_t *value_len)
 {
-	if (ctx == YACA_CTX_NULL || ctx->get_param == NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+	if (ctx == YACA_CONTEXT_NULL || ctx->get_param == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	return ctx->get_param(ctx, param, value, value_len);
 }
 
-API int yaca_ctx_free(yaca_ctx_h ctx)
+API int yaca_context_destroy(yaca_context_h ctx)
 {
-	if (ctx != YACA_CTX_NULL) {
+	if (ctx != YACA_CONTEXT_NULL) {
 		assert(ctx->ctx_destroy != NULL);
 		ctx->ctx_destroy(ctx);
 		yaca_free(ctx);
@@ -244,10 +244,10 @@ API int yaca_ctx_free(yaca_ctx_h ctx)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_get_output_length(const yaca_ctx_h ctx, size_t input_len, size_t *output_len)
+API int yaca_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
 {
-	if (ctx == YACA_CTX_NULL)
-		return YACA_ERROR_INVALID_ARGUMENT;
+	if (ctx == YACA_CONTEXT_NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	return ctx->get_output_length(ctx, input_len, output_len);
 }

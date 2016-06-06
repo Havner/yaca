@@ -46,16 +46,16 @@ char *error_translate(yaca_error_e err)
 	switch (err) {
 	case YACA_ERROR_NONE:
 		return "YACA_ERROR_NONE";
-	case YACA_ERROR_INVALID_ARGUMENT:
-		return "YACA_ERROR_INVALID_ARGUMENT";
+	case YACA_ERROR_INVALID_PARAMETER:
+		return "YACA_ERROR_INVALID_PARAMETER";
 	case YACA_ERROR_OUT_OF_MEMORY:
 		return "YACA_ERROR_OUT_OF_MEMORY";
 	case YACA_ERROR_INTERNAL:
 		return "YACA_ERROR_INTERNAL";
 	case YACA_ERROR_DATA_MISMATCH:
 		return "YACA_ERROR_DATA_MISMATCH";
-	case YACA_ERROR_PASSWORD_INVALID:
-		return "YACA_ERROR_PASSWORD_INVALID";
+	case YACA_ERROR_INVALID_PASSWORD:
+		return "YACA_ERROR_INVALID_PASSWORD";
 	default:
 		return NULL;
 	}
@@ -125,7 +125,7 @@ int error_handle(const char *file, int line, const char *function)
 			break;
 		case ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED:
 		case ERR_R_PASSED_NULL_PARAMETER:
-			ret = YACA_ERROR_INVALID_ARGUMENT;
+			ret = YACA_ERROR_INVALID_PARAMETER;
 			break;
 		case ERR_R_INTERNAL_ERROR:
 		case ERR_R_DISABLED:
@@ -138,11 +138,11 @@ int error_handle(const char *file, int line, const char *function)
 		switch (err) {
 		case ERR_PACK(ERR_LIB_RSA, RSA_F_PKEY_RSA_CTRL, RSA_R_INVALID_KEYBITS):
 		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_COMMAND_NOT_SUPPORTED):
-			ret = YACA_ERROR_INVALID_ARGUMENT;
+			ret = YACA_ERROR_INVALID_PARAMETER;
 			break;
 		case ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT):
 		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT):
-			ret = YACA_ERROR_PASSWORD_INVALID;
+			ret = YACA_ERROR_INVALID_PASSWORD;
 			break;
 		default:
 			error_dump(file, line, function, YACA_ERROR_INTERNAL);
