@@ -132,8 +132,9 @@ int error_handle(const char *file, int line, const char *function)
 		default:
 			ret = YACA_ERROR_INTERNAL;
 		}
+	}
 	/* known errors */
-	} else {
+	else {
 		switch (err) {
 		case ERR_PACK(ERR_LIB_RSA, RSA_F_PKEY_RSA_CTRL, RSA_R_INVALID_KEYBITS):
 		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_COMMAND_NOT_SUPPORTED):
