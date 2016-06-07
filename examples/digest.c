@@ -61,7 +61,7 @@ void digest_advanced(void)
 		goto exit;
 
 	size_t digest_len;
-	ret = yaca_get_digest_length(ctx, &digest_len);
+	ret = yaca_context_get_output_length(ctx, 0, &digest_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 

@@ -88,10 +88,12 @@ void encrypt_decrypt_aes_gcm(void)
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
+		/* For the update */
+		if (yaca_context_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
+		/* For the finalize */
+		if (yaca_context_get_output_length(ctx, 0, &block_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
@@ -132,10 +134,12 @@ void encrypt_decrypt_aes_gcm(void)
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
+		/* For the update */
+		if (yaca_context_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
+		/* For the finalize */
+		if (yaca_context_get_output_length(ctx, 0, &block_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
@@ -236,10 +240,12 @@ void encrypt_decrypt_aes_ccm(void)
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
+		/* For the update */
+		if (yaca_context_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
+		/* For the finalize */
+		if (yaca_context_get_output_length(ctx, 0, &block_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
@@ -283,10 +289,12 @@ void encrypt_decrypt_aes_ccm(void)
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD, aad, aad_size) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
+		/* For the update */
+		if (yaca_context_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
+		/* For the finalize */
+		if (yaca_context_get_output_length(ctx, 0, &block_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Calculate max output: size of update + final chunks */

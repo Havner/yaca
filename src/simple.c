@@ -55,7 +55,7 @@ API int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_get_digest_length(ctx, &ldigest_len);
+	ret = yaca_context_get_output_length(ctx, 0, &ldigest_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -102,11 +102,11 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_get_block_length(ctx, &lcipher_len);
+	ret = yaca_context_get_output_length(ctx, plain_len, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_get_output_length(ctx, plain_len, &out_len);
+	ret = yaca_context_get_output_length(ctx, 0, &lcipher_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -177,11 +177,11 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_get_block_length(ctx, &lplain_len);
+	ret = yaca_context_get_output_length(ctx, cipher_len, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_get_output_length(ctx, cipher_len, &out_len);
+	ret = yaca_context_get_output_length(ctx, 0, &lplain_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -241,7 +241,7 @@ static int sign(const yaca_context_h ctx, const char *data, size_t data_len,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_get_sign_length(ctx, signature_len);
+	ret = yaca_context_get_output_length(ctx, 0, signature_len);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 

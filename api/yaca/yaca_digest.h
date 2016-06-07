@@ -88,7 +88,7 @@ int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len);
  *
  * @param[in,out] ctx         A valid digest context
  * @param[out]    digest      Buffer for the message digest
- *                            (must be allocated by client, see yaca_get_digest_length())
+ *                            (must be allocated by client, see yaca_context_get_output_length())
  * @param[out]    digest_len  Length of the digest,
  *                            actual number of bytes written will be returned here
  *
@@ -100,7 +100,7 @@ int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len);
  *
  * @see yaca_digest_initialize()
  * @see yaca_digest_update()
- * @see yaca_get_digest_length()
+ * @see yaca_context_get_output_length()
  */
 int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_len);
 

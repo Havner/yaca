@@ -244,7 +244,7 @@ API int yaca_context_destroy(yaca_context_h ctx)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
+API int yaca_context_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
 {
 	if (ctx == YACA_CONTEXT_NULL)
 		return YACA_ERROR_INVALID_PARAMETER;

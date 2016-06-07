@@ -67,10 +67,12 @@ void encrypt_seal(void)
 		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bits, &aes_key, &iv) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
+		/* For the update */
+		if (yaca_context_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
+		/* For the finalize */
+		if (yaca_context_get_output_length(ctx, 0, &block_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Calculate max output: size of update + final chunks */
@@ -100,10 +102,12 @@ void encrypt_seal(void)
 		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bits, aes_key, iv) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_block_length(ctx, &block_len) != YACA_ERROR_NONE)
+		/* For the update */
+		if (yaca_context_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
+		/* For the finalize */
+		if (yaca_context_get_output_length(ctx, 0, &block_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Calculate max output: size of update + final chunks */

@@ -171,7 +171,7 @@ int yaca_sign_update(yaca_context_h ctx,
  *
  * @param[in,out] ctx              A valid sign context
  * @param[out]    signature        Buffer for the MAC or the signature
- *                                 (must be allocated by client, see yaca_get_sign_length())
+ *                                 (must be allocated by client, see yaca_context_get_output_length())
  * @param[out]    signature_len    Length of the MAC or the signature,
  *                                 actual number of bytes written will be returned here
  *
@@ -185,7 +185,7 @@ int yaca_sign_update(yaca_context_h ctx,
  * @see yaca_sign_update()
  * @see yaca_sign_initialize_hmac()
  * @see yaca_sign_initialize_cmac()
- * @see yaca_get_sign_length()
+ * @see yaca_context_get_output_length()
  */
 int yaca_sign_finalize(yaca_context_h ctx,
                        char *signature,

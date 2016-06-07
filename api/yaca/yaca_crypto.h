@@ -256,6 +256,10 @@ int yaca_context_destroy(yaca_context_h ctx);
  *
  * @since_tizen 3.0
  *
+ * @remarks  This function can be used to learn the required size of the output buffer
+ *           for a single operation (eg. *_update or *_finalize). In case the operation
+ *           has no input (eg. *_finalize), the value of @b input_len should be set to 0.
+ *
  * @param[in]  ctx         Previously initialized crypto context
  * @param[in]  input_len   Length of the input data to be processed
  * @param[out] output_len  Required length of the output
@@ -263,31 +267,10 @@ int yaca_context_destroy(yaca_context_h ctx);
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context or input_len)
+ *                                       invalid context or too big input_len)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
-int yaca_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len);
-
-/**
- * @brief  Wrapper - returns the length of the digest (for a given context).
- *
- * @since_tizen 3.0
- */
-#define yaca_get_digest_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
-
-/**
- * @brief  Wrapper - returns the length of the signature (for a given context).
- *
- * @since_tizen 3.0
- */
-#define yaca_get_sign_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
-
-/**
- * @brief  Wrapper - returns the length of the block (for a given context).
- *
- * @since_tizen 3.0
- */
-#define yaca_get_block_length(ctxa, output_len) yaca_get_output_length((ctxa), 0, (output_len))
+int yaca_context_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len);
 
 /**@}*/
 

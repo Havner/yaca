@@ -90,7 +90,7 @@ int yaca_seal_initialize(yaca_context_h *ctx,
  * @param[in]     plain       Plain text to be encrypted
  * @param[in]     plain_len   Length of the plain text
  * @param[out]    cipher      Buffer for the encrypted data
- *                            (must be allocated by client, see yaca_get_output_length())
+ *                            (must be allocated by client, see yaca_context_get_output_length())
  * @param[out]    cipher_len  Length of the encrypted data,
  *                            actual number of bytes written will be returned here
  *
@@ -102,7 +102,7 @@ int yaca_seal_initialize(yaca_context_h *ctx,
  *
  * @see yaca_seal_initialize()
  * @see yaca_seal_finalize()
- * @see yaca_get_output_length()
+ * @see yaca_context_get_output_length()
  */
 int yaca_seal_update(yaca_context_h ctx,
                      const char *plain,
@@ -117,7 +117,7 @@ int yaca_seal_update(yaca_context_h ctx,
  *
  * @param[in,out] ctx         A valid seal context
  * @param[out]    cipher      Final piece of the encrypted data
- *                            (must be allocated by client, see yaca_get_block_length())
+ *                            (must be allocated by client, see yaca_context_get_output_length())
  * @param[out]    cipher_len  Length of the final piece,
  *                            actual number of bytes written will be returned here
  *
@@ -129,7 +129,7 @@ int yaca_seal_update(yaca_context_h ctx,
  *
  * @see yaca_seal_initialize()
  * @see yaca_seal_update()
- * @see yaca_get_block_length()
+ * @see yaca_context_get_output_length()
  */
 int yaca_seal_finalize(yaca_context_h ctx,
                        char *cipher,
@@ -179,7 +179,7 @@ int yaca_open_initialize(yaca_context_h *ctx,
  * @param[in]     cipher      Cipher text to be decrypted
  * @param[in]     cipher_len  Length of the cipher text
  * @param[out]    plain       Buffer for the decrypted data
- *                            (must be allocated by client, see yaca_get_output_length())
+ *                            (must be allocated by client, see yaca_context_get_output_length())
  * @param[out]    plain_len   Length of the decrypted data,
  *                            actual number of bytes written will be returned here
  *
@@ -191,7 +191,7 @@ int yaca_open_initialize(yaca_context_h *ctx,
  *
  * @see yaca_open_initialize()
  * @see yaca_open_finalize()
- * @see yaca_get_output_length()
+ * @see yaca_context_get_output_length()
  */
 int yaca_open_update(yaca_context_h ctx,
                      const char *cipher,
@@ -206,7 +206,7 @@ int yaca_open_update(yaca_context_h ctx,
  *
  * @param[in,out] ctx        A valid open context
  * @param[out]    plain      Final piece of the decrypted data
- *                           (must be allocated by client, see yaca_get_block_length())
+ *                           (must be allocated by client, see yaca_context_get_output_length())
  * @param[out]    plain_len  Length of the final piece,
  *                           actual number of bytes written will be returned here
  *
@@ -218,7 +218,7 @@ int yaca_open_update(yaca_context_h ctx,
  *
  * @see yaca_open_initialize()
  * @see yaca_open_update()
- * @see yaca_get_block_length()
+ * @see yaca_context_get_output_length()
  */
 int yaca_open_finalize(yaca_context_h ctx,
                        char *plain,
