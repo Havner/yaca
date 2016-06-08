@@ -237,18 +237,6 @@ exit:
 	return ret;
 }
 
-bool check_import_wrong_pass()
-{
-	unsigned long err = ERR_peek_error();
-	unsigned long err_bad_password_1 = ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT);
-	unsigned long err_bad_password_2 = ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT);
-
-	if (err == err_bad_password_1 || err == err_bad_password_2)
-		return true;
-
-	return false;
-}
-
 int import_evp(yaca_key_h *key,
                yaca_key_type_e key_type,
                const char *password,
@@ -295,31 +283,28 @@ int import_evp(yaca_key_h *key,
 		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = PEM_read_bio_PrivateKey(src, NULL, cb, (void*)password);
-			if (check_import_wrong_pass())
+			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
 				wrong_pass = true;
 			private = true;
-			ERROR_CLEAR();
 		}
 
 		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = PEM_read_bio_PUBKEY(src, NULL, cb, (void*)password);
-			if (check_import_wrong_pass())
+			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
 				wrong_pass = true;
 			private = false;
-			ERROR_CLEAR();
 		}
 
 		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			X509 *x509 = PEM_read_bio_X509(src, NULL, cb, (void*)password);
-			if (check_import_wrong_pass())
+			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
 				wrong_pass = true;
 			if (x509 != NULL)
 				pkey = X509_get_pubkey(x509);
 			X509_free(x509);
 			private = false;
-			ERROR_CLEAR();
 		}
 	}
 	/* Possible DER */
@@ -327,24 +312,23 @@ int import_evp(yaca_key_h *key,
 		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = d2i_PKCS8PrivateKey_bio(src, NULL, cb, (void*)password);
-			if (check_import_wrong_pass())
+			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
 				wrong_pass = true;
 			private = true;
-			ERROR_CLEAR();
 		}
 
 		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = d2i_PrivateKey_bio(src, NULL);
-			private = true;
 			ERROR_CLEAR();
+			private = true;
 		}
 
 		if (pkey == NULL && !wrong_pass) {
 			BIO_reset(src);
 			pkey = d2i_PUBKEY_bio(src, NULL);
-			private = false;
 			ERROR_CLEAR();
+			private = false;
 		}
 	}
 
