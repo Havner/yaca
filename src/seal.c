@@ -100,7 +100,7 @@ static int seal_init(yaca_context_h *ctx,
                      const yaca_key_h pub_key,
                      yaca_encrypt_algorithm_e algo,
                      yaca_block_cipher_mode_e bcm,
-                     yaca_key_bit_length_e sym_key_bits,
+                     size_t sym_key_bits,
                      yaca_key_h *sym_key,
                      yaca_key_h *iv)
 {
@@ -215,7 +215,7 @@ static int open_init(yaca_context_h *ctx,
                      const yaca_key_h prv_key,
                      yaca_encrypt_algorithm_e algo,
                      yaca_block_cipher_mode_e bcm,
-                     yaca_key_bit_length_e sym_key_bits,
+                     size_t sym_key_bits,
                      const yaca_key_h sym_key,
                      const yaca_key_h iv)
 {
@@ -383,7 +383,7 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
                              const yaca_key_h pub_key,
                              yaca_encrypt_algorithm_e algo,
                              yaca_block_cipher_mode_e bcm,
-                             yaca_key_bit_length_e sym_key_bit_len,
+                             size_t sym_key_bit_len,
                              yaca_key_h *sym_key,
                              yaca_key_h *iv)
 {
@@ -418,7 +418,7 @@ API int yaca_open_initialize(yaca_context_h *ctx,
                              const yaca_key_h prv_key,
                              yaca_encrypt_algorithm_e algo,
                              yaca_block_cipher_mode_e bcm,
-                             yaca_key_bit_length_e sym_key_bit_len,
+                             size_t sym_key_bit_len,
                              const yaca_key_h sym_key,
                              const yaca_key_h iv)
 {

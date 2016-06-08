@@ -68,6 +68,7 @@ extern "C" {
  *
  * @see #yaca_encrypt_algorithm_e
  * @see #yaca_block_cipher_mode_e
+ * @see #yaca_key_bit_length_e
  * @see yaca_seal_update()
  * @see yaca_seal_finalize()
  * @see yaca_key_destroy()
@@ -77,7 +78,7 @@ int yaca_seal_initialize(yaca_context_h *ctx,
                          const yaca_key_h pub_key,
                          yaca_encrypt_algorithm_e algo,
                          yaca_block_cipher_mode_e bcm,
-                         yaca_key_bit_length_e sym_key_bit_len,
+                         size_t sym_key_bit_len,
                          yaca_key_h *sym_key,
                          yaca_key_h *iv);
 
@@ -158,6 +159,7 @@ int yaca_seal_finalize(yaca_context_h ctx,
  *
  * @see #yaca_encrypt_algorithm_e
  * @see #yaca_block_cipher_mode_e
+ * @see #yaca_key_bit_length_e
  * @see yaca_open_update()
  * @see yaca_open_finalize()
  * @see yaca_context_destroy()
@@ -166,7 +168,7 @@ int yaca_open_initialize(yaca_context_h *ctx,
                          const yaca_key_h prv_key,
                          yaca_encrypt_algorithm_e algo,
                          yaca_block_cipher_mode_e bcm,
-                         yaca_key_bit_length_e sym_key_bit_len,
+                         size_t sym_key_bit_len,
                          const yaca_key_h sym_key,
                          const yaca_key_h iv);
 
