@@ -34,7 +34,6 @@ extern "C" {
 /**
  * @defgroup  Advanced-Digest  Advanced API for the message digests.
  *
- * TODO: extended description and examples.
  *
  * @{
  */

@@ -7,3 +7,4 @@ Global:
 - yaca_key_wrap(), yaca_key_unwrap()
 - We need a way to import keys encrypted with hw (or other) keys. New
   function like yaca_key_load or sth?
+- Add extended description and examples in documentation.

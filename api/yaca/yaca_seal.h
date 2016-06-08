@@ -34,11 +34,10 @@ extern "C" {
 /**
  * @defgroup  Advanced-Encryption-Asymmetric  Advanced API for the asymmetric encryption.
  *
- * TODO: extended description and examples.
  *
- * @remarks Seal does more than just encrypt. It first generates the encryption key and IV,
- *          then encrypts whole message using this key (and selected symmetric algorithm).
- *          Finally it encrypts symmetric key with public key.
+ * @remarks  Seal does more than just encrypt. It first generates the encryption key and IV,
+ *           then encrypts whole message using this key (and selected symmetric algorithm).
+ *           Finally it encrypts symmetric key with public key.
  *
  * @{
  */

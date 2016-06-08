@@ -34,7 +34,6 @@ extern "C" {
 /**
  * @defgroup  Key  Advanced API for the key and IV handling.
  *
- * TODO: extended description and examples.
  *
  * @{
  */
@@ -80,21 +79,21 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  *
  * @since_tizen 3.0
  *
- * @remarks This function imports a key trying to match it to the key_type specified.
- *          It should autodetect both the key format and the file format.
+ * @remarks  This function imports a key trying to match it to the key_type specified.
+ *           It should autodetect both the key format and the file format.
  *
- * @remarks For symmetric, IV and DES keys RAW binary format and BASE64 encoded
- *          binary format are supported.
- *          For asymmetric keys PEM and DER file formats are supported.
+ * @remarks  For symmetric, IV and DES keys RAW binary format and BASE64 encoded
+ *           binary format are supported.
+ *           For asymmetric keys PEM and DER file formats are supported.
  *
- * @remarks Asymmetric keys can be in PKCS#1 or SSleay key formats (for RSA and
- *          DSA respectively). Asymmetric private keys can also be in PKCS#8
- *          format. Additionally it is possible to import public RSA key from
- *          X509 certificate.
+ * @remarks  Asymmetric keys can be in PKCS#1 or SSleay key formats (for RSA and
+ *           DSA respectively). Asymmetric private keys can also be in PKCS#8
+ *           format. Additionally it is possible to import public RSA key from
+ *           X509 certificate.
  *
- * @remarks If the key is encrypted the algorithm will be autodetected and password
- *          used. If it's not known if the key is encrypted one should pass NULL as
- *          password and check for the #YACA_ERROR_INVALID_PASSWORD return code.
+ * @remarks  If the key is encrypted the algorithm will be autodetected and password
+ *           used. If it's not known if the key is encrypted one should pass NULL as
+ *           password and check for the #YACA_ERROR_INVALID_PASSWORD return code.
  *
  * @param[in]  key_type  Type of the key
  * @param[in]  password  null terminated password for the key (can be NULL)
@@ -178,11 +177,11 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @since_tizen 3.0
  *
- * @remarks This function is used to generate symmetric and private asymmetric keys.
+ * @remarks  This function is used to generate symmetric and private asymmetric keys.
  *
- *          Supported key lengths:
- *          - RSA: length >= 256bits
- *          - DSA: length >= 512bits, multiple of 64
+ * @remarks  Supported key lengths:
+ *           - RSA: length >= 256bits
+ *           - DSA: length >= 512bits, multiple of 64
  *
  * @param[in]  key_type     Type of the key to be generated
  * @param[in]  key_bit_len  Length of the key (in bits) to be generated
@@ -244,7 +243,6 @@ int yaca_key_destroy(yaca_key_h key);
 /**
  * @defgroup  Key-Derivation  Advanced API for the key derivation.
  *
- * TODO: extended description and examples.
  *
  * @{
  */

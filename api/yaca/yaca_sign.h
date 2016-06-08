@@ -34,8 +34,6 @@ extern "C" {
 /**
  * @defgroup  Advanced-Integrity  Advanced API for the integrity handling - HMAC, CMAC and digital signature.
  *
- * TODO: extended description and examples.
- * TODO: add documentation how to set padding etc
  *
  * @{
  */
@@ -45,8 +43,8 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @remarks For verification use yaca_verify_initialize(), yaca_verify_update() and
- *          yaca_verify_finalize() functions with matching public key.
+ * @remarks  For verification use yaca_verify_initialize(), yaca_verify_update() and
+ *           yaca_verify_finalize() functions with matching public key.
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Digest algorithm that will be used
@@ -80,8 +78,8 @@ int yaca_sign_initialize(yaca_context_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @remarks For verification, calculate message HMAC and compare with received MAC using
- *          yaca_memcmp().
+ * @remarks  For verification, calculate message HMAC and compare with received MAC using
+ *           yaca_memcmp().
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Digest algorithm that will be used
@@ -112,8 +110,8 @@ int yaca_sign_initialize_hmac(yaca_context_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @remarks For verification, calculate message CMAC and compare with received MAC using
- *          yaca_memcmp().
+ * @remarks  For verification, calculate message CMAC and compare with received MAC using
+ *           yaca_memcmp().
  *
  * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
  * @param[in]  algo  Encryption algorithm that will be used

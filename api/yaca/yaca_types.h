@@ -31,7 +31,6 @@ extern "C" {
 /**
  * @defgroup Crypto-Types Yet Another Crypto API - types.
  *
- * TODO: extended description.
  *
  * @{
  */
@@ -167,7 +166,7 @@ typedef enum {
 	 * #YACA_BCM_GCM,
 	 * #YACA_BCM_CCM,
 	 * #YACA_BCM_CTR
-	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
 	YACA_ENCRYPT_AES = 0,
 
@@ -181,7 +180,7 @@ typedef enum {
 	 * #YACA_BCM_CFB1,
 	 * #YACA_BCM_CFB8,
 	 * #YACA_BCM_ECB
-	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
 	YACA_ENCRYPT_UNSAFE_DES,
 
@@ -193,7 +192,7 @@ typedef enum {
 	 * #YACA_BCM_OFB,
 	 * #YACA_BCM_CFB,
 	 * #YACA_BCM_ECB
-	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 * - Use double DES keys to perform corresponding 2-key 3DES encryption.
 
 	 */
@@ -209,7 +208,7 @@ typedef enum {
 	 * #YACA_BCM_CFB1,
 	 * #YACA_BCM_CFB8,
 	 * #YACA_BCM_ECB
-	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 * - Use triple DES keys to perform corresponding 3-key 3DES encryption.
 	 */
 	YACA_ENCRYPT_3DES_3TDEA,
@@ -218,7 +217,7 @@ typedef enum {
 	 * RC2 encryption.
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 8-1024 bits in steps of 8 bits.
-	 * - Effective key bits parameter by default equals to 128.
+	 * - Effective key bits property by default equals to 128.
 	 * - Supported block cipher modes:
 	 * #YACA_BCM_CBC,
 	 * #YACA_BCM_OFB,
@@ -244,7 +243,7 @@ typedef enum {
 	 * #YACA_BCM_OFB,
 	 * #YACA_BCM_CFB,
 	 * #YACA_BCM_ECB
-	 * - see #yaca_block_cipher_mode_e for details on additional parameters (mandatory).
+	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
 	YACA_ENCRYPT_CAST5,
 } yaca_encrypt_algorithm_e;
@@ -282,7 +281,7 @@ typedef enum {
 	 * GCM block cipher mode.
 	 * This is a variable IV length mode (recommended 96 bits IV).
 	 *
-	 * Supported parameters:
+	 * Supported properties:
 	 * - #YACA_PROPERTY_GCM_TAG_LEN = GCM tag length\n
 	 *   Supported tag lengths: @c 32, @c 64, @c 96, @c 104, @c 112, @c 120, @c 128,
 	 *   (recommended 128 bits tag).\n
@@ -332,7 +331,7 @@ typedef enum {
 	 * This is a variable IV length mode.\n
 	 * Supported IV lengths: 56-104 bits in steps of 8 bits (recommended 56 bits IV).\n\n
 	 *
-	 * Supported parameters:
+	 * Supported properties:
 	 * - #YACA_PROPERTY_CCM_TAG_LEN = CCM tag length\n
 	 *   Supported tag lengths: 32-128 bits in step of 16 bits (recommended 96 bits tag).\n
 	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()

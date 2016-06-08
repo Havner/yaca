@@ -34,7 +34,6 @@ extern "C" {
 /**
  * @defgroup  Non-Crypto  Yet Another Crypto API - non crypto related functions.
  *
- * TODO: extended description and examples.
  *
  * @{
  */

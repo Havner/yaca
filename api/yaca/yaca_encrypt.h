@@ -34,7 +34,6 @@ extern "C" {
 /**
  * @defgroup  Advanced-Encryption-Symmetric  Advanced API for the symmetric encryption.
  *
- * TODO: extended description and examples.
  *
  * @{
  */
@@ -44,8 +43,8 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @remarks If returned iv_bits equals 0 that means that for this
- *          specific algorithm and its parameters IV is not used.
+ * @remarks  If returned iv_bit_len equals 0 that means that for this
+ *           specific algorithm and its parameters IV is not used.
  *
  * @param[in]  algo         Encryption algorithm
  * @param[in]  bcm          Chain mode

@@ -34,15 +34,13 @@ extern "C" {
 /**
  * @defgroup  Simple-API  Simple API.
  *
- *  @remarks This is simple API.
- *           Design constraints:
- *           - All operations are single-shot (no streaming possible)
- *           - Context is not used
- *           - For now only digest and symmetric ciphers are supported
- *           - GCM and CCM chaining is not supported
- *           - All outputs are allocated by the library
- *
- * TODO: extended description and examples.
+ *  @remarks  This is simple API.
+ *            Design constraints:
+ *            - All operations are single-shot (no streaming possible)
+ *            - Context is not used
+ *            - For now only digest and symmetric ciphers are supported
+ *            - GCM and CCM chaining is not supported
+ *            - All outputs are allocated by the library
  *
  * @{
  */
@@ -221,8 +219,8 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @remarks For verification, calculate message HMAC and compare with received MAC using
- *          yaca_memcmp().
+ * @remarks  For verification, calculate message HMAC and compare with received MAC using
+ *           yaca_memcmp().
  *
  * @param[in]  algo      Digest algorithm that will be used
  * @param[in]  key       Key that will be used, supported key types:
@@ -258,8 +256,8 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @remarks For verification, calculate message CMAC and compare with received MAC using
- *          yaca_memcmp().
+ * @remarks  For verification, calculate message CMAC and compare with received MAC using
+ *           yaca_memcmp().
  *
  * @param[in]  algo      Encryption algorithm that will be used
  * @param[in]  key       Key that will be used, supported key types:
