@@ -59,8 +59,6 @@ ADD_DEFINITIONS("-fPIC")   # Position Independent Code
 ADD_DEFINITIONS("-Werror") # Make all warnings into errors
 ADD_DEFINITIONS("-Wall")   # Generate all warnings
 ADD_DEFINITIONS("-Wextra") # Generate even more extra warnings
-# TODO Remove 'no-unused-parameter' after API implementation
-ADD_DEFINITIONS("-Wno-unused-parameter") # Supress unused parameter warning
 ADD_DEFINITIONS("-pedantic") # Be pedantic
 ADD_DEFINITIONS("-pedantic-errors") # Make pedantic warnings into errors
 ADD_DEFINITIONS(-DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")

@@ -32,6 +32,7 @@
 #include <yaca_types.h>
 
 #define API __attribute__ ((visibility("default")))
+#define UNUSED __attribute__((unused))
 
 enum yaca_ctx_type_e {
 	YACA_CTX_INVALID = 0,

@@ -42,7 +42,7 @@
 /* This callback only exists to block the default OpenSSL one and
  * allow us to check for a proper error code when the key is encrypted
  */
-int password_dummy_cb(char *buf, int size, int rwflag, void *u)
+int password_dummy_cb(char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
 {
 	const char empty[] = "";
 

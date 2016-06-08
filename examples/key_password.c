@@ -76,7 +76,7 @@ exit:
 	yaca_key_destroy(lkey);
 }
 
-int main(int argc, char *argv[])
+int main()
 {
 	int ret;
 	yaca_key_h key = YACA_KEY_NULL;

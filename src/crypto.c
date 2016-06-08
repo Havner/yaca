@@ -37,7 +37,7 @@
 
 static pthread_mutex_t *mutexes = NULL;
 
-static void locking_callback(int mode, int type, const char *file, int line)
+static void locking_callback(int mode, int type, UNUSED const char *file, UNUSED int line)
 {
 	/* Ignore NULL mutexes and lock/unlock error codes as we can't do anything
 	 * about them. */

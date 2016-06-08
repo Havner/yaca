@@ -50,7 +50,9 @@ static struct yaca_digest_ctx_s *get_digest_ctx(const yaca_context_h ctx)
 	}
 }
 
-static int get_digest_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
+static int get_digest_output_length(const yaca_context_h ctx,
+                                    UNUSED size_t input_len,
+                                    size_t *output_len)
 {
 	struct yaca_digest_ctx_s *c = get_digest_ctx(ctx);
 
