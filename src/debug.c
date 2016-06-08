@@ -114,11 +114,26 @@ void error_dump(const char *file, int line, const char *function, int code)
 
 int error_handle(const char *file, int line, const char *function)
 {
-	int ret;
+	int ret = YACA_ERROR_NONE;
 	unsigned long err = ERR_peek_error();
 
+	if (err == 0)
+		return YACA_ERROR_INTERNAL;
+
+	/* known errors */
+	switch (err) {
+	case ERR_PACK(ERR_LIB_RSA, RSA_F_PKEY_RSA_CTRL, RSA_R_INVALID_KEYBITS):
+	case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_COMMAND_NOT_SUPPORTED):
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	case ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT):
+	case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT):
+		ret = YACA_ERROR_INVALID_PASSWORD;
+		break;
+	}
+
 	/* fatal errors */
-	if (ERR_FATAL_ERROR(err) > 0) {
+	if (ret == YACA_ERROR_NONE && ERR_FATAL_ERROR(err) > 0) {
 		switch (ERR_GET_REASON(err)) {
 		case ERR_R_MALLOC_FAILURE:
 			ret = YACA_ERROR_OUT_OF_MEMORY;
@@ -129,25 +144,15 @@ int error_handle(const char *file, int line, const char *function)
 			break;
 		case ERR_R_INTERNAL_ERROR:
 		case ERR_R_DISABLED:
-		default:
 			ret = YACA_ERROR_INTERNAL;
+			break;
 		}
 	}
-	/* known errors */
-	else {
-		switch (err) {
-		case ERR_PACK(ERR_LIB_RSA, RSA_F_PKEY_RSA_CTRL, RSA_R_INVALID_KEYBITS):
-		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_PKEY_CTX_CTRL, EVP_R_COMMAND_NOT_SUPPORTED):
-			ret = YACA_ERROR_INVALID_PARAMETER;
-			break;
-		case ERR_PACK(ERR_LIB_PEM, PEM_F_PEM_DO_HEADER, PEM_R_BAD_DECRYPT):
-		case ERR_PACK(ERR_LIB_EVP, EVP_F_EVP_DECRYPTFINAL_EX, EVP_R_BAD_DECRYPT):
-			ret = YACA_ERROR_INVALID_PASSWORD;
-			break;
-		default:
-			error_dump(file, line, function, YACA_ERROR_INTERNAL);
-			ret = YACA_ERROR_INTERNAL;
-		}
+
+	/* neither known nor fatal, unknown */
+	if (ret == YACA_ERROR_NONE) {
+		error_dump(file, line, function, YACA_ERROR_INTERNAL);
+		ret = YACA_ERROR_INTERNAL;
 	}
 
 	/* remove all errors from queue */
