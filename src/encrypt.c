@@ -291,7 +291,7 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 
 	if (ret < 0)
 		return YACA_ERROR_INVALID_PARAMETER;
-	if ((unsigned)ret >= sizeof(cipher_name)) // output was truncated
+	if ((unsigned)ret >= sizeof(cipher_name)) /* output was truncated */
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	lcipher = EVP_get_cipherbyname(cipher_name);

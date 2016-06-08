@@ -386,7 +386,7 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	// create and initialize low level CMAC context
+	/* create and initialize low level CMAC context */
 	cmac_ctx = CMAC_CTX_new();
 	if (cmac_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
@@ -400,7 +400,7 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 		goto exit;
 	}
 
-	// create key and assign CMAC context to it
+	/* create key and assign CMAC context to it */
 	pkey = EVP_PKEY_new();
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;

@@ -33,7 +33,7 @@
 #include "misc.h"
 #include "../src/debug.h"
 
-// Signature creation and verification using simple API
+/* Signature creation and verification using simple API */
 void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
 {
 	char *signature = NULL;
@@ -42,14 +42,14 @@ void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
 	yaca_key_h prv = YACA_KEY_NULL;
 	yaca_key_h pub = YACA_KEY_NULL;
 
-	// GENERATE
+	/* GENERATE */
 	if (yaca_key_generate(type, YACA_KEY_LENGTH_1024BIT, &prv) != YACA_ERROR_NONE)
 		return;
 
 	if (yaca_key_extract_public(prv, &pub) != YACA_ERROR_NONE)
 		goto exit;
 
-	// SIGN
+	/* SIGN */
 	if (yaca_simple_calculate_signature(YACA_DIGEST_SHA512,
 	              prv,
 	              lorem4096,
@@ -60,7 +60,7 @@ void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
 
 	dump_hex(signature, signature_len, "[Simple API] %s Signature of lorem4096:", algo);
 
-	// VERIFY
+	/* VERIFY */
 	if (yaca_simple_verify_signature(YACA_DIGEST_SHA512,
 	                pub,
 	                lorem4096,
@@ -85,11 +85,11 @@ void simple_sign_verify_hmac(void)
 
 	yaca_key_h key = YACA_KEY_NULL;
 
-	// GENERATE
+	/* GENERATE */
 	if (yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &key) != YACA_ERROR_NONE)
 		return;
 
-	// SIGN
+	/* SIGN */
 	if (yaca_simple_calculate_hmac(YACA_DIGEST_SHA512,
 	              key,
 	              lorem4096,
@@ -100,7 +100,7 @@ void simple_sign_verify_hmac(void)
 
 	dump_hex(signature1, signature_len, "[Simple API] HMAC Signature of lorem4096:");
 
-	// VERIFY
+	/* VERIFY */
 	if (yaca_simple_calculate_hmac(YACA_DIGEST_SHA512,
 	              key,
 	              lorem4096,
@@ -128,11 +128,11 @@ void simple_sign_verify_cmac(void)
 
 	yaca_key_h key = YACA_KEY_NULL;
 
-	// GENERATE
+	/* GENERATE */
 	if (yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &key))
 		return;
 
-	// SIGN
+	/* SIGN */
 	if (yaca_simple_calculate_cmac(YACA_ENCRYPT_AES,
 	              key,
 	              lorem4096,
@@ -144,7 +144,7 @@ void simple_sign_verify_cmac(void)
 	dump_hex(signature1, signature_len, "[Simple API] CMAC Signature of lorem4096:");
 
 
-	// VERIFY
+	/* VERIFY */
 	if (yaca_simple_calculate_cmac(YACA_ENCRYPT_AES,
 	              key,
 	              lorem4096,
@@ -164,7 +164,7 @@ exit:
 	yaca_key_destroy(key);
 }
 
-// Signature creation and verification using advanced API
+/* Signature creation and verification using advanced API */
 void sign_verify_asym(yaca_key_type_e type, const char *algo)
 {
 	char *signature = NULL;
@@ -175,14 +175,14 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 	yaca_key_h pub = YACA_KEY_NULL;
 	yaca_padding_e padding = YACA_PADDING_PKCS1_PSS;
 
-	// GENERATE
+	/* GENERATE */
 	if (yaca_key_generate(type, YACA_KEY_LENGTH_1024BIT, &prv) != YACA_ERROR_NONE)
 		return;
 
 	if (yaca_key_extract_public(prv, &pub) != YACA_ERROR_NONE)
 		goto exit;
 
-	// SIGN
+	/* SIGN */
 	if (yaca_sign_initialize(&ctx, YACA_DIGEST_SHA512, prv) != YACA_ERROR_NONE)
 		goto exit;
 
@@ -203,11 +203,11 @@ void sign_verify_asym(yaca_key_type_e type, const char *algo)
 
 	dump_hex(signature, signature_len, "[Advanced API] %s Signature of lorem4096:", algo);
 
-	// CLEANUP
+	/* CLEANUP */
 	yaca_context_destroy(ctx);
 	ctx = YACA_CONTEXT_NULL;
 
-	// VERIFY
+	/* VERIFY */
 	if (yaca_verify_initialize(&ctx, YACA_DIGEST_SHA512, pub) != YACA_ERROR_NONE)
 		goto exit;
 
@@ -238,11 +238,11 @@ void sign_verify_hmac(void)
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h key = YACA_KEY_NULL;
 
-	// GENERATE
+	/* GENERATE */
 	if (yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &key) != YACA_ERROR_NONE)
 		return;
 
-	// SIGN
+	/* SIGN */
 	if (yaca_sign_initialize_hmac(&ctx, YACA_DIGEST_SHA512, key) != YACA_ERROR_NONE)
 		goto exit;
 
@@ -260,11 +260,11 @@ void sign_verify_hmac(void)
 
 	dump_hex(signature1, signature_len, "[Advanced API] HMAC Signature of lorem4096:");
 
-	// CLEANUP
+	/* CLEANUP */
 	yaca_context_destroy(ctx);
 	ctx = YACA_CONTEXT_NULL;
 
-	// VERIFY
+	/* VERIFY */
 	if (yaca_sign_initialize_hmac(&ctx, YACA_DIGEST_SHA512, key) != YACA_ERROR_NONE)
 		goto exit;
 
@@ -301,11 +301,11 @@ void sign_verify_cmac(void)
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h key = YACA_KEY_NULL;
 
-	// GENERATE
+	/* GENERATE */
 	if (yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &key))
 		return;
 
-	// SIGN
+	/* SIGN */
 	if (yaca_sign_initialize_cmac(&ctx, YACA_ENCRYPT_AES, key) != YACA_ERROR_NONE)
 		goto exit;
 
@@ -323,11 +323,11 @@ void sign_verify_cmac(void)
 
 	dump_hex(signature1, signature_len, "[Advanced API] CMAC Signature of lorem4096:");
 
-	// CLEANUP
+	/* CLEANUP */
 	yaca_context_destroy(ctx);
 	ctx = YACA_CONTEXT_NULL;
 
-	// VERIFY
+	/* VERIFY */
 	if (yaca_sign_initialize_cmac(&ctx, YACA_ENCRYPT_AES, key) != YACA_ERROR_NONE)
 		goto exit;
 

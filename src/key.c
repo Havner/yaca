@@ -846,7 +846,7 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 
 	/* Openssl generates 512-bit key for key lengths smaller than 512. It also
 	 * rounds key size to multiplication of 64. */
-	if(key_bits < 512 || key_bits % 64 != 0)
+	if (key_bits < 512 || key_bits % 64 != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	int ret;

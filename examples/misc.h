@@ -26,14 +26,7 @@
 
 #include <stddef.h>
 
-// Various helper functions
-
-
-// Dumps dump_size of buf.
-// As a "heading" displays fmt message (formatted like printf)
-void dump_hex(const char *buf,
-              size_t dump_size,
-              const char *fmt, ...);
+void dump_hex(const char *buf, size_t dump_size, const char *fmt, ...);
 
 void debug_func(const char *buf);
 

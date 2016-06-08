@@ -45,7 +45,7 @@ void key_exchange_dh(void)
 	char *buffer = NULL;
 	long size;
 
-	// generate  private, public key
+	/* generate  private, public key */
 	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_LENGTH_2048BIT, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -54,8 +54,8 @@ void key_exchange_dh(void)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	// get peer public key from file
-	// add helper to read key from file to buffer?
+	/* get peer public key */
+	// TODO: read key from file to buffer can be replaced with read_file() from misc.h
 	fp = fopen("key.pub", "r");
 	if (!fp) goto exit;
 
@@ -76,7 +76,7 @@ void key_exchange_dh(void)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	// derive secret
+	/* derive secret */
 	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -107,7 +107,7 @@ void key_exchange_ecdh(void)
 	char *buffer = NULL;
 	long size;
 
-	// generate  private, public key
+	/* generate  private, public key */
 	ret = yaca_key_generate(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -116,7 +116,8 @@ void key_exchange_ecdh(void)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	// get peer public key from file
+	/* get peer public key */
+	// TODO: read key from file to buffer can be replaced with read_file() from misc.h
 	fp = fopen("key.pub", "r");
 	if (fp == NULL)
 		goto exit;
@@ -137,7 +138,7 @@ void key_exchange_ecdh(void)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	// derive secret
+	/* derive secret */
 	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;

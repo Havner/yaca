@@ -190,7 +190,7 @@ API int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_le
 	if (c == NULL || digest == NULL || digest_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (*digest_len == 0 || *digest_len > UINT_MAX) // DigestFinal accepts uint
+	if (*digest_len == 0 || *digest_len > UINT_MAX) /* DigestFinal accepts UINT */
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = EVP_DigestFinal_ex(c->mdctx, (unsigned char*)digest, &len);
