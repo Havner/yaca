@@ -40,6 +40,31 @@ extern "C" {
  */
 
 /**
+ * @brief  Returns the recommended/default length of the IV for a given encryption configuration.
+ *
+ * @since_tizen 3.0
+ *
+ * @remarks If returned iv_bits equals 0 that means that for this
+ *          specific algorithm and its parameters IV is not used.
+ *
+ * @param[in]  algo         Encryption algorithm
+ * @param[in]  bcm          Chain mode
+ * @param[in]  key_bit_len  Key length in bits
+ * @param[out] iv_bit_len   Recommended IV length in bits
+ *
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo, bcm or key_bit_len)
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ *
+ */
+int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
+                                   yaca_block_cipher_mode_e bcm,
+                                   size_t key_bit_len,
+                                   size_t *iv_bit_len);
+
+/**
  * @brief  Initializes an encryption context.
  *
  * @since_tizen 3.0
@@ -74,13 +99,13 @@ int yaca_encrypt_initialize(yaca_context_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_encrypt_initialize()
- * @param[in]     plain       Plain text to be encrypted
- * @param[in]     plain_len   Length of the plain text
- * @param[out]    cipher      Buffer for the encrypted data
- *                            (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    cipher_len  Length of the encrypted data,
- *                            actual number of bytes written will be returned here
+ * @param[in,out] ctx             Context created by yaca_encrypt_initialize()
+ * @param[in]     plaintext       Plaintext to be encrypted
+ * @param[in]     plaintext_len   Length of the plaintext
+ * @param[out]    ciphertext      Buffer for the encrypted data
+ *                                (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    ciphertext_len  Length of the encrypted data,
+ *                                actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -93,21 +118,21 @@ int yaca_encrypt_initialize(yaca_context_h *ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_encrypt_update(yaca_context_h ctx,
-                        const char *plain,
-                        size_t plain_len,
-                        char *cipher,
-                        size_t *cipher_len);
+                        const char *plaintext,
+                        size_t plaintext_len,
+                        char *ciphertext,
+                        size_t *ciphertext_len);
 
 /**
  * @brief  Encrypts the final chunk of the data.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         A valid encrypt context
- * @param[out]    cipher      Final piece of the encrypted data
- *                            (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    cipher_len  Length of the final piece,
- *                            actual number of bytes written will be returned here
+ * @param[in,out] ctx             A valid encrypt context
+ * @param[out]    ciphertext      Final piece of the encrypted data
+ *                                (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    ciphertext_len  Length of the final piece,
+ *                                actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -120,8 +145,8 @@ int yaca_encrypt_update(yaca_context_h ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_encrypt_finalize(yaca_context_h ctx,
-                          char *cipher,
-                          size_t *cipher_len);
+                          char *ciphertext,
+                          size_t *ciphertext_len);
 
 /**
  * @brief  Initializes an decryption context.
@@ -158,13 +183,13 @@ int yaca_decrypt_initialize(yaca_context_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_decrypt_initialize()
- * @param[in]     cipher      Cipher text to be decrypted
- * @param[in]     cipher_len  Length of the cipher text
- * @param[out]    plain       Buffer for the decrypted data
- *                            (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    plain_len   Length of the decrypted data,
- *                            actual number of bytes written will be returned here
+ * @param[in,out] ctx             Context created by yaca_decrypt_initialize()
+ * @param[in]     ciphertext      Ciphertext to be decrypted
+ * @param[in]     ciphertext_len  Length of the ciphertext
+ * @param[out]    plaintext       Buffer for the decrypted data
+ *                                (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    plaintext_len   Length of the decrypted data,
+ *                                actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -177,21 +202,21 @@ int yaca_decrypt_initialize(yaca_context_h *ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_decrypt_update(yaca_context_h ctx,
-                        const char *cipher,
-                        size_t cipher_len,
-                        char *plain,
-                        size_t *plain_len);
+                        const char *ciphertext,
+                        size_t ciphertext_len,
+                        char *plaintext,
+                        size_t *plaintext_len);
 
 /**
  * @brief  Decrypts the final chunk of the data.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx        A valid decrypt context
- * @param[out]    plain      Final piece of the decrypted data
- *                           (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    plain_len  Length of the final piece,
- *                           actual number of bytes written will be returned here
+ * @param[in,out] ctx            A valid decrypt context
+ * @param[out]    plaintext      Final piece of the decrypted data
+ *                               (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    plaintext_len  Length of the final piece,
+ *                               actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -204,33 +229,8 @@ int yaca_decrypt_update(yaca_context_h ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_decrypt_finalize(yaca_context_h ctx,
-                          char *plain,
-                          size_t *plain_len);
-
-/**
- * @brief  Returns the recommended/default length of the IV for a given encryption configuration.
- *
- * @since_tizen 3.0
- *
- * @remarks If returned iv_bits equals 0 that means that for this
- *          specific algorithm and its parameters IV is not used.
- *
- * @param[in]  algo      Encryption algorithm
- * @param[in]  bcm       Chain mode
- * @param[in]  key_bits  Key length in bits
- * @param[out] iv_bits   Recommended IV length in bits
- *
- * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo, bcm or key_bits)
- * @retval #YACA_ERROR_INTERNAL Internal error
- *
- */
-int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
-                                   yaca_block_cipher_mode_e bcm,
-                                   size_t key_bits,
-                                   size_t *iv_bits);
+                          char *plaintext,
+                          size_t *plaintext_len);
 
 /**@}*/
 

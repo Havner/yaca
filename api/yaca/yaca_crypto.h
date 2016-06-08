@@ -141,7 +141,7 @@ int yaca_realloc(size_t size, void **memory);
  *
  * @since_tizen 3.0
  *
- * @param[in] ptr  Pointer to the memory to be freed
+ * @param[in] memory  Pointer to the memory to be freed
  *
  * @return #YACA_ERROR_NONE on success
  * @retval #YACA_ERROR_NONE Successful
@@ -150,7 +150,7 @@ int yaca_realloc(size_t size, void **memory);
  * @see yaca_zalloc()
  * @see yaca_realloc()
  */
-int yaca_free(void *ptr);
+int yaca_free(void *memory);
 
 /**
  * @brief  Safely compares first @b len bytes of two buffers.
@@ -189,21 +189,21 @@ int yaca_randomize_bytes(char *data, size_t data_len);
  * @since_tizen 3.0
  *
  * @param[in,out] ctx        Previously initialized crypto context
- * @param[in]     param      Property to be set
+ * @param[in]     property   Property to be set
  * @param[in]     value      Property value
  * @param[in]     value_len  Length of the property value
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid ctx or param)
+ *                                       invalid ctx or property)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_property_e
  * @see yaca_context_get_property()
  */
 int yaca_context_set_property(yaca_context_h ctx,
-                              yaca_property_e param,
+                              yaca_property_e property,
                               const void *value,
                               size_t value_len);
 
@@ -214,14 +214,14 @@ int yaca_context_set_property(yaca_context_h ctx,
  * @since_tizen 3.0
  *
  * @param[in]  ctx        Previously initialized crypto context
- * @param[in]  param      Property to be read
+ * @param[in]  property   Property to be read
  * @param[out] value      Copy of the property value (must be freed with yaca_free())
  * @param[out] value_len  Length of the property value will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid ctx or param)
+ *                                       invalid ctx or property)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -230,7 +230,7 @@ int yaca_context_set_property(yaca_context_h ctx,
  * @see yaca_free()
  */
 int yaca_context_get_property(const yaca_context_h ctx,
-                              yaca_property_e param,
+                              yaca_property_e property,
                               void **value,
                               size_t *value_len);
 
@@ -270,7 +270,9 @@ int yaca_context_destroy(yaca_context_h ctx);
  *                                       invalid context or too big input_len)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
-int yaca_context_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len);
+int yaca_context_get_output_length(const yaca_context_h ctx,
+                                   size_t input_len,
+                                   size_t *output_len);
 
 /**@}*/
 

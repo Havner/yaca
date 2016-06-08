@@ -982,16 +982,16 @@ API int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bits)
+API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len)
 {
 	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
-	if (key_bits == NULL)
+	if (key_bit_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	if (simple_key != NULL) {
-		*key_bits = simple_key->bits;
+		*key_bit_len = simple_key->bits;
 		return YACA_ERROR_NONE;
 	}
 
@@ -1006,7 +1006,7 @@ API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bits)
 			return ret;
 		}
 
-		*key_bits = ret;
+		*key_bit_len = ret;
 		return YACA_ERROR_NONE;
 	}
 
@@ -1086,29 +1086,29 @@ API int yaca_key_export(const yaca_key_h key,
 }
 
 API int yaca_key_generate(yaca_key_type_e key_type,
-                          size_t key_bits,
+                          size_t key_bit_len,
                           yaca_key_h *key)
 {
 	int ret;
 	struct yaca_key_simple_s *nk_simple = NULL;
 	struct yaca_key_evp_s *nk_evp = NULL;
 
-	if (key == NULL || key_bits == 0 || key_bits % 8 != 0)
+	if (key == NULL || key_bit_len == 0 || key_bit_len % 8 != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	switch (key_type) {
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_IV:
-		ret = gen_simple(&nk_simple, key_bits);
+		ret = gen_simple(&nk_simple, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_DES:
-		ret = gen_simple_des(&nk_simple, key_bits);
+		ret = gen_simple_des(&nk_simple, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_RSA_PRIV:
-		ret = gen_evp_rsa(&nk_evp, key_bits);
+		ret = gen_evp_rsa(&nk_evp, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
-		ret = gen_evp_dsa(&nk_evp, key_bits);
+		ret = gen_evp_dsa(&nk_evp, key_bit_len);
 		break;
 //	case YACA_KEY_TYPE_DH_PRIV:
 //	case YACA_KEY_TYPE_EC_PRIV:
@@ -1219,21 +1219,21 @@ API int yaca_key_destroy(yaca_key_h key)
 API int yaca_key_derive_pbkdf2(const char *password,
                                const char *salt,
                                size_t salt_len,
-                               int iter,
+                               int iterations,
                                yaca_digest_algorithm_e algo,
-                               size_t key_bits,
+                               size_t key_bit_len,
                                yaca_key_h *key)
 {
 	const EVP_MD *md;
 	struct yaca_key_simple_s *nk;
-	size_t key_byte_len = key_bits / 8;
+	size_t key_byte_len = key_bit_len / 8;
 	int ret;
 
 	if (password == NULL || salt == NULL || salt_len == 0 ||
-	    iter == 0 || key_bits == 0 || key == NULL)
+	    iterations == 0 || key_bit_len == 0 || key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (key_bits % 8) /* Key length must be multiple of 8-bits */
+	if (key_bit_len % 8) /* Key length must be multiple of 8-bits */
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = digest_get_algorithm(algo, &md);
@@ -1244,11 +1244,11 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nk->bits = key_bits;
+	nk->bits = key_bit_len;
 	nk->key.type = YACA_KEY_TYPE_SYMMETRIC; // TODO: how to handle other keys?
 
 	ret = PKCS5_PBKDF2_HMAC(password, -1, (const unsigned char*)salt,
-	                        salt_len, iter, md, key_byte_len,
+	                        salt_len, iterations, md, key_byte_len,
 	                        (unsigned char*)nk->d);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;

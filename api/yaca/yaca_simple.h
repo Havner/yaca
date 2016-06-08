@@ -80,15 +80,15 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo        Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
- * @param[in]  bcm         Chaining mode (select #YACA_BCM_CBC if unsure)
- * @param[in]  sym_key     Symmetric encryption key (see key.h for key generation functions)
- * @param[in]  iv          Initialization vector
- * @param[in]  plain       Plain text to be encrypted
- * @param[in]  plain_len   Length of the plain text
- * @param[out] cipher      Encrypted data, will be allocated by the library
- *                         (should be freed with yaca_free())
- * @param[out] cipher_len  Length of the encrypted data (may be larger than decrypted)
+ * @param[in]  algo            Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
+ * @param[in]  bcm             Chaining mode (select #YACA_BCM_CBC if unsure)
+ * @param[in]  sym_key         Symmetric encryption key (see key.h for key generation functions)
+ * @param[in]  iv              Initialization vector
+ * @param[in]  plaintext       Plaintext to be encrypted
+ * @param[in]  plaintext_len   Length of the plaintext
+ * @param[out] ciphertext      Encrypted data, will be allocated by the library
+ *                             (should be freed with yaca_free())
+ * @param[out] ciphertext_len  Length of the encrypted data (may be larger than decrypted)
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -106,25 +106,25 @@ int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
                         yaca_block_cipher_mode_e bcm,
                         const yaca_key_h sym_key,
                         const yaca_key_h iv,
-                        const char *plain,
-                        size_t plain_len,
-                        char **cipher,
-                        size_t *cipher_len);
+                        const char *plaintext,
+                        size_t plaintext_len,
+                        char **ciphertext,
+                        size_t *ciphertext_len);
 
 /**
  * @brief  Decrypt data using a symmetric cipher.
  *
  * @since_tizen 3.0
  *
- * @param[in]  algo        Decryption algorithm that was used to encrypt the data
- * @param[in]  bcm         Chaining mode that was used to encrypt the data
- * @param[in]  sym_key     Symmetric encryption key that was used to encrypt the data
- * @param[in]  iv          Initialization vector that was used to encrypt the data
- * @param[in]  cipher      Cipher text to be decrypted
- * @param[in]  cipher_len  Length of cipher text
- * @param[out] plain       Decrypted data, will be allocated by the library
- *                         (should be freed with yaca_free())
- * @param[out] plain_len   Length of the decrypted data
+ * @param[in]  algo            Decryption algorithm that was used to encrypt the data
+ * @param[in]  bcm             Chaining mode that was used to encrypt the data
+ * @param[in]  sym_key         Symmetric encryption key that was used to encrypt the data
+ * @param[in]  iv              Initialization vector that was used to encrypt the data
+ * @param[in]  ciphertext      Ciphertext to be decrypted
+ * @param[in]  ciphertext_len  Length of ciphertext
+ * @param[out] plaintext       Decrypted data, will be allocated by the library
+ *                             (should be freed with yaca_free())
+ * @param[out] plaintext_len   Length of the decrypted data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -142,10 +142,10 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
                         yaca_block_cipher_mode_e bcm,
                         const yaca_key_h sym_key,
                         const yaca_key_h iv,
-                        const char *cipher,
-                        size_t cipher_len,
-                        char **plain,
-                        size_t *plain_len);
+                        const char *ciphertext,
+                        size_t ciphertext_len,
+                        char **plaintext,
+                        size_t *plaintext_len);
 
 /**
  * @brief  Create a signature using asymmetric private key.

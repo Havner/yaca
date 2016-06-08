@@ -344,11 +344,11 @@ typedef enum {
 	 *   in decryption operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_CCM_AAD = additional authentication data (optional)\n
-	 *   The total plain text length must be passed to yaca_encrypt_update()
+	 *   The total plaintext length must be passed to yaca_encrypt_update()
 	 *   if AAD is used.\n
 	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()
 	 *   in encryption operation.\n
-	 *   You can only call yaca_encrypt_update() once for AAD and once for the plain text.\n\n
+	 *   You can only call yaca_encrypt_update() once for AAD and once for the plaintext.\n\n
 	 *
 	 *   The total encrypted text length must be passed to yaca_decrypt_update()
 	 *   if AAD is used.\n

@@ -48,21 +48,21 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx           Newly created context (must be freed with yaca_context_destroy())
- * @param[in]  pub_key       Public key of the peer that will receive the encrypted data
- * @param[in]  algo          Symmetric algorithm that will be used
- * @param[in]  bcm           Block chaining mode for the symmetric algorithm
- * @param[in]  sym_key_bits  Symmetric key length (in bits) that will be generated
- * @param[out] sym_key       Generated symmetric key that will be used,
- *                           it is encrypted with peer's public key
- *                           (must be freed with yaca_key_destroy())
- * @param[out] iv            Generated initialization vector that will be used
- *                           (must be freed with yaca_key_destroy())
+ * @param[out] ctx              Newly created context (must be freed with yaca_context_destroy())
+ * @param[in]  pub_key          Public key of the peer that will receive the encrypted data
+ * @param[in]  algo             Symmetric algorithm that will be used
+ * @param[in]  bcm              Block chaining mode for the symmetric algorithm
+ * @param[in]  sym_key_bit_len  Symmetric key length (in bits) that will be generated
+ * @param[out] sym_key          Generated symmetric key that will be used,
+ *                              it is encrypted with peer's public key
+ *                              (must be freed with yaca_key_destroy())
+ * @param[out] iv               Generated initialization vector that will be used
+ *                              (must be freed with yaca_key_destroy())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo, bcm, sym_key_bits or pub_key)
+ *                                       invalid algo, bcm, sym_key_bit_len or pub_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -77,7 +77,7 @@ int yaca_seal_initialize(yaca_context_h *ctx,
                          const yaca_key_h pub_key,
                          yaca_encrypt_algorithm_e algo,
                          yaca_block_cipher_mode_e bcm,
-                         yaca_key_bit_length_e sym_key_bits,
+                         yaca_key_bit_length_e sym_key_bit_len,
                          yaca_key_h *sym_key,
                          yaca_key_h *iv);
 
@@ -86,13 +86,13 @@ int yaca_seal_initialize(yaca_context_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_seal_initialize()
- * @param[in]     plain       Plain text to be encrypted
- * @param[in]     plain_len   Length of the plain text
- * @param[out]    cipher      Buffer for the encrypted data
- *                            (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    cipher_len  Length of the encrypted data,
- *                            actual number of bytes written will be returned here
+ * @param[in,out] ctx             Context created by yaca_seal_initialize()
+ * @param[in]     plaintext       Plaintext to be encrypted
+ * @param[in]     plaintext_len   Length of the plaintext
+ * @param[out]    ciphertext      Buffer for the encrypted data
+ *                                (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    ciphertext_len  Length of the encrypted data,
+ *                                actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -105,21 +105,21 @@ int yaca_seal_initialize(yaca_context_h *ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_seal_update(yaca_context_h ctx,
-                     const char *plain,
-                     size_t plain_len,
-                     char *cipher,
-                     size_t *cipher_len);
+                     const char *plaintext,
+                     size_t plaintext_len,
+                     char *ciphertext,
+                     size_t *ciphertext_len);
 
 /**
  * @brief  Encrypts the final piece of the data.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         A valid seal context
- * @param[out]    cipher      Final piece of the encrypted data
- *                            (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    cipher_len  Length of the final piece,
- *                            actual number of bytes written will be returned here
+ * @param[in,out] ctx             A valid seal context
+ * @param[out]    ciphertext      Final piece of the encrypted data
+ *                                (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    ciphertext_len  Length of the final piece,
+ *                                actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -132,27 +132,27 @@ int yaca_seal_update(yaca_context_h ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_seal_finalize(yaca_context_h ctx,
-                       char *cipher,
-                       size_t *cipher_len);
+                       char *ciphertext,
+                       size_t *ciphertext_len);
 
 /**
  * @brief  Initializes an asymmetric decryption context.
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx           Newly created context (must be freed by yaca_context_destroy())
- * @param[in]  prv_key       Private key, part of the pair that was used for the encryption
- * @param[in]  algo          Symmetric algorithm that was used for the encryption
- * @param[in]  bcm           Block chaining mode for the symmetric algorithm
- * @param[in]  sym_key_bits  Symmetric key length (in bits) that was used for the encryption
- * @param[in]  sym_key       Symmetric key, encrypted with the public key,
- *                           that was used to encrypt the data
- * @param[in]  iv            Initialization vector that was used for the encryption
+ * @param[out] ctx              Newly created context (must be freed by yaca_context_destroy())
+ * @param[in]  prv_key          Private key, part of the pair that was used for the encryption
+ * @param[in]  algo             Symmetric algorithm that was used for the encryption
+ * @param[in]  bcm              Block chaining mode for the symmetric algorithm
+ * @param[in]  sym_key_bit_len  Symmetric key length (in bits) that was used for the encryption
+ * @param[in]  sym_key          Symmetric key, encrypted with the public key,
+ *                              that was used to encrypt the data
+ * @param[in]  iv               Initialization vector that was used for the encryption
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo, bcm, sym_key_bits, prv_key, sym_key or iv)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, invalid
+ *                                       algo, bcm, sym_key_bit_len, prv_key, sym_key or iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -166,7 +166,7 @@ int yaca_open_initialize(yaca_context_h *ctx,
                          const yaca_key_h prv_key,
                          yaca_encrypt_algorithm_e algo,
                          yaca_block_cipher_mode_e bcm,
-                         yaca_key_bit_length_e sym_key_bits,
+                         yaca_key_bit_length_e sym_key_bit_len,
                          const yaca_key_h sym_key,
                          const yaca_key_h iv);
 
@@ -175,13 +175,13 @@ int yaca_open_initialize(yaca_context_h *ctx,
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx         Context created by yaca_open_initialize()
- * @param[in]     cipher      Cipher text to be decrypted
- * @param[in]     cipher_len  Length of the cipher text
- * @param[out]    plain       Buffer for the decrypted data
- *                            (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    plain_len   Length of the decrypted data,
- *                            actual number of bytes written will be returned here
+ * @param[in,out] ctx             Context created by yaca_open_initialize()
+ * @param[in]     ciphertext      Ciphertext to be decrypted
+ * @param[in]     ciphertext_len  Length of the ciphertext
+ * @param[out]    plaintext       Buffer for the decrypted data
+ *                                (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    plaintext_len   Length of the decrypted data,
+ *                                actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -194,21 +194,21 @@ int yaca_open_initialize(yaca_context_h *ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_open_update(yaca_context_h ctx,
-                     const char *cipher,
-                     size_t cipher_len,
-                     char *plain,
-                     size_t *plain_len);
+                     const char *ciphertext,
+                     size_t ciphertext_len,
+                     char *plaintext,
+                     size_t *plaintext_len);
 
 /**
  * @brief  Decrypts last chunk of sealed message.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx        A valid open context
- * @param[out]    plain      Final piece of the decrypted data
- *                           (must be allocated by client, see yaca_context_get_output_length())
- * @param[out]    plain_len  Length of the final piece,
- *                           actual number of bytes written will be returned here
+ * @param[in,out] ctx            A valid open context
+ * @param[out]    plaintext      Final piece of the decrypted data
+ *                               (must be allocated by client, see yaca_context_get_output_length())
+ * @param[out]    plaintext_len  Length of the final piece,
+ *                               actual number of bytes written will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -221,8 +221,8 @@ int yaca_open_update(yaca_context_h ctx,
  * @see yaca_context_get_output_length()
  */
 int yaca_open_finalize(yaca_context_h ctx,
-                       char *plain,
-                       size_t *plain_len);
+                       char *plaintext,
+                       size_t *plaintext_len);
 
 /**@}*/
 

@@ -542,13 +542,13 @@ static int encrypt_final(yaca_context_h ctx,
 
 API int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
                                        yaca_block_cipher_mode_e bcm,
-                                       size_t key_bits,
-                                       size_t *iv_bits)
+                                       size_t key_bit_len,
+                                       size_t *iv_bit_len)
 {
 	const EVP_CIPHER *cipher;
 	int ret;
 
-	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, key_bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -558,7 +558,7 @@ API int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
 		return YACA_ERROR_INTERNAL;
 	}
 
-	*iv_bits = ret * 8;
+	*iv_bit_len = ret * 8;
 	return YACA_ERROR_NONE;
 }
 
@@ -572,21 +572,21 @@ API int yaca_encrypt_initialize(yaca_context_h *ctx,
 }
 
 API int yaca_encrypt_update(yaca_context_h ctx,
-                            const char *plain,
-                            size_t plain_len,
-                            char *cipher,
-                            size_t *cipher_len)
+                            const char *plaintext,
+                            size_t plaintext_len,
+                            char *ciphertext,
+                            size_t *ciphertext_len)
 {
-	return encrypt_update(ctx, (const unsigned char*)plain, plain_len,
-	                      (unsigned char*)cipher, cipher_len, OP_ENCRYPT);
+	return encrypt_update(ctx, (const unsigned char*)plaintext, plaintext_len,
+	                      (unsigned char*)ciphertext, ciphertext_len, OP_ENCRYPT);
 }
 
 API int yaca_encrypt_finalize(yaca_context_h ctx,
-                              char *cipher,
-                              size_t *cipher_len)
+                              char *ciphertext,
+                              size_t *ciphertext_len)
 {
-	return encrypt_final(ctx, (unsigned char*)cipher,
-	                     cipher_len, OP_ENCRYPT);
+	return encrypt_final(ctx, (unsigned char*)ciphertext,
+	                     ciphertext_len, OP_ENCRYPT);
 }
 
 API int yaca_decrypt_initialize(yaca_context_h *ctx,
@@ -599,19 +599,19 @@ API int yaca_decrypt_initialize(yaca_context_h *ctx,
 }
 
 API int yaca_decrypt_update(yaca_context_h ctx,
-                            const char *cipher,
-                            size_t cipher_len,
-                            char *plain,
-                            size_t *plain_len)
+                            const char *ciphertext,
+                            size_t ciphertext_len,
+                            char *plaintext,
+                            size_t *plaintext_len)
 {
-	return encrypt_update(ctx, (const unsigned char*)cipher, cipher_len,
-	                      (unsigned char*)plain, plain_len, OP_DECRYPT);
+	return encrypt_update(ctx, (const unsigned char*)ciphertext, ciphertext_len,
+	                      (unsigned char*)plaintext, plaintext_len, OP_DECRYPT);
 }
 
 API int yaca_decrypt_finalize(yaca_context_h ctx,
-                              char *plain,
-                              size_t *plain_len)
+                              char *plaintext,
+                              size_t *plaintext_len)
 {
-	return encrypt_final(ctx, (unsigned char*)plain, plain_len,
+	return encrypt_final(ctx, (unsigned char*)plaintext, plaintext_len,
 	                     OP_DECRYPT);
 }

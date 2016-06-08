@@ -65,15 +65,15 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  *
  * @since_tizen 3.0
  *
- * @param[in]  key       Key which length we return
- * @param[out] key_bits  Key length in bits
+ * @param[in]  key          Key which length we return
+ * @param[out] key_bit_len  Key length in bits
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Either of the params is NULL
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
-int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bits);
+int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
 
 /**
  * @brief  Imports a key.
@@ -184,14 +184,14 @@ int yaca_key_export(const yaca_key_h key,
  *          - RSA: length >= 256bits
  *          - DSA: length >= 512bits, multiple of 64
  *
- * @param[in]  key_type  Type of the key to be generated
- * @param[in]  key_bits  Length of the key (in bits) to be generated
- * @param[out] key       Newly generated key (must be freed with yaca_key_destroy())
+ * @param[in]  key_type     Type of the key to be generated
+ * @param[in]  key_bit_len  Length of the key (in bits) to be generated
+ * @param[out] key          Newly generated key (must be freed with yaca_key_destroy())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER key is NULL, incorrect key_type or
- *                                       key_bits is not dividable by 8
+ *                                       key_bit_len is not dividable by 8
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -200,7 +200,7 @@ int yaca_key_export(const yaca_key_h key,
  * @see yaca_key_destroy()
  */
 int yaca_key_generate(yaca_key_type_e key_type,
-                      size_t key_bits,
+                      size_t key_bit_len,
                       yaca_key_h *key);
 
 /**
@@ -254,18 +254,18 @@ int yaca_key_destroy(yaca_key_h key);
  *
  * @since_tizen 3.0
  *
- * @param[in]  password  User password as a NULL-terminated string
- * @param[in]  salt      Salt, should be a non-empty string
- * @param[in]  salt_len  Length of the salt
- * @param[in]  iter      Number of iterations
- * @param[in]  algo      Digest algorithm that should be used in key generation
- * @param[in]  key_bits  Length of a key (in bits) to be generated
- * @param[out] key       Newly generated key (must be freed with yaca_key_destroy())
+ * @param[in]  password     User password as a NULL-terminated string
+ * @param[in]  salt         Salt, should be a non-empty string
+ * @param[in]  salt_len     Length of the salt
+ * @param[in]  iterations   Number of iterations
+ * @param[in]  algo         Digest algorithm that should be used in key generation
+ * @param[in]  key_bit_len  Length of a key (in bits) to be generated
+ * @param[out] key          Newly generated key (must be freed with yaca_key_destroy())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid algo or key_bits not dividable by 8)
+ *                                       invalid algo or key_bit_len not dividable by 8)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -275,9 +275,9 @@ int yaca_key_destroy(yaca_key_h key);
 int yaca_key_derive_pbkdf2(const char *password,
                            const char *salt,
                            size_t salt_len,
-                           int iter,
+                           int iterations,
                            yaca_digest_algorithm_e algo,
-                           size_t key_bits,
+                           size_t key_bit_len,
                            yaca_key_h *key);
 
 /**@}*/

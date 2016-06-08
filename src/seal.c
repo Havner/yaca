@@ -383,34 +383,34 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
                              const yaca_key_h pub_key,
                              yaca_encrypt_algorithm_e algo,
                              yaca_block_cipher_mode_e bcm,
-                             yaca_key_bit_length_e sym_key_bits,
+                             yaca_key_bit_length_e sym_key_bit_len,
                              yaca_key_h *sym_key,
                              yaca_key_h *iv)
 {
-	return seal_init(ctx, pub_key, algo, bcm, sym_key_bits, sym_key, iv);
+	return seal_init(ctx, pub_key, algo, bcm, sym_key_bit_len, sym_key, iv);
 }
 
 API int yaca_seal_update(yaca_context_h ctx,
-                         const char *plain,
-                         size_t plain_len,
-                         char *cipher,
-                         size_t *cipher_len)
+                         const char *plaintext,
+                         size_t plaintext_len,
+                         char *ciphertext,
+                         size_t *ciphertext_len)
 {
 	return seal_update(ctx,
-	                   (const unsigned char*)plain,
-	                   plain_len,
-	                   (unsigned char*)cipher,
-	                   cipher_len,
+	                   (const unsigned char*)plaintext,
+	                   plaintext_len,
+	                   (unsigned char*)ciphertext,
+	                   ciphertext_len,
 	                   OP_SEAL);
 }
 
 API int yaca_seal_finalize(yaca_context_h ctx,
-                           char *cipher,
-                           size_t *cipher_len)
+                           char *ciphertext,
+                           size_t *ciphertext_len)
 {
 	return seal_final(ctx,
-	                  (unsigned char*)cipher,
-	                  cipher_len,
+	                  (unsigned char*)ciphertext,
+	                  ciphertext_len,
 	                  OP_SEAL);
 }
 
@@ -418,30 +418,30 @@ API int yaca_open_initialize(yaca_context_h *ctx,
                              const yaca_key_h prv_key,
                              yaca_encrypt_algorithm_e algo,
                              yaca_block_cipher_mode_e bcm,
-                             yaca_key_bit_length_e sym_key_bits,
+                             yaca_key_bit_length_e sym_key_bit_len,
                              const yaca_key_h sym_key,
                              const yaca_key_h iv)
 {
-	return open_init(ctx, prv_key, algo, bcm, sym_key_bits, sym_key, iv);
+	return open_init(ctx, prv_key, algo, bcm, sym_key_bit_len, sym_key, iv);
 }
 
 API int yaca_open_update(yaca_context_h ctx,
-                         const char *cipher,
-                         size_t cipher_len,
-                         char *plain,
-                         size_t *plain_len)
+                         const char *ciphertext,
+                         size_t ciphertext_len,
+                         char *plaintext,
+                         size_t *plaintext_len)
 {
 	return seal_update(ctx,
-	                   (const unsigned char*)cipher,
-	                   cipher_len,
-	                   (unsigned char*)plain,
-	                   plain_len,
+	                   (const unsigned char*)ciphertext,
+	                   ciphertext_len,
+	                   (unsigned char*)plaintext,
+	                   plaintext_len,
 	                   OP_OPEN);
 }
 
 API int yaca_open_finalize(yaca_context_h ctx,
-                           char *plain,
-                           size_t *plain_len)
+                           char *plaintext,
+                           size_t *plaintext_len)
 {
-	return seal_final(ctx, (unsigned char*)plain, plain_len, OP_OPEN);
+	return seal_final(ctx, (unsigned char*)plaintext, plaintext_len, OP_OPEN);
 }

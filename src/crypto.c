@@ -126,8 +126,10 @@ API int yaca_initialize(void)
 	/*
 	 * TODO:
 	 * - We should also decide on Openssl config.
-	 * - Here's a good tutorial for initalization and cleanup: https://wiki.openssl.org/index.php/Library_Initialization
-	 * - We should also initialize the entropy for random number generator: https://wiki.openssl.org/index.php/Random_Numbers#Initialization
+	 * - Here's a good tutorial for initalization and cleanup:
+	 *   https://wiki.openssl.org/index.php/Library_Initialization
+	 * - We should also initialize the entropy for random number generator:
+	 *   https://wiki.openssl.org/index.php/Random_Numbers#Initialization
 	 */
 
 	return YACA_ERROR_NONE;
@@ -191,9 +193,9 @@ API int yaca_realloc(size_t size, void **memory)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_free(void *ptr)
+API int yaca_free(void *memory)
 {
-	OPENSSL_free(ptr);
+	OPENSSL_free(memory);
 
 	return YACA_ERROR_NONE;
 }
@@ -215,22 +217,22 @@ API int yaca_randomize_bytes(char *data, size_t data_len)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_context_set_property(yaca_context_h ctx, yaca_property_e param,
+API int yaca_context_set_property(yaca_context_h ctx, yaca_property_e property,
                                   const void *value, size_t value_len)
 {
 	if (ctx == YACA_CONTEXT_NULL || ctx->set_param == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	return ctx->set_param(ctx, param, value, value_len);
+	return ctx->set_param(ctx, property, value, value_len);
 }
 
-API int yaca_context_get_property(const yaca_context_h ctx, yaca_property_e param,
+API int yaca_context_get_property(const yaca_context_h ctx, yaca_property_e property,
                                   void **value, size_t *value_len)
 {
 	if (ctx == YACA_CONTEXT_NULL || ctx->get_param == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	return ctx->get_param(ctx, param, value, value_len);
+	return ctx->get_param(ctx, property, value, value_len);
 }
 
 API int yaca_context_destroy(yaca_context_h ctx)
@@ -244,7 +246,8 @@ API int yaca_context_destroy(yaca_context_h ctx)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_context_get_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
+API int yaca_context_get_output_length(const yaca_context_h ctx,
+                                       size_t input_len, size_t *output_len)
 {
 	if (ctx == YACA_CONTEXT_NULL)
 		return YACA_ERROR_INVALID_PARAMETER;

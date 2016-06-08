@@ -84,17 +84,18 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
                             yaca_block_cipher_mode_e bcm,
                             const yaca_key_h sym_key,
                             const yaca_key_h iv,
-                            const char *plain,
-                            size_t plain_len,
-                            char **cipher,
-                            size_t *cipher_len)
+                            const char *plaintext,
+                            size_t plaintext_len,
+                            char **ciphertext,
+                            size_t *ciphertext_len)
 {
 	yaca_context_h ctx;
 	int ret;
 	char *lcipher = NULL;
 	size_t out_len, lcipher_len, written;
 
-	if (plain == NULL || plain_len == 0 || cipher == NULL || cipher_len == NULL ||
+	if (plaintext == NULL || plaintext_len == 0 ||
+	    ciphertext == NULL || ciphertext_len == NULL ||
 	    sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
@@ -102,7 +103,7 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_context_get_output_length(ctx, plain_len, &out_len);
+	ret = yaca_context_get_output_length(ctx, plaintext_len, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -124,7 +125,7 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 		goto exit;
 
 	out_len = lcipher_len;
-	ret = yaca_encrypt_update(ctx, plain, plain_len, lcipher, &out_len);
+	ret = yaca_encrypt_update(ctx, plaintext, plaintext_len, lcipher, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -143,8 +144,8 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	*cipher = lcipher;
-	*cipher_len = written;
+	*ciphertext = lcipher;
+	*ciphertext_len = written;
 	lcipher = NULL;
 	ret = YACA_ERROR_NONE;
 
@@ -159,17 +160,18 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
                             yaca_block_cipher_mode_e bcm,
                             const yaca_key_h sym_key,
                             const yaca_key_h iv,
-                            const char *cipher,
-                            size_t cipher_len,
-                            char **plain,
-                            size_t *plain_len)
+                            const char *ciphertext,
+                            size_t ciphertext_len,
+                            char **plaintext,
+                            size_t *plaintext_len)
 {
 	yaca_context_h ctx;
 	int ret;
 	char *lplain = NULL;
 	size_t out_len, lplain_len, written;
 
-	if (cipher == NULL || cipher_len == 0 || plain == NULL || plain_len == NULL ||
+	if (ciphertext == NULL || ciphertext_len == 0 ||
+	    plaintext == NULL || plaintext_len == NULL ||
 	    sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
@@ -177,7 +179,7 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_context_get_output_length(ctx, cipher_len, &out_len);
+	ret = yaca_context_get_output_length(ctx, ciphertext_len, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -198,7 +200,7 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 		goto exit;
 
 	out_len = lplain_len;
-	ret = yaca_decrypt_update(ctx, cipher, cipher_len, lplain, &out_len);
+	ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, lplain, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -217,8 +219,8 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	*plain = lplain;
-	*plain_len = written;
+	*plaintext = lplain;
+	*plaintext_len = written;
 	lplain = NULL;
 	ret = YACA_ERROR_NONE;
 
