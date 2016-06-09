@@ -38,8 +38,14 @@ enum yaca_ctx_type_e {
 	YACA_CTX_INVALID = 0,
 	YACA_CTX_DIGEST,
 	YACA_CTX_SIGN,
-	YACA_CTX_ENCRYPT,
-	YACA_CTX_SEAL
+	YACA_CTX_ENCRYPT
+};
+
+enum encrypt_op_type {
+	OP_ENCRYPT = 0,
+	OP_DECRYPT = 1,
+	OP_SEAL    = 2,
+	OP_OPEN    = 3
 };
 
 /* Base structure for crypto contexts - to be inherited */
@@ -54,6 +60,13 @@ struct yaca_context_s {
 	                 void **value, size_t *value_len);
 };
 
+struct yaca_encrypt_context_s {
+	struct yaca_context_s ctx;
+
+	EVP_CIPHER_CTX *cipher_ctx;
+	enum encrypt_op_type op_type; /* Operation context was created for */
+	size_t tag_len;
+};
 
 /* Base structure for crypto keys - to be inherited */
 struct yaca_key_s {
@@ -89,10 +102,31 @@ struct yaca_key_evp_s {
 
 int digest_get_algorithm(yaca_digest_algorithm_e algo, const EVP_MD **md);
 
+struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx);
+
+void destroy_encrypt_context(const yaca_context_h ctx);
+
+int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len);
+
+int set_encrypt_property(yaca_context_h ctx, yaca_property_e property,
+                         const void *value, size_t value_len);
+
+int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
+                         void **value, size_t *value_len);
+
 int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           yaca_block_cipher_mode_e bcm,
                           size_t key_bits,
                           const EVP_CIPHER **cipher);
+
+int encrypt_update(yaca_context_h ctx,
+                   const unsigned char *input, size_t input_len,
+                   unsigned char *output, size_t *output_len,
+                   enum encrypt_op_type op_type);
+
+int encrypt_finalize(yaca_context_h ctx,
+                     unsigned char *output, size_t *output_len,
+                     enum encrypt_op_type op_type);
 
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key);
 struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);

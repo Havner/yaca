@@ -33,81 +33,18 @@
 
 #include "internal.h"
 
-enum seal_op_type {
-	OP_SEAL = 0,
-	OP_OPEN = 1
-};
-
-struct yaca_seal_ctx_s {
-	struct yaca_context_s ctx;
-
-	EVP_CIPHER_CTX *cipher_ctx;
-	enum seal_op_type op_type; /* Operation context was created for */
-};
-
-static struct yaca_seal_ctx_s *get_seal_ctx(const yaca_context_h ctx)
-{
-	if (ctx == YACA_CONTEXT_NULL)
-		return NULL;
-
-	switch (ctx->type) {
-	case YACA_CTX_SEAL:
-		return (struct yaca_seal_ctx_s *)ctx;
-	default:
-		return NULL;
-	}
-}
-
-static void destroy_seal_ctx(const yaca_context_h ctx)
-{
-	struct yaca_seal_ctx_s *nc = get_seal_ctx(ctx);
-
-	if (nc == NULL)
-		return;
-
-	EVP_CIPHER_CTX_free(nc->cipher_ctx);
-	nc->cipher_ctx = NULL;
-}
-
-static int get_seal_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
-{
-	struct yaca_seal_ctx_s *nc = get_seal_ctx(ctx);
-	int block_size;
-
-	if (nc == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
-	assert(nc->cipher_ctx);
-
-	block_size = EVP_CIPHER_CTX_block_size(nc->cipher_ctx);
-	if (block_size <= 0) {
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
-		return YACA_ERROR_INTERNAL;
-	}
-
-	if (input_len > 0) {
-		if ((size_t)block_size > SIZE_MAX - input_len + 1)
-			return YACA_ERROR_INVALID_PARAMETER;
-
-		*output_len = block_size + input_len - 1;
-	} else {
-		*output_len = block_size;
-	}
-
-	return YACA_ERROR_NONE;
-}
-
-static int seal_init(yaca_context_h *ctx,
-                     const yaca_key_h pub_key,
-                     yaca_encrypt_algorithm_e algo,
-                     yaca_block_cipher_mode_e bcm,
-                     size_t sym_key_bits,
-                     yaca_key_h *sym_key,
-                     yaca_key_h *iv)
+API int yaca_seal_initialize(yaca_context_h *ctx,
+                             const yaca_key_h pub_key,
+                             yaca_encrypt_algorithm_e algo,
+                             yaca_block_cipher_mode_e bcm,
+                             size_t sym_key_bit_len,
+                             yaca_key_h *sym_key,
+                             yaca_key_h *iv)
 {
 	struct yaca_key_evp_s *lpub;
 	struct yaca_key_simple_s *lkey = NULL;
 	struct yaca_key_simple_s *liv = NULL;
-	struct yaca_seal_ctx_s *nc;
+	struct yaca_encrypt_context_s *nc;
 	const EVP_CIPHER *cipher;
 	int pub_key_length;
 	unsigned char *key_data = NULL;
@@ -124,14 +61,17 @@ static int seal_init(yaca_context_h *ctx,
 	lpub = key_get_evp(pub_key);
 	assert(lpub);
 
-	ret = yaca_zalloc(sizeof(struct yaca_seal_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_encrypt_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nc->ctx.type = YACA_CTX_SEAL;
-	nc->ctx.ctx_destroy = destroy_seal_ctx;
-	nc->ctx.get_output_length = get_seal_output_length;
+	nc->ctx.type = YACA_CTX_ENCRYPT;
+	nc->ctx.ctx_destroy = destroy_encrypt_context;
+	nc->ctx.get_output_length = get_encrypt_output_length;
+	nc->ctx.set_param = set_encrypt_property;
+	nc->ctx.get_param = get_encrypt_property;
 	nc->op_type = OP_SEAL;
+	nc->tag_len = 0;
 
 	nc->cipher_ctx = EVP_CIPHER_CTX_new();
 	if (nc->cipher_ctx == NULL) {
@@ -153,7 +93,7 @@ static int seal_init(yaca_context_h *ctx,
 		goto exit;
 	key_data = (unsigned char*)lkey->d;
 
-	ret = encrypt_get_algorithm(algo, bcm, sym_key_bits, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, sym_key_bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -211,18 +151,35 @@ exit:
 	return ret;
 }
 
-static int open_init(yaca_context_h *ctx,
-                     const yaca_key_h prv_key,
-                     yaca_encrypt_algorithm_e algo,
-                     yaca_block_cipher_mode_e bcm,
-                     size_t sym_key_bits,
-                     const yaca_key_h sym_key,
-                     const yaca_key_h iv)
+API int yaca_seal_update(yaca_context_h ctx,
+                         const char *plaintext,
+                         size_t plaintext_len,
+                         char *ciphertext,
+                         size_t *ciphertext_len)
+{
+	return encrypt_update(ctx, (const unsigned char*)plaintext,  plaintext_len,
+	                      (unsigned char*)ciphertext, ciphertext_len, OP_SEAL);
+}
+
+API int yaca_seal_finalize(yaca_context_h ctx,
+                           char *ciphertext,
+                           size_t *ciphertext_len)
+{
+	return encrypt_finalize(ctx, (unsigned char*)ciphertext, ciphertext_len, OP_SEAL);
+}
+
+API int yaca_open_initialize(yaca_context_h *ctx,
+                             const yaca_key_h prv_key,
+                             yaca_encrypt_algorithm_e algo,
+                             yaca_block_cipher_mode_e bcm,
+                             size_t sym_key_bit_len,
+                             const yaca_key_h sym_key,
+                             const yaca_key_h iv)
 {
 	const struct yaca_key_evp_s *lprv;
 	const struct yaca_key_simple_s *lkey;
 	const struct yaca_key_simple_s *liv;
-	struct yaca_seal_ctx_s *nc;
+	struct yaca_encrypt_context_s *nc;
 	const EVP_CIPHER *cipher;
 	unsigned char *iv_data = NULL;
 	size_t iv_bits;
@@ -241,16 +198,19 @@ static int open_init(yaca_context_h *ctx,
 	if (lkey == NULL || lkey->key.type != YACA_KEY_TYPE_SYMMETRIC)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_zalloc(sizeof(struct yaca_seal_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_encrypt_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nc->ctx.type = YACA_CTX_SEAL;
-	nc->ctx.ctx_destroy = destroy_seal_ctx;
-	nc->ctx.get_output_length = get_seal_output_length;
+	nc->ctx.type = YACA_CTX_ENCRYPT;
+	nc->ctx.ctx_destroy = destroy_encrypt_context;
+	nc->ctx.get_output_length = get_encrypt_output_length;
+	nc->ctx.set_param = set_encrypt_property;
+	nc->ctx.get_param = get_encrypt_property;
 	nc->op_type = OP_OPEN;
+	nc->tag_len = 0;
 
-	ret = encrypt_get_algorithm(algo, bcm, sym_key_bits, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, sym_key_bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -314,134 +274,19 @@ exit:
 	return ret;
 }
 
-static int seal_update(yaca_context_h ctx,
-                       const unsigned char *input,
-                       size_t input_len,
-                       unsigned char *output,
-                       size_t *output_len,
-                       enum seal_op_type op_type)
-{
-	struct yaca_seal_ctx_s *c = get_seal_ctx(ctx);
-	int ret;
-
-	if (c == NULL || input == NULL || input_len == 0 ||
-	    output == NULL || output_len == NULL || op_type != c->op_type)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	switch (op_type) {
-	case OP_SEAL:
-		ret = EVP_SealUpdate(c->cipher_ctx, output, (int*)output_len, input, input_len);
-		break;
-	case OP_OPEN:
-		ret = EVP_OpenUpdate(c->cipher_ctx, output, (int*)output_len, input, input_len);
-		break;
-	default:
-		return YACA_ERROR_INVALID_PARAMETER;
-	}
-
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
-
-	return YACA_ERROR_NONE;
-}
-
-static int seal_final(yaca_context_h ctx,
-                      unsigned char *output,
-                      size_t *output_len,
-                      enum seal_op_type op_type)
-{
-	struct yaca_seal_ctx_s *c = get_seal_ctx(ctx);
-	int ret;
-
-	if (c == NULL || output == NULL || output_len == NULL || op_type != c->op_type)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	switch (op_type) {
-	case OP_SEAL:
-		ret = EVP_SealFinal(c->cipher_ctx, output, (int*)output_len);
-		break;
-	case OP_OPEN:
-		ret = EVP_OpenFinal(c->cipher_ctx, output, (int*)output_len);
-		break;
-	default:
-		return YACA_ERROR_INVALID_PARAMETER;
-	}
-
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
-
-	return YACA_ERROR_NONE;
-}
-
-API int yaca_seal_initialize(yaca_context_h *ctx,
-                             const yaca_key_h pub_key,
-                             yaca_encrypt_algorithm_e algo,
-                             yaca_block_cipher_mode_e bcm,
-                             size_t sym_key_bit_len,
-                             yaca_key_h *sym_key,
-                             yaca_key_h *iv)
-{
-	return seal_init(ctx, pub_key, algo, bcm, sym_key_bit_len, sym_key, iv);
-}
-
-API int yaca_seal_update(yaca_context_h ctx,
-                         const char *plaintext,
-                         size_t plaintext_len,
-                         char *ciphertext,
-                         size_t *ciphertext_len)
-{
-	return seal_update(ctx,
-	                   (const unsigned char*)plaintext,
-	                   plaintext_len,
-	                   (unsigned char*)ciphertext,
-	                   ciphertext_len,
-	                   OP_SEAL);
-}
-
-API int yaca_seal_finalize(yaca_context_h ctx,
-                           char *ciphertext,
-                           size_t *ciphertext_len)
-{
-	return seal_final(ctx,
-	                  (unsigned char*)ciphertext,
-	                  ciphertext_len,
-	                  OP_SEAL);
-}
-
-API int yaca_open_initialize(yaca_context_h *ctx,
-                             const yaca_key_h prv_key,
-                             yaca_encrypt_algorithm_e algo,
-                             yaca_block_cipher_mode_e bcm,
-                             size_t sym_key_bit_len,
-                             const yaca_key_h sym_key,
-                             const yaca_key_h iv)
-{
-	return open_init(ctx, prv_key, algo, bcm, sym_key_bit_len, sym_key, iv);
-}
-
 API int yaca_open_update(yaca_context_h ctx,
                          const char *ciphertext,
                          size_t ciphertext_len,
                          char *plaintext,
                          size_t *plaintext_len)
 {
-	return seal_update(ctx,
-	                   (const unsigned char*)ciphertext,
-	                   ciphertext_len,
-	                   (unsigned char*)plaintext,
-	                   plaintext_len,
-	                   OP_OPEN);
+	return encrypt_update(ctx, (const unsigned char*)ciphertext, ciphertext_len,
+	                      (unsigned char*)plaintext, plaintext_len, OP_OPEN);
 }
 
 API int yaca_open_finalize(yaca_context_h ctx,
                            char *plaintext,
                            size_t *plaintext_len)
 {
-	return seal_final(ctx, (unsigned char*)plaintext, plaintext_len, OP_OPEN);
+	return encrypt_finalize(ctx, (unsigned char*)plaintext, plaintext_len, OP_OPEN);
 }

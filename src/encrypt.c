@@ -33,35 +33,22 @@
 
 #include "internal.h"
 
-enum encrypt_op_type {
-	OP_ENCRYPT = 0,
-	OP_DECRYPT = 1
-};
-
-struct yaca_encrypt_ctx_s {
-	struct yaca_context_s ctx;
-
-	EVP_CIPHER_CTX *cipher_ctx;
-	enum encrypt_op_type op_type; /* Operation context was created for */
-	size_t tag_len;
-};
-
-static struct yaca_encrypt_ctx_s *get_encrypt_ctx(const yaca_context_h ctx)
+struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx)
 {
 	if (ctx == YACA_CONTEXT_NULL)
 		return NULL;
 
 	switch (ctx->type) {
 	case YACA_CTX_ENCRYPT:
-		return (struct yaca_encrypt_ctx_s *)ctx;
+		return (struct yaca_encrypt_context_s *)ctx;
 	default:
 		return NULL;
 	}
 }
 
-static void destroy_encrypt_ctx(const yaca_context_h ctx)
+void destroy_encrypt_context(const yaca_context_h ctx)
 {
-	struct yaca_encrypt_ctx_s *nc = get_encrypt_ctx(ctx);
+	struct yaca_encrypt_context_s *nc = get_encrypt_context(ctx);
 
 	if (nc == NULL)
 		return;
@@ -70,9 +57,9 @@ static void destroy_encrypt_ctx(const yaca_context_h ctx)
 	nc->cipher_ctx = NULL;
 }
 
-static int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
+int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
 {
-	struct yaca_encrypt_ctx_s *nc = get_encrypt_ctx(ctx);
+	struct yaca_encrypt_context_s *nc = get_encrypt_context(ctx);
 	int block_size;
 
 	if (nc == NULL)
@@ -99,24 +86,42 @@ static int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len,
 	return YACA_ERROR_NONE;
 }
 
-static int set_encrypt_param(yaca_context_h ctx,
-                             yaca_property_e param,
-                             const void *value,
-                             size_t value_len)
+int set_encrypt_property(yaca_context_h ctx, yaca_property_e property,
+                         const void *value, size_t value_len)
 {
-	struct yaca_encrypt_ctx_s *c = get_encrypt_ctx(ctx);
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int len;
 
 	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 	assert(c->cipher_ctx != NULL);
 
-	switch (param) {
+	switch (property) {
 	case YACA_PROPERTY_GCM_AAD:
 	case YACA_PROPERTY_CCM_AAD:
-		if (EVP_EncryptUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
+		if (c->op_type == OP_ENCRYPT) {
+			if (EVP_EncryptUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
+				ERROR_DUMP(YACA_ERROR_INTERNAL);
+				return YACA_ERROR_INTERNAL;
+			}
+		}
+		if (c->op_type == OP_DECRYPT) {
+			if (EVP_DecryptUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
+				ERROR_DUMP(YACA_ERROR_INTERNAL);
+				return YACA_ERROR_INTERNAL;
+			}
+		}
+		if (c->op_type == OP_SEAL) {
+			if (EVP_SealUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
+				ERROR_DUMP(YACA_ERROR_INTERNAL);
+				return YACA_ERROR_INTERNAL;
+			}
+		}
+		if (c->op_type == OP_OPEN) {
+			if (EVP_OpenUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
+				ERROR_DUMP(YACA_ERROR_INTERNAL);
+				return YACA_ERROR_INTERNAL;
+			}
 		}
 		break;
 	case YACA_PROPERTY_GCM_TAG:
@@ -152,21 +157,20 @@ static int set_encrypt_param(yaca_context_h ctx,
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
+
 	return YACA_ERROR_NONE;
 }
 
-static int get_encrypt_param(const yaca_context_h ctx,
-                             yaca_property_e param,
-                             void **value,
-                             size_t *value_len)
+int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
+                         void **value, size_t *value_len)
 {
-	struct yaca_encrypt_ctx_s *c = get_encrypt_ctx(ctx);
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 
 	if (c == NULL || value == NULL || value_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 	assert(c->cipher_ctx != NULL);
 
-	switch (param) {
+	switch (property) {
 	case YACA_PROPERTY_GCM_TAG:
 		if (c->tag_len == 0)
 			return YACA_ERROR_INVALID_PARAMETER;
@@ -195,6 +199,7 @@ static int get_encrypt_param(const yaca_context_h ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 		break;
 	}
+
 	return YACA_ERROR_NONE;
 }
 
@@ -305,16 +310,16 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 	return YACA_ERROR_NONE;
 }
 
-static int encrypt_init(yaca_context_h *ctx,
-                        yaca_encrypt_algorithm_e algo,
-                        yaca_block_cipher_mode_e bcm,
-                        const yaca_key_h sym_key,
-                        const yaca_key_h iv,
-                        enum encrypt_op_type op_type)
+static int encrypt_initialize(yaca_context_h *ctx,
+                              yaca_encrypt_algorithm_e algo,
+                              yaca_block_cipher_mode_e bcm,
+                              const yaca_key_h sym_key,
+                              const yaca_key_h iv,
+                              enum encrypt_op_type op_type)
 {
 	const struct yaca_key_simple_s *lkey;
 	const struct yaca_key_simple_s *liv;
-	struct yaca_encrypt_ctx_s *nc;
+	struct yaca_encrypt_context_s *nc;
 	const EVP_CIPHER *cipher;
 	size_t key_bits;
 	unsigned char *iv_data = NULL;
@@ -329,15 +334,15 @@ static int encrypt_init(yaca_context_h *ctx,
 	if (lkey == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_zalloc(sizeof(struct yaca_encrypt_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_encrypt_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	nc->ctx.type = YACA_CTX_ENCRYPT;
-	nc->ctx.ctx_destroy = destroy_encrypt_ctx;
+	nc->ctx.ctx_destroy = destroy_encrypt_context;
 	nc->ctx.get_output_length = get_encrypt_output_length;
-	nc->ctx.set_param = set_encrypt_param;
-	nc->ctx.get_param = get_encrypt_param;
+	nc->ctx.set_param = set_encrypt_property;
+	nc->ctx.get_param = get_encrypt_property;
 	nc->op_type = op_type;
 	nc->tag_len = 0;
 
@@ -465,36 +470,36 @@ exit:
 	return ret;
 }
 
-static int encrypt_update(yaca_context_h ctx,
-                          const unsigned char *input,
-                          size_t input_len,
-                          unsigned char *output,
-                          size_t *output_len,
-                          enum encrypt_op_type op_type)
+int encrypt_update(yaca_context_h ctx,
+                   const unsigned char *input, size_t input_len,
+                   unsigned char *output, size_t *output_len,
+                   enum encrypt_op_type op_type)
 {
-	struct yaca_encrypt_ctx_s *c = get_encrypt_ctx(ctx);
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int ret;
 	int loutput_len;
 
 	if (c == NULL || input_len == 0 || output_len == NULL || op_type != c->op_type)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	loutput_len = *output_len;
-
 	switch (op_type) {
 	case OP_ENCRYPT:
-		ret = EVP_EncryptUpdate(c->cipher_ctx, output, &loutput_len,
-		                        input, input_len);
+		ret = EVP_EncryptUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
+		break;
+	case OP_SEAL:
+		ret = EVP_SealUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
 		break;
 	case OP_DECRYPT:
-		ret = EVP_DecryptUpdate(c->cipher_ctx, output, &loutput_len,
-		                        input, input_len);
+		ret = EVP_DecryptUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
+		break;
+	case OP_OPEN:
+		ret = EVP_OpenUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
 		break;
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
 
-	if (ret != 1) {
+	if (ret != 1 || loutput_len < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
@@ -504,20 +509,16 @@ static int encrypt_update(yaca_context_h ctx,
 	return YACA_ERROR_NONE;
 }
 
-static int encrypt_final(yaca_context_h ctx,
-                         unsigned char *output,
-                         size_t *output_len,
-                         enum encrypt_op_type op_type)
+int encrypt_finalize(yaca_context_h ctx,
+                     unsigned char *output, size_t *output_len,
+                     enum encrypt_op_type op_type)
 {
-	struct yaca_encrypt_ctx_s *c = get_encrypt_ctx(ctx);
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int ret;
 	int loutput_len;
 
-	if (c == NULL || output == NULL || output_len == NULL ||
-	    op_type != c->op_type)
+	if (c == NULL || output == NULL || output_len == NULL || op_type != c->op_type)
 		return YACA_ERROR_INVALID_PARAMETER;
-
-	loutput_len = *output_len;
 
 	switch (op_type) {
 	case OP_ENCRYPT:
@@ -526,11 +527,17 @@ static int encrypt_final(yaca_context_h ctx,
 	case OP_DECRYPT:
 		ret = EVP_DecryptFinal(c->cipher_ctx, output, &loutput_len);
 		break;
+	case OP_SEAL:
+		ret = EVP_SealFinal(c->cipher_ctx, output, &loutput_len);
+		break;
+	case OP_OPEN:
+		ret = EVP_OpenFinal(c->cipher_ctx, output, &loutput_len);
+		break;
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
 
-	if (ret != 1) {
+	if (ret != 1 || loutput_len < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
@@ -568,7 +575,7 @@ API int yaca_encrypt_initialize(yaca_context_h *ctx,
                                 const yaca_key_h sym_key,
                                 const yaca_key_h iv)
 {
-	return encrypt_init(ctx, algo, bcm, sym_key, iv, OP_ENCRYPT);
+	return encrypt_initialize(ctx, algo, bcm, sym_key, iv, OP_ENCRYPT);
 }
 
 API int yaca_encrypt_update(yaca_context_h ctx,
@@ -585,8 +592,7 @@ API int yaca_encrypt_finalize(yaca_context_h ctx,
                               char *ciphertext,
                               size_t *ciphertext_len)
 {
-	return encrypt_final(ctx, (unsigned char*)ciphertext,
-	                     ciphertext_len, OP_ENCRYPT);
+	return encrypt_finalize(ctx, (unsigned char*)ciphertext, ciphertext_len, OP_ENCRYPT);
 }
 
 API int yaca_decrypt_initialize(yaca_context_h *ctx,
@@ -595,7 +601,7 @@ API int yaca_decrypt_initialize(yaca_context_h *ctx,
                                 const yaca_key_h sym_key,
                                 const yaca_key_h iv)
 {
-	return encrypt_init(ctx, algo, bcm, sym_key, iv, OP_DECRYPT);
+	return encrypt_initialize(ctx, algo, bcm, sym_key, iv, OP_DECRYPT);
 }
 
 API int yaca_decrypt_update(yaca_context_h ctx,
@@ -612,6 +618,5 @@ API int yaca_decrypt_finalize(yaca_context_h ctx,
                               char *plaintext,
                               size_t *plaintext_len)
 {
-	return encrypt_final(ctx, (unsigned char*)plaintext, plaintext_len,
-	                     OP_DECRYPT);
+	return encrypt_finalize(ctx, (unsigned char*)plaintext, plaintext_len, OP_DECRYPT);
 }
