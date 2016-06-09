@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <string.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
@@ -36,6 +37,10 @@
 #include "internal.h"
 
 static pthread_mutex_t *mutexes = NULL;
+
+static __thread bool current_thread_initialized = false;
+static size_t threads_cnt = 0;
+static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void locking_callback(int mode, int type, UNUSED const char *file, UNUSED int line)
 {
@@ -70,84 +75,121 @@ static void destroy_mutexes(int count)
 
 API int yaca_initialize(void)
 {
-	int ret;
-	if (mutexes != NULL)
-		return YACA_ERROR_INTERNAL; // TODO introduce new one?
+	int ret = YACA_ERROR_NONE;
 
-	OPENSSL_init();
-
-	/* This should never fail on a /dev/random equipped system. If it does it
-	 * means we might need to figure out another way of a truly random seed.
-	 * https://wiki.openssl.org/index.php/Random_Numbers
-	 *
-	 * Another things to maybe consider for the future:
-	 * - entropy on a mobile device (no mouse/keyboard)
-	 * - fork safety: https://wiki.openssl.org/index.php/Random_fork-safety
-	 * - hardware random generator (RdRand on new Intels, Samsung hardware?)
-	 */
-	if (RAND_status() != 1) {
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
+	/* no calling yaca_initalize() twice on the same thread */
+	if (current_thread_initialized)
 		return YACA_ERROR_INTERNAL;
-	}
 
-	OpenSSL_add_all_digests();
-	OpenSSL_add_all_ciphers();
+	pthread_mutex_lock(&init_mutex);
+	{
+		if (threads_cnt == 0)
+		{
+			assert(mutexes == NULL);
 
-	/* enable threads support */
-	if (CRYPTO_num_locks() > 0) {
-		ret = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t), (void**)&mutexes);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
+			OPENSSL_init();
 
-		for (int i = 0; i < CRYPTO_num_locks(); i++) {
-			if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
-				int ret = YACA_ERROR_NONE;
-				switch (errno) {
-				case ENOMEM:
-					ret = YACA_ERROR_OUT_OF_MEMORY;
-					break;
-				case EAGAIN:
-				case EPERM:
-				case EBUSY:
-				case EINVAL:
-				default:
-					ret = YACA_ERROR_INTERNAL;
-				}
-				destroy_mutexes(i);
-
-				return ret;
+			/* This should never fail on a /dev/random equipped system. If it does it
+			 * means we might need to figure out another way of a truly random seed.
+			 * https://wiki.openssl.org/index.php/Random_Numbers
+			 *
+			 * Another things to maybe consider for the future:
+			 * - entropy on a mobile device (no mouse/keyboard)
+			 * - fork safety: https://wiki.openssl.org/index.php/Random_fork-safety
+			 * - hardware random generator (RdRand on new Intels, Samsung hardware?)
+			 */
+			if (RAND_status() != 1) {
+				ERROR_DUMP(YACA_ERROR_INTERNAL);
+				ret = YACA_ERROR_INTERNAL;
+				goto exit;
 			}
+
+			OpenSSL_add_all_digests();
+			OpenSSL_add_all_ciphers();
+
+			/* enable threads support */
+			if (CRYPTO_num_locks() > 0) {
+				ret = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t),
+				                  (void**)&mutexes);
+
+				if (ret != YACA_ERROR_NONE)
+					goto exit;
+
+				for (int i = 0; i < CRYPTO_num_locks(); i++) {
+					if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
+						ret = YACA_ERROR_NONE;
+						switch (errno) {
+						case ENOMEM:
+							ret = YACA_ERROR_OUT_OF_MEMORY;
+							break;
+						case EAGAIN:
+						case EPERM:
+						case EBUSY:
+						case EINVAL:
+						default:
+							ret = YACA_ERROR_INTERNAL;
+						}
+						destroy_mutexes(i);
+
+						goto exit;
+					}
+				}
+
+				CRYPTO_set_id_callback(thread_id_callback);
+				CRYPTO_set_locking_callback(locking_callback);
+			}
+
+			/*
+			 * TODO:
+			 * - We should also decide on Openssl config.
+			 * - Here's a good tutorial for initalization and cleanup:
+			 *   https://wiki.openssl.org/index.php/Library_Initialization
+			 * - We should also initialize the entropy for random number generator:
+			 *   https://wiki.openssl.org/index.php/Random_Numbers#Initialization
+			 */
 		}
-
-		CRYPTO_set_id_callback(thread_id_callback);
-		CRYPTO_set_locking_callback(locking_callback);
+		threads_cnt++;
+		current_thread_initialized = true;
 	}
+exit:
+	pthread_mutex_unlock(&init_mutex);
 
-	/*
-	 * TODO:
-	 * - We should also decide on Openssl config.
-	 * - Here's a good tutorial for initalization and cleanup:
-	 *   https://wiki.openssl.org/index.php/Library_Initialization
-	 * - We should also initialize the entropy for random number generator:
-	 *   https://wiki.openssl.org/index.php/Random_Numbers#Initialization
-	 */
-
-	return YACA_ERROR_NONE;
+	return ret;
 }
 
 API int yaca_cleanup(void)
 {
-	ERR_free_strings();
+	/* calling cleanup twice on the same thread is a NOP */
+	if (!current_thread_initialized)
+		return YACA_ERROR_NONE;
+
+	/* per thread cleanup */
 	ERR_remove_thread_state(NULL);
-	EVP_cleanup();
-	RAND_cleanup();
 	CRYPTO_cleanup_all_ex_data();
 
-	/* threads support cleanup */
-	CRYPTO_set_id_callback(NULL);
-	CRYPTO_set_locking_callback(NULL);
+	pthread_mutex_lock(&init_mutex);
+	{
+		/* last one turns off the light */
+		if (threads_cnt == 1) {
+			ERR_free_strings();
+			ERR_remove_thread_state(NULL);
+			EVP_cleanup();
+			RAND_cleanup();
+			CRYPTO_cleanup_all_ex_data();
 
-	destroy_mutexes(CRYPTO_num_locks());
+			/* threads support cleanup */
+			CRYPTO_set_id_callback(NULL);
+			CRYPTO_set_locking_callback(NULL);
+
+			destroy_mutexes(CRYPTO_num_locks());
+		}
+
+		assert(threads_cnt > 0);
+
+		threads_cnt--;
+		current_thread_initialized = false;
+	}
+	pthread_mutex_unlock(&init_mutex);
 
 	return YACA_ERROR_NONE;
 }

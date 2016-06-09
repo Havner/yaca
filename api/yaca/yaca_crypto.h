@@ -46,7 +46,8 @@ extern "C" {
 #define YACA_CONTEXT_NULL ((yaca_context_h) NULL)
 
 /**
- * @brief  Initializes the library. Must be called before any other crypto function.
+ * @brief  Initializes the library. Must be called before any other crypto
+ *         function. Should be called once in each thread that uses yaca.
  *
  * @since_tizen 3.0
  *
@@ -60,7 +61,8 @@ extern "C" {
 int yaca_initialize(void);
 
 /**
- * @brief  Closes the library. Must be called before exiting the application.
+ * @brief  Cleans up the library. Must be called before exiting the thread that
+ *         called yaca_initialize().
  *
  * @since_tizen 3.0
  *
