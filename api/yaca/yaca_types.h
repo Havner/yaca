@@ -285,20 +285,22 @@ typedef enum {
 	 * - #YACA_PROPERTY_GCM_TAG_LEN = GCM tag length\n
 	 *   Supported tag lengths: @c 32, @c 64, @c 96, @c 104, @c 112, @c 120, @c 128,
 	 *   (recommended 128 bits tag).\n
-	 *   Set after yaca_encrypt_finalize() and before yaca_context_get_property(#YACA_PROPERTY_GCM_TAG)
-	 *   in encryption operation.\n\n
+	 *   Set after yaca_encrypt_finalize() / yaca_seal_finalize() and before
+	 *   yaca_context_get_property(#YACA_PROPERTY_GCM_TAG)
+	 *   in encryption / seal operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_GCM_TAG = GCM tag\n
-	 *   Get after yaca_encrypt_finalize() in encryption operation.\n
-	 *   Set before yaca_decrypt_finalize() in decryption operation.\n\n
+	 *   Get after yaca_encrypt_finalize() / yaca_seal_finalize() in encryption / seal operation.\n
+	 *   Set before yaca_decrypt_finalize() / yaca_open_finalize() in decryption / open operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_GCM_AAD = additional authentication data (optional)\n
-	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()
-	 *   in encryption operation.\n
-	 *   Set after yaca_decrypt_initialize() and before yaca_decrypt_update()
-	 *   in decryption operation.\n\n
+	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
+	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.\n
+	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
+	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
 	 *   @see examples/encrypt_aes_gcm_ccm.c
+	 *   @see examples/seal.c
 	 */
 	YACA_BCM_GCM,
 
@@ -334,27 +336,29 @@ typedef enum {
 	 * Supported properties:
 	 * - #YACA_PROPERTY_CCM_TAG_LEN = CCM tag length\n
 	 *   Supported tag lengths: 32-128 bits in step of 16 bits (recommended 96 bits tag).\n
-	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()
-	 *   in encryption operation.\n\n
+	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
+	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_CCM_TAG = CCM tag\n
-	 *   Get after yaca_encrypt_finalize() in encryption operation.\n
-	 *   Set after yaca_decrypt_initialize() and before yaca_decrypt_update()
-	 *   in decryption operation.\n\n
+	 *   Get after yaca_encrypt_finalize() / yaca_seal_finalize() in encryption / seal operation.\n
+	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
+	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_CCM_AAD = additional authentication data (optional)\n
-	 *   The total plaintext length must be passed to yaca_encrypt_update()
+	 *   The total plaintext length must be passed to yaca_encrypt_update() / yaca_seal_update()
 	 *   if AAD is used.\n
-	 *   Set after yaca_encrypt_initialize() and before yaca_encrypt_update()
-	 *   in encryption operation.\n
-	 *   You can only call yaca_encrypt_update() once for AAD and once for the plaintext.\n\n
+	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
+	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.\n
+	 *   You can only call yaca_encrypt_update() / yaca_seal_update() once for AAD
+	 *   and once for the plaintext.\n\n
 	 *
-	 *   The total encrypted text length must be passed to yaca_decrypt_update()
-	 *   if AAD is used.\n
-	 *   Set after yaca_decrypt_initialize() and before yaca_decrypt_update()
-	 *   in decryption operation.\n\n
+	 *   The total encrypted text length must be passed to yaca_decrypt_update() /
+	 *   yaca_open_update() if AAD is used.\n
+	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
+	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
 	 *   @see examples/encrypt_aes_gcm_ccm.c
+	 *   @see examples/seal.c
 	 */
 	YACA_BCM_CCM
 

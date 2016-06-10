@@ -43,7 +43,11 @@ extern "C" {
  */
 
 /**
- * @brief  Initializes an asymmetric encryption context.
+ * @brief  Initializes an asymmetric encryption context and generates symmetric key and IV.
+ *
+ * @remarks  Generated symmetric key is encrypted with public key,
+ *           so can be ONLY used with yaca_open_initialize(). It can be exported,
+ *           but after import it can be ONLY used with yaca_open_initialize() as well.
  *
  * @since_tizen 3.0
  *
@@ -70,6 +74,7 @@ extern "C" {
  * @see #yaca_key_bit_length_e
  * @see yaca_seal_update()
  * @see yaca_seal_finalize()
+ * @see yaca_open_initialize()
  * @see yaca_key_destroy()
  * @see yaca_context_destroy()
  */
