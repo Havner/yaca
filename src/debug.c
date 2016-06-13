@@ -41,7 +41,7 @@ API void yaca_debug_set_error_cb(yaca_error_cb fn)
 	error_cb = fn;
 }
 
-char *error_translate(yaca_error_e err)
+API char *yaca_debug_translate_error(yaca_error_e err)
 {
 	switch (err) {
 	case YACA_ERROR_NONE:
@@ -74,7 +74,7 @@ void error_dump(const char *file, int line, const char *function, int code)
 	char buf[BUF_SIZE];
 	unsigned long err;
 	size_t written;
-	const char *err_str = error_translate(code);
+	const char *err_str = yaca_debug_translate_error(code);
 
 	written = snprintf(buf, BUF_SIZE, "%s:%d %s() API error: ", file, line, function);
 	if (err_str != NULL)
