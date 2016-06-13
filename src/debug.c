@@ -41,25 +41,20 @@ API void yaca_debug_set_error_cb(yaca_error_cb fn)
 	error_cb = fn;
 }
 
-API char *yaca_debug_translate_error(yaca_error_e err)
+#define ERRORDESCRIBE(name) case name: return #name
+API const char *yaca_debug_translate_error(yaca_error_e err)
 {
-	switch (err) {
-	case YACA_ERROR_NONE:
-		return "YACA_ERROR_NONE";
-	case YACA_ERROR_INVALID_PARAMETER:
-		return "YACA_ERROR_INVALID_PARAMETER";
-	case YACA_ERROR_OUT_OF_MEMORY:
-		return "YACA_ERROR_OUT_OF_MEMORY";
-	case YACA_ERROR_INTERNAL:
-		return "YACA_ERROR_INTERNAL";
-	case YACA_ERROR_DATA_MISMATCH:
-		return "YACA_ERROR_DATA_MISMATCH";
-	case YACA_ERROR_INVALID_PASSWORD:
-		return "YACA_ERROR_INVALID_PASSWORD";
-	default:
-		return NULL;
-	}
+    switch(err) {
+    ERRORDESCRIBE(YACA_ERROR_NONE);
+    ERRORDESCRIBE(YACA_ERROR_INVALID_PARAMETER);
+    ERRORDESCRIBE(YACA_ERROR_OUT_OF_MEMORY);
+    ERRORDESCRIBE(YACA_ERROR_INTERNAL);
+    ERRORDESCRIBE(YACA_ERROR_DATA_MISMATCH);
+    ERRORDESCRIBE(YACA_ERROR_INVALID_PASSWORD);
+    default: return "Error not defined";
+    }
 }
+#undef ERRORDESCRIBE
 
 void error_dump(const char *file, int line, const char *function, int code)
 {
@@ -75,12 +70,15 @@ void error_dump(const char *file, int line, const char *function, int code)
 	unsigned long err;
 	size_t written;
 	const char *err_str = yaca_debug_translate_error(code);
+	const char *sign = "";
 
-	written = snprintf(buf, BUF_SIZE, "%s:%d %s() API error: ", file, line, function);
-	if (err_str != NULL)
-		written += snprintf(buf + written, BUF_SIZE - written, "%s\n", err_str);
-	else
-		written += snprintf(buf + written, BUF_SIZE - written, "0x%X\n", code);
+	if (code < 0) {
+		code *= -1;
+		sign = "-";
+	}
+
+	written = snprintf(buf, BUF_SIZE, "%s:%d %s() API error: %s0x%02X (%s)\n", file,
+	                   line, function, sign, code, err_str);
 
 	while ((err = ERR_get_error()) != 0 && written < BUF_SIZE - 1) {
 		if (!error_strings_loaded) {
