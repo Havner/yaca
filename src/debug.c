@@ -35,6 +35,7 @@
 // TODO any better idea than to use __thread?
 static __thread yaca_error_cb error_cb = NULL;
 static bool error_strings_loaded = false;
+static const int GENERIC_REASON_MAX = 99;
 
 API void yaca_debug_set_error_cb(yaca_error_cb fn)
 {
@@ -133,8 +134,9 @@ int error_handle(const char *file, int line, const char *function)
 	}
 
 	/* fatal errors */
-	if (ret == YACA_ERROR_NONE && ERR_FATAL_ERROR(err) > 0) {
-		switch (ERR_GET_REASON(err)) {
+	int reason = ERR_GET_REASON(err);
+	if (ret == YACA_ERROR_NONE && reason <= GENERIC_REASON_MAX && ERR_FATAL_ERROR(err) > 0) {
+		switch (reason) {
 		case ERR_R_MALLOC_FAILURE:
 			ret = YACA_ERROR_OUT_OF_MEMORY;
 			break;
