@@ -54,6 +54,8 @@ static int get_digest_output_length(const yaca_context_h ctx,
                                     UNUSED size_t input_len,
                                     size_t *output_len)
 {
+	assert(output_len != NULL);
+
 	struct yaca_digest_ctx_s *c = get_digest_ctx(ctx);
 
 	if (c == NULL)

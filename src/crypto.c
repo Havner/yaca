@@ -291,7 +291,7 @@ API int yaca_context_destroy(yaca_context_h ctx)
 API int yaca_context_get_output_length(const yaca_context_h ctx,
                                        size_t input_len, size_t *output_len)
 {
-	if (ctx == YACA_CONTEXT_NULL)
+	if (ctx == YACA_CONTEXT_NULL || output_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	return ctx->get_output_length(ctx, input_len, output_len);

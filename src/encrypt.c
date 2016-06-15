@@ -59,6 +59,8 @@ void destroy_encrypt_context(const yaca_context_h ctx)
 
 int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
 {
+	assert(output_len != NULL);
+
 	struct yaca_encrypt_context_s *nc = get_encrypt_context(ctx);
 	int block_size;
 

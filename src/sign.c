@@ -67,6 +67,8 @@ static int get_sign_output_length(const yaca_context_h ctx,
                                   UNUSED size_t input_len,
                                   size_t *output_len)
 {
+	assert(output_len != NULL);
+
 	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
 
 	if (c == NULL)
