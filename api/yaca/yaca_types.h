@@ -109,21 +109,37 @@ typedef enum {
  * @since_tizen 3.0
  */
 typedef enum {
+	/** 24 bits */
 	YACA_KEY_LENGTH_IV_UNSAFE_24BIT = 24,
+	/** 64 bits */
 	YACA_KEY_LENGTH_IV_64BIT = 64,
+	/** 128 bits */
 	YACA_KEY_LENGTH_IV_128BIT = 128,
+	/** 256 bits */
 	YACA_KEY_LENGTH_IV_256BIT = 256,
+	/** 8 bits */
 	YACA_KEY_LENGTH_UNSAFE_8BIT = 8,
+	/** 40 bits */
 	YACA_KEY_LENGTH_UNSAFE_40BIT = 40,
+	/** 64 bits */
 	YACA_KEY_LENGTH_UNSAFE_64BIT = 64,
+	/** 80 bits */
 	YACA_KEY_LENGTH_UNSAFE_80BIT = 80,
+	/** 128 bits */
 	YACA_KEY_LENGTH_UNSAFE_128BIT = 128,
+	/** 192 bits */
 	YACA_KEY_LENGTH_192BIT = 192,
+	/** 256 bits */
 	YACA_KEY_LENGTH_256BIT = 256,
+	/** 512 bits */
 	YACA_KEY_LENGTH_512BIT = 512,
+	/** 1024 bits */
 	YACA_KEY_LENGTH_1024BIT = 1024,
+	/** 2048 bits */
 	YACA_KEY_LENGTH_2048BIT = 2048,
+	/** 3072 bits */
 	YACA_KEY_LENGTH_3072BIT = 3072,
+	/** 4096 bits */
 	YACA_KEY_LENGTH_4096BIT = 4096
 } yaca_key_bit_length_e;
 
