@@ -259,7 +259,7 @@ int yaca_context_destroy(yaca_context_h ctx);
  *
  * @remarks  This function can be used to learn the required size of the output buffer
  *           for a single operation (eg. *_update or *_finalize). In case the operation
- *           has no input (eg. *_finalize), the value of @b input_len should be set to 0.
+ *           has no input (eg. *_finalize), the value of @b input_len has to be set to 0.
  *
  * @param[in]  ctx         Previously initialized crypto context
  * @param[in]  input_len   Length of the input data to be processed
