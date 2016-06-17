@@ -43,7 +43,9 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx   Newly created context
  * @param[in]  algo  Digest algorithm that will be used
  *
  * @return #YACA_ERROR_NONE on success, negative on error

@@ -49,18 +49,22 @@ extern "C" {
  *           so can be ONLY used with yaca_open_initialize(). It can be exported,
  *           but after import it can be ONLY used with yaca_open_initialize() as well.
  *
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @remarks  The @a sym_key should be released using yaca_key_destroy()
+ *
+ * @remarks  The @a iv should be released using yaca_key_destroy()
+ *
  * @since_tizen 3.0
  *
- * @param[out] ctx              Newly created context (must be freed with yaca_context_destroy())
+ * @param[out] ctx              Newly created context
  * @param[in]  pub_key          Public key of the peer that will receive the encrypted data
  * @param[in]  algo             Symmetric algorithm that will be used
  * @param[in]  bcm              Block chaining mode for the symmetric algorithm
  * @param[in]  sym_key_bit_len  Symmetric key length (in bits) that will be generated
  * @param[out] sym_key          Generated symmetric key that will be used,
  *                              it is encrypted with peer's public key
- *                              (must be freed with yaca_key_destroy())
  * @param[out] iv               Generated initialization vector that will be used
- *                              (must be freed with yaca_key_destroy())
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -145,7 +149,9 @@ int yaca_seal_finalize(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx              Newly created context (must be freed by yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx              Newly created context
  * @param[in]  prv_key          Private key, part of the pair that was used for the encryption
  * @param[in]  algo             Symmetric algorithm that was used for the encryption
  * @param[in]  bcm              Block chaining mode for the symmetric algorithm

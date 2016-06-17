@@ -68,7 +68,9 @@ int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx      Newly created context (must be freed with yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx      Newly created context
  * @param[in]  algo     Encryption algorithm that will be used
  * @param[in]  bcm      Chaining mode that will be used
  * @param[in]  sym_key  Symmetric key that will be used
@@ -152,7 +154,9 @@ int yaca_encrypt_finalize(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx      Newly created context (must be freed with yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx      Newly created context
  * @param[in]  algo     Encryption algorithm that was used to encrypt the data
  * @param[in]  bcm      Chaining mode that was used to encrypt the data
  * @param[in]  sym_key  Symmetric key that was used to encrypt the data

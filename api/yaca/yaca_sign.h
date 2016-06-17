@@ -46,7 +46,9 @@ extern "C" {
  * @remarks  For verification use yaca_verify_initialize(), yaca_verify_update() and
  *           yaca_verify_finalize() functions with matching public key.
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx   Newly created context
  * @param[in]  algo  Digest algorithm that will be used
  * @param[in]  key   Private key that will be used, algorithm is deduced based
  *                   on key type, supported key types:
@@ -81,7 +83,9 @@ int yaca_sign_initialize(yaca_context_h *ctx,
  * @remarks  For verification, calculate message HMAC and compare with received MAC using
  *           yaca_memcmp().
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx   Newly created context
  * @param[in]  algo  Digest algorithm that will be used
  * @param[in]  key   Symmetric key that will be used, supported key types:
  *                   - #YACA_KEY_TYPE_SYMMETRIC,
@@ -113,7 +117,9 @@ int yaca_sign_initialize_hmac(yaca_context_h *ctx,
  * @remarks  For verification, calculate message CMAC and compare with received MAC using
  *           yaca_memcmp().
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx   Newly created context
  * @param[in]  algo  Encryption algorithm that will be used
  * @param[in]  key   Symmetric key that will be used, supported key types:
  *                   - #YACA_KEY_TYPE_SYMMETRIC,
@@ -194,7 +200,9 @@ int yaca_sign_finalize(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
- * @param[out] ctx   Newly created context (must be freed with yaca_context_destroy())
+ * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @param[out] ctx   Newly created context
  * @param[in]  algo  Digest algorithm that will be used
  * @param[in]  key   Public key that will be used, algorithm is deduced based on
  *                   key type, supported key types:

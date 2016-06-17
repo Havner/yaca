@@ -78,6 +78,8 @@ int yaca_cleanup(void);
  *
  * @since_tizen 3.0
  *
+ * @remarks  The @a memory should be freed using yaca_free()
+ *
  * @param[in]  size   Size of the allocation (bytes)
  * @param[out] memory Allocated memory
  *
@@ -96,6 +98,8 @@ int yaca_malloc(size_t size, void **memory);
  * @brief  Allocates the zeroed memory.
  *
  * @since_tizen 3.0
+ *
+ * @remarks  The @a memory should be freed using yaca_free()
  *
  * @param[in]  size    Size of the allocation (bytes)
  * @param[out] memory  Allocated memory
@@ -116,11 +120,13 @@ int yaca_zalloc(size_t size, void **memory);
  *
  * @since_tizen 3.0
  *
- * @remarks  In case of failure the function doesn't free the memory pointed by @b memory.
+ * @remarks  In case of failure the function doesn't free the memory pointed by @a memory.
  *
- * @remarks  If @b *memory is NULL then the call is equivalent to yaca_malloc().
+ * @remarks  If @a *memory is NULL then the call is equivalent to yaca_malloc().
  *
- * @remarks  If the function fails the contents of @b memory will be left unchanged.
+ * @remarks  If the function fails the contents of @a memory will be left unchanged.
+ *
+ * @remarks  The @a memory should be freed using yaca_free()
  *
  * @param[in]     size    Size of the new allocation (bytes)
  * @param[in,out] memory  Memory to be reallocated
@@ -154,7 +160,7 @@ int yaca_realloc(size_t size, void **memory);
 int yaca_free(void *memory);
 
 /**
- * @brief  Safely compares first @b len bytes of two buffers.
+ * @brief  Safely compares first @a len bytes of two buffers.
  *
  * @since_tizen 3.0
  *
@@ -214,9 +220,11 @@ int yaca_context_set_property(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
+ * @remarks  The @a value should be freed using yaca_free()
+ *
  * @param[in]  ctx        Previously initialized crypto context
  * @param[in]  property   Property to be read
- * @param[out] value      Copy of the property value (must be freed with yaca_free())
+ * @param[out] value      Copy of the property value
  * @param[out] value_len  Length of the property value will be returned here
  *
  * @return #YACA_ERROR_NONE on success, negative on error
@@ -259,7 +267,7 @@ int yaca_context_destroy(yaca_context_h ctx);
  *
  * @remarks  This function can be used to learn the required size of the output buffer
  *           for a single operation (eg. *_update or *_finalize). In case the operation
- *           has no input (eg. *_finalize), the value of @b input_len has to be set to 0.
+ *           has no input (eg. *_finalize), the value of @a input_len has to be set to 0.
  *
  * @param[in]  ctx         Previously initialized crypto context
  * @param[in]  input_len   Length of the input data to be processed

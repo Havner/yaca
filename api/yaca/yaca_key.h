@@ -95,11 +95,13 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  *           used. If it's not known if the key is encrypted one should pass NULL as
  *           password and check for the #YACA_ERROR_INVALID_PASSWORD return code.
  *
+ * @remarks  The @a key should be released using yaca_key_destroy()
+ *
  * @param[in]  key_type  Type of the key
  * @param[in]  password  null terminated password for the key (can be NULL)
  * @param[in]  data      Blob containing the key
  * @param[in]  data_len  Size of the blob
- * @param[out] key       Returned key (must be freed with yaca_key_destroy())
+ * @param[out] key       Returned key
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -183,9 +185,11 @@ int yaca_key_export(const yaca_key_h key,
  *           - RSA: length >= 256bits
  *           - DSA: length >= 512bits, multiple of 64
  *
+ * @remarks  The @a key should be released using yaca_key_destroy()
+ *
  * @param[in]  key_type     Type of the key to be generated
  * @param[in]  key_bit_len  Length of the key (in bits) to be generated
- * @param[out] key          Newly generated key (must be freed with yaca_key_destroy())
+ * @param[out] key          Newly generated key
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -207,8 +211,10 @@ int yaca_key_generate(yaca_key_type_e key_type,
  *
  * @since_tizen 3.0
  *
+ * @remarks  The @a pub_key should be released using yaca_key_destroy()
+ *
  * @param[in]  prv_key   Private key to extract the public one from
- * @param[out] pub_key   Extracted public key (must be freed with yaca_key_destroy())
+ * @param[out] pub_key   Extracted public key
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -252,13 +258,15 @@ int yaca_key_destroy(yaca_key_h key);
  *
  * @since_tizen 3.0
  *
+ * @remarks  The @a key should be released using yaca_key_destroy()
+ *
  * @param[in]  password     User password as a NULL-terminated string
  * @param[in]  salt         Salt, should be a non-empty string
  * @param[in]  salt_len     Length of the salt
  * @param[in]  iterations   Number of iterations
  * @param[in]  algo         Digest algorithm that should be used in key generation
  * @param[in]  key_bit_len  Length of a key (in bits) to be generated
- * @param[out] key          Newly generated key (must be freed with yaca_key_destroy())
+ * @param[out] key          Newly generated key
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
