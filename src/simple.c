@@ -44,16 +44,18 @@ API int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
 	char *ldigest = NULL;
 	size_t ldigest_len;
 
-	if (data == NULL || data_len == 0 || digest == NULL || digest_len == NULL)
+	if ((data == NULL && data_len > 0) || digest == NULL || digest_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_digest_initialize(&ctx, algo);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_digest_update(ctx, data, data_len);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
+	if (data_len > 0) {
+		ret = yaca_digest_update(ctx, data, data_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	}
 
 	ret = yaca_context_get_output_length(ctx, 0, &ldigest_len);
 	if (ret != YACA_ERROR_NONE)

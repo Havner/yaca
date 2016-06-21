@@ -54,13 +54,13 @@ extern "C" {
  *
  * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure)
  * @param[in]  data        Data from which the digest is to be calculated
- * @param[in]  data_len    Length of the data
+ * @param[in]  data_len    Length of the data. Can be 0.
  * @param[out] digest      Message digest, will be allocated by the library
  * @param[out] digest_len  Length of message digest (depends on algorithm)
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
  *                                       invalid algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
