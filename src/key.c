@@ -301,9 +301,11 @@ int import_evp(yaca_key_h *key,
 			X509 *x509 = PEM_read_bio_X509(src, NULL, cb, (void*)password);
 			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
 				wrong_pass = true;
-			if (x509 != NULL)
+			if (x509 != NULL) {
 				pkey = X509_get_pubkey(x509);
-			X509_free(x509);
+				X509_free(x509);
+				ERROR_CLEAR();
+			}
 			private = false;
 		}
 	}
