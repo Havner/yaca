@@ -87,6 +87,13 @@ int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len);
  *
  * @since_tizen 3.0
  *
+ * @remarks  After returning from this function the context is ready to be reused for another
+ *           message digest calculation. There's no need to initialize it again with
+ *           yaca_digest_initialize().
+ *
+ * @remarks  Skipping yaca_digest_update() and calling only yaca_digest_finalize() will produce an
+ *           empty message digest.
+ *
  * @param[in,out] ctx         A valid digest context
  * @param[out]    digest      Buffer for the message digest
  *                            (must be allocated by client, see yaca_context_get_output_length())
