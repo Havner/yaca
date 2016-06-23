@@ -44,7 +44,8 @@ API int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
 	char *ldigest = NULL;
 	size_t ldigest_len;
 
-	if ((data == NULL && data_len > 0) || digest == NULL || digest_len == NULL)
+	if ((data == NULL && data_len > 0) || (data != NULL && data_len == 0) ||
+	    digest == NULL || digest_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_digest_initialize(&ctx, algo);
