@@ -204,14 +204,6 @@ API int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_le
 		return ret;
 	}
 
-	/* Make it reusable */
-	ret = c->mdctx->digest->init(c->mdctx);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
-
 	*digest_len = len;
 
 	return YACA_ERROR_NONE;
