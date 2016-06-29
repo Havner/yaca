@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_sign.h
- * @brief
  */
 
 #ifndef YACA_SIGN_H

@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_types.h
- * @brief
  */
 
 #ifndef YACA_TYPES_H
@@ -40,14 +39,14 @@ extern "C" {
  */
 
 /**
- * @brief Context.
+ * @brief The context handle.
  *
  * @since_tizen 3.0
  */
 typedef struct yaca_context_s *yaca_context_h;
 
 /**
- * @brief Key.
+ * @brief The key handle.
  *
  * @since_tizen 3.0
  */
@@ -214,7 +213,6 @@ typedef enum {
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 * - Use double DES keys to perform corresponding 2-key 3DES encryption.
-
 	 */
 	YACA_ENCRYPT_UNSAFE_3DES_2TDEA,
 

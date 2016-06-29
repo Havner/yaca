@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_error.h
- * @brief
  */
 
 #ifndef YACA_ERROR_H

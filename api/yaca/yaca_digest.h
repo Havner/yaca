@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_digest.h
- * @brief
  */
 
 #ifndef YACA_DIGEST_H

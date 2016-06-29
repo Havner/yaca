@@ -25,7 +25,7 @@
   * \#include <yaca/yaca_digest.h>
   *
   * @section CAPI_YACA_INTEGRITY_MODULE_OVERVIEW Overview
-  * It provides advanced APIs for creating a signature using asymmetric private key, verifing a signature using asymmetric public key, calculating a HMAC/CMAC of given message using symmetric key and calculating message digests of given message without key.
+  * It provides advanced APIs for creating a signature using asymmetric private key, verifying a signature using asymmetric public key, calculating a HMAC/CMAC of given message using symmetric key and calculating message digests of given message without key.
   *
   */
 

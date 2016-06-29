@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_key.h
- * @brief
  */
 
 #ifndef YACA_KEY_H
@@ -50,7 +49,7 @@ extern "C" {
 #define YACA_KEY_NULL ((yaca_key_h) NULL)
 
 /**
- * @brief  Get key's type.
+ * @brief  Gets key's type.
  *
  * @since_tizen 3.0
  *
@@ -64,7 +63,7 @@ extern "C" {
 int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
 
 /**
- * @brief  Get key's length (in bits).
+ * @brief  Gets key's length (in bits).
  *
  * @since_tizen 3.0
  *
@@ -83,7 +82,7 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  *
  * @since_tizen 3.0
  *
- * @remarks  This function imports a key trying to match it to the key_type specified.
+ * @remarks  This function imports a key trying to match it to the @a key_type specified.
  *           It should autodetect both the key format and the file format.
  *
  * @remarks  For symmetric, IV and DES keys RAW binary format and BASE64 encoded
@@ -115,7 +114,7 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid key_type or data_len too big)
+ *                                       invalid @a key_type or @a data_len too big)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  * @retval #YACA_ERROR_INVALID_PASSWORD Invalid password given or password was required
@@ -174,7 +173,7 @@ int yaca_key_import(yaca_key_type_e key_type,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid key/file format or data_len too big)
+ *                                       invalid key/file format or @ data_len too big)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -209,8 +208,8 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER key is NULL, incorrect key_type or
- *                                       key_bit_len is not dividable by 8
+ * @retval #YACA_ERROR_INVALID_PARAMETER key is NULL, incorrect @a key_type or
+ *                                       @a key_bit_len is not dividable by 8
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -234,7 +233,7 @@ int yaca_key_generate(yaca_key_type_e key_type,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER prv_key is of invalid type or pub_key is NULL
+ * @retval #YACA_ERROR_INVALID_PARAMETER @a prv_key is of invalid type or @a pub_key is NULL
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *

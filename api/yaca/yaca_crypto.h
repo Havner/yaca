@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_crypto.h
- * @brief
  */
 
 #ifndef YACA_CRYPTO_H
@@ -123,7 +122,7 @@ int yaca_zalloc(size_t size, void **memory);
  *
  * @remarks  In case of failure the function doesn't free the memory pointed by @a memory.
  *
- * @remarks  If @a *memory is NULL then the call is equivalent to yaca_malloc().
+ * @remarks  If @a memory is NULL then the call is equivalent to yaca_malloc().
  *
  * @remarks  If the function fails the contents of @a memory will be left unchanged.
  *
@@ -168,6 +167,7 @@ void yaca_free(void *memory);
  *
  * @return #YACA_ERROR_NONE when buffers are equal otherwise #YACA_ERROR_DATA_MISMATCH
  * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0)
  * @retval #YACA_ERROR_DATA_MISMATCH Buffers are different
  */
 int yaca_memcmp(const void *first, const void *second, size_t len);

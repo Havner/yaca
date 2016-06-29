@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_encrypt.h
- * @brief
  */
 
 #ifndef YACA_ENCRYPT_H

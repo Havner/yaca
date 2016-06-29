@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_simple.h
- * @brief
  */
 
 #ifndef YACA_SIMPLE_H
@@ -50,7 +49,7 @@ extern "C" {
  */
 
 /**
- * @brief  Calculate a digest of a buffer.
+ * @brief  Calculates a digest of a buffer.
  *
  * @since_tizen 3.0
  *
@@ -79,7 +78,7 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
                                  size_t *digest_len);
 
 /**
- * @brief  Encrypt data using a symmetric cipher.
+ * @brief  Encrypts data using a symmetric cipher.
  *
  * @since_tizen 3.0
  *
@@ -116,7 +115,7 @@ int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
                         size_t *ciphertext_len);
 
 /**
- * @brief  Decrypt data using a symmetric cipher.
+ * @brief  Decrypts data using a symmetric cipher.
  *
  * @since_tizen 3.0
  *
@@ -153,7 +152,7 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
                         size_t *plaintext_len);
 
 /**
- * @brief  Create a signature using asymmetric private key.
+ * @brief  Creates a signature using asymmetric private key.
  *
  * @since_tizen 3.0
  *
@@ -189,7 +188,7 @@ int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
                                     size_t *signature_len);
 
 /**
- * @brief  Verify a signature using asymmetric public key.
+ * @brief  Verifies a signature using asymmetric public key.
  *
  * @since_tizen 3.0
  *
@@ -223,7 +222,7 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
                                  size_t signature_len);
 
 /**
- * @brief  Calculate a HMAC of given message using symmetric key.
+ * @brief  Calculates a HMAC of given message using symmetric key.
  *
  * @since_tizen 3.0
  *
@@ -261,7 +260,7 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
                                size_t *mac_len);
 
 /**
- * @brief  Calculate a CMAC of given message using symmetric key.
+ * @brief  Calculates a CMAC of given message using symmetric key.
  *
  * @since_tizen 3.0
  *

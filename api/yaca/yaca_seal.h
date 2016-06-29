@@ -18,7 +18,6 @@
 
 /**
  * @file yaca_seal.h
- * @brief
  */
 
 #ifndef YACA_SEAL_H
