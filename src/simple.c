@@ -242,9 +242,11 @@ static int sign(const yaca_context_h ctx, const char *data, size_t data_len,
 	assert(signature != NULL);
 	assert(signature_len != NULL);
 
-	ret = yaca_sign_update(ctx, data, data_len);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
+	if (data_len > 0) {
+		ret = yaca_sign_update(ctx, data, data_len);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+	}
 
 	ret = yaca_context_get_output_length(ctx, 0, signature_len);
 	if (ret != YACA_ERROR_NONE)
@@ -275,6 +277,10 @@ API int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
 	int ret;
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
 
+	if ((data == NULL && data_len > 0) || (data != NULL && data_len == 0) ||
+	    signature == NULL || signature_len == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	ret = yaca_sign_initialize(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
@@ -296,13 +302,19 @@ API int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
 	int ret;
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
 
+	if ((data == NULL && data_len > 0) || (data != NULL && data_len == 0) ||
+	    signature == NULL || signature_len == 0)
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	ret = yaca_verify_initialize(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_verify_update(ctx, data, data_len);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
+	if (data_len > 0) {
+		ret = yaca_verify_update(ctx, data, data_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	}
 
 	ret = yaca_verify_finalize(ctx, signature, signature_len);
 
@@ -321,6 +333,10 @@ API int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
 {
 	int ret;
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
+
+	if ((data == NULL && data_len > 0) || (data != NULL && data_len == 0) ||
+	    mac == NULL || mac_len == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_sign_initialize_hmac(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
@@ -342,6 +358,10 @@ API int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
 {
 	int ret;
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
+
+	if ((data == NULL && data_len > 0) || (data != NULL && data_len == 0) ||
+	    mac == NULL || mac_len == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_sign_initialize_cmac(&ctx, algo, key);
 	if (ret != YACA_ERROR_NONE)
