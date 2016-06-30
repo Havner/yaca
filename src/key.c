@@ -39,16 +39,32 @@
 
 #include "internal.h"
 
-/* This callback only exists to block the default OpenSSL one and
- * allow us to check for a proper error code when the key is encrypted
- */
-int password_dummy_cb(char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
+struct openssl_password_data {
+	bool password_requested;
+	const char *password;
+};
+
+int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 {
-	const char empty[] = "";
+	struct openssl_password_data *cb_data = u;
 
-	memcpy(buf, empty, sizeof(empty));
+	if (cb_data->password == NULL)
+		return 0;
 
-	return sizeof(empty);
+	size_t pass_len = strlen(cb_data->password);
+
+	if (pass_len > INT_MAX || (int)pass_len > size)
+		return 0;
+
+	memcpy(buf, cb_data->password, pass_len);
+	cb_data->password_requested = true;
+
+	return pass_len;
+}
+
+int openssl_password_cb_error(UNUSED char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
+{
+	return 0;
 }
 
 int base64_decode_length(const char *data, size_t data_len, size_t *len)
@@ -251,9 +267,10 @@ int import_evp(yaca_key_h *key,
 	int ret;
 	BIO *src = NULL;
 	EVP_PKEY *pkey = NULL;
-	bool wrong_pass = false;
-	pem_password_cb *cb = NULL;
+	pem_password_cb *cb = openssl_password_cb;
+	struct openssl_password_data cb_data = {false, password};
 	bool private;
+	bool password_supported;
 	yaca_key_type_e type;
 	struct yaca_key_evp_s *nk = NULL;
 
@@ -274,73 +291,78 @@ int import_evp(yaca_key_h *key,
 		return YACA_ERROR_INTERNAL;
 	}
 
-	/* Block the default OpenSSL password callback */
-	if (password == NULL)
-		cb = password_dummy_cb;
-
 	/* Possible PEM */
 	if (strncmp("----", data, 4) == 0) {
-		if (pkey == NULL && !wrong_pass) {
+		if (pkey == NULL) {
 			BIO_reset(src);
-			pkey = PEM_read_bio_PrivateKey(src, NULL, cb, (void*)password);
+			pkey = PEM_read_bio_PrivateKey(src, NULL, cb, (void*)&cb_data);
 			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
-				wrong_pass = true;
+				return YACA_ERROR_INVALID_PASSWORD;
 			private = true;
+			password_supported = true;
 		}
 
-		if (pkey == NULL && !wrong_pass) {
+		if (pkey == NULL) {
 			BIO_reset(src);
-			pkey = PEM_read_bio_PUBKEY(src, NULL, cb, (void*)password);
-			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
-				wrong_pass = true;
+			pkey = PEM_read_bio_PUBKEY(src, NULL, openssl_password_cb_error, NULL);
+			ERROR_CLEAR();
 			private = false;
+			password_supported = false;
 		}
 
-		if (pkey == NULL && !wrong_pass) {
+		if (pkey == NULL) {
 			BIO_reset(src);
-			X509 *x509 = PEM_read_bio_X509(src, NULL, cb, (void*)password);
-			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
-				wrong_pass = true;
+			X509 *x509 = PEM_read_bio_X509(src, NULL, openssl_password_cb_error, NULL);
 			if (x509 != NULL) {
 				pkey = X509_get_pubkey(x509);
 				X509_free(x509);
-				ERROR_CLEAR();
 			}
+			ERROR_CLEAR();
 			private = false;
+			password_supported = false;
 		}
 	}
 	/* Possible DER */
 	else {
-		if (pkey == NULL && !wrong_pass) {
+		if (pkey == NULL) {
 			BIO_reset(src);
-			pkey = d2i_PKCS8PrivateKey_bio(src, NULL, cb, (void*)password);
+			pkey = d2i_PKCS8PrivateKey_bio(src, NULL, cb, (void*)&cb_data);
 			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
-				wrong_pass = true;
+				return YACA_ERROR_INVALID_PASSWORD;
 			private = true;
+			password_supported = true;
 		}
 
-		if (pkey == NULL && !wrong_pass) {
+		if (pkey == NULL) {
 			BIO_reset(src);
 			pkey = d2i_PrivateKey_bio(src, NULL);
 			ERROR_CLEAR();
 			private = true;
+			password_supported = false;
 		}
 
-		if (pkey == NULL && !wrong_pass) {
+		if (pkey == NULL) {
 			BIO_reset(src);
 			pkey = d2i_PUBKEY_bio(src, NULL);
 			ERROR_CLEAR();
 			private = false;
+			password_supported = false;
 		}
 	}
 
 	BIO_free(src);
 
-	if (wrong_pass)
-		return YACA_ERROR_INVALID_PASSWORD;
-
 	if (pkey == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
+
+	/* password was given, but it was not required to perform import */
+	if (password != NULL && !cb_data.password_requested) {
+		if (password_supported)
+			ret = YACA_ERROR_INVALID_PASSWORD;
+		else
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		goto exit;
+	}
 
 	switch (EVP_PKEY_type(pkey->type)) {
 	case EVP_PKEY_RSA:
@@ -503,6 +525,8 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 
 		case YACA_KEY_TYPE_RSA_PUB:
 		case YACA_KEY_TYPE_DSA_PUB:
+			if (password != NULL)
+				return YACA_ERROR_INVALID_PARAMETER;
 			ret = PEM_write_bio_PUBKEY(mem, evp_key->evp);
 			break;
 
@@ -521,15 +545,21 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 		switch (evp_key->key.type) {
 
 		case YACA_KEY_TYPE_RSA_PRIV:
+			if (password != NULL)
+				return YACA_ERROR_INVALID_PARAMETER;
 			ret = i2d_RSAPrivateKey_bio(mem, EVP_PKEY_get0(evp_key->evp));
 			break;
 
 		case YACA_KEY_TYPE_DSA_PRIV:
+			if (password != NULL)
+				return YACA_ERROR_INVALID_PARAMETER;
 			ret = i2d_DSAPrivateKey_bio(mem, EVP_PKEY_get0(evp_key->evp));
 			break;
 
 		case YACA_KEY_TYPE_RSA_PUB:
 		case YACA_KEY_TYPE_DSA_PUB:
+			if (password != NULL)
+				return YACA_ERROR_INVALID_PARAMETER;
 			ret = i2d_PUBKEY_bio(mem, evp_key->evp);
 			break;
 
@@ -567,10 +597,11 @@ int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 	assert(mem != NULL);
 
 	int ret;
-	int nid = -1;
+	int nid = NID_pbeWithMD5AndDES_CBC;
 
-	if (password != NULL)
-		nid = NID_pbeWithMD5AndDES_CBC;
+	/* PKCS8 export requires a password */
+	if (password == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	switch (key_file_fmt) {
 

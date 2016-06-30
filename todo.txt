@@ -8,3 +8,4 @@ Global:
 - We need a way to import keys encrypted with hw (or other) keys. New
   function like yaca_key_load or sth?
 - Add extended description and examples in documentation.
+- Check PKCS8 with PKCS5 2.0 (EVP cipher instead of PBE)

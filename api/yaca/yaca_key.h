@@ -95,6 +95,11 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  *           used. If it's not known if the key is encrypted one should pass NULL as
  *           password and check for the #YACA_ERROR_INVALID_PASSWORD return code.
  *
+ * @remarks  If the imported key will be detected as a format that does not support
+ *           encryption and password was passed #YACA_ERROR_INVALID_PARAMETER will
+ *           be returned. For a list of keys and formats that do support encryption
+ *           see yaca_key_export() documentation.
+ *
  * @remarks  The @a key should be released using yaca_key_destroy()
  *
  * @param[in]  key_type  Type of the key
@@ -132,7 +137,7 @@ int yaca_key_import(yaca_key_type_e key_type,
  * @remarks  For key formats two values are allowed:
  *           - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric
  *                                       keys (or IV), for asymmetric keys it will choose PKCS#1
- *                                       for RSA and SSLeay for DSA.
+ *                                       for RSA keys and SSLeay for DSA keys.
  *           - #YACA_KEY_FORMAT_PKCS8: this will only work for private asymmetric keys.
  *
  * @remarks  The following file formats are supported:
@@ -141,11 +146,18 @@ int yaca_key_import(yaca_key_type_e key_type,
  *           - #YACA_KEY_FILE_FORMAT_PEM:    used only for asymmetric, PEM file format
  *           - #YACA_KEY_FILE_FORMAT_DER:    used only for asymmetric, DER file format
  *
- * @remarks  If no password is provided the exported key will be unencrypted. Only private
- *           RSA/DSA exported as PEM can be encrypted.
+ * @remarks  Encryption is supported and optional for RSA/DSA private keys in the
+ *           #YACA_KEY_FORMAT_DEFAULT with #YACA_KEY_FILE_FORMAT_PEM format. If no password is
+ *           provided the exported key will be unencrypted. The encryption algorithm used
+ *           in this case is AES-256-CBC.
  *
- * @remarks  TODO:document the default encryption algorithm (AES256 for FORMAT_DEFAULT,
- *           unknown yet for the FORMAT_PKCS8).
+ * @remarks  Encryption is obligatory for #YACA_KEY_FORMAT_PKCS8 format (for both, PEM and DER
+ *           file formats). If no password is provided the #YACA_ERROR_INVALID_PARAMETER will
+ *           be returned. The encryption algorithm used in this case is PBE with DES-CBC.
+ *
+ * @remakrs  Encryption is not supported for the symmetric and public keys in all their
+ *           supported formats. If a password is provided in such case the
+ *           #YACA_ERROR_INVALID_PARAMETER will be returned.
  *
  * @param[in]  key           Key to be exported
  * @param[in]  key_fmt       Format of the key
