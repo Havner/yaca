@@ -190,6 +190,9 @@ int yaca_randomize_bytes(char *data, size_t data_len);
  * @brief  Sets the non-standard context properties. Can only be called on an
  *         initialized context.
  *
+ * @remarks  The @a value has to be of type appropriate for given property. See #yaca_property_e
+ *           for details on corresponding types.
+ *
  * @since_tizen 3.0
  *
  * @param[in,out] ctx        Previously initialized crypto context
@@ -218,6 +221,11 @@ int yaca_context_set_property(yaca_context_h ctx,
  * @since_tizen 3.0
  *
  * @remarks  The @a value should be freed using yaca_free()
+ *
+ * @remarks  The @a value has to be of type appropriate for given property. See #yaca_property_e
+ *           for details on corresponding types.
+ *
+ * @remarks  @a value_len can be NULL if returned @a value is a single object (i.e. not an array/buffer)
  *
  * @param[in]  ctx        Previously initialized crypto context
  * @param[in]  property   Property to be read

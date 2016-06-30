@@ -385,23 +385,25 @@ typedef enum {
  * @brief Enumeration of YACA non-standard properties for algorithms.
  *
  * @since_tizen 3.0
+ *
+ * @see #yaca_padding_e
  */
 typedef enum {
-	/** Padding */
+	/** Padding. Property type is #yaca_padding_e. */
 	YACA_PROPERTY_PADDING,
 
-	/** GCM Additional Authentication Data */
+	/** GCM Additional Authentication Data. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_GCM_AAD,
-	/** GCM Tag bits */
+	/** GCM Tag. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_GCM_TAG,
-	/** GCM Tag length */
+	/** GCM Tag length. Property type is size_t. */
 	YACA_PROPERTY_GCM_TAG_LEN,
 
-	/** CCM Additional Authentication Data */
+	/** CCM Additional Authentication Data. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_CCM_AAD,
-	/** CCM Tag bits */
+	/** CCM Tag. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_CCM_TAG,
-	/** CCM Tag length */
+	/** CCM Tag length. Property type is size_t. */
 	YACA_PROPERTY_CCM_TAG_LEN
 } yaca_property_e;
 

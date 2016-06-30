@@ -168,13 +168,13 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 
-	if (c == NULL || value == NULL || value_len == NULL)
+	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 	assert(c->cipher_ctx != NULL);
 
 	switch (property) {
 	case YACA_PROPERTY_GCM_TAG:
-		if (c->tag_len == 0)
+		if (c->tag_len == 0 || value_len == 0)
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
@@ -186,7 +186,7 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 		*value_len = c->tag_len;
 		break;
 	case YACA_PROPERTY_CCM_TAG:
-		if (c->tag_len == 0)
+		if (c->tag_len == 0 || value_len == 0)
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,

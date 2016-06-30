@@ -179,7 +179,7 @@ int get_sign_param(const yaca_context_h ctx,
 	int pad;
 	yaca_padding_e padding;
 
-	if (c == NULL || value == NULL || value_len == NULL)
+	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	assert(c->mdctx != NULL);
@@ -230,7 +230,8 @@ int get_sign_param(const yaca_context_h ctx,
 		return ret;
 
 	memcpy(*value, &padding, sizeof(yaca_padding_e));
-	*value_len = sizeof(yaca_padding_e);
+	if (value_len != NULL)
+		*value_len = sizeof(yaca_padding_e);
 
 	return YACA_ERROR_NONE;
 }
