@@ -32,6 +32,7 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/des.h>
+#include <openssl/crypto.h>
 
 #include <yaca_crypto.h>
 #include <yaca_error.h>
@@ -998,6 +999,53 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 	default:
 		return NULL;
 	}
+}
+
+static yaca_key_h key_copy_simple(const struct yaca_key_simple_s *key)
+{
+	int ret;
+	assert(key != NULL);
+
+	struct yaca_key_simple_s *copy;
+	size_t size = sizeof(struct yaca_key_simple_s) + key->bits / 8;
+
+	ret = yaca_zalloc(size, (void**)&copy);
+	if (ret != YACA_ERROR_NONE)
+		return YACA_KEY_NULL;
+
+	memcpy(copy, key, size);
+	return (yaca_key_h)copy;
+}
+
+static yaca_key_h key_copy_evp(const struct yaca_key_evp_s *key)
+{
+	int ret;
+	assert(key != NULL);
+
+	struct yaca_key_evp_s *copy = NULL;
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&copy);
+	if (ret != YACA_ERROR_NONE)
+		return YACA_KEY_NULL;
+
+	/* raise the refcount */
+	CRYPTO_add(&key->evp->references, 1, CRYPTO_LOCK_EVP_PKEY);
+
+	copy->key.type = key->key.type;
+	copy->evp = key->evp;
+	return (yaca_key_h)copy;
+}
+
+yaca_key_h key_copy(const yaca_key_h key)
+{
+	struct yaca_key_simple_s *simple = key_get_simple(key);
+	struct yaca_key_evp_s *evp = key_get_evp(key);
+
+	if (simple != NULL)
+		return key_copy_simple(simple);
+	else if (evp != NULL)
+		return key_copy_evp(evp);
+
+	return YACA_KEY_NULL;
 }
 
 API int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type)
