@@ -50,7 +50,7 @@ void debug_func(const char *buf)
 	puts(buf);
 }
 
-int write_file(const char *path, char *data, size_t data_len)
+int write_file(const char *path, const char *data, size_t data_len)
 {
 	size_t written = 0;
 	FILE *f;
