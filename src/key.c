@@ -348,6 +348,18 @@ int import_evp(yaca_key_h *key,
 			private = false;
 			password_supported = false;
 		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			X509 *x509 = d2i_X509_bio(src, NULL);
+			if (x509 != NULL) {
+				pkey = X509_get_pubkey(x509);
+				X509_free(x509);
+			}
+			ERROR_CLEAR();
+			private = false;
+			password_supported = false;
+		}
 	}
 
 	BIO_free(src);
