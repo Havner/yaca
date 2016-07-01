@@ -275,6 +275,8 @@ exit:
 	yaca_context_destroy(ctx);
 	yaca_key_destroy(sym_key);
 	yaca_key_destroy(iv);
+	yaca_free(aad);
+	yaca_free(tag);
 	yaca_key_destroy(key_pub);
 	yaca_key_destroy(key_priv);
 }
@@ -299,7 +301,7 @@ void encrypt_seal_aes_ccm(void)
 	char *aad = NULL;
 	char *tag = NULL;
 	size_t aad_len = 16;
-	size_t tag_len = 12;
+	size_t tag_len = 8;
 
 	size_t block_len;
 	size_t output_len;
@@ -423,6 +425,8 @@ exit:
 	yaca_context_destroy(ctx);
 	yaca_key_destroy(sym_key);
 	yaca_key_destroy(iv);
+	yaca_free(aad);
+	yaca_free(tag);
 	yaca_key_destroy(key_pub);
 	yaca_key_destroy(key_priv);
 }

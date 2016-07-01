@@ -113,7 +113,7 @@ void encrypt_decrypt_aes_gcm(void)
 
 		/* Set the tag length and get the tag after final encryption */
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN,
-		                       (void*)&tag_len, sizeof(tag_len)) != YACA_ERROR_NONE)
+		                              (void*)&tag_len, sizeof(tag_len)) != YACA_ERROR_NONE)
 			goto exit;
 
 		if (yaca_context_get_property(ctx, YACA_PROPERTY_GCM_TAG, (void**)tag, &tag_len) != YACA_ERROR_NONE)
@@ -195,7 +195,7 @@ void encrypt_decrypt_aes_ccm(void)
 	char *aad = NULL;
 	char *tag = NULL;
 	size_t aad_len = 16;
-	size_t tag_len = 12;
+	size_t tag_len = 14;
 
 	size_t block_len;
 	size_t output_len;
@@ -230,7 +230,7 @@ void encrypt_decrypt_aes_ccm(void)
 
 		/* Set tag length (optionally) */
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_CCM_TAG_LEN,
-		                       (void*)&tag_len, sizeof(tag_len)) != YACA_ERROR_NONE)
+		                              (void*)&tag_len, sizeof(tag_len)) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* The total plain text length must be passed (only needed if AAD is passed) */
