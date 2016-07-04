@@ -150,14 +150,11 @@ int yaca_realloc(size_t size, void **memory);
  *
  * @param[in] memory  Pointer to the memory to be freed
  *
- * @return #YACA_ERROR_NONE on success
- * @retval #YACA_ERROR_NONE Successful
- *
  * @see yaca_malloc()
  * @see yaca_zalloc()
  * @see yaca_realloc()
  */
-int yaca_free(void *memory);
+void yaca_free(void *memory);
 
 /**
  * @brief  Safely compares first @a len bytes of two buffers.
@@ -251,13 +248,10 @@ int yaca_context_get_property(const yaca_context_h ctx,
  *
  * @param[in,out] ctx  Crypto context
  *
- * @return #YACA_ERROR_NONE on success
- * @retval #YACA_ERROR_NONE Successful
- *
  * @see #yaca_context_h
  *
  */
-int yaca_context_destroy(yaca_context_h ctx);
+void yaca_context_destroy(yaca_context_h ctx);
 
 /**
  * @brief  Returns the output length for a given algorithm. Can only be called

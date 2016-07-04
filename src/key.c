@@ -1186,7 +1186,7 @@ exit:
 	return ret;
 }
 
-API int yaca_key_destroy(yaca_key_h key)
+API void yaca_key_destroy(yaca_key_h key)
 {
 	struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	struct yaca_key_evp_s *evp_key = key_get_evp(key);
@@ -1198,8 +1198,6 @@ API int yaca_key_destroy(yaca_key_h key)
 		EVP_PKEY_free(evp_key->evp);
 		yaca_free(evp_key);
 	}
-
-	return YACA_ERROR_NONE;
 }
 
 API int yaca_key_derive_pbkdf2(const char *password,

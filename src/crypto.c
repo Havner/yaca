@@ -235,11 +235,9 @@ API int yaca_realloc(size_t size, void **memory)
 	return YACA_ERROR_NONE;
 }
 
-API int yaca_free(void *memory)
+API void yaca_free(void *memory)
 {
 	OPENSSL_free(memory);
-
-	return YACA_ERROR_NONE;
 }
 
 API int yaca_randomize_bytes(char *data, size_t data_len)
@@ -277,15 +275,13 @@ API int yaca_context_get_property(const yaca_context_h ctx, yaca_property_e prop
 	return ctx->get_param(ctx, property, value, value_len);
 }
 
-API int yaca_context_destroy(yaca_context_h ctx)
+API void yaca_context_destroy(yaca_context_h ctx)
 {
 	if (ctx != YACA_CONTEXT_NULL) {
 		assert(ctx->ctx_destroy != NULL);
 		ctx->ctx_destroy(ctx);
 		yaca_free(ctx);
 	}
-
-	return YACA_ERROR_NONE;
 }
 
 API int yaca_context_get_output_length(const yaca_context_h ctx,
