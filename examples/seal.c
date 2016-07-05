@@ -34,7 +34,7 @@
 
 void encrypt_seal(const yaca_encrypt_algorithm_e algo,
                   const yaca_block_cipher_mode_e bcm,
-                  const size_t key_bits)
+                  const size_t key_bit_len)
 {
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h key_pub = YACA_KEY_NULL;
@@ -49,7 +49,7 @@ void encrypt_seal(const yaca_encrypt_algorithm_e algo,
 
 	size_t block_len;
 	size_t output_len;
-	size_t out_len;
+	size_t written_len;
 	size_t rem;
 
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
@@ -63,7 +63,7 @@ void encrypt_seal(const yaca_encrypt_algorithm_e algo,
 
 	/* Encrypt a.k.a. seal */
 	{
-		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bits, &sym_key, &iv) != YACA_ERROR_NONE)
+		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bit_len, &sym_key, &iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* For the update */
@@ -80,15 +80,15 @@ void encrypt_seal(const yaca_encrypt_algorithm_e algo,
 			goto exit;
 
 		/* Seal and finalize */
-		out_len = enc_len;
-		if (yaca_seal_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_len) != YACA_ERROR_NONE)
+		written_len = enc_len;
+		if (yaca_seal_update(ctx, lorem4096, LOREM4096_SIZE, enc, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = enc_len - out_len;
-		if (yaca_seal_finalize(ctx, enc + out_len, &rem) != YACA_ERROR_NONE)
+		rem = enc_len - written_len;
+		if (yaca_seal_finalize(ctx, enc + written_len, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
-		enc_len = rem + out_len;
+		enc_len = rem + written_len;
 
 		dump_hex(enc, 16, "Encrypted data (16 of %zu bytes): ", enc_len);
 
@@ -98,7 +98,7 @@ void encrypt_seal(const yaca_encrypt_algorithm_e algo,
 
 	/* Decrypt a.k.a. open */
 	{
-		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bits, sym_key, iv) != YACA_ERROR_NONE)
+		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bit_len, sym_key, iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* For the update */
@@ -115,15 +115,15 @@ void encrypt_seal(const yaca_encrypt_algorithm_e algo,
 			goto exit;
 
 		/* Open and finalize */
-		out_len = dec_len;
-		if (yaca_open_update(ctx, enc, enc_len, dec, &out_len) != YACA_ERROR_NONE)
+		written_len = dec_len;
+		if (yaca_open_update(ctx, enc, enc_len, dec, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = dec_len - out_len;
-		if (yaca_open_finalize(ctx, dec + out_len, &rem) != YACA_ERROR_NONE)
+		rem = dec_len - written_len;
+		if (yaca_open_finalize(ctx, dec + written_len, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
-		dec_len = rem + out_len;
+		dec_len = rem + written_len;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_len, dec);
 	}
@@ -142,7 +142,7 @@ void encrypt_seal_aes_gcm(void)
 {
 	yaca_encrypt_algorithm_e algo = YACA_ENCRYPT_AES;
 	yaca_block_cipher_mode_e bcm = YACA_BCM_GCM;
-	size_t key_bits = YACA_KEY_LENGTH_256BIT;
+	size_t key_bit_len = YACA_KEY_LENGTH_256BIT;
 
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h key_pub = YACA_KEY_NULL;
@@ -162,7 +162,7 @@ void encrypt_seal_aes_gcm(void)
 
 	size_t block_len;
 	size_t output_len;
-	size_t out_len;
+	size_t written_len;
 	size_t rem;
 
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
@@ -185,7 +185,7 @@ void encrypt_seal_aes_gcm(void)
 
 	/* Encryption */
 	{
-		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bits, &sym_key, &iv) != YACA_ERROR_NONE)
+		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bit_len, &sym_key, &iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Provide any AAD data */
@@ -205,15 +205,15 @@ void encrypt_seal_aes_gcm(void)
 		if (yaca_malloc(enc_len, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
-		out_len = enc_len;
-		if (yaca_seal_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_len) != YACA_ERROR_NONE)
+		written_len = enc_len;
+		if (yaca_seal_update(ctx, lorem4096, LOREM4096_SIZE, enc, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = enc_len - out_len;
-		if (yaca_seal_finalize(ctx, enc + out_len, &rem) != YACA_ERROR_NONE)
+		rem = enc_len - written_len;
+		if (yaca_seal_finalize(ctx, enc + written_len, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
-		enc_len = rem + out_len;
+		enc_len = rem + written_len;
 
 		/* Set the tag length and get the tag after final encryption */
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN,
@@ -231,7 +231,7 @@ void encrypt_seal_aes_gcm(void)
 
 	/* Decryption */
 	{
-		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bits, sym_key, iv) != YACA_ERROR_NONE)
+		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bit_len, sym_key, iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Provide any AAD data */
@@ -251,20 +251,20 @@ void encrypt_seal_aes_gcm(void)
 		if (yaca_malloc(dec_len, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
-		out_len = dec_len;
-		if (yaca_open_update(ctx, enc, enc_len, dec, &out_len) != YACA_ERROR_NONE)
+		written_len = dec_len;
+		if (yaca_open_update(ctx, enc, enc_len, dec, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = dec_len - out_len;
+		rem = dec_len - written_len;
 
 		/* Set expected tag value before final decryption */
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG, tag, tag_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_open_finalize(ctx, dec + out_len, &rem) != YACA_ERROR_NONE)
+		if (yaca_open_finalize(ctx, dec + written_len, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
-		dec_len = rem + out_len;
+		dec_len = rem + written_len;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_len, dec);
 	}
@@ -283,7 +283,7 @@ void encrypt_seal_aes_ccm(void)
 {
 	yaca_encrypt_algorithm_e algo = YACA_ENCRYPT_AES;
 	yaca_block_cipher_mode_e bcm = YACA_BCM_CCM;
-	size_t key_bits = YACA_KEY_LENGTH_192BIT;
+	size_t key_bit_len = YACA_KEY_LENGTH_192BIT;
 
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h key_pub = YACA_KEY_NULL;
@@ -303,7 +303,7 @@ void encrypt_seal_aes_ccm(void)
 
 	size_t block_len;
 	size_t output_len;
-	size_t out_len;
+	size_t written_len;
 	size_t rem;
 	size_t len;
 
@@ -327,7 +327,7 @@ void encrypt_seal_aes_ccm(void)
 
 	/* Encryption */
 	{
-		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bits, &sym_key, &iv) != YACA_ERROR_NONE)
+		if (yaca_seal_initialize(&ctx, key_pub, algo, bcm, key_bit_len, &sym_key, &iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Set tag length (optionally) */
@@ -356,15 +356,15 @@ void encrypt_seal_aes_ccm(void)
 		if (yaca_malloc(enc_len, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
-		out_len = enc_len;
-		if (yaca_seal_update(ctx, lorem4096, LOREM4096_SIZE, enc, &out_len) != YACA_ERROR_NONE)
+		written_len = enc_len;
+		if (yaca_seal_update(ctx, lorem4096, LOREM4096_SIZE, enc, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = enc_len - out_len;
-		if (yaca_seal_finalize(ctx, enc + out_len, &rem) != YACA_ERROR_NONE)
+		rem = enc_len - written_len;
+		if (yaca_seal_finalize(ctx, enc + written_len, &rem) != YACA_ERROR_NONE)
 			goto exit;
 
-		enc_len = rem + out_len;
+		enc_len = rem + written_len;
 
 		/* Get the tag after final encryption */
 		if (yaca_context_get_property(ctx, YACA_PROPERTY_CCM_TAG, (void**)tag, &tag_len) != YACA_ERROR_NONE)
@@ -378,7 +378,7 @@ void encrypt_seal_aes_ccm(void)
 
 	/* Decryption */
 	{
-		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bits, sym_key, iv) != YACA_ERROR_NONE)
+		if (yaca_open_initialize(&ctx, key_priv, algo, bcm, key_bit_len, sym_key, iv) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Set expected tag value */
@@ -406,13 +406,13 @@ void encrypt_seal_aes_ccm(void)
 		if (yaca_malloc(dec_len, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
-		out_len = dec_len;
+		written_len = dec_len;
 		/* The tag verify is performed when you call the final yaca_open_update(),
 		 * there is no call to yaca_open_finalize() */
-		if (yaca_open_update(ctx, enc, enc_len, dec, &out_len) != YACA_ERROR_NONE)
+		if (yaca_open_update(ctx, enc, enc_len, dec, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		dec_len = out_len;
+		dec_len = written_len;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_len, dec);
 	}
@@ -438,20 +438,20 @@ int main()
 	printf("AES CBC 256bit key seal/open\n");
 	yaca_encrypt_algorithm_e algo = YACA_ENCRYPT_AES;
 	yaca_block_cipher_mode_e bcm = YACA_BCM_CBC;
-	size_t key_bits = YACA_KEY_LENGTH_256BIT;
-	encrypt_seal(algo, bcm, key_bits);
+	size_t key_bit_len = YACA_KEY_LENGTH_256BIT;
+	encrypt_seal(algo, bcm, key_bit_len);
 
 	printf("3DES 192bit key seal/open\n");
 	algo = YACA_ENCRYPT_3DES_3TDEA;
 	bcm = YACA_BCM_CFB;
-	key_bits = YACA_KEY_LENGTH_192BIT;
-	encrypt_seal(algo, bcm, key_bits);
+	key_bit_len = YACA_KEY_LENGTH_192BIT;
+	encrypt_seal(algo, bcm, key_bit_len);
 
-	printf("RC4 40bit key seal/open\n");
-	algo = YACA_ENCRYPT_UNSAFE_RC4;
-	bcm = YACA_BCM_NONE;
-	key_bits = YACA_KEY_LENGTH_UNSAFE_40BIT;
-	encrypt_seal(algo, bcm, key_bits);
+	printf("RC2 40bit key seal/open\n");
+	algo = YACA_ENCRYPT_UNSAFE_RC2;
+	bcm = YACA_BCM_OFB;
+	key_bit_len = YACA_KEY_LENGTH_UNSAFE_40BIT;
+	encrypt_seal(algo, bcm, key_bit_len);
 
 	printf("AES GCM 256bit key seal/open\n");
 	encrypt_seal_aes_gcm();

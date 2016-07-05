@@ -39,7 +39,7 @@ struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx)
 		return NULL;
 
 	switch (ctx->type) {
-	case YACA_CTX_ENCRYPT:
+	case YACA_CONTEXT_ENCRYPT:
 		return (struct yaca_encrypt_context_s *)ctx;
 	default:
 		return NULL;
@@ -257,7 +257,7 @@ static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
 
 int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           yaca_block_cipher_mode_e bcm,
-                          size_t key_bits,
+                          size_t key_bit_len,
                           const EVP_CIPHER **cipher)
 {
 	char cipher_name[32];
@@ -266,14 +266,13 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 	const EVP_CIPHER *lcipher;
 	int ret;
 
-	if (algo_name == NULL || bcm_name == NULL || key_bits == 0 ||
-	    cipher == NULL)
+	if (algo_name == NULL || bcm_name == NULL || key_bit_len == 0 || cipher == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	switch (algo) {
 	case YACA_ENCRYPT_AES:
 		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s",
-		               algo_name, key_bits, bcm_name);
+		               algo_name, key_bit_len, bcm_name);
 		break;
 	case YACA_ENCRYPT_UNSAFE_DES:
 	case YACA_ENCRYPT_UNSAFE_RC2:
@@ -317,16 +316,16 @@ static int encrypt_initialize(yaca_context_h *ctx,
                               yaca_block_cipher_mode_e bcm,
                               const yaca_key_h sym_key,
                               const yaca_key_h iv,
-                              enum encrypt_op_type op_type)
+                              enum encrypt_op_type_e op_type)
 {
 	const struct yaca_key_simple_s *lkey;
 	const struct yaca_key_simple_s *liv;
 	struct yaca_encrypt_context_s *nc;
 	const EVP_CIPHER *cipher;
-	size_t key_bits;
+	size_t key_bit_len;
 	unsigned char *iv_data = NULL;
-	size_t iv_bits;
-	size_t iv_bits_check;
+	size_t iv_bit_len;
+	size_t iv_bit_len_check;
 	int ret;
 
 	if (ctx == NULL || sym_key == YACA_KEY_NULL)
@@ -340,19 +339,19 @@ static int encrypt_initialize(yaca_context_h *ctx,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nc->ctx.type = YACA_CTX_ENCRYPT;
-	nc->ctx.ctx_destroy = destroy_encrypt_context;
+	nc->ctx.type = YACA_CONTEXT_ENCRYPT;
+	nc->ctx.context_destroy = destroy_encrypt_context;
 	nc->ctx.get_output_length = get_encrypt_output_length;
-	nc->ctx.set_param = set_encrypt_property;
-	nc->ctx.get_param = get_encrypt_property;
+	nc->ctx.set_property = set_encrypt_property;
+	nc->ctx.get_property = get_encrypt_property;
 	nc->op_type = op_type;
 	nc->tag_len = 0;
 
-	ret = yaca_key_get_bit_length(sym_key, &key_bits);
+	ret = yaca_key_get_bit_length(sym_key, &key_bit_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = encrypt_get_algorithm(algo, bcm, key_bits, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, key_bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -363,25 +362,25 @@ static int encrypt_initialize(yaca_context_h *ctx,
 		goto exit;
 	}
 
-	iv_bits = ret * 8;
-	if (iv_bits == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
+	iv_bit_len = ret * 8;
+	if (iv_bit_len == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
 
-	if (iv_bits != 0) { /* cipher requires iv*/
+	if (iv_bit_len != 0) { /* cipher requires iv*/
 		liv = key_get_simple(iv);
 		if (liv == NULL) { /* iv was not provided */
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
 		}
-		ret = yaca_key_get_bit_length(iv, &iv_bits_check);
+		ret = yaca_key_get_bit_length(iv, &iv_bit_len_check);
 		if (ret != YACA_ERROR_NONE) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
 		}
 		/* IV length doesn't match cipher (GCM & CCM supports variable IV length) */
-		if (iv_bits != iv_bits_check &&
+		if (iv_bit_len != iv_bit_len_check &&
 		    bcm != YACA_BCM_GCM &&
 		    bcm != YACA_BCM_CCM) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
@@ -416,7 +415,7 @@ static int encrypt_initialize(yaca_context_h *ctx,
 	}
 
 	/* Handling of algorithms with variable key length */
-	ret = EVP_CIPHER_CTX_set_key_length(nc->cipher_ctx, key_bits / 8);
+	ret = EVP_CIPHER_CTX_set_key_length(nc->cipher_ctx, key_bit_len / 8);
 	if (ret != 1) {
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		ERROR_DUMP(ret);
@@ -424,14 +423,14 @@ static int encrypt_initialize(yaca_context_h *ctx,
 	}
 
 	/* Handling of algorithms with variable IV length */
-	if (iv_bits != iv_bits_check) {
+	if (iv_bit_len != iv_bit_len_check) {
 		if (bcm == YACA_BCM_GCM)
 			ret = EVP_CIPHER_CTX_ctrl(nc->cipher_ctx, EVP_CTRL_GCM_SET_IVLEN,
-			                          iv_bits_check / 8, NULL);
+			                          iv_bit_len_check / 8, NULL);
 
 		if (bcm == YACA_BCM_CCM)
 			ret = EVP_CIPHER_CTX_ctrl(nc->cipher_ctx, EVP_CTRL_CCM_SET_IVLEN,
-			                          iv_bits_check / 8, NULL);
+			                          iv_bit_len_check / 8, NULL);
 
 		if (ret != 1) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
@@ -475,7 +474,7 @@ exit:
 int encrypt_update(yaca_context_h ctx,
                    const unsigned char *input, size_t input_len,
                    unsigned char *output, size_t *output_len,
-                   enum encrypt_op_type op_type)
+                   enum encrypt_op_type_e op_type)
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int ret;
@@ -513,7 +512,7 @@ int encrypt_update(yaca_context_h ctx,
 
 int encrypt_finalize(yaca_context_h ctx,
                      unsigned char *output, size_t *output_len,
-                     enum encrypt_op_type op_type)
+                     enum encrypt_op_type_e op_type)
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int ret;

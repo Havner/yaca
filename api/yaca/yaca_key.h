@@ -241,11 +241,11 @@ int yaca_key_generate(yaca_key_type_e key_type,
 int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
 
 /**
- * @brief  Frees the key created by the library. Passing YACA_KEY_NULL is allowed.
+ * @brief  Release the key created by the library. Passing YACA_KEY_NULL is allowed.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] key  Key to be freed
+ * @param[in,out] key  Key to be released
  *
  * @see yaca_key_import()
  * @see yaca_key_export()

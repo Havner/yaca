@@ -34,7 +34,7 @@
 
 #include "misc.h"
 
-void dump_hex(const char *buf, size_t dump_size, const char *fmt, ...)
+void dump_hex(const char *buf, size_t dump_len, const char *fmt, ...)
 {
 	va_list ap;
 
@@ -42,7 +42,7 @@ void dump_hex(const char *buf, size_t dump_size, const char *fmt, ...)
 	vprintf(fmt, ap);
 	va_end(ap);
 	putchar('\n');
-	BIO_dump_fp(stdout, buf, dump_size);
+	BIO_dump_fp(stdout, buf, dump_len);
 }
 
 void debug_func(const char *buf)

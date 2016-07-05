@@ -14,7 +14,7 @@ Project structure:
 
 General design:
 	- All memory allocated by API should be freed with yaca_free()
-	- Contexts and keys should be freed with yaca_context_destroy()/yaca_key_destroy()
+	- Contexts and keys should be released with yaca_context_destroy()/yaca_key_destroy()
 	- Function names: yaca_<operation/object>_<function>; Ex: yaca_verify_initialize()
 	- Simplified/Simple functions don't have <operation/object> part, but have <simple> prefix
 	- Enums: YACA_<concept>_<value>; Ex: YACA_KEY_LENGTH_256BIT
