@@ -389,7 +389,11 @@ typedef enum {
  * @see #yaca_padding_e
  */
 typedef enum {
-	/** Padding. Property type is #yaca_padding_e. */
+	/**
+	 * Padding for the sign/verify operation. Property type is #yaca_padding_e.
+	 *
+	 * This property can be set at the latest before the *_finalize() call.
+	 */
 	YACA_PROPERTY_PADDING,
 
 	/** GCM Additional Authentication Data. Property type is a buffer (e.g. char*) */
