@@ -1246,7 +1246,7 @@ API void yaca_key_destroy(yaca_key_h key)
 API int yaca_key_derive_pbkdf2(const char *password,
                                const char *salt,
                                size_t salt_len,
-                               int iterations,
+                               size_t iterations,
                                yaca_digest_algorithm_e algo,
                                size_t key_bit_len,
                                yaca_key_h *key)
@@ -1256,11 +1256,15 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	size_t key_byte_len = key_bit_len / 8;
 	int ret;
 
-	if (password == NULL || salt == NULL || salt_len == 0 ||
+	if (password == NULL ||
+	    (salt == NULL && salt_len > 0) || (salt != NULL && salt_len == 0) ||
 	    iterations == 0 || key_bit_len == 0 || key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	if (key_bit_len % 8) /* Key length must be multiple of 8-bits */
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	if (iterations > INT_MAX) /* OpenSSL limitation */
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = digest_get_algorithm(algo, &md);

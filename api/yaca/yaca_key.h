@@ -290,7 +290,7 @@ void yaca_key_destroy(yaca_key_h key);
 int yaca_key_derive_pbkdf2(const char *password,
                            const char *salt,
                            size_t salt_len,
-                           int iterations,
+                           size_t iterations,
                            yaca_digest_algorithm_e algo,
                            size_t key_bit_len,
                            yaca_key_h *key);
