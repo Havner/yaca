@@ -66,12 +66,9 @@ int yaca_initialize(void);
  *
  * @since_tizen 3.0
  *
- * @return #YACA_ERROR_NONE on success
- * @retval #YACA_ERROR_NONE Successful
- *
  * @see yaca_initialize()
  */
-int yaca_cleanup(void);
+void yaca_cleanup(void);
 
 /**
  * @brief  Allocates the memory.

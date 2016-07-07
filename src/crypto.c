@@ -157,11 +157,11 @@ exit:
 	return ret;
 }
 
-API int yaca_cleanup(void)
+API void yaca_cleanup(void)
 {
 	/* calling cleanup twice on the same thread is a NOP */
 	if (!current_thread_initialized)
-		return YACA_ERROR_NONE;
+		return;
 
 	/* per thread cleanup */
 	ERR_remove_thread_state(NULL);
@@ -190,8 +190,6 @@ API int yaca_cleanup(void)
 		current_thread_initialized = false;
 	}
 	pthread_mutex_unlock(&init_mutex);
-
-	return YACA_ERROR_NONE;
 }
 
 API int yaca_malloc(size_t size, void **memory)
