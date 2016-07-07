@@ -483,6 +483,10 @@ int encrypt_update(yaca_context_h ctx,
 	if (c == NULL || input_len == 0 || output_len == NULL || op_type != c->op_type)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (EVP_CIPHER_CTX_mode(c->cipher_ctx) != EVP_CIPH_CCM_MODE)
+		if (input == NULL || output == NULL)
+			return YACA_ERROR_INVALID_PARAMETER;
+
 	switch (op_type) {
 	case OP_ENCRYPT:
 		ret = EVP_EncryptUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
