@@ -586,7 +586,7 @@ API int yaca_verify_finalize(yaca_context_h ctx,
 	if (ret == 1)
 		return YACA_ERROR_NONE;
 
-	if (ret == YACA_ERROR_NONE) {
+	if (ret == 0) {
 		ERROR_CLEAR();
 		return YACA_ERROR_DATA_MISMATCH;
 	}
