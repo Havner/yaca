@@ -811,113 +811,96 @@ exit:
 	return ret;
 }
 
-// TODO: consider merging generate_evp_*, they share awful lot of common code
-int generate_evp_rsa(struct yaca_key_evp_s **out, size_t key_bit_len)
+int generate_evp(struct yaca_key_evp_s **out, yaca_key_type_e key_type, size_t key_bit_len)
 {
 	assert(out != NULL);
 	assert(key_bit_len > 0);
-	assert(key_bit_len % 8 == 0);
 
+	int id;
+	bool do_params;
 	int ret;
-	struct yaca_key_evp_s *nk;
-	EVP_PKEY_CTX *ctx;
+	EVP_PKEY_CTX *pctx = NULL;
+	EVP_PKEY_CTX *kctx = NULL;
 	EVP_PKEY *pkey = NULL;
+	EVP_PKEY *params = NULL;
+	struct yaca_key_evp_s *nk;
 
-	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
+	switch(key_type) {
+	case YACA_KEY_TYPE_RSA_PRIV:
+		assert(key_bit_len % 8 == 0);
 
-	ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
-	if (ctx == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
+		id = EVP_PKEY_RSA;
+		do_params = false;
+		break;
+	case YACA_KEY_TYPE_DSA_PRIV:
+		assert(key_bit_len % 8 == 0);
 
-	ret = EVP_PKEY_keygen_init(ctx);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
+		/* Openssl generates 512-bit key for key lengths smaller than 512. It also
+		 * rounds key size to multiplication of 64. */
+		if (key_bit_len < 512 || key_bit_len % 64 != 0)
+			return YACA_ERROR_INVALID_PARAMETER;
+		id = EVP_PKEY_DSA;
+		do_params = true;
+		break;
+	case YACA_KEY_TYPE_DH_PRIV:
+		assert(key_bit_len % 8 == 0);
 
-	ret = EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bit_len);
-	if (ret != 1) {
-		ret = ERROR_HANDLE();
-		goto exit;
-	}
-
-	ret = EVP_PKEY_keygen(ctx, &pkey);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	nk->evp = pkey;
-	pkey = NULL;
-	*out = nk;
-	nk = NULL;
-
-	ret = YACA_ERROR_NONE;
-
-exit:
-	EVP_PKEY_CTX_free(ctx);
-	yaca_free(nk);
-
-	return ret;
-}
-
-int generate_evp_dsa(struct yaca_key_evp_s **out, size_t key_bit_len)
-{
-	assert(out != NULL);
-	assert(key_bit_len > 0);
-	assert(key_bit_len % 8 == 0);
-
-	/* Openssl generates 512-bit key for key lengths smaller than 512. It also
-	 * rounds key size to multiplication of 64. */
-	if (key_bit_len < 512 || key_bit_len % 64 != 0)
+		id = EVP_PKEY_DH;
+		do_params = true;
+		break;
+	default:
 		return YACA_ERROR_INVALID_PARAMETER;
-
-	int ret;
-	struct yaca_key_evp_s *nk;
-	EVP_PKEY_CTX *pctx = NULL;
-	EVP_PKEY_CTX *kctx = NULL;
-	EVP_PKEY *pkey = NULL;
-	EVP_PKEY *params = NULL;
+	}
 
 	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
-	if (pctx == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
+	if (do_params) {
+		pctx = EVP_PKEY_CTX_new_id(id, NULL);
+		if (pctx == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
 
-	ret = EVP_PKEY_paramgen_init(pctx);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
+		ret = EVP_PKEY_paramgen_init(pctx);
+		if (ret != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
 
-	ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bit_len);
-	if (ret != 1) {
-		ret = ERROR_HANDLE();
-		goto exit;
-	}
+		switch(id) {
+		case EVP_PKEY_DSA:
+			ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bit_len);
+			break;
+		case EVP_PKEY_DH:
+			ret = EVP_PKEY_CTX_set_dh_paramgen_prime_len(pctx, key_bit_len);
+			break;
+		default:
+			/* We shouldn't be here */
+			assert(false);
+			ret = YACA_ERROR_INTERNAL;
+			goto exit;
+		}
+		if (ret != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
 
-	ret = EVP_PKEY_paramgen(pctx, &params);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
+		ret = EVP_PKEY_paramgen(pctx, &params);
+		if (ret != 1 || params == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
 
-	kctx = EVP_PKEY_CTX_new(params, NULL);
+		kctx = EVP_PKEY_CTX_new(params, NULL);
+	} else {
+		kctx = EVP_PKEY_CTX_new_id(id, NULL);
+	}
 	if (kctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -931,89 +914,16 @@ int generate_evp_dsa(struct yaca_key_evp_s **out, size_t key_bit_len)
 		goto exit;
 	}
 
-	ret = EVP_PKEY_keygen(kctx, &pkey);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	nk->evp = pkey;
-	pkey = NULL;
-	*out = nk;
-	nk = NULL;
-
-	ret = YACA_ERROR_NONE;
-
-exit:
-	EVP_PKEY_CTX_free(kctx);
-	EVP_PKEY_free(params);
-	EVP_PKEY_CTX_free(pctx);
-	yaca_free(nk);
-
-	return ret;
-}
-
-int generate_evp_dh(struct yaca_key_evp_s **out, size_t key_bit_len)
-{
-	assert(out != NULL);
-	assert(key_bit_len > 0);
-
-	int ret;
-	struct yaca_key_evp_s *nk;
-	EVP_PKEY_CTX *pctx = NULL;
-	EVP_PKEY_CTX *kctx = NULL;
-	EVP_PKEY *pkey = NULL;
-	EVP_PKEY *params = NULL;
-
-	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
-
-	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DH, NULL);
-	if (pctx == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	ret = EVP_PKEY_paramgen_init(pctx);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	ret = EVP_PKEY_CTX_set_dh_paramgen_prime_len(pctx, key_bit_len);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	ret = EVP_PKEY_paramgen(pctx, &params);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	kctx = EVP_PKEY_CTX_new(params, NULL);
-	if (kctx == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	ret = EVP_PKEY_keygen_init(kctx);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
+	if (id == EVP_PKEY_RSA) {
+		ret = EVP_PKEY_CTX_set_rsa_keygen_bits(kctx, key_bit_len);
+		if (ret != 1) {
+			ret = ERROR_HANDLE();
+			goto exit;
+		}
 	}
 
 	ret = EVP_PKEY_keygen(kctx, &pkey);
-	if (ret != 1) {
+	if (ret != 1 || pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
@@ -1265,13 +1175,9 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 		ret = generate_simple_des(&nk_simple, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_RSA_PRIV:
-		ret = generate_evp_rsa(&nk_evp, key_bit_len);
-		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
-		ret = generate_evp_dsa(&nk_evp, key_bit_len);
-		break;
 	case YACA_KEY_TYPE_DH_PRIV:
-		ret = generate_evp_dh(&nk_evp, key_bit_len);
+		ret = generate_evp(&nk_evp, key_type, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_EC_PRIV:
 		//TODO NOT_IMPLEMENTED
