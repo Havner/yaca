@@ -252,6 +252,29 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
 void yaca_key_destroy(yaca_key_h key);
 
 /**
+ * @brief  Derives a key using Diffie-Helmann or EC Diffie-Helmann key exchange protocol.
+ *
+ * @since_tizen 3.0
+ *
+ * @remarks  The @a sym_key should be released using yaca_key_destroy()
+ *
+ * @param[in]  prv_key  Our private key
+ * @param[in]  pub_key  Peer public key
+ * @param[out] sym_key  Shared secret, that can be used as a symmetric key
+ *
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ *
+ * @see yaca_key_destroy()
+ */
+int yaca_key_derive_dh(const yaca_key_h prv_key,
+                       const yaca_key_h pub_key,
+                       yaca_key_h *sym_key);
+
+/**
  * @brief  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
  *
  * @since_tizen 3.0

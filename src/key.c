@@ -385,9 +385,9 @@ int import_evp(yaca_key_h *key,
 		type = private ? YACA_KEY_TYPE_DSA_PRIV : YACA_KEY_TYPE_DSA_PUB;
 		break;
 
-//	case EVP_PKEY_EC:
-//		type = private ? YACA_KEY_TYPE_EC_PRIV : YACA_KEY_TYPE_EC_PUB;
-//		break;
+	case EVP_PKEY_EC:
+		type = private ? YACA_KEY_TYPE_EC_PRIV : YACA_KEY_TYPE_EC_PUB;
+		break;
 
 	default:
 		ret = YACA_ERROR_INVALID_PARAMETER;
@@ -542,11 +542,11 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 			ret = PEM_write_bio_PUBKEY(mem, evp_key->evp);
 			break;
 
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_DH_PUB:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//		case YACA_KEY_TYPE_EC_PUB:
-//			TODO NOT_IMPLEMENTED
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_EC_PRIV:
+		case YACA_KEY_TYPE_EC_PUB:
+			//TODO NOT_IMPLEMENTED
 		default:
 			return YACA_ERROR_INVALID_PARAMETER;
 		}
@@ -575,11 +575,11 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 			ret = i2d_PUBKEY_bio(mem, evp_key->evp);
 			break;
 
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_DH_PUB:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//		case YACA_KEY_TYPE_EC_PUB:
-//			TODO NOT_IMPLEMENTED
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_EC_PRIV:
+		case YACA_KEY_TYPE_EC_PUB:
+			//TODO NOT_IMPLEMENTED
 		default:
 			return YACA_ERROR_INVALID_PARAMETER;
 		}
@@ -625,9 +625,9 @@ int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 			ret = PEM_write_bio_PKCS8PrivateKey_nid(mem, evp_key->evp, nid,
 			                                        NULL, 0, NULL, (void*)password);
 			break;
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//			TODO NOT_IMPLEMENTED
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
+			//TODO NOT_IMPLEMENTED
 		default:
 			/* Public keys are not supported by PKCS8 */
 			return YACA_ERROR_INVALID_PARAMETER;
@@ -644,9 +644,9 @@ int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 			                                  NULL, 0, NULL, (void*)password);
 			break;
 
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//			TODO NOT_IMPLEMENTED
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
+			//TODO NOT_IMPLEMENTED
 		default:
 			/* Public keys are not supported by PKCS8 */
 			return YACA_ERROR_INVALID_PARAMETER;
@@ -1114,11 +1114,11 @@ API int yaca_key_import(yaca_key_type_e key_type,
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_DSA_PRIV:
 		return import_evp(key, key_type, password, data, data_len);
-//	case YACA_KEY_TYPE_DH_PUB:
-//	case YACA_KEY_TYPE_DH_PRIV:
-//	case YACA_KEY_TYPE_EC_PUB:
-//	case YACA_KEY_TYPE_EC_PRIV:
-//		TODO NOT_IMPLEMENTED
+	case YACA_KEY_TYPE_DH_PUB:
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_EC_PUB:
+	case YACA_KEY_TYPE_EC_PRIV:
+		//TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
@@ -1186,9 +1186,9 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 	case YACA_KEY_TYPE_DSA_PRIV:
 		ret = generate_evp_dsa(&nk_evp, key_bit_len);
 		break;
-//	case YACA_KEY_TYPE_DH_PRIV:
-//	case YACA_KEY_TYPE_EC_PRIV:
-//		TODO NOT_IMPLEMENTED
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_EC_PRIV:
+		//TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
@@ -1254,9 +1254,9 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	case YACA_KEY_TYPE_DSA_PRIV:
 		nk->key.type = YACA_KEY_TYPE_DSA_PUB;
 		break;
-//	case YACA_KEY_TYPE_EC_PRIV:
-//		nk->key.type = YACA_KEY_TYPE_EC_PUB;
-//		break;
+	case YACA_KEY_TYPE_EC_PRIV:
+		nk->key.type = YACA_KEY_TYPE_EC_PUB;
+		break;
 	default:
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
@@ -1288,6 +1288,14 @@ API void yaca_key_destroy(yaca_key_h key)
 		EVP_PKEY_free(evp_key->evp);
 		yaca_free(evp_key);
 	}
+}
+
+API int yaca_key_derive_dh(UNUSED const yaca_key_h prv_key,
+                           UNUSED const yaca_key_h pub_key,
+                           UNUSED yaca_key_h *sym_key)
+{
+	//TODO NOT_IMPLEMENTED
+	return YACA_ERROR_INVALID_PARAMETER;
 }
 
 API int yaca_key_derive_pbkdf2(const char *password,

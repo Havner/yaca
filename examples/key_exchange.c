@@ -32,8 +32,6 @@
 
 void key_exchange_dh(void)
 {
-// TODO DH is not supported yet
-#if 0
 	int ret;
 
 	yaca_key_h private_key = YACA_KEY_NULL;
@@ -89,13 +87,12 @@ exit:
 	if (fp != NULL)
 		fclose(fp);
 	yaca_free(buffer);
-#endif
 }
 
-void key_exchange_ecdh(void)
-{
 // TODO ECDH is not supported yet
 #if 0
+void key_exchange_ecdh(void)
+{
 	int ret;
 
 	yaca_key_h private_key = YACA_KEY_NULL;
@@ -151,8 +148,8 @@ exit:
 	if (fp != NULL)
 		fclose(fp);
 	yaca_free(buffer);
-#endif
 }
+#endif
 
 int main()
 {
@@ -163,7 +160,7 @@ int main()
 		return ret;
 
 	key_exchange_dh();
-	key_exchange_ecdh();
+	//key_exchange_ecdh();
 
 	yaca_cleanup();
 	return ret;

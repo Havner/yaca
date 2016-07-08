@@ -97,6 +97,16 @@ typedef enum {
 	YACA_KEY_TYPE_DSA_PUB,
 	/** Digital Signature Algorithm private key */
 	YACA_KEY_TYPE_DSA_PRIV,
+
+	/** Diffie-Hellman public key */
+	YACA_KEY_TYPE_DH_PUB,
+	/** Diffie-Hellman private key */
+	YACA_KEY_TYPE_DH_PRIV,
+
+	/** Elliptic Curve public key (for DSA and DH) */
+	YACA_KEY_TYPE_EC_PUB,
+	/** Elliptic Curve private key (for DSA and DH) */
+	YACA_KEY_TYPE_EC_PRIV
 } yaca_key_type_e;
 
 /**
