@@ -65,11 +65,11 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nc->ctx.type = YACA_CTX_ENCRYPT;
-	nc->ctx.ctx_destroy = destroy_encrypt_context;
+	nc->ctx.type = YACA_CONTEXT_ENCRYPT;
+	nc->ctx.context_destroy = destroy_encrypt_context;
 	nc->ctx.get_output_length = get_encrypt_output_length;
-	nc->ctx.set_param = set_encrypt_property;
-	nc->ctx.get_param = get_encrypt_property;
+	nc->ctx.set_property = set_encrypt_property;
+	nc->ctx.get_property = get_encrypt_property;
 	nc->op_type = OP_SEAL;
 	nc->tag_len = 0;
 
@@ -126,13 +126,13 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
 		goto exit;
 	}
 
-	lkey->bits = key_data_length * 8;
+	lkey->bit_len = key_data_length * 8;
 	lkey->key.type = YACA_KEY_TYPE_SYMMETRIC;
 	*sym_key = (yaca_key_h)lkey;
 	lkey = NULL;
 
 	if (iv_length > 0) {
-		liv->bits = iv_length * 8;
+		liv->bit_len = iv_length * 8;
 		liv->key.type = YACA_KEY_TYPE_IV;
 		*iv = (yaca_key_h)liv;
 		liv = NULL;
@@ -182,8 +182,8 @@ API int yaca_open_initialize(yaca_context_h *ctx,
 	struct yaca_encrypt_context_s *nc;
 	const EVP_CIPHER *cipher;
 	unsigned char *iv_data = NULL;
-	size_t iv_bits;
-	size_t iv_bits_check;
+	size_t iv_bit_len;
+	size_t iv_bit_len_check;
 	int ret;
 
 	if (ctx == NULL || prv_key == YACA_KEY_NULL || sym_key == YACA_KEY_NULL)
@@ -202,11 +202,11 @@ API int yaca_open_initialize(yaca_context_h *ctx,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nc->ctx.type = YACA_CTX_ENCRYPT;
-	nc->ctx.ctx_destroy = destroy_encrypt_context;
+	nc->ctx.type = YACA_CONTEXT_ENCRYPT;
+	nc->ctx.context_destroy = destroy_encrypt_context;
 	nc->ctx.get_output_length = get_encrypt_output_length;
-	nc->ctx.set_param = set_encrypt_property;
-	nc->ctx.get_param = get_encrypt_property;
+	nc->ctx.set_property = set_encrypt_property;
+	nc->ctx.get_property = get_encrypt_property;
 	nc->op_type = OP_OPEN;
 	nc->tag_len = 0;
 
@@ -221,25 +221,25 @@ API int yaca_open_initialize(yaca_context_h *ctx,
 		goto exit;
 	}
 
-	iv_bits = ret * 8;
-	if (iv_bits == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
+	iv_bit_len = ret * 8;
+	if (iv_bit_len == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
 
-	if (iv_bits > 0) { /* cipher requires iv*/
+	if (iv_bit_len > 0) { /* cipher requires iv*/
 		liv = key_get_simple(iv);
 		if (liv == NULL || liv->key.type != YACA_KEY_TYPE_IV) { /* iv was not provided */
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
 		}
-		ret = yaca_key_get_bit_length(iv, &iv_bits_check);
+		ret = yaca_key_get_bit_length(iv, &iv_bit_len_check);
 		if (ret != YACA_ERROR_NONE) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
 		}
 		/* IV length doesn't match cipher */
-		if (iv_bits != iv_bits_check) {
+		if (iv_bit_len != iv_bit_len_check) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
 		}

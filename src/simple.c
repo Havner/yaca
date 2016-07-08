@@ -94,8 +94,8 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 {
 	yaca_context_h ctx;
 	int ret;
-	char *lcipher = NULL;
-	size_t out_len, lcipher_len, written;
+	char *lciphertext = NULL;
+	size_t out_len, lciphertext_len, written;
 
 	if (plaintext == NULL || plaintext_len == 0 ||
 	    ciphertext == NULL || ciphertext_len == NULL ||
@@ -110,50 +110,50 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_context_get_output_length(ctx, 0, &lcipher_len);
+	ret = yaca_context_get_output_length(ctx, 0, &lciphertext_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	if (out_len > SIZE_MAX - lcipher_len) {
+	if (out_len > SIZE_MAX - lciphertext_len) {
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
 
-	lcipher_len += out_len;
+	lciphertext_len += out_len;
 
-	assert(lcipher_len > 0);
+	assert(lciphertext_len > 0);
 
-	ret = yaca_malloc(lcipher_len, (void**)&lcipher);
+	ret = yaca_malloc(lciphertext_len, (void**)&lciphertext);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	out_len = lcipher_len;
-	ret = yaca_encrypt_update(ctx, plaintext, plaintext_len, lcipher, &out_len);
+	out_len = lciphertext_len;
+	ret = yaca_encrypt_update(ctx, plaintext, plaintext_len, lciphertext, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	assert(out_len <= lcipher_len);
+	assert(out_len <= lciphertext_len);
 
 	written = out_len;
-	out_len = lcipher_len - written;
-	ret = yaca_encrypt_finalize(ctx, lcipher + written, &out_len);
+	out_len = lciphertext_len - written;
+	ret = yaca_encrypt_finalize(ctx, lciphertext + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	written += out_len;
-	assert(written <= lcipher_len && written > 0);
+	assert(written <= lciphertext_len && written > 0);
 
-	ret = yaca_realloc(written, (void**)&lcipher);
+	ret = yaca_realloc(written, (void**)&lciphertext);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	*ciphertext = lcipher;
+	*ciphertext = lciphertext;
 	*ciphertext_len = written;
-	lcipher = NULL;
+	lciphertext = NULL;
 	ret = YACA_ERROR_NONE;
 
 exit:
-	yaca_free(lcipher);
+	yaca_free(lciphertext);
 	yaca_context_destroy(ctx);
 
 	return ret;
@@ -170,8 +170,8 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 {
 	yaca_context_h ctx;
 	int ret;
-	char *lplain = NULL;
-	size_t out_len, lplain_len, written;
+	char *lplaintext = NULL;
+	size_t out_len, lplaintext_len, written;
 
 	if (ciphertext == NULL || ciphertext_len == 0 ||
 	    plaintext == NULL || plaintext_len == NULL ||
@@ -186,49 +186,49 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_context_get_output_length(ctx, 0, &lplain_len);
+	ret = yaca_context_get_output_length(ctx, 0, &lplaintext_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	if (out_len > SIZE_MAX - lplain_len) {
+	if (out_len > SIZE_MAX - lplaintext_len) {
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
 
-	lplain_len += out_len;
-	assert(lplain_len > 0);
+	lplaintext_len += out_len;
+	assert(lplaintext_len > 0);
 
-	ret = yaca_malloc(lplain_len, (void**)&lplain);
+	ret = yaca_malloc(lplaintext_len, (void**)&lplaintext);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	out_len = lplain_len;
-	ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, lplain, &out_len);
+	out_len = lplaintext_len;
+	ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, lplaintext, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	assert(out_len <= lplain_len);
+	assert(out_len <= lplaintext_len);
 
 	written = out_len;
-	out_len = lplain_len - written;
-	ret = yaca_decrypt_finalize(ctx, lplain + written, &out_len);
+	out_len = lplaintext_len - written;
+	ret = yaca_decrypt_finalize(ctx, lplaintext + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	written += out_len;
-	assert(written <= lplain_len && written > 0);
+	assert(written <= lplaintext_len && written > 0);
 
-	ret = yaca_realloc(written, (void**)&lplain);
+	ret = yaca_realloc(written, (void**)&lplaintext);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	*plaintext = lplain;
+	*plaintext = lplaintext;
 	*plaintext_len = written;
-	lplain = NULL;
+	lplaintext = NULL;
 	ret = YACA_ERROR_NONE;
 
 exit:
-	yaca_free(lplain);
+	yaca_free(lplaintext);
 	yaca_context_destroy(ctx);
 
 	return ret;

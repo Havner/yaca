@@ -31,20 +31,20 @@
 
 #include "internal.h"
 
-struct yaca_digest_ctx_s {
+struct yaca_digest_context_s {
 	struct yaca_context_s ctx;
 
-	EVP_MD_CTX *mdctx;
+	EVP_MD_CTX *md_ctx;
 };
 
-static struct yaca_digest_ctx_s *get_digest_ctx(const yaca_context_h ctx)
+static struct yaca_digest_context_s *get_digest_context(const yaca_context_h ctx)
 {
 	if (ctx == YACA_CONTEXT_NULL)
 		return NULL;
 
 	switch (ctx->type) {
-	case YACA_CTX_DIGEST:
-		return (struct yaca_digest_ctx_s *)ctx;
+	case YACA_CONTEXT_DIGEST:
+		return (struct yaca_digest_context_s *)ctx;
 	default:
 		return NULL;
 	}
@@ -56,12 +56,12 @@ static int get_digest_output_length(const yaca_context_h ctx,
 {
 	assert(output_len != NULL);
 
-	struct yaca_digest_ctx_s *c = get_digest_ctx(ctx);
+	struct yaca_digest_context_s *c = get_digest_context(ctx);
 
 	if (c == NULL || input_len != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	int md_size = EVP_MD_CTX_size(c->mdctx);
+	int md_size = EVP_MD_CTX_size(c->md_ctx);
 	if (md_size <= 0)
 		return YACA_ERROR_INTERNAL;
 
@@ -72,13 +72,13 @@ static int get_digest_output_length(const yaca_context_h ctx,
 
 static void destroy_digest_context(yaca_context_h ctx)
 {
-	struct yaca_digest_ctx_s *c = get_digest_ctx(ctx);
+	struct yaca_digest_context_s *c = get_digest_context(ctx);
 
 	if (c == NULL)
 		return;
 
-	EVP_MD_CTX_destroy(c->mdctx);
-	c->mdctx = NULL;
+	EVP_MD_CTX_destroy(c->md_ctx);
+	c->md_ctx = NULL;
 }
 
 int digest_get_algorithm(yaca_digest_algorithm_e algo, const EVP_MD **md)
@@ -125,32 +125,32 @@ int digest_get_algorithm(yaca_digest_algorithm_e algo, const EVP_MD **md)
 API int yaca_digest_initialize(yaca_context_h *ctx, yaca_digest_algorithm_e algo)
 {
 	int ret;
-	struct yaca_digest_ctx_s *nc = NULL;
+	struct yaca_digest_context_s *nc = NULL;
 	const EVP_MD *md;
 
 	if (ctx == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_zalloc(sizeof(struct yaca_digest_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_digest_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nc->ctx.type = YACA_CTX_DIGEST;
-	nc->ctx.ctx_destroy = destroy_digest_context;
+	nc->ctx.type = YACA_CONTEXT_DIGEST;
+	nc->ctx.context_destroy = destroy_digest_context;
 	nc->ctx.get_output_length = get_digest_output_length;
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	nc->mdctx = EVP_MD_CTX_create();
-	if (nc->mdctx == NULL) {
+	nc->md_ctx = EVP_MD_CTX_create();
+	if (nc->md_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	ret = EVP_DigestInit(nc->mdctx, md);
+	ret = EVP_DigestInit(nc->md_ctx, md);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -169,13 +169,13 @@ exit:
 
 API int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len)
 {
-	struct yaca_digest_ctx_s *c = get_digest_ctx(ctx);
+	struct yaca_digest_context_s *c = get_digest_context(ctx);
 	int ret;
 
 	if (c == NULL || data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestUpdate(c->mdctx, data, data_len);
+	ret = EVP_DigestUpdate(c->md_ctx, data, data_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -187,7 +187,7 @@ API int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len
 
 API int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_len)
 {
-	struct yaca_digest_ctx_s *c = get_digest_ctx(ctx);
+	struct yaca_digest_context_s *c = get_digest_context(ctx);
 	int ret;
 	unsigned len = 0;
 
@@ -197,7 +197,7 @@ API int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_le
 	if (*digest_len == 0 || *digest_len > UINT_MAX) /* DigestFinal accepts UINT */
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestFinal_ex(c->mdctx, (unsigned char*)digest, &len);
+	ret = EVP_DigestFinal_ex(c->md_ctx, (unsigned char*)digest, &len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);

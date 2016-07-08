@@ -43,21 +43,21 @@ enum sign_op_type {
 	OP_VERIFY = 1
 };
 
-struct yaca_sign_ctx_s {
+struct yaca_sign_context_s {
 	struct yaca_context_s ctx;
 
-	EVP_MD_CTX *mdctx;
+	EVP_MD_CTX *md_ctx;
 	enum sign_op_type op_type;
 };
 
-static struct yaca_sign_ctx_s *get_sign_ctx(const yaca_context_h ctx)
+static struct yaca_sign_context_s *get_sign_context(const yaca_context_h ctx)
 {
 	if (ctx == YACA_CONTEXT_NULL)
 		return NULL;
 
 	switch (ctx->type) {
-	case YACA_CTX_SIGN:
-		return (struct yaca_sign_ctx_s *)ctx;
+	case YACA_CONTEXT_SIGN:
+		return (struct yaca_sign_context_s *)ctx;
 	default:
 		return NULL;
 	}
@@ -69,17 +69,17 @@ static int get_sign_output_length(const yaca_context_h ctx,
 {
 	assert(output_len != NULL);
 
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 
 	if (c == NULL || input_len != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	assert(c->mdctx != NULL);
+	assert(c->md_ctx != NULL);
 
-	if (c->mdctx->pctx == NULL)
+	if (c->md_ctx->pctx == NULL)
 		return YACA_ERROR_INTERNAL;
 
-	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(c->mdctx->pctx);
+	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(c->md_ctx->pctx);
 	if (pkey == NULL) {
 		ERROR_DUMP(YACA_ERROR_INTERNAL);
 		return YACA_ERROR_INTERNAL;
@@ -97,22 +97,22 @@ static int get_sign_output_length(const yaca_context_h ctx,
 
 static void destroy_sign_context(yaca_context_h ctx)
 {
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 
 	if (c == NULL)
 		return;
 
-	EVP_MD_CTX_destroy(c->mdctx);
-	c->mdctx = NULL;
+	EVP_MD_CTX_destroy(c->md_ctx);
+	c->md_ctx = NULL;
 }
 
-int set_sign_param(yaca_context_h ctx,
-                   yaca_property_e param,
-                   const void *value,
-                   size_t value_len)
+int set_sign_property(yaca_context_h ctx,
+                      yaca_property_e property,
+                      const void *value,
+                      size_t value_len)
 {
 	int ret;
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	yaca_padding_e padding;
 	int pad;
 	EVP_PKEY *pkey;
@@ -120,13 +120,13 @@ int set_sign_param(yaca_context_h ctx,
 	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	assert(c->mdctx != NULL);
+	assert(c->md_ctx != NULL);
 
-	if (c->mdctx->pctx == NULL)
+	if (c->md_ctx->pctx == NULL)
 		return YACA_ERROR_INTERNAL;
 
 	/* this function only supports padding */
-	if (param != YACA_PROPERTY_PADDING || value_len != sizeof(yaca_padding_e))
+	if (property != YACA_PROPERTY_PADDING || value_len != sizeof(yaca_padding_e))
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	padding = *(yaca_padding_e *)(value);
@@ -147,7 +147,7 @@ int set_sign_param(yaca_context_h ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
 
-	pkey = EVP_PKEY_CTX_get0_pkey(c->mdctx->pctx);
+	pkey = EVP_PKEY_CTX_get0_pkey(c->md_ctx->pctx);
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -158,7 +158,7 @@ int set_sign_param(yaca_context_h ctx,
 	if (pkey->type != EVP_PKEY_RSA)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_PKEY_CTX_set_rsa_padding(c->mdctx->pctx, pad);
+	ret = EVP_PKEY_CTX_set_rsa_padding(c->md_ctx->pctx, pad);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -168,13 +168,13 @@ int set_sign_param(yaca_context_h ctx,
 	return YACA_ERROR_NONE;
 }
 
-int get_sign_param(const yaca_context_h ctx,
-                   yaca_property_e param,
-                   void **value,
-                   size_t *value_len)
+int get_sign_property(const yaca_context_h ctx,
+                      yaca_property_e property,
+                      void **value,
+                      size_t *value_len)
 {
 	int ret;
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	EVP_PKEY *pkey;
 	int pad;
 	yaca_padding_e padding;
@@ -182,16 +182,16 @@ int get_sign_param(const yaca_context_h ctx,
 	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	assert(c->mdctx != NULL);
+	assert(c->md_ctx != NULL);
 
-	if (c->mdctx->pctx == NULL)
+	if (c->md_ctx->pctx == NULL)
 		return YACA_ERROR_INTERNAL;
 
 	/* this function only supports padding */
-	if (param != YACA_PROPERTY_PADDING)
+	if (property != YACA_PROPERTY_PADDING)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	pkey = EVP_PKEY_CTX_get0_pkey(c->mdctx->pctx);
+	pkey = EVP_PKEY_CTX_get0_pkey(c->md_ctx->pctx);
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -202,7 +202,7 @@ int get_sign_param(const yaca_context_h ctx,
 	if (pkey->type != EVP_PKEY_RSA)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_PKEY_CTX_get_rsa_padding(c->mdctx->pctx, &pad);
+	ret = EVP_PKEY_CTX_get_rsa_padding(c->md_ctx->pctx, &pad);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -240,7 +240,7 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
                              yaca_digest_algorithm_e algo,
                              const yaca_key_h key)
 {
-	struct yaca_sign_ctx_s *nc = NULL;
+	struct yaca_sign_context_s *nc = NULL;
 	const EVP_MD *md = NULL;
 	int ret;
 	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
@@ -258,29 +258,29 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
 
-	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_sign_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	nc->op_type = OP_SIGN;
-	nc->ctx.type = YACA_CTX_SIGN;
-	nc->ctx.ctx_destroy = destroy_sign_context;
+	nc->ctx.type = YACA_CONTEXT_SIGN;
+	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = get_sign_output_length;
-	nc->ctx.set_param = set_sign_param;
-	nc->ctx.get_param = get_sign_param;
+	nc->ctx.set_property = set_sign_property;
+	nc->ctx.get_property = get_sign_property;
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	nc->mdctx = EVP_MD_CTX_create();
-	if (nc->mdctx == NULL) {
+	nc->md_ctx = EVP_MD_CTX_create();
+	if (nc->md_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, evp_key->evp);
+	ret = EVP_DigestSignInit(nc->md_ctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -301,7 +301,7 @@ API int yaca_sign_initialize_hmac(yaca_context_h *ctx,
                                   yaca_digest_algorithm_e algo,
                                   const yaca_key_h key)
 {
-	struct yaca_sign_ctx_s *nc = NULL;
+	struct yaca_sign_context_s *nc = NULL;
 	EVP_PKEY *pkey = NULL;
 	const EVP_MD *md;
 	int ret;
@@ -311,19 +311,19 @@ API int yaca_sign_initialize_hmac(yaca_context_h *ctx,
 	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_sign_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	nc->op_type = OP_SIGN;
-	nc->ctx.type = YACA_CTX_SIGN;
-	nc->ctx.ctx_destroy = destroy_sign_context;
+	nc->ctx.type = YACA_CONTEXT_SIGN;
+	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = get_sign_output_length;
 
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC,
 	                            NULL,
 	                            (unsigned char *)simple_key->d,
-	                            simple_key->bits / 8);
+	                            simple_key->bit_len / 8);
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -334,14 +334,14 @@ API int yaca_sign_initialize_hmac(yaca_context_h *ctx,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	nc->mdctx = EVP_MD_CTX_create();
-	if (nc->mdctx == NULL) {
+	nc->md_ctx = EVP_MD_CTX_create();
+	if (nc->md_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	ret = EVP_DigestSignInit(nc->mdctx, NULL, md, NULL, pkey);
+	ret = EVP_DigestSignInit(nc->md_ctx, NULL, md, NULL, pkey);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -365,7 +365,7 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
                                   yaca_encrypt_algorithm_e algo,
                                   const yaca_key_h key)
 {
-	struct yaca_sign_ctx_s *nc = NULL;
+	struct yaca_sign_context_s *nc = NULL;
 	CMAC_CTX* cmac_ctx = NULL;
 	const EVP_CIPHER* cipher = NULL;
 	EVP_PKEY *pkey = NULL;
@@ -376,16 +376,16 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_sign_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	nc->op_type = OP_SIGN;
-	nc->ctx.type = YACA_CTX_SIGN;
-	nc->ctx.ctx_destroy = destroy_sign_context;
+	nc->ctx.type = YACA_CONTEXT_SIGN;
+	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = get_sign_output_length;
 
-	ret = encrypt_get_algorithm(algo, YACA_BCM_CBC, simple_key->bits, &cipher);
+	ret = encrypt_get_algorithm(algo, YACA_BCM_CBC, simple_key->bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -397,7 +397,7 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 		goto exit;
 	}
 
-	if (CMAC_Init(cmac_ctx, simple_key->d, simple_key->bits / 8, cipher, NULL) != 1) {
+	if (CMAC_Init(cmac_ctx, simple_key->d, simple_key->bit_len / 8, cipher, NULL) != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
@@ -419,14 +419,14 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 
 	cmac_ctx = NULL;
 
-	nc->mdctx = EVP_MD_CTX_create();
-	if (nc->mdctx == NULL) {
+	nc->md_ctx = EVP_MD_CTX_create();
+	if (nc->md_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	if (EVP_DigestSignInit(nc->mdctx, NULL, NULL, NULL, pkey) != 1) {
+	if (EVP_DigestSignInit(nc->md_ctx, NULL, NULL, NULL, pkey) != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
@@ -450,14 +450,14 @@ API int yaca_sign_update(yaca_context_h ctx,
                          const char *data,
                          size_t data_len)
 {
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	int ret;
 
 	if (c == NULL || c->op_type != OP_SIGN ||
 	    data == NULL || data_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestSignUpdate(c->mdctx, data, data_len);
+	ret = EVP_DigestSignUpdate(c->md_ctx, data, data_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -471,14 +471,14 @@ API int yaca_sign_finalize(yaca_context_h ctx,
                            char *signature,
                            size_t *signature_len)
 {
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	int ret;
 
 	if (c == NULL ||  c->op_type != OP_SIGN ||
 	    signature == NULL || signature_len == NULL || *signature_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestSignFinal(c->mdctx, (unsigned char *)signature, signature_len);
+	ret = EVP_DigestSignFinal(c->md_ctx, (unsigned char *)signature, signature_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -492,7 +492,7 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
                                yaca_digest_algorithm_e algo,
                                const yaca_key_h key)
 {
-	struct yaca_sign_ctx_s *nc = NULL;
+	struct yaca_sign_context_s *nc = NULL;
 	const EVP_MD *md = NULL;
 	int ret;
 	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
@@ -510,29 +510,29 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
 
-	ret = yaca_zalloc(sizeof(struct yaca_sign_ctx_s), (void**)&nc);
+	ret = yaca_zalloc(sizeof(struct yaca_sign_context_s), (void**)&nc);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	nc->op_type = OP_VERIFY;
-	nc->ctx.type = YACA_CTX_SIGN;
-	nc->ctx.ctx_destroy = destroy_sign_context;
+	nc->ctx.type = YACA_CONTEXT_SIGN;
+	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = NULL;
-	nc->ctx.set_param = set_sign_param;
-	nc->ctx.get_param = get_sign_param;
+	nc->ctx.set_property = set_sign_property;
+	nc->ctx.get_property = get_sign_property;
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	nc->mdctx = EVP_MD_CTX_create();
-	if (nc->mdctx == NULL) {
+	nc->md_ctx = EVP_MD_CTX_create();
+	if (nc->md_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	ret = EVP_DigestVerifyInit(nc->mdctx, NULL, md, NULL, evp_key->evp);
+	ret = EVP_DigestVerifyInit(nc->md_ctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -553,13 +553,13 @@ API int yaca_verify_update(yaca_context_h ctx,
                            const char *data,
                            size_t data_len)
 {
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	int ret;
 
 	if (c == NULL || data == NULL || data_len == 0 || c->op_type != OP_VERIFY)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestVerifyUpdate(c->mdctx, data, data_len);
+	ret = EVP_DigestVerifyUpdate(c->md_ctx, data, data_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -573,13 +573,13 @@ API int yaca_verify_finalize(yaca_context_h ctx,
                              const char *signature,
                              size_t signature_len)
 {
-	struct yaca_sign_ctx_s *c = get_sign_ctx(ctx);
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	int ret;
 
 	if (c == NULL || signature == NULL || signature_len == 0 || c->op_type != OP_VERIFY)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestVerifyFinal(c->mdctx,
+	ret = EVP_DigestVerifyFinal(c->md_ctx,
 	                            (unsigned char *)signature,
 	                            signature_len);
 

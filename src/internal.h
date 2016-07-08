@@ -34,14 +34,14 @@
 #define API __attribute__ ((visibility("default")))
 #define UNUSED __attribute__((unused))
 
-enum yaca_ctx_type_e {
-	YACA_CTX_INVALID = 0,
-	YACA_CTX_DIGEST,
-	YACA_CTX_SIGN,
-	YACA_CTX_ENCRYPT
+enum yaca_context_type_e {
+	YACA_CONTEXT_INVALID = 0,
+	YACA_CONTEXT_DIGEST,
+	YACA_CONTEXT_SIGN,
+	YACA_CONTEXT_ENCRYPT
 };
 
-enum encrypt_op_type {
+enum encrypt_op_type_e {
 	OP_ENCRYPT = 0,
 	OP_DECRYPT = 1,
 	OP_SEAL    = 2,
@@ -50,21 +50,21 @@ enum encrypt_op_type {
 
 /* Base structure for crypto contexts - to be inherited */
 struct yaca_context_s {
-	enum yaca_ctx_type_e type;
+	enum yaca_context_type_e type;
 
-	void (*ctx_destroy)(const yaca_context_h ctx);
+	void (*context_destroy)(const yaca_context_h ctx);
 	int (*get_output_length)(const yaca_context_h ctx, size_t input_len, size_t *output_len);
-	int (*set_param)(yaca_context_h ctx, yaca_property_e param,
-	                 const void *value, size_t value_len);
-	int (*get_param)(const yaca_context_h ctx, yaca_property_e param,
-	                 void **value, size_t *value_len);
+	int (*set_property)(yaca_context_h ctx, yaca_property_e property,
+	                    const void *value, size_t value_len);
+	int (*get_property)(const yaca_context_h ctx, yaca_property_e property,
+	                    void **value, size_t *value_len);
 };
 
 struct yaca_encrypt_context_s {
 	struct yaca_context_s ctx;
 
 	EVP_CIPHER_CTX *cipher_ctx;
-	enum encrypt_op_type op_type; /* Operation context was created for */
+	enum encrypt_op_type_e op_type; /* Operation context was created for */
 	size_t tag_len;
 };
 
@@ -82,7 +82,7 @@ struct yaca_key_s {
 struct yaca_key_simple_s {
 	struct yaca_key_s key;
 
-	size_t bits;
+	size_t bit_len;
 	char d[];
 };
 
@@ -116,17 +116,17 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 
 int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           yaca_block_cipher_mode_e bcm,
-                          size_t key_bits,
+                          size_t key_bit_len,
                           const EVP_CIPHER **cipher);
 
 int encrypt_update(yaca_context_h ctx,
                    const unsigned char *input, size_t input_len,
                    unsigned char *output, size_t *output_len,
-                   enum encrypt_op_type op_type);
+                   enum encrypt_op_type_e op_type);
 
 int encrypt_finalize(yaca_context_h ctx,
                      unsigned char *output, size_t *output_len,
-                     enum encrypt_op_type op_type);
+                     enum encrypt_op_type_e op_type);
 
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key);
 struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);

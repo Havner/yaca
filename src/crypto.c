@@ -77,7 +77,7 @@ API int yaca_initialize(void)
 {
 	int ret = YACA_ERROR_NONE;
 
-	/* no calling yaca_initalize() twice on the same thread */
+	/* no calling yaca_initialize() twice on the same thread */
 	if (current_thread_initialized)
 		return YACA_ERROR_INTERNAL;
 
@@ -142,7 +142,7 @@ API int yaca_initialize(void)
 			/*
 			 * TODO:
 			 * - We should also decide on Openssl config.
-			 * - Here's a good tutorial for initalization and cleanup:
+			 * - Here's a good tutorial for initialization and cleanup:
 			 *   https://wiki.openssl.org/index.php/Library_Initialization
 			 * - We should also initialize the entropy for random number generator:
 			 *   https://wiki.openssl.org/index.php/Random_Numbers#Initialization
@@ -258,26 +258,26 @@ API int yaca_randomize_bytes(char *data, size_t data_len)
 API int yaca_context_set_property(yaca_context_h ctx, yaca_property_e property,
                                   const void *value, size_t value_len)
 {
-	if (ctx == YACA_CONTEXT_NULL || ctx->set_param == NULL)
+	if (ctx == YACA_CONTEXT_NULL || ctx->set_property == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	return ctx->set_param(ctx, property, value, value_len);
+	return ctx->set_property(ctx, property, value, value_len);
 }
 
 API int yaca_context_get_property(const yaca_context_h ctx, yaca_property_e property,
                                   void **value, size_t *value_len)
 {
-	if (ctx == YACA_CONTEXT_NULL || ctx->get_param == NULL)
+	if (ctx == YACA_CONTEXT_NULL || ctx->get_property == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	return ctx->get_param(ctx, property, value, value_len);
+	return ctx->get_property(ctx, property, value, value_len);
 }
 
 API void yaca_context_destroy(yaca_context_h ctx)
 {
 	if (ctx != YACA_CONTEXT_NULL) {
-		assert(ctx->ctx_destroy != NULL);
-		ctx->ctx_destroy(ctx);
+		assert(ctx->context_destroy != NULL);
+		ctx->context_destroy(ctx);
 		yaca_free(ctx);
 	}
 }

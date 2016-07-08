@@ -32,7 +32,6 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/des.h>
-#include <openssl/crypto.h>
 
 #include <yaca_crypto.h>
 #include <yaca_error.h>
@@ -219,7 +218,7 @@ int import_simple(yaca_key_h *key,
 		return ret;
 	}
 
-	/* key_bits has to fit in size_t */
+	/* key_bit_len has to fit in size_t */
 	if (key_data_len > SIZE_MAX / 8) {
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
@@ -227,10 +226,10 @@ int import_simple(yaca_key_h *key,
 
 	/* DES key length verification */
 	if (key_type == YACA_KEY_TYPE_DES) {
-		size_t key_bits = key_data_len * 8;
-		if (key_bits != YACA_KEY_LENGTH_UNSAFE_64BIT &&
-		    key_bits != YACA_KEY_LENGTH_UNSAFE_128BIT &&
-		    key_bits != YACA_KEY_LENGTH_192BIT) {
+		size_t key_bit_len = key_data_len * 8;
+		if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_64BIT &&
+		    key_bit_len != YACA_KEY_LENGTH_UNSAFE_128BIT &&
+		    key_bit_len != YACA_KEY_LENGTH_192BIT) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
 		}
@@ -241,7 +240,7 @@ int import_simple(yaca_key_h *key,
 		goto exit;
 
 	memcpy(nk->d, key_data, key_data_len);
-	nk->bits = key_data_len * 8;
+	nk->bit_len = key_data_len * 8;
 	nk->key.type = key_type;
 
 	*key = (yaca_key_h)nk;
@@ -426,7 +425,7 @@ int export_simple_raw(struct yaca_key_simple_s *simple_key,
 	assert(data != NULL);
 	assert(data_len != NULL);
 
-	size_t key_len = simple_key->bits / 8;
+	size_t key_len = simple_key->bit_len / 8;
 
 	assert(key_len > 0);
 
@@ -449,7 +448,7 @@ int export_simple_base64(struct yaca_key_simple_s *simple_key,
 	assert(data_len != NULL);
 
 	int ret;
-	size_t key_len = simple_key->bits / 8;
+	size_t key_len = simple_key->bit_len / 8;
 	BIO *b64;
 	BIO *mem;
 	char *bio_data;
@@ -735,19 +734,19 @@ exit:
 	return ret;
 }
 
-int gen_simple(struct yaca_key_simple_s **out, size_t key_bits)
+int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
 
 	int ret;
 	struct yaca_key_simple_s *nk;
-	size_t key_byte_len = key_bits / 8;
+	size_t key_byte_len = key_bit_len / 8;
 
 	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len, (void**)&nk);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nk->bits = key_bits;
+	nk->bit_len = key_bit_len;
 
 	ret = yaca_randomize_bytes(nk->d, key_byte_len);
 	if (ret != YACA_ERROR_NONE)
@@ -757,18 +756,18 @@ int gen_simple(struct yaca_key_simple_s **out, size_t key_bits)
 	return YACA_ERROR_NONE;
 }
 
-int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
+int generate_simple_des(struct yaca_key_simple_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
 
-	if (key_bits != YACA_KEY_LENGTH_UNSAFE_64BIT &&
-	    key_bits != YACA_KEY_LENGTH_UNSAFE_128BIT &&
-	    key_bits != YACA_KEY_LENGTH_192BIT)
+	if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_64BIT &&
+	    key_bit_len != YACA_KEY_LENGTH_UNSAFE_128BIT &&
+	    key_bit_len != YACA_KEY_LENGTH_192BIT)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	int ret;
 	struct yaca_key_simple_s *nk;
-	size_t key_byte_len = key_bits / 8;
+	size_t key_byte_len = key_bit_len / 8;
 
 	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + key_byte_len, (void**)&nk);
 	if (ret != YACA_ERROR_NONE)
@@ -800,7 +799,7 @@ int gen_simple_des(struct yaca_key_simple_s **out, size_t key_bits)
 		}
 	}
 
-	nk->bits = key_bits;
+	nk->bit_len = key_bit_len;
 	*out = nk;
 	nk = NULL;
 	ret = YACA_ERROR_NONE;
@@ -811,12 +810,12 @@ exit:
 	return ret;
 }
 
-// TODO: consider merging gen_evp_*, they share awful lot of common code
-int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
+// TODO: consider merging generate_evp_*, they share awful lot of common code
+int generate_evp_rsa(struct yaca_key_evp_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
-	assert(key_bits > 0);
-	assert(key_bits % 8 == 0);
+	assert(key_bit_len > 0);
+	assert(key_bit_len % 8 == 0);
 
 	int ret;
 	struct yaca_key_evp_s *nk;
@@ -841,7 +840,7 @@ int gen_evp_rsa(struct yaca_key_evp_s **out, size_t key_bits)
 		goto exit;
 	}
 
-	ret = EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bits);
+	ret = EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bit_len);
 	if (ret != 1) {
 		ret = ERROR_HANDLE();
 		goto exit;
@@ -868,15 +867,15 @@ exit:
 	return ret;
 }
 
-int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
+int generate_evp_dsa(struct yaca_key_evp_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
-	assert(key_bits > 0);
-	assert(key_bits % 8 == 0);
+	assert(key_bit_len > 0);
+	assert(key_bit_len % 8 == 0);
 
 	/* Openssl generates 512-bit key for key lengths smaller than 512. It also
 	 * rounds key size to multiplication of 64. */
-	if (key_bits < 512 || key_bits % 64 != 0)
+	if (key_bit_len < 512 || key_bit_len % 64 != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	int ret;
@@ -904,7 +903,7 @@ int gen_evp_dsa(struct yaca_key_evp_s **out, size_t key_bits)
 		goto exit;
 	}
 
-	ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bits);
+	ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bit_len);
 	if (ret != 1) {
 		ret = ERROR_HANDLE();
 		goto exit;
@@ -968,8 +967,8 @@ struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 		k = (struct yaca_key_simple_s *)key;
 
 		/* sanity check */
-		assert(k->bits != 0);
-		assert(k->bits % 8 == 0);
+		assert(k->bit_len != 0);
+		assert(k->bit_len % 8 == 0);
 		assert(k->d != NULL);
 
 		return k;
@@ -1007,7 +1006,7 @@ static yaca_key_h key_copy_simple(const struct yaca_key_simple_s *key)
 	assert(key != NULL);
 
 	struct yaca_key_simple_s *copy;
-	size_t size = sizeof(struct yaca_key_simple_s) + key->bits / 8;
+	size_t size = sizeof(struct yaca_key_simple_s) + key->bit_len / 8;
 
 	ret = yaca_zalloc(size, (void**)&copy);
 	if (ret != YACA_ERROR_NONE)
@@ -1068,7 +1067,7 @@ API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	if (simple_key != NULL) {
-		*key_bit_len = simple_key->bits;
+		*key_bit_len = simple_key->bit_len;
 		return YACA_ERROR_NONE;
 	}
 
@@ -1176,16 +1175,16 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 	switch (key_type) {
 	case YACA_KEY_TYPE_SYMMETRIC:
 	case YACA_KEY_TYPE_IV:
-		ret = gen_simple(&nk_simple, key_bit_len);
+		ret = generate_simple(&nk_simple, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_DES:
-		ret = gen_simple_des(&nk_simple, key_bit_len);
+		ret = generate_simple_des(&nk_simple, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_RSA_PRIV:
-		ret = gen_evp_rsa(&nk_evp, key_bit_len);
+		ret = generate_evp_rsa(&nk_evp, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
-		ret = gen_evp_dsa(&nk_evp, key_bit_len);
+		ret = generate_evp_dsa(&nk_evp, key_bit_len);
 		break;
 //	case YACA_KEY_TYPE_DH_PRIV:
 //	case YACA_KEY_TYPE_EC_PRIV:
@@ -1309,7 +1308,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	    iterations == 0 || key_bit_len == 0 || key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (key_bit_len % 8) /* Key length must be multiple of 8-bits */
+	if (key_bit_len % 8) /* Key length must be multiple of 8-bit_len */
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	if (iterations > INT_MAX) /* OpenSSL limitation */
@@ -1323,7 +1322,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nk->bits = key_bit_len;
+	nk->bit_len = key_bit_len;
 	nk->key.type = YACA_KEY_TYPE_SYMMETRIC; // TODO: how to handle other keys?
 
 	ret = PKCS5_PBKDF2_HMAC(password, -1, (const unsigned char*)salt,
