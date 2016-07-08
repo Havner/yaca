@@ -32,6 +32,7 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/des.h>
+#include <openssl/dh.h>
 
 #include <yaca_crypto.h>
 #include <yaca_error.h>
@@ -953,6 +954,87 @@ exit:
 	return ret;
 }
 
+int generate_evp_dh(struct yaca_key_evp_s **out, size_t key_bit_len)
+{
+	assert(out != NULL);
+	assert(key_bit_len > 0);
+
+	int ret;
+	struct yaca_key_evp_s *nk;
+	EVP_PKEY_CTX *pctx = NULL;
+	EVP_PKEY_CTX *kctx = NULL;
+	EVP_PKEY *pkey = NULL;
+	EVP_PKEY *params = NULL;
+
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DH, NULL);
+	if (pctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = EVP_PKEY_paramgen_init(pctx);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = EVP_PKEY_CTX_set_dh_paramgen_prime_len(pctx, key_bit_len);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = EVP_PKEY_paramgen(pctx, &params);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	kctx = EVP_PKEY_CTX_new(params, NULL);
+	if (kctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = EVP_PKEY_keygen_init(kctx);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = EVP_PKEY_keygen(kctx, &pkey);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	nk->evp = pkey;
+	pkey = NULL;
+	*out = nk;
+	nk = NULL;
+
+	ret = YACA_ERROR_NONE;
+
+exit:
+	EVP_PKEY_CTX_free(kctx);
+	EVP_PKEY_free(params);
+	EVP_PKEY_CTX_free(pctx);
+	yaca_free(nk);
+
+	return ret;
+}
+
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key)
 {
 	struct yaca_key_simple_s *k;
@@ -989,6 +1071,8 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_DH_PUB:
+	case YACA_KEY_TYPE_DH_PRIV:
 		k = (struct yaca_key_evp_s *)key;
 
 		/* sanity check */
@@ -1187,6 +1271,8 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 		ret = generate_evp_dsa(&nk_evp, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_DH_PRIV:
+		ret = generate_evp_dh(&nk_evp, key_bit_len);
+		break;
 	case YACA_KEY_TYPE_EC_PRIV:
 		//TODO NOT_IMPLEMENTED
 	default:
@@ -1253,6 +1339,9 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
 		nk->key.type = YACA_KEY_TYPE_DSA_PUB;
+		break;
+	case YACA_KEY_TYPE_DH_PRIV:
+		nk->key.type = YACA_KEY_TYPE_DH_PUB;
 		break;
 	case YACA_KEY_TYPE_EC_PRIV:
 		nk->key.type = YACA_KEY_TYPE_EC_PUB;
