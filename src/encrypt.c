@@ -302,8 +302,8 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 
 	lcipher = EVP_get_cipherbyname(cipher_name);
 	if (lcipher == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		ERROR_CLEAR();
 		return ret;
 	}
 
@@ -559,6 +559,9 @@ API int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
 {
 	const EVP_CIPHER *cipher;
 	int ret;
+
+	if(iv_bit_len == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = encrypt_get_algorithm(algo, bcm, key_bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
