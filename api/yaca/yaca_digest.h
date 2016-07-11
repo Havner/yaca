@@ -17,7 +17,8 @@
  */
 
 /**
- * @file yaca_digest.h
+ * @file   yaca_digest.h
+ * @brief  Advanced API for the message digests.
  */
 
 #ifndef YACA_DIGEST_H
@@ -33,12 +34,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_INTEGRITY_MODULE
  * @{
- */
-
-/**
- * Note:  Advanced-Digest  Advanced API for the message digests.
- *
- *
  */
 
 /**

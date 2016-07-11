@@ -17,7 +17,12 @@
  */
 
 /**
- * @file yaca_seal.h
+ * @file   yaca_seal.h
+ * @brief  Advanced API for the asymmetric encryption.
+ *
+ * @details  Seal does more than just encrypt. It first generates the encryption key and IV,
+ *           then encrypts whole message using this key (and selected symmetric algorithm).
+ *           Finally it encrypts symmetric key with public key.
  */
 
 #ifndef YACA_SEAL_H
@@ -33,16 +38,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
- */
-
-/**
- * Note  Advanced-Encryption-Asymmetric  Advanced API for the asymmetric encryption.
- *
- *
- * @remarks  Seal does more than just encrypt. It first generates the encryption key and IV,
- *           then encrypts whole message using this key (and selected symmetric algorithm).
- *           Finally it encrypts symmetric key with public key.
- *
  */
 
 /**

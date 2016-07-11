@@ -17,7 +17,8 @@
  */
 
 /**
- * @file yaca_encrypt.h
+ * @file   yaca_encrypt.h
+ * @brief  Advanced API for the symmetric encryption.
  */
 
 #ifndef YACA_ENCRYPT_H
@@ -33,12 +34,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
- */
-
-/**
- * Note:  Advanced-Encryption-Symmetric  Advanced API for the symmetric encryption.
- *
- *
  */
 
 /**

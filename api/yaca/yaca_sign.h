@@ -17,7 +17,8 @@
  */
 
 /**
- * @file yaca_sign.h
+ * @file   yaca_sign.h
+ * @brief  Advanced API for the integrity handling - HMAC, CMAC and digital signature.
  */
 
 #ifndef YACA_SIGN_H
@@ -33,12 +34,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_INTEGRITY_MODULE
  * @{
- */
-
-/**
- * Note:  Advanced-Integrity  Advanced API for the integrity handling - HMAC, CMAC and digital signature.
- *
- *
  */
 
 /**

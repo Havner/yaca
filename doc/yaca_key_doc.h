@@ -21,7 +21,7 @@
   * @brief    Provides APIs for key handling operations such as generating and importing a key.
   *
   * @section CAPI_YACA_KEY_MODULE_HEADER Required Header
-  * \#include <yaca/yaca_key.h>
+  * \#include <yaca/yaca_key.h>\n
   *
   * @section CAPI_YACA_KEY_MODULE_OVERVIEW Overview
   * It provides APIs for generating key using random number or password, importing a key trying to match it to the key_type specified and exporting a key to arbitrary format.

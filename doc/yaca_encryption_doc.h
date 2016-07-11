@@ -21,11 +21,11 @@
   * @brief    Provides APIs for encryption and decryption operations.
   *
   * @section CAPI_YACA_ENCRYPTION_MODULE_HEADER Required Header
-  * \#include <yaca/yaca_crypto.h>
-  * \#include <yaca/yaca_encrypt.h>
-  * \#include <yaca/yaca_seal.h>
-  * \#include <yaca/yaca_types.h>
-  * \#include <yaca/yaca_error.h>
+  * \#include <yaca/yaca_crypto.h>\n
+  * \#include <yaca/yaca_encrypt.h>\n
+  * \#include <yaca/yaca_seal.h>\n
+  * \#include <yaca/yaca_types.h>\n
+  * \#include <yaca/yaca_error.h>\n
   *
   * @section CAPI_YACA_ENCRYPTION_MODULE_OVERVIEW Overview
   * It provides advanced APIs for encryption/decryption operations with symmetric keys and sealing/opening operations with asymmetric keys.

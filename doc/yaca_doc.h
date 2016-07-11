@@ -18,7 +18,7 @@
 /**
   * @ingroup CAPI_SECURITY_FRAMEWORK
   * @defgroup CAPI_YACA_MODULE yaca crypto module
-  * @brief    The yaca(yet another crypto api) provides a crypto function such as key management, data integrity and data en/decryption.
+  * @brief    The YACA (Yet Another Crypto Api) provides a crypto function such as key management, data integrity and data en/decryption.
   *           Key management provides APIs for generating secured key,importing a key trying to match it to the key_type specified and exporting a key to arbitrary format.
   *           Data Integrity provides Advanced/Simpled API for the integrity handling - HMAC, CMAC, message digests and digital signature.
   *           Data en/decryption provides Advanced/Simpled APIs for en/decrypting and sealing/opening a data.

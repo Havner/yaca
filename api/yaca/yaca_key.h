@@ -17,7 +17,8 @@
  */
 
 /**
- * @file yaca_key.h
+ * @file   yaca_key.h
+ * @brief  Advanced API for the key and IV handling.
  */
 
 #ifndef YACA_KEY_H
@@ -33,12 +34,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_KEY_MODULE
  * @{
- */
-
-/**
- * Note:  Key  Advanced API for the key and IV handling.
- *
- *
  */
 
 /**
@@ -255,13 +250,6 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
  * @see yaca_key_generate()
  */
 void yaca_key_destroy(yaca_key_h key);
-
-
-/**
- * Note:  Key-Derivation  Advanced API for the key derivation.
- *
- *
- */
 
 /**
  * @brief  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).

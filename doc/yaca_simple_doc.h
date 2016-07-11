@@ -21,7 +21,7 @@
   * @brief    Provides simple APIs for cryptographic operations.
   *
   * @section CAPI_YACA_SIMPLE_MODULE_HEADER Required Header
-  * \#include <yaca/yaca_simple.h>
+  * \#include <yaca/yaca_simple.h>\n
   *
   * @section CAPI_YACA_SIMPLE_MODULE_OVERVIEW Overview
   * It provides simple APIs for encryption/decryption, signing/verification, and message digestion.

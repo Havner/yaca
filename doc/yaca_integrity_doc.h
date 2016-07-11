@@ -21,8 +21,8 @@
   * @brief    Provides APIs for creating/verifying a signature and digesting a message.
   *
   * @section CAPI_YACA_INTEGRITY_MODULE_HEADER Required Header
-  * \#include <yaca/yaca_sign.h>
-  * \#include <yaca/yaca_digest.h>
+  * \#include <yaca/yaca_sign.h>\n
+  * \#include <yaca/yaca_digest.h>\n
   *
   * @section CAPI_YACA_INTEGRITY_MODULE_OVERVIEW Overview
   * It provides advanced APIs for creating a signature using asymmetric private key, verifying a signature using asymmetric public key, calculating a HMAC/CMAC of given message using symmetric key and calculating message digests of given message without key.

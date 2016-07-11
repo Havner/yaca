@@ -17,7 +17,8 @@
  */
 
 /**
- * @file yaca_crypto.h
+ * @file   yaca_crypto.h
+ * @brief  Non crypto related functions.
  */
 
 #ifndef YACA_CRYPTO_H
@@ -33,12 +34,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
- */
-
-/**
- * Note:  Non-Crypto  Yet Another Crypto API - non crypto related functions.
- *
- *
  */
 
 /**

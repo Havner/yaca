@@ -17,7 +17,8 @@
  */
 
 /**
- * @file yaca_types.h
+ * @file   yaca_types.h
+ * @brief  Types enums and defines.
  */
 
 #ifndef YACA_TYPES_H
@@ -30,12 +31,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_ENCRYPTION_MODULE
  * @{
- */
-
-/**
- * Note: Crypto-Types Yet Another Crypto API - types.
- *
- *
  */
 
 /**

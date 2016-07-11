@@ -17,7 +17,16 @@
  */
 
 /**
- * @file yaca_simple.h
+ * @file   yaca_simple.h
+ * @brief  Simple API.
+ *
+ * @details  This is simple API.
+ *           Design constraints:
+ *           - All operations are single-shot (no streaming possible)
+ *           - Context is not used
+ *           - For now only digest and symmetric ciphers are supported
+ *           - GCM and CCM chaining is not supported
+ *           - All outputs are allocated by the library
  */
 
 #ifndef YACA_SIMPLE_H
@@ -33,19 +42,6 @@ extern "C" {
 /**
  * @addtogroup CAPI_YACA_SIMPLE_MODULE
  * @{
- */
-
-/**
- * Note:  Simple-API  Simple API.
- *
- *  @remarks  This is simple API.
- *            Design constraints:
- *            - All operations are single-shot (no streaming possible)
- *            - Context is not used
- *            - For now only digest and symmetric ciphers are supported
- *            - GCM and CCM chaining is not supported
- *            - All outputs are allocated by the library
- *
  */
 
 /**
