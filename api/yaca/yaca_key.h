@@ -54,6 +54,8 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Either of the params is NULL
+ *
+ * @see #yaca_key_type_e
  */
 int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
 
@@ -62,6 +64,8 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  *
  * @since_tizen 3.0
  *
+ * @remarks  For elliptic curves @a key_bit_len returns values from #yaca_key_bit_length_ec_e
+ *
  * @param[in]  key          Key which length we return
  * @param[out] key_bit_len  Key length in bits
  *
@@ -69,6 +73,9 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Either of the params is NULL
  * @retval #YACA_ERROR_INTERNAL Internal error
+ *
+ * @see #yaca_key_bit_length_e
+ * @see #yaca_key_bit_length_ec_e
  */
 int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
 
@@ -194,6 +201,7 @@ int yaca_key_export(const yaca_key_h key,
  * @remarks  Supported key lengths:
  *           - RSA: length >= 256bits
  *           - DSA: length >= 512bits, multiple of 64
+ *           - EC: @a key_bit_len takes values from #yaca_key_bit_length_ec_e
  *
  * @remarks  The @a key should be released using yaca_key_destroy()
  *
@@ -210,6 +218,7 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @see #yaca_key_type_e
  * @see #yaca_key_bit_length_e
+ * @see #yaca_key_bit_length_ec_e
  * @see yaca_key_destroy()
  */
 int yaca_key_generate(yaca_key_type_e key_type,
