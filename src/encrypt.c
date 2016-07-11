@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <openssl/evp.h>
 
@@ -32,6 +33,11 @@
 #include <yaca_key.h>
 
 #include "internal.h"
+
+static bool is_encryption_op(enum encrypt_op_type_e op_type)
+{
+	return (op_type == OP_ENCRYPT || op_type == OP_SEAL);
+}
 
 struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx)
 {
@@ -93,68 +99,66 @@ int set_encrypt_property(yaca_context_h ctx, yaca_property_e property,
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int len;
+	int mode;
 
 	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 	assert(c->cipher_ctx != NULL);
 
+	mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
+
 	switch (property) {
 	case YACA_PROPERTY_GCM_AAD:
+		if (mode != EVP_CIPH_GCM_MODE)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
+			ERROR_DUMP(YACA_ERROR_INTERNAL);
+			return YACA_ERROR_INTERNAL;
+		}
+		break;
 	case YACA_PROPERTY_CCM_AAD:
-		if (c->op_type == OP_ENCRYPT) {
-			if (EVP_EncryptUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-				ERROR_DUMP(YACA_ERROR_INTERNAL);
-				return YACA_ERROR_INTERNAL;
-			}
-		}
-		if (c->op_type == OP_DECRYPT) {
-			if (EVP_DecryptUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-				ERROR_DUMP(YACA_ERROR_INTERNAL);
-				return YACA_ERROR_INTERNAL;
-			}
-		}
-		if (c->op_type == OP_SEAL) {
-			if (EVP_SealUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-				ERROR_DUMP(YACA_ERROR_INTERNAL);
-				return YACA_ERROR_INTERNAL;
-			}
-		}
-		if (c->op_type == OP_OPEN) {
-			if (EVP_OpenUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-				ERROR_DUMP(YACA_ERROR_INTERNAL);
-				return YACA_ERROR_INTERNAL;
-			}
+		if (mode != EVP_CIPH_CCM_MODE)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
+			ERROR_DUMP(YACA_ERROR_INTERNAL);
+			return YACA_ERROR_INTERNAL;
 		}
 		break;
 	case YACA_PROPERTY_GCM_TAG:
+		if (mode != EVP_CIPH_GCM_MODE || is_encryption_op(c->op_type))
+			return YACA_ERROR_INVALID_PARAMETER;
+
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
 		                        EVP_CTRL_GCM_SET_TAG,
-		                        value_len, (void*)value) != 1) {
+		                        value_len,
+		                        (void*)value) != 1) {
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
 		break;
 	case YACA_PROPERTY_GCM_TAG_LEN:
-		c->tag_len = *(int*)value;
+		if (value_len != sizeof(size_t) || mode != EVP_CIPH_GCM_MODE ||
+		    !is_encryption_op(c->op_type))
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		c->tag_len = *(size_t*)value;
 		break;
 	case YACA_PROPERTY_CCM_TAG:
-		// TODO Rebuild context
-		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
-		                        EVP_CTRL_CCM_SET_TAG,
-		                        value_len, (void*)value) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
-		}
+		if (mode != EVP_CIPH_CCM_MODE || is_encryption_op(c->op_type))
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		// TODO rebuild context and set the tag
+
 		break;
 	case YACA_PROPERTY_CCM_TAG_LEN:
-		//TODO Rebuild context
-		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
-		                        EVP_CTRL_CCM_SET_TAG,
-		                        value_len, NULL) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
-		}
-		c->tag_len = *(int*)value;
+		if (value_len != sizeof(size_t) || mode != EVP_CIPH_CCM_MODE ||
+		    !is_encryption_op(c->op_type))
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		// TODO rebuild context and set the tag len
+
 		break;
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
@@ -167,14 +171,17 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
                          void **value, size_t *value_len)
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
+	int mode;
 
 	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 	assert(c->cipher_ctx != NULL);
 
+	mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
+
 	switch (property) {
 	case YACA_PROPERTY_GCM_TAG:
-		if (c->tag_len == 0 || value_len == 0)
+		if (value_len == NULL || !is_encryption_op(c->op_type) || mode != EVP_CIPH_GCM_MODE)
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
@@ -186,7 +193,7 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 		*value_len = c->tag_len;
 		break;
 	case YACA_PROPERTY_CCM_TAG:
-		if (c->tag_len == 0 || value_len == 0)
+		if (value_len == NULL || !is_encryption_op(c->op_type) || mode != EVP_CIPH_CCM_MODE)
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
@@ -331,6 +338,8 @@ static int encrypt_initialize(yaca_context_h *ctx,
 	size_t iv_bit_len_check;
 	int ret;
 
+	assert(op_type == OP_ENCRYPT || op_type == OP_DECRYPT);
+
 	if (ctx == NULL || sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
@@ -399,18 +408,12 @@ static int encrypt_initialize(yaca_context_h *ctx,
 		goto exit;
 	}
 
-	switch (op_type) {
-	case OP_ENCRYPT:
-		ret = EVP_EncryptInit_ex(nc->cipher_ctx, cipher, NULL, NULL, NULL);
-		break;
-	case OP_DECRYPT:
-		ret = EVP_DecryptInit_ex(nc->cipher_ctx, cipher, NULL, NULL, NULL);
-		break;
-	default:
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		goto exit;
-	}
-
+	ret = EVP_CipherInit_ex(nc->cipher_ctx,
+	                        cipher,
+	                        NULL,
+	                        NULL,
+	                        NULL,
+	                        is_encryption_op(op_type) ? 1 : 0);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -442,22 +445,10 @@ static int encrypt_initialize(yaca_context_h *ctx,
 		}
 	}
 
-	switch (op_type) {
-	case OP_ENCRYPT:
-		ret = EVP_EncryptInit_ex(nc->cipher_ctx, NULL, NULL,
-		                         (unsigned char*)lkey->d,
-		                         iv_data);
-		break;
-	case OP_DECRYPT:
-		ret = EVP_DecryptInit_ex(nc->cipher_ctx, NULL, NULL,
-		                         (unsigned char*)lkey->d,
-		                         iv_data);
-		break;
-	default:
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		goto exit;
-	}
-
+	ret = EVP_CipherInit_ex(nc->cipher_ctx, NULL, NULL,
+	                        (unsigned char*)lkey->d,
+	                        iv_data,
+	                        is_encryption_op(op_type) ? 1 : 0);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -490,23 +481,7 @@ int encrypt_update(yaca_context_h ctx,
 		if (input == NULL || output == NULL)
 			return YACA_ERROR_INVALID_PARAMETER;
 
-	switch (op_type) {
-	case OP_ENCRYPT:
-		ret = EVP_EncryptUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
-		break;
-	case OP_SEAL:
-		ret = EVP_SealUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
-		break;
-	case OP_DECRYPT:
-		ret = EVP_DecryptUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
-		break;
-	case OP_OPEN:
-		ret = EVP_OpenUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
-		break;
-	default:
-		return YACA_ERROR_INVALID_PARAMETER;
-	}
-
+	ret = EVP_CipherUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
 	if (ret != 1 || loutput_len < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -528,23 +503,7 @@ int encrypt_finalize(yaca_context_h ctx,
 	if (c == NULL || output == NULL || output_len == NULL || op_type != c->op_type)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	switch (op_type) {
-	case OP_ENCRYPT:
-		ret = EVP_EncryptFinal(c->cipher_ctx, output, &loutput_len);
-		break;
-	case OP_DECRYPT:
-		ret = EVP_DecryptFinal(c->cipher_ctx, output, &loutput_len);
-		break;
-	case OP_SEAL:
-		ret = EVP_SealFinal(c->cipher_ctx, output, &loutput_len);
-		break;
-	case OP_OPEN:
-		ret = EVP_OpenFinal(c->cipher_ctx, output, &loutput_len);
-		break;
-	default:
-		return YACA_ERROR_INVALID_PARAMETER;
-	}
-
+	ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
 	if (ret != 1 || loutput_len < 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
