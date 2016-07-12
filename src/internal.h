@@ -60,8 +60,15 @@ struct yaca_context_s {
 	                    void **value, size_t *value_len);
 };
 
+struct yaca_backup_context_s {
+	const EVP_CIPHER *cipher;
+	yaca_key_h sym_key;
+	yaca_key_h iv;
+};
+
 struct yaca_encrypt_context_s {
 	struct yaca_context_s ctx;
+	struct yaca_backup_context_s *backup_ctx;
 
 	EVP_CIPHER_CTX *cipher_ctx;
 	enum encrypt_op_type_e op_type; /* Operation context was created for */
@@ -118,6 +125,12 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           yaca_block_cipher_mode_e bcm,
                           size_t key_bit_len,
                           const EVP_CIPHER **cipher);
+
+int encrypt_initialize(yaca_context_h *ctx,
+                       const EVP_CIPHER *cipher,
+                       const yaca_key_h sym_key,
+                       const yaca_key_h iv,
+                       enum encrypt_op_type_e op_type);
 
 int encrypt_update(yaca_context_h ctx,
                    const unsigned char *input, size_t input_len,
