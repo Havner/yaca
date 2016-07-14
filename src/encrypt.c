@@ -421,7 +421,7 @@ static int encrypt_initialize(yaca_context_h *ctx,
 	ret = EVP_CIPHER_CTX_set_key_length(nc->cipher_ctx, key_bit_len / 8);
 	if (ret != 1) {
 		ret = YACA_ERROR_INVALID_PARAMETER;
-		ERROR_DUMP(ret);
+		ERROR_CLEAR();
 		goto exit;
 	}
 
