@@ -64,7 +64,11 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  *
  * @since_tizen 3.0
  *
- * @remarks  For elliptic curves @a key_bit_len returns values from #yaca_key_bit_length_ec_e
+ * @remarks  For Diffie-Helmann @a key_bit_len returns prime length in bits. Values
+ *           used to generate the key/parammeters in yaca_key_generate() are not
+ *           restored. Neither generator number nor values from #yaca_key_bit_length_dh_rfc_e.
+ *
+ * @remarks  For Elliptic Curves @a key_bit_len returns values from #yaca_key_bit_length_ec_e.
  *
  * @param[in]  key          Key which length we return
  * @param[out] key_bit_len  Key length in bits
@@ -75,14 +79,18 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_key_bit_length_e
+ * @see #yaca_key_bit_length_dh_rfc_e
  * @see #yaca_key_bit_length_ec_e
  */
 int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
 
 /**
- * @brief  Imports a key.
+ * @brief  Imports a key or key generation parameters.
  *
  * @since_tizen 3.0
+ *
+ * @remarks  Everywhere where either a key (of any type) or an asymmetric key is referred
+ *           in the documentation of this function key generator parameters are also included.
  *
  * @remarks  This function imports a key trying to match it to the @a key_type specified.
  *           It should autodetect both the key format and the file format.
@@ -91,10 +99,10 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  *           binary format are supported.
  *           For asymmetric keys PEM and DER file formats are supported.
  *
- * @remarks  Asymmetric keys can be in PKCS#1 or SSleay key formats (for RSA and
- *           DSA respectively). Asymmetric private keys can also be in PKCS#8
- *           format. Additionally it is possible to import public RSA key from
- *           X509 certificate.
+ * @remarks  Asymmetric keys can be in their default ASN1 structure formats (like
+ *           PKCS#1, SSleay or PKCS#3). Private asymmetric keys can also be in
+ *           PKCS#8 format. Additionally it is possible to import public RSA/DSA/EC
+ *           keys from X509 certificate.
  *
  * @remarks  If the key is encrypted the algorithm will be autodetected and password
  *           used. If it's not known if the key is encrypted one should pass NULL as
@@ -133,16 +141,19 @@ int yaca_key_import(yaca_key_type_e key_type,
                     yaca_key_h *key);
 
 /**
- * @brief  Exports a key to arbitrary format. Export may fail if key is HW-based.
+ * @brief  Exports a key or key generation parameters to arbitrary format.
  *
  * @since_tizen 3.0
+ *
+ * @remarks  Everywhere where either a key (of any type) or an asymmetric key is referred
+ *           in the documentation of this function key generator parameters are also included.
  *
  * @remarks  This function exports the key to an arbitrary key format and key file format.
  *
  * @remarks  For key formats two values are allowed:
  *           - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric
- *                                       keys (or IV), for asymmetric keys it will choose PKCS#1
- *                                       for RSA keys and SSLeay for DSA keys.
+ *                                       keys (or IV), for asymmetric keys it will export to their
+ *                                       default ASN1 structure format (e.g. PKCS#1, SSLeay, PKCS#3).
  *           - #YACA_KEY_FORMAT_PKCS8: this will only work for private asymmetric keys.
  *
  * @remarks  The following file formats are supported:
@@ -160,9 +171,9 @@ int yaca_key_import(yaca_key_type_e key_type,
  *           file formats). If no password is provided the #YACA_ERROR_INVALID_PARAMETER will
  *           be returned. The encryption algorithm used in this case is PBE with DES-CBC.
  *
- * @remakrs  Encryption is not supported for the symmetric and public keys in all their
- *           supported formats. If a password is provided in such case the
- *           #YACA_ERROR_INVALID_PARAMETER will be returned.
+ * @remarks  Encryption is not supported for the symmetric, public keys and key generation
+ *           parameters in all their supported formats. If a password is provided in such
+ *           case the #YACA_ERROR_INVALID_PARAMETER will be returned.
  *
  * @param[in]  key           Key to be exported
  * @param[in]  key_fmt       Format of the key
@@ -192,16 +203,20 @@ int yaca_key_export(const yaca_key_h key,
                     size_t *data_len);
 
 /**
- * @brief  Generates a secure key (or an initialization vector).
+ * @brief  Generates a secure key or key generation parameters (or an initialization vector).
  *
  * @since_tizen 3.0
  *
- * @remarks  This function is used to generate symmetric and private asymmetric keys.
+ * @remarks  This function is used to generate symmetric keys, private asymmetric keys
+ *           or key generation parameters for key types that support them (DSA, DH and EC).
  *
  * @remarks  Supported key lengths:
  *           - RSA: length >= 256bits
  *           - DSA: length >= 512bits, multiple of 64
- *           - EC: @a key_bit_len takes values from #yaca_key_bit_length_ec_e
+ *           - DH: a value taken from #yaca_key_bit_length_dh_rfc_e or
+ *                 (YACA_KEY_LENGTH_DH_GENERATOR_* | prime_length_in_bits),
+ *                 where prime_length_in_bits can be any positive number
+ *           - EC: a value taken from #yaca_key_bit_length_ec_e
  *
  * @remarks  The @a key should be released using yaca_key_destroy()
  *
@@ -218,6 +233,9 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @see #yaca_key_type_e
  * @see #yaca_key_bit_length_e
+ * @see #yaca_key_bit_length_dh_rfc_e
+ * @see #YACA_KEY_LENGTH_DH_GENERATOR_2
+ * @see #YACA_KEY_LENGTH_DH_GENERATOR_5
  * @see #yaca_key_bit_length_ec_e
  * @see yaca_key_destroy()
  */
@@ -226,14 +244,39 @@ int yaca_key_generate(yaca_key_type_e key_type,
                       yaca_key_h *key);
 
 /**
+ * @brief  Generates a secure private asymmetric key from parameters.
+ *
+ * @since_tizen 3.0
+ *
+ * @remarks  This function is used to generate private asymmetric keys
+ *           based on pre-generated parameters.
+ *
+ * @remarks  The @a key should be released using yaca_key_destroy()
+ *
+ * @param[in]  params   Pre-generated parameters
+ * @param[out] prv_key  Newly generated private key
+ *
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_PARAMETER key is NULL or incorrect @a params
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ *
+ * @see yaca_key_destroy()
+ * @see yaca_key_generate()
+ * @see yaca_key_extract_parameters()
+ */
+int yaca_key_generate_from_parameters(const yaca_key_h params, yaca_key_h *prv_key);
+
+/**
  * @brief  Extracts public key from a private one.
  *
  * @since_tizen 3.0
  *
  * @remarks  The @a pub_key should be released using yaca_key_destroy()
  *
- * @param[in]  prv_key   Private key to extract the public one from
- * @param[out] pub_key   Extracted public key
+ * @param[in]  prv_key  Private key to extract the public one from
+ * @param[out] pub_key  Extracted public key
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -246,6 +289,29 @@ int yaca_key_generate(yaca_key_type_e key_type,
  * @see yaca_key_destroy()
  */
 int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
+
+/**
+ * @brief  Extracts parameters from a private or a public key.
+ *
+ * @since_tizen 3.0
+ *
+ * @remarks  The @a params_key should be released using yaca_key_destroy()
+ *
+ * @param[in]  key      A key to extract the parameters from
+ * @param[out] params   Extracted parameters
+ *
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_PARAMETER @a key is of invalid type or @a params is NULL
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ *
+ * @see yaca_key_generate()
+ * @see yaca_key_generate_from_parameters()
+ * @see yaca_key_import()
+ * @see yaca_key_destroy()
+ */
+int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params);
 
 /**
  * @brief  Release the key created by the library. Passing YACA_KEY_NULL is allowed.

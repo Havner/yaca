@@ -876,7 +876,7 @@ int generate_evp(struct yaca_key_evp_s **out, yaca_key_type_e key_type, size_t k
 
 	switch (key_type) {
 	case YACA_KEY_TYPE_RSA_PRIV:
-		if ((key_bit_len & YACA_KEY_LEN_TYPE_MASK) != YACA_KEY_LEN_TYPE_REGULAR ||
+		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_BITS ||
 		    key_bit_len % 8 != 0)
 			return YACA_ERROR_INVALID_PARAMETER;
 
@@ -884,7 +884,7 @@ int generate_evp(struct yaca_key_evp_s **out, yaca_key_type_e key_type, size_t k
 		do_params = false;
 		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
-		if ((key_bit_len & YACA_KEY_LEN_TYPE_MASK) != YACA_KEY_LEN_TYPE_REGULAR ||
+		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_BITS ||
 		    /* Openssl generates 512-bit key for key lengths smaller than 512. It also
 		     * rounds key size to multiplication of 64. */
 		    key_bit_len < 512 || key_bit_len % 64 != 0)
@@ -894,7 +894,7 @@ int generate_evp(struct yaca_key_evp_s **out, yaca_key_type_e key_type, size_t k
 		do_params = true;
 		break;
 	case YACA_KEY_TYPE_DH_PRIV:
-		if ((key_bit_len & YACA_KEY_LEN_TYPE_MASK) != YACA_KEY_LEN_TYPE_REGULAR ||
+		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_BITS ||
 		    key_bit_len % 8 != 0)
 			return YACA_ERROR_INVALID_PARAMETER;
 
@@ -902,7 +902,7 @@ int generate_evp(struct yaca_key_evp_s **out, yaca_key_type_e key_type, size_t k
 		do_params = true;
 		break;
 	case YACA_KEY_TYPE_EC_PRIV:
-		if ((key_bit_len & YACA_KEY_LEN_TYPE_MASK) != YACA_KEY_LEN_TYPE_EC)
+		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_EC)
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		id = EVP_PKEY_EC;

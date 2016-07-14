@@ -36,63 +36,103 @@ extern "C" {
 /* The format of the unsigned int used to indicate key_bit_len is as follows:
  *
  *      Bits indicating a type:
- *           bits 31-30 (2 bits) indicate key_length type:
- *                00(0) - regular type for RSA, DSA and DH
- *                01(1) - elliptic curve
+ *           bits 31-28 (4 bits) indicate key_length type:
+ *                0000(0) - regular type for RSA, DSA
+ *                0001(1) - DH with specified generator
+ *                0010(2) - DH with RFC 5114
+ *                0011(3) - elliptic curve
  *                remaining combinations reserved
  *
  *      Bits for a regular type:
- *           bits 29-0 (30 bits) indicate length of the key in bits
+ *           bits 27-0  (28 bits) indicate length of the key in bits
+ *
+ *      Bits for a DH with specified generator number:
+ *           bits 27-24 (4 bits) indicate DH generator
+ *                0000(0) - generator 2
+ *                0001(1) - generator 5
+ *                remaining combinations reserved
+ *           bits 23-16 (8 bits) reserved
+ *           bits 15-0 (16 bits) length of the safe prime in bits
+ *
+ *      Bits for a DH with RFC 5114:
+ *           bits 27-24 (4 bits) indicate a bit subgroup:
+ *                0000(0) - 160
+ *                0001(1) - 224
+ *                0010(2) - 256
+ *                remaining combinations reserved
+ *           bits 23-16 (8 bits) reserved
+ *           bits 15-0 (16 bits) length of the safe prime in bits
  *
  *      Bits for an elliptic curve type:
- *           bits 29-26 (4 bits) indicate type of an elliptic curve:
+ *           bits 27-24 (4 bits) indicate type of an elliptic curve:
  *                0000(0) - X9.62 Prime
  *                0001(1) - SECP
  *                0010(2) - SECT
  *                0011(3) - Brainpool
  *                remaining combinations reserved (c2pnb, c2tnb, c2onb...)
- *           bits 25-22 (4 bits) indicate a letter:
+ *           bits 23-20 (4 bits) indicate a letter:
  *                0000(0) - v
  *                0001(1) - r
  *                0010(2) - k
  *                0011(3) - t
  *                remaining combinations reserved (w...)
- *           bits 21-18 (4 bits) indicate a number:
+ *           bits 19-16 (4 bits) indicate a number:
  *                0000(0) - 1
  *                0001(1) - 2
  *                0010(2) - 3
  *                0011(3) - 4
  *                remaining combinations reserved
- *           bits 17-0 (18 bits) - length of the prime field in bits
+ *           bits 15-0 (16 bits) - length of the prime field in bits
  *
- * For now this is mostly used for elliptic curves. For any other keys key_bit_len can be
- * passed just as a number of bits (2 most significant bits set to 00, 30 bits for bit length).
+ * Those bits are used for DH and EC. For any other keys key_bit_len can be passed just
+ * as a number of bits (4 most significant bits set to 0000, 28 bits for bit length).
  *
- * For elliptic curves don't use those defines directly, use enums in yaca_key_bit_length_ec_e.
- * Not all combinations are valid and other valid combinations are not guaranteed to be
- * implemented (they most surely aren't).
+ * In any case those defines are not be used directly.
+ *
+ * For DH keys use YACA_KEY_LENGTH_DH_GENERATOR_* or'ed with safe prime length.
+ * Alternatively one can use values from yaca_key_bit_length_dh_rfc_e enum to use
+ * RFC 5114 parameters.
+ *
+ * For elliptic curves use values from yaca_key_bit_length_ec_e enum.
  */
 
 /** @cond  Don't include those defines in doxygen, they are not to be used directly */
-#define YACA_KEY_LEN_TYPE_MASK     (3U << 30)
 
-#define YACA_KEY_LEN_TYPE_REGULAR  (0U << 30)
-#define YACA_KEY_LEN_TYPE_EC       (1U << 30)
+/* types */
+#define YACA_INTERNAL_KEYLEN_TYPE_MASK     (0xF << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_BITS     (0U << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_DH       (1U << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_DH_RFC   (2U << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_EC       (3U << 28)
 
-#define YACA_KEY_LEN_EC_PRIME      (0U << 26)
-#define YACA_KEY_LEN_EC_SECP       (1U << 26)
-#define YACA_KEY_LEN_EC_SECT       (2U << 26)
-#define YACA_KEY_LEN_EC_BRAINPOOL  (3U << 26)
+/* DH type */
+#define YACA_INTERNAL_KEYLEN_DH_GEN_MASK   (0xF << 24)
+#define YACA_INTERNAL_KEYLEN_DH_GEN_2      (0U << 24)
+#define YACA_INTERNAL_KEYLEN_DH_GEN_5      (1U << 24)
 
-#define YACA_KEY_LEN_EC_V          (0U << 22)
-#define YACA_KEY_LEN_EC_R          (1U << 22)
-#define YACA_KEY_LEN_EC_K          (2U << 22)
-#define YACA_KEY_LEN_EC_T          (3U << 22)
+#define YACA_INTERNAL_KEYLEN_DH_PRIME_MASK (0xFFFF << 0)
 
-#define YACA_KEY_LEN_EC_1          (0U << 18)
-#define YACA_KEY_LEN_EC_2          (1U << 18)
-#define YACA_KEY_LEN_EC_3          (2U << 18)
-#define YACA_KEY_LEN_EC_4          (3U << 18)
+/* DH_RFC type */
+#define YACA_INTERNAL_KEYLEN_DH_RFC_MASK   (0xF << 24)
+#define YACA_INTERNAL_KEYLEN_DH_RFC_160    (0U << 24)
+#define YACA_INTERNAL_KEYLEN_DH_RFC_224    (1U << 24)
+#define YACA_INTERNAL_KEYLEN_DH_RFC_256    (2U << 24)
+
+/* EC type */
+#define YACA_INTERNAL_KEYLEN_EC_PRIME      (0U << 24)
+#define YACA_INTERNAL_KEYLEN_EC_SECP       (1U << 24)
+#define YACA_INTERNAL_KEYLEN_EC_SECT       (2U << 24)
+#define YACA_INTERNAL_KEYLEN_EC_BRAINPOOL  (3U << 24)
+
+#define YACA_INTERNAL_KEYLEN_EC_V          (0U << 20)
+#define YACA_INTERNAL_KEYLEN_EC_R          (1U << 20)
+#define YACA_INTERNAL_KEYLEN_EC_K          (2U << 20)
+#define YACA_INTERNAL_KEYLEN_EC_T          (3U << 20)
+
+#define YACA_INTERNAL_KEYLEN_EC_1          (0U << 16)
+#define YACA_INTERNAL_KEYLEN_EC_2          (1U << 16)
+#define YACA_INTERNAL_KEYLEN_EC_3          (2U << 16)
+#define YACA_INTERNAL_KEYLEN_EC_4          (3U << 16)
 /** @endcond */
 
 /**
@@ -103,7 +143,7 @@ extern "C" {
 typedef struct yaca_context_s *yaca_context_h;
 
 /**
- * @brief The key handle.
+ * @brief The handle of a key, an IV or a key generation parameters.
  *
  * @since_tizen 3.0
  */
@@ -168,7 +208,14 @@ typedef enum {
 	/** Elliptic Curve public key (for DSA and DH) */
 	YACA_KEY_TYPE_EC_PUB,
 	/** Elliptic Curve private key (for DSA and DH) */
-	YACA_KEY_TYPE_EC_PRIV
+	YACA_KEY_TYPE_EC_PRIV,
+
+	/** Digital Signature Algorithm parameters */
+	YACA_KEY_TYPE_DSA_PARAMS,
+	/** Diffie-Hellman parameters */
+	YACA_KEY_TYPE_DH_PARAMS,
+	/** Elliptic Curve parameters */
+	YACA_KEY_TYPE_EC_PARAMS
 } yaca_key_type_e;
 
 /**
@@ -222,16 +269,46 @@ typedef enum {
  */
 typedef enum {
 	/** Elliptic curve prime192v1 */
-	YACA_KEY_LENGTH_EC_PRIME192V1 = YACA_KEY_LEN_TYPE_EC | YACA_KEY_LEN_EC_PRIME | YACA_KEY_LEN_EC_V | YACA_KEY_LEN_EC_1 | 192U,
+	YACA_KEY_LENGTH_EC_PRIME192V1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_PRIME | YACA_INTERNAL_KEYLEN_EC_V | YACA_INTERNAL_KEYLEN_EC_1 | 192U,
 	/** Elliptic curve prime256v1 */
-	YACA_KEY_LENGTH_EC_PRIME256V1 = YACA_KEY_LEN_TYPE_EC | YACA_KEY_LEN_EC_PRIME | YACA_KEY_LEN_EC_V | YACA_KEY_LEN_EC_1 | 256U,
+	YACA_KEY_LENGTH_EC_PRIME256V1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_PRIME | YACA_INTERNAL_KEYLEN_EC_V | YACA_INTERNAL_KEYLEN_EC_1 | 256U,
 	/** Elliptic curve secp256k1 */
-	YACA_KEY_LENGTH_EC_SECP256K1 = YACA_KEY_LEN_TYPE_EC | YACA_KEY_LEN_EC_SECP | YACA_KEY_LEN_EC_K | YACA_KEY_LEN_EC_1 | 256U,
+	YACA_KEY_LENGTH_EC_SECP256K1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_SECP | YACA_INTERNAL_KEYLEN_EC_K | YACA_INTERNAL_KEYLEN_EC_1 | 256U,
 	/** Elliptic curve secp384r1 */
-	YACA_KEY_LENGTH_EC_SECP384R1 = YACA_KEY_LEN_TYPE_EC | YACA_KEY_LEN_EC_SECP | YACA_KEY_LEN_EC_R | YACA_KEY_LEN_EC_1 | 384U,
+	YACA_KEY_LENGTH_EC_SECP384R1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_SECP | YACA_INTERNAL_KEYLEN_EC_R | YACA_INTERNAL_KEYLEN_EC_1 | 384U,
 	/** Elliptic curve secp521r1 */
-	YACA_KEY_LENGTH_EC_SECP521R1 = YACA_KEY_LEN_TYPE_EC | YACA_KEY_LEN_EC_SECP | YACA_KEY_LEN_EC_R | YACA_KEY_LEN_EC_1 | 521U
+	YACA_KEY_LENGTH_EC_SECP521R1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_SECP | YACA_INTERNAL_KEYLEN_EC_R | YACA_INTERNAL_KEYLEN_EC_1 | 521U
 } yaca_key_bit_length_ec_e;
+
+/**
+ * @brief A value indicating generator equal 2 for DH parameters.
+ *        To be or'ed with safe prime length in bits. Prime length is recommended
+ *        to be 2048 bits or higher.
+ */
+#define YACA_KEY_LENGTH_DH_GENERATOR_2 (YACA_INTERNAL_KEYLEN_TYPE_DH | YACA_INTERNAL_KEYLEN_DH_GEN_2)
+/**
+ * @brief A value indicating generator equal 5 for DH parameters.
+ *        To be or'ed with safe prime length in bits. Prime length is recommended
+ *        to be 2048 bits or higher.
+ */
+#define YACA_KEY_LENGTH_DH_GENERATOR_5 (YACA_INTERNAL_KEYLEN_TYPE_DH | YACA_INTERNAL_KEYLEN_DH_GEN_5)
+
+/**
+ * @brief Enumeration of YACA DH parameters taken from RFC 5114.
+ *        It's meant to be passed or returned as a @a key_bit_len param
+ *        in appropriate functions when dealing with DH and wanting to
+ *        use RFC 5114 values.
+ *
+ * @since_tizen 3.0
+ */
+typedef enum {
+	/** RFC 5114 DH parameters 1024_160 */
+	YACA_KEY_LENGTH_DH_RFC_1024_160 = YACA_INTERNAL_KEYLEN_TYPE_DH_RFC | YACA_INTERNAL_KEYLEN_DH_RFC_160 | 1024U,
+	/** RFC 5114 DH parameters 2048_224 */
+	YACA_KEY_LENGTH_DH_RFC_2048_224 = YACA_INTERNAL_KEYLEN_TYPE_DH_RFC | YACA_INTERNAL_KEYLEN_DH_RFC_224 | 2048U,
+	/** RFC 5114 DH parameters 2048_256 */
+	YACA_KEY_LENGTH_DH_RFC_2048_256 = YACA_INTERNAL_KEYLEN_TYPE_DH_RFC | YACA_INTERNAL_KEYLEN_DH_RFC_256 | 2048U
+} yaca_key_bit_length_dh_rfc_e;
 
 /**
  * @brief Enumeration of YACA message digest algorithms.
