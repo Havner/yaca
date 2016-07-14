@@ -289,7 +289,10 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 			               algo_name, bcm_name);
 		break;
 	case YACA_ENCRYPT_UNSAFE_RC4:
-		ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
+		if (bcm != YACA_BCM_NONE)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		else
+			ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
 		break;
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
