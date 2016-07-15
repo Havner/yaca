@@ -58,34 +58,34 @@ struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx)
 
 void destroy_encrypt_context(const yaca_context_h ctx)
 {
-	struct yaca_encrypt_context_s *nc = get_encrypt_context(ctx);
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 
-	if (nc == NULL)
+	if (c == NULL)
 		return;
 
-	if (nc->backup_ctx != NULL) {
-		yaca_key_destroy(nc->backup_ctx->iv);
-		yaca_key_destroy(nc->backup_ctx->sym_key);
-		yaca_free(nc->backup_ctx);
-		nc->backup_ctx = NULL;
+	if (c->backup_ctx != NULL) {
+		yaca_key_destroy(c->backup_ctx->iv);
+		yaca_key_destroy(c->backup_ctx->sym_key);
+		yaca_free(c->backup_ctx);
+		c->backup_ctx = NULL;
 	}
 
-	EVP_CIPHER_CTX_free(nc->cipher_ctx);
-	nc->cipher_ctx = NULL;
+	EVP_CIPHER_CTX_free(c->cipher_ctx);
+	c->cipher_ctx = NULL;
 }
 
 int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
 {
 	assert(output_len != NULL);
 
-	struct yaca_encrypt_context_s *nc = get_encrypt_context(ctx);
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int block_size;
 
-	if (nc == NULL)
+	if (c == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
-	assert(nc->cipher_ctx != NULL);
+	assert(c->cipher_ctx != NULL);
 
-	block_size = EVP_CIPHER_CTX_block_size(nc->cipher_ctx);
+	block_size = EVP_CIPHER_CTX_block_size(c->cipher_ctx);
 	if (block_size <= 0) {
 		ERROR_DUMP(YACA_ERROR_INTERNAL);
 		return YACA_ERROR_INTERNAL;
@@ -105,6 +105,33 @@ int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len, size_t
 	return YACA_ERROR_NONE;
 }
 
+int get_wrap_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len)
+{
+	assert(output_len != NULL);
+
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
+	if (c == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+	assert(c->cipher_ctx != NULL);
+
+	int type = EVP_CIPHER_type(c->cipher_ctx->cipher);
+
+	if (input_len > 0) {
+		if (type == NID_id_aes128_wrap || type == NID_id_aes192_wrap || type == NID_id_aes256_wrap) {
+			*output_len = input_len + 8;
+		} else if (type == NID_id_smime_alg_CMS3DESwrap) {
+			*output_len = input_len + 16;
+		} else {
+			assert(false);
+			return YACA_ERROR_INTERNAL;
+		}
+	} else {
+		*output_len = 0;
+	}
+
+	return YACA_ERROR_NONE;
+}
+
 static int encrypt_ctx_create(struct yaca_encrypt_context_s **c,
                               enum encrypt_op_type_e op_type,
                               const EVP_CIPHER *cipher)
@@ -120,16 +147,19 @@ static int encrypt_ctx_create(struct yaca_encrypt_context_s **c,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
+	mode = EVP_CIPHER_flags(cipher) & EVP_CIPH_MODE;
+
 	nc->ctx.type = YACA_CONTEXT_ENCRYPT;
 	nc->backup_ctx = NULL;
 	nc->ctx.context_destroy = destroy_encrypt_context;
-	nc->ctx.get_output_length = get_encrypt_output_length;
+	nc->ctx.get_output_length = (mode == EVP_CIPH_WRAP_MODE) ?
+	                            get_wrap_output_length :
+	                            get_encrypt_output_length;
 	nc->ctx.set_property = set_encrypt_property;
 	nc->ctx.get_property = get_encrypt_property;
 	nc->op_type = op_type;
 	nc->tag_len = 0;
-
-	mode = EVP_CIPHER_flags(cipher) & EVP_CIPH_MODE;
+	nc->update_called = false;
 
 	/* set default tag length for GCM and CCM */
 	if (mode == EVP_CIPH_GCM_MODE)
@@ -143,6 +173,9 @@ static int encrypt_ctx_create(struct yaca_encrypt_context_s **c,
 		ERROR_DUMP(ret);
 		goto exit;
 	}
+
+	if (mode == EVP_CIPH_WRAP_MODE)
+		EVP_CIPHER_CTX_set_flags(nc->cipher_ctx, EVP_CIPHER_CTX_FLAG_WRAP_ALLOW);
 
 	*c = nc;
 	nc = NULL;
@@ -564,6 +597,8 @@ static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
 		return "ofb";
 	case YACA_BCM_CCM:
 		return "ccm";
+	case YACA_BCM_WRAP:
+		return "wrap";
 	default:
 		return NULL;
 	}
@@ -587,8 +622,12 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 
 	switch (algo) {
 	case YACA_ENCRYPT_AES:
-		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s",
-		               algo_name, key_bit_len, bcm_name);
+		if (bcm == YACA_BCM_WRAP)
+			ret = snprintf(cipher_name, sizeof(cipher_name), "id-%s%zu-%s",
+			               algo_name, key_bit_len, bcm_name);
+		else
+			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s",
+			               algo_name, key_bit_len, bcm_name);
 		break;
 	case YACA_ENCRYPT_UNSAFE_DES:
 	case YACA_ENCRYPT_UNSAFE_RC2:
@@ -597,9 +636,17 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 		               algo_name, bcm_name);
 		break;
 	case YACA_ENCRYPT_UNSAFE_3DES_2TDEA:
+		if (bcm == YACA_BCM_ECB)
+			ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
+		else
+			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
+			               algo_name, bcm_name);
+		break;
 	case YACA_ENCRYPT_3DES_3TDEA:
 		if (bcm == YACA_BCM_ECB)
 			ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
+		else if (bcm == YACA_BCM_WRAP)
+			ret = snprintf(cipher_name, sizeof(cipher_name), "id-smime-alg-CMS3DESwrap");
 		else
 			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
 			               algo_name, bcm_name);
@@ -728,13 +775,33 @@ int encrypt_update(yaca_context_h ctx,
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int ret;
 	int loutput_len;
+	int mode;
+	int type;
 
 	if (c == NULL || input_len == 0 || output_len == NULL || op_type != c->op_type)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (EVP_CIPHER_CTX_mode(c->cipher_ctx) != EVP_CIPH_CCM_MODE)
-		if (input == NULL || output == NULL)
+	mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
+	type = EVP_CIPHER_type(c->cipher_ctx->cipher);
+
+	if (mode != EVP_CIPH_CCM_MODE && (input == NULL || output == NULL))
 			return YACA_ERROR_INVALID_PARAMETER;
+
+	if (mode == EVP_CIPH_WRAP_MODE && c->update_called == true)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+	if (mode == EVP_CIPH_WRAP_MODE && op_type == OP_ENCRYPT) {
+		if (type == NID_id_aes128_wrap || type == NID_id_aes192_wrap || type == NID_id_aes256_wrap) {
+			if (input_len % 8 != 0 || input_len < (YACA_KEY_LENGTH_UNSAFE_128BIT / 8))
+				return YACA_ERROR_INVALID_PARAMETER;
+		} else if (type == NID_id_smime_alg_CMS3DESwrap) {
+			if (input_len != (YACA_KEY_LENGTH_UNSAFE_128BIT / 8) && input_len != (YACA_KEY_LENGTH_192BIT / 8))
+				return YACA_ERROR_INVALID_PARAMETER;
+		} else {
+			assert(false);
+			return YACA_ERROR_INTERNAL;
+		}
+	}
 
 	ret = EVP_CipherUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
 	if (ret != 1 || loutput_len < 0) {
@@ -744,6 +811,7 @@ int encrypt_update(yaca_context_h ctx,
 	}
 
 	*output_len = loutput_len;
+	c->update_called = true;
 	return YACA_ERROR_NONE;
 }
 
@@ -753,16 +821,18 @@ int encrypt_finalize(yaca_context_h ctx,
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int ret;
-	int loutput_len;
+	int loutput_len = 0;
 
 	if (c == NULL || output == NULL || output_len == NULL || op_type != c->op_type)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
-	if (ret != 1 || loutput_len < 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
+	if (EVP_CIPHER_CTX_mode(c->cipher_ctx) != EVP_CIPH_WRAP_MODE) {
+		ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
+		if (ret != 1 || loutput_len < 0) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
+		}
 	}
 
 	*output_len = loutput_len;

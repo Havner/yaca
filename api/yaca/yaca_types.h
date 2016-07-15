@@ -344,7 +344,8 @@ typedef enum {
 	 * #YACA_BCM_ECB,\n
 	 * #YACA_BCM_GCM,\n
 	 * #YACA_BCM_CCM,\n
-	 * #YACA_BCM_CTR
+	 * #YACA_BCM_CTR,\n
+	 * #YACA_BCM_WRAP
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
 	YACA_ENCRYPT_AES = 0,
@@ -385,7 +386,8 @@ typedef enum {
 	 * #YACA_BCM_CFB,\n
 	 * #YACA_BCM_CFB1,\n
 	 * #YACA_BCM_CFB8,\n
-	 * #YACA_BCM_ECB
+	 * #YACA_BCM_ECB,\n
+	 * #YACA_BCM_WRAP
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 * - Use triple DES keys to perform corresponding 3-key 3DES encryption.
 	 */
@@ -540,7 +542,26 @@ typedef enum {
 	 *   @see examples/encrypt_aes_gcm_ccm.c
 	 *   @see examples/seal.c
 	 */
-	YACA_BCM_CCM
+	YACA_BCM_CCM,
+
+	/**
+	 * Used with #YACA_ENCRYPT_AES or #YACA_ENCRYPT_3DES_3TDEA to perform a key wrapping
+	 * (key material symmetric encryption).
+	 *
+	 * Only a single yaca_encrypt_update() / yaca_decrypt_update() is allowed.
+	 *
+	 * Usage in yaca_seal_initialize() / yaca_open_finalize() is forbidden.
+	 *
+	 * Key used to do the wrapping with #YACA_ENCRYPT_AES can be a 128-bit key, a 192-bit key, or a 256-bit key.
+	 * Wrapped key can be a 128-bit key, a 192-bit key, or a 256-bit key.
+	 * #YACA_ENCRYPT_AES allows wrapping multiple keys together.
+	 *
+	 * Key used to do the wrapping with #YACA_ENCRYPT_3DES_3TDEA can be a 192 bit DES key only.
+	 * Wrapped key can be a 128-bit DES key (two-key), or a 192-bit DES key (three-key).
+	 * #YACA_ENCRYPT_3DES_3TDEA allows wrapping only one key.
+	 *
+	 */
+	YACA_BCM_WRAP
 
 } yaca_block_cipher_mode_e;
 

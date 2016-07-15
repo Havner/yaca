@@ -25,6 +25,7 @@
 #define YACA_INTERNAL_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #include <openssl/ossl_typ.h>
 #include <openssl/err.h>
@@ -73,6 +74,7 @@ struct yaca_encrypt_context_s {
 	EVP_CIPHER_CTX *cipher_ctx;
 	enum encrypt_op_type_e op_type; /* Operation context was created for */
 	size_t tag_len;
+	bool update_called;
 };
 
 /* Base structure for crypto keys - to be inherited */

@@ -160,7 +160,7 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
 	yaca_key_h lenc_sym_key = YACA_KEY_NULL;
 
 	if (pub_key == YACA_KEY_NULL || pub_key->type != YACA_KEY_TYPE_RSA_PUB ||
-	    enc_sym_key == NULL)
+	    enc_sym_key == NULL || bcm == YACA_BCM_WRAP)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = encrypt_get_algorithm(algo, bcm, bit_len, &cipher);
@@ -233,7 +233,7 @@ API int yaca_open_initialize(yaca_context_h *ctx,
 	yaca_key_h lsym_key = YACA_KEY_NULL;
 
 	if (prv_key == YACA_KEY_NULL || prv_key->type != YACA_KEY_TYPE_RSA_PRIV ||
-	    enc_sym_key == YACA_KEY_NULL)
+	    enc_sym_key == YACA_KEY_NULL || bcm == YACA_BCM_WRAP)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = encrypt_get_algorithm(algo, bcm, bit_len, &cipher);
