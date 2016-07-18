@@ -41,7 +41,7 @@
 
 #include "internal.h"
 
-const static struct {
+static const struct {
 	size_t key_bit_len_ec;
 	int nid;
 } EC_NID_PAIRS[] = {
@@ -52,7 +52,7 @@ const static struct {
 	{YACA_KEY_LENGTH_EC_SECP521R1,  NID_secp521r1}
 };
 
-const static size_t EC_NID_PAIRS_SIZE = sizeof(EC_NID_PAIRS) / sizeof(EC_NID_PAIRS[0]);
+static const size_t EC_NID_PAIRS_SIZE = sizeof(EC_NID_PAIRS) / sizeof(EC_NID_PAIRS[0]);
 
 struct openssl_password_data {
 	bool password_requested;
