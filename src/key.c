@@ -121,6 +121,9 @@ CONVERT_TYPES_TEMPLATE(EC_NID_PAIRS, size_t, ec, int, nid)
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, params, int, evp_id)
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, priv,   int, evp_id)
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, params, yaca_key_type_e, priv)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, priv,   yaca_key_type_e, pub)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, priv,   yaca_key_type_e, params)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, pub,    yaca_key_type_e, params)
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, priv)
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, pub)
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, params)
@@ -1598,12 +1601,22 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 {
 	int ret;
 	struct yaca_key_evp_s *evp_key = key_get_evp(prv_key);
-	struct yaca_key_evp_s *nk;
+	struct yaca_key_evp_s *nk = NULL;
+	yaca_key_type_e prv_type;
+	yaca_key_type_e pub_type;
 	BIO *mem = NULL;
 	EVP_PKEY *pkey = NULL;
 
-	if (prv_key == YACA_KEY_NULL || evp_key == NULL || pub_key == NULL)
+	if (evp_key == NULL || pub_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = yaca_key_get_type(prv_key, &prv_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = convert_priv_to_pub(prv_type, &pub_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
 	if (ret != YACA_ERROR_NONE)
@@ -1633,27 +1646,76 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	BIO_free(mem);
 	mem = NULL;
 
-	switch (prv_key->type) {
-	case YACA_KEY_TYPE_RSA_PRIV:
-		nk->key.type = YACA_KEY_TYPE_RSA_PUB;
-		break;
-	case YACA_KEY_TYPE_DSA_PRIV:
-		nk->key.type = YACA_KEY_TYPE_DSA_PUB;
-		break;
-	case YACA_KEY_TYPE_DH_PRIV:
-		nk->key.type = YACA_KEY_TYPE_DH_PUB;
-		break;
-	case YACA_KEY_TYPE_EC_PRIV:
-		nk->key.type = YACA_KEY_TYPE_EC_PUB;
-		break;
-	default:
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		goto exit;
-	}
-
+	nk->key.type = pub_type;
 	nk->evp = pkey;
 	pkey = NULL;
 	*pub_key = (yaca_key_h)nk;
+	nk = NULL;
+	ret = YACA_ERROR_NONE;
+
+exit:
+	EVP_PKEY_free(pkey);
+	BIO_free(mem);
+	yaca_free(nk);
+
+	return ret;
+}
+
+API int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params)
+{
+	int ret;
+	struct yaca_key_evp_s *evp_key = key_get_evp(key);
+	struct yaca_key_evp_s *nk = NULL;
+	yaca_key_type_e key_type;
+	yaca_key_type_e params_type;
+	BIO *mem = NULL;
+	EVP_PKEY *pkey = NULL;
+
+	if (evp_key == NULL || params == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = yaca_key_get_type(key, &key_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = convert_priv_to_params(key_type, &params_type);
+	if (ret != YACA_ERROR_NONE)
+		ret = convert_pub_to_params(key_type, &params_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	mem = BIO_new(BIO_s_mem());
+	if (mem == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = PEM_write_bio_Parameters(mem, evp_key->evp);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	pkey = PEM_read_bio_Parameters(mem, NULL);
+	if (pkey == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	BIO_free(mem);
+	mem = NULL;
+
+	nk->key.type = params_type;
+	nk->evp = pkey;
+	pkey = NULL;
+	*params = (yaca_key_h)nk;
 	nk = NULL;
 	ret = YACA_ERROR_NONE;
 
