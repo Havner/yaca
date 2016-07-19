@@ -107,14 +107,10 @@ typedef enum {
  * @since_tizen 3.0
  */
 typedef enum {
-	/** 24 bits */
-	YACA_KEY_LENGTH_IV_UNSAFE_24BIT = 24,
 	/** 64 bits */
 	YACA_KEY_LENGTH_IV_64BIT = 64,
 	/** 128 bits */
 	YACA_KEY_LENGTH_IV_128BIT = 128,
-	/** 256 bits */
-	YACA_KEY_LENGTH_IV_256BIT = 256,
 	/** 8 bits */
 	YACA_KEY_LENGTH_UNSAFE_8BIT = 8,
 	/** 40 bits */
