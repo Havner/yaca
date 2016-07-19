@@ -171,6 +171,9 @@ int yaca_sign_update(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
+ * @remarks  Skipping yaca_sign_update() and calling only yaca_sign_finalize() will produce a
+ *           signature or MAC of an empty message.
+ *
  * @param[in,out] ctx              A valid sign context
  * @param[out]    signature        Buffer for the MAC or the signature
  *                                 (must be allocated by client, see yaca_context_get_output_length())
@@ -250,6 +253,9 @@ int yaca_verify_update(yaca_context_h ctx,
  * @brief  Performs the verification.
  *
  * @since_tizen 3.0
+ *
+ * @remarks  Skipping yaca_verify_update() and calling only yaca_verify_finalize() will verify
+ *           the signature of an empty message.
  *
  * @param[in,out] ctx            A valid verify context
  * @param[in]     signature      Input signature (returned by yaca_sign_finalize())
