@@ -17,7 +17,7 @@
 #define __TIZEN_CORE_YACA_KEY_DOC_H__
 /**
   * @ingroup CAPI_YACA_MODULE
-  * @defgroup CAPI_YACA_KEY_MODULE yaca key management module
+  * @defgroup CAPI_YACA_KEY_MODULE YACA Key Management
   * @brief    Provides APIs for key handling operations such as generating and importing a key.
   *
   * @section CAPI_YACA_KEY_MODULE_HEADER Required Header

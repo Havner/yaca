@@ -17,7 +17,7 @@
 #define __TIZEN_CORE_YACA_SIMPLE_DOC_H__
 /**
   * @ingroup CAPI_YACA_MODULE
-  * @defgroup CAPI_YACA_SIMPLE_MODULE yaca simple crypto module
+  * @defgroup CAPI_YACA_SIMPLE_MODULE YACA Simple Crypto
   * @brief    Provides simple APIs for cryptographic operations.
   *
   * @section CAPI_YACA_SIMPLE_MODULE_HEADER Required Header

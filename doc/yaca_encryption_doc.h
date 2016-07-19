@@ -17,7 +17,7 @@
 #define __TIZEN_CORE_YACA_ENCRYPTION_DOC_H__
 /**
   * @ingroup CAPI_YACA_MODULE
-  * @defgroup CAPI_YACA_ENCRYPTION_MODULE yaca encryption module
+  * @defgroup CAPI_YACA_ENCRYPTION_MODULE YACA Encryption
   * @brief    Provides APIs for encryption and decryption operations.
   *
   * @section CAPI_YACA_ENCRYPTION_MODULE_HEADER Required Header

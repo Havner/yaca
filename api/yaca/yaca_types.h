@@ -170,15 +170,15 @@ typedef enum {
 	/**
 	 * AES encryption.
 	 * - Supported key lengths: @c 128, @c 192 and @c 256.
-	 * - Supported block cipher modes:
-	 * #YACA_BCM_CBC,
-	 * #YACA_BCM_OFB,
-	 * #YACA_BCM_CFB,
-	 * #YACA_BCM_CFB1,
-	 * #YACA_BCM_CFB8,
-	 * #YACA_BCM_ECB,
-	 * #YACA_BCM_GCM,
-	 * #YACA_BCM_CCM,
+	 * - Supported block cipher modes:\n
+	 * #YACA_BCM_CBC,\n
+	 * #YACA_BCM_OFB,\n
+	 * #YACA_BCM_CFB,\n
+	 * #YACA_BCM_CFB1,\n
+	 * #YACA_BCM_CFB8,\n
+	 * #YACA_BCM_ECB,\n
+	 * #YACA_BCM_GCM,\n
+	 * #YACA_BCM_CCM,\n
 	 * #YACA_BCM_CTR
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
@@ -187,12 +187,12 @@ typedef enum {
 	/**
 	 * DES encryption.
 	 * - Supported key lengths: @c 64.
-	 * - Supported block cipher modes:
-	 * #YACA_BCM_CBC,
-	 * #YACA_BCM_OFB,
-	 * #YACA_BCM_CFB,
-	 * #YACA_BCM_CFB1,
-	 * #YACA_BCM_CFB8,
+	 * - Supported block cipher modes:\n
+	 * #YACA_BCM_CBC,\n
+	 * #YACA_BCM_OFB,\n
+	 * #YACA_BCM_CFB,\n
+	 * #YACA_BCM_CFB1,\n
+	 * #YACA_BCM_CFB8,\n
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
@@ -201,10 +201,10 @@ typedef enum {
 	/**
 	 * 3DES 2-key encryption.
 	 * - Supported key lengths: @c 128.
-	 * - Supported block cipher modes:
-	 * #YACA_BCM_CBC,
-	 * #YACA_BCM_OFB,
-	 * #YACA_BCM_CFB,
+	 * - Supported block cipher modes:\n
+	 * #YACA_BCM_CBC,\n
+	 * #YACA_BCM_OFB,\n
+	 * #YACA_BCM_CFB,\n
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 * - Use double DES keys to perform corresponding 2-key 3DES encryption.
@@ -214,12 +214,12 @@ typedef enum {
 	/**
 	 * 3DES 3-key encryption.
 	 * - Supported key lengths: @c 192.
-	 * - Supported block cipher modes:
-	 * #YACA_BCM_CBC,
-	 * #YACA_BCM_OFB,
-	 * #YACA_BCM_CFB,
-	 * #YACA_BCM_CFB1,
-	 * #YACA_BCM_CFB8,
+	 * - Supported block cipher modes:\n
+	 * #YACA_BCM_CBC,\n
+	 * #YACA_BCM_OFB,\n
+	 * #YACA_BCM_CFB,\n
+	 * #YACA_BCM_CFB1,\n
+	 * #YACA_BCM_CFB8,\n
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 * - Use triple DES keys to perform corresponding 3-key 3DES encryption.
@@ -231,10 +231,10 @@ typedef enum {
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 8-1024 bits in steps of 8 bits.
 	 * - Effective key bits property by default equals to 128.
-	 * - Supported block cipher modes:
-	 * #YACA_BCM_CBC,
-	 * #YACA_BCM_OFB,
-	 * #YACA_BCM_CFB,
+	 * - Supported block cipher modes:\n
+	 * #YACA_BCM_CBC,\n
+	 * #YACA_BCM_OFB,\n
+	 * #YACA_BCM_CFB,\n
 	 * #YACA_BCM_ECB
 	 */
 	YACA_ENCRYPT_UNSAFE_RC2,
@@ -251,10 +251,10 @@ typedef enum {
 	 * CAST5 encryption.
 	 * This is a variable key length cipher.
 	 * Supported key lengths: 40-128 bits in steps of 8 bits.
-	 * - Supported block cipher modes:
-	 * #YACA_BCM_CBC,
-	 * #YACA_BCM_OFB,
-	 * #YACA_BCM_CFB,
+	 * - Supported block cipher modes:\n
+	 * #YACA_BCM_CBC,\n
+	 * #YACA_BCM_OFB,\n
+	 * #YACA_BCM_CFB,\n
 	 * #YACA_BCM_ECB
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
