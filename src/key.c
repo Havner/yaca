@@ -1748,16 +1748,17 @@ API void yaca_key_destroy(yaca_key_h key)
 
 API int yaca_key_derive_dh(const yaca_key_h prv_key,
                            const yaca_key_h pub_key,
-                           yaca_key_h *sym_key)
+                           char **secret,
+                           size_t *secret_len)
 {
 	int ret;
 	struct yaca_key_evp_s *lprv_key = key_get_evp(prv_key);
 	struct yaca_key_evp_s *lpub_key = key_get_evp(pub_key);
-	struct yaca_key_simple_s *nk = NULL;
-	size_t nk_len;
 	EVP_PKEY_CTX *ctx;
+	char *data = NULL;
+	size_t data_len;
 
-	if (lprv_key == NULL || lpub_key == NULL || sym_key == NULL ||
+	if (lprv_key == NULL || lpub_key == NULL || secret == NULL || secret_len == NULL ||
 	    (!(lprv_key->key.type == YACA_KEY_TYPE_DH_PRIV &&
 	       lpub_key->key.type == YACA_KEY_TYPE_DH_PUB)
 	    &&
@@ -1786,38 +1787,38 @@ API int yaca_key_derive_dh(const yaca_key_h prv_key,
 		goto exit;
 	}
 
-	ret = EVP_PKEY_derive(ctx, NULL, &nk_len);
+	ret = EVP_PKEY_derive(ctx, NULL, &data_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	if (nk_len == 0 || nk_len > SIZE_MAX / 8) {
+	if (data_len == 0 || data_len > SIZE_MAX / 8) {
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
 
-	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + nk_len, (void**)&nk);
+	ret = yaca_zalloc(data_len, (void**)&data);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = EVP_PKEY_derive(ctx, (unsigned char*)nk->d, &nk_len);
+	ret = EVP_PKEY_derive(ctx, (unsigned char*)data, &data_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	nk->bit_len = nk_len * 8;
-	nk->key.type = YACA_KEY_TYPE_SYMMETRIC;
-	*sym_key = (yaca_key_h)nk;
-	nk = NULL;
+	*secret = data;
+	data = NULL;
+	*secret_len = data_len;
+
 	ret = YACA_ERROR_NONE;
 
 exit:
 	EVP_PKEY_CTX_free(ctx);
-	yaca_free(nk);
+	yaca_free(data);
 	return ret;
 }
 
