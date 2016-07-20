@@ -1406,8 +1406,10 @@ API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len)
 		case YACA_KEY_TYPE_RSA_PUB:
 		case YACA_KEY_TYPE_DSA_PRIV:
 		case YACA_KEY_TYPE_DSA_PUB:
+		case YACA_KEY_TYPE_DSA_PARAMS:
 		case YACA_KEY_TYPE_DH_PRIV:
 		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_DH_PARAMS:
 			ret = EVP_PKEY_bits(evp_key->evp);
 			if (ret <= 0) {
 				ret = YACA_ERROR_INTERNAL;
@@ -1418,7 +1420,8 @@ API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len)
 			*key_bit_len = ret;
 			return YACA_ERROR_NONE;
 		case YACA_KEY_TYPE_EC_PRIV:
-		case YACA_KEY_TYPE_EC_PUB: {
+		case YACA_KEY_TYPE_EC_PUB:
+		case YACA_KEY_TYPE_EC_PARAMS: {
 			assert(EVP_PKEY_type(evp_key->evp->type) == EVP_PKEY_EC);
 
 			const EC_KEY *eck = EVP_PKEY_get0(evp_key->evp);

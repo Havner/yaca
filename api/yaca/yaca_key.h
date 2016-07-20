@@ -64,6 +64,9 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  *
  * @since_tizen 3.0
  *
+ * @remarks  @a key can be any symmetric (including an IV) or
+ *           asymmetric key (including key generation parameters).
+ *
  * @remarks  For Diffie-Helmann @a key_bit_len returns prime length in bits. Values
  *           used to generate the key/parammeters in yaca_key_generate() are not
  *           restored. Neither generator number nor values from #yaca_key_bit_length_dh_rfc_e.
