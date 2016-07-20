@@ -46,7 +46,7 @@ struct openssl_password_data {
 	const char *password;
 };
 
-int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
+static int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 {
 	struct openssl_password_data *cb_data = u;
 
@@ -64,7 +64,7 @@ int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 	return pass_len;
 }
 
-int openssl_password_cb_error(UNUSED char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
+static int openssl_password_cb_error(UNUSED char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
 {
 	return 0;
 }
@@ -128,7 +128,7 @@ CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, pub)
 CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, params)
 
-int base64_decode_length(const char *data, size_t data_len, size_t *len)
+static int base64_decode_length(const char *data, size_t data_len, size_t *len)
 {
 	assert(data != NULL);
 	assert(data_len != 0);
@@ -152,7 +152,7 @@ int base64_decode_length(const char *data, size_t data_len, size_t *len)
 
 #define TMP_BUF_LEN 512
 
-int base64_decode(const char *data, size_t data_len, BIO **output)
+static int base64_decode(const char *data, size_t data_len, BIO **output)
 {
 	assert(data != NULL);
 	assert(data_len != 0);
@@ -245,10 +245,10 @@ exit:
 	return ret;
 }
 
-int import_simple(yaca_key_h *key,
-                  yaca_key_type_e key_type,
-                  const char *data,
-                  size_t data_len)
+static int import_simple(yaca_key_h *key,
+                         yaca_key_type_e key_type,
+                         const char *data,
+                         size_t data_len)
 {
 	assert(key != NULL);
 	assert(data != NULL);
@@ -404,11 +404,11 @@ exit:
 	return NULL;
 }
 
-int import_evp(yaca_key_h *key,
-               yaca_key_type_e key_type,
-               const char *password,
-               const char *data,
-               size_t data_len)
+static int import_evp(yaca_key_h *key,
+                      yaca_key_type_e key_type,
+                      const char *password,
+                      const char *data,
+                      size_t data_len)
 {
 	assert(key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -605,9 +605,9 @@ exit:
 	return ret;
 }
 
-int export_simple_raw(struct yaca_key_simple_s *simple_key,
-                      char **data,
-                      size_t *data_len)
+static int export_simple_raw(struct yaca_key_simple_s *simple_key,
+                             char **data,
+                             size_t *data_len)
 {
 	int ret;
 	assert(simple_key != NULL);
@@ -628,9 +628,9 @@ int export_simple_raw(struct yaca_key_simple_s *simple_key,
 	return YACA_ERROR_NONE;
 }
 
-int export_simple_base64(struct yaca_key_simple_s *simple_key,
-                         char **data,
-                         size_t *data_len)
+static int export_simple_base64(struct yaca_key_simple_s *simple_key,
+                                char **data,
+                                size_t *data_len)
 {
 	assert(simple_key != NULL);
 	assert(data != NULL);
@@ -695,10 +695,10 @@ exit:
 	return ret;
 }
 
-int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
-                           yaca_key_file_format_e key_file_fmt,
-                           const char *password,
-                           BIO *mem)
+static int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
+                                  yaca_key_file_format_e key_file_fmt,
+                                  const char *password,
+                                  BIO *mem)
 {
 	assert(evp_key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -799,10 +799,10 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 	return YACA_ERROR_NONE;
 }
 
-int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
-                         yaca_key_file_format_e key_file_fmt,
-                         const char *password,
-                         BIO *mem)
+static int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
+                                yaca_key_file_format_e key_file_fmt,
+                                const char *password,
+                                BIO *mem)
 {
 	assert(evp_key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -864,12 +864,12 @@ int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 	return YACA_ERROR_NONE;
 }
 
-int export_evp(struct yaca_key_evp_s *evp_key,
-               yaca_key_format_e key_fmt,
-               yaca_key_file_format_e key_file_fmt,
-               const char *password,
-               char **data,
-               size_t *data_len)
+static int export_evp(struct yaca_key_evp_s *evp_key,
+                      yaca_key_format_e key_fmt,
+                      yaca_key_file_format_e key_file_fmt,
+                      const char *password,
+                      char **data,
+                      size_t *data_len)
 {
 	assert(evp_key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -931,7 +931,7 @@ exit:
 	return ret;
 }
 
-int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
+static int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
 
@@ -956,7 +956,7 @@ int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
 	return YACA_ERROR_NONE;
 }
 
-int generate_simple_des(struct yaca_key_simple_s **out, size_t key_bit_len)
+static int generate_simple_des(struct yaca_key_simple_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
 
