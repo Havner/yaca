@@ -57,7 +57,6 @@ void encrypt_decrypt_aes_gcm(void)
 	size_t block_len;
 	size_t output_len;
 	size_t written_len;
-	size_t rem;
 
 	printf("AES GCM 256bit key encryption/decryption\n");
 	printf("Plain data (16 of %zu bytes): %.16s\n", LOREM4096_SIZE, lorem4096);
@@ -101,15 +100,15 @@ void encrypt_decrypt_aes_gcm(void)
 		if (yaca_malloc(enc_len, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
-		written_len = enc_len;
 		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = enc_len - written_len;
-		if (yaca_encrypt_finalize(ctx, enc + written_len, &rem) != YACA_ERROR_NONE)
+		enc_len = written_len;
+
+		if (yaca_encrypt_finalize(ctx, enc + written_len, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		enc_len = rem + written_len;
+		enc_len += written_len;
 
 		/* Set the tag length and get the tag after final encryption */
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN,
@@ -147,20 +146,19 @@ void encrypt_decrypt_aes_gcm(void)
 		if (yaca_malloc(dec_len, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
-		written_len = dec_len;
 		if (yaca_decrypt_update(ctx, enc, enc_len, dec, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = dec_len - written_len;
+		dec_len = written_len;
 
 		/* Set expected tag value before final decryption */
 		if (yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG, tag, tag_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		if (yaca_decrypt_finalize(ctx, dec + written_len, &rem) != YACA_ERROR_NONE)
+		if (yaca_decrypt_finalize(ctx, dec + written_len, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		dec_len = rem + written_len;
+		dec_len += written_len;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_len, dec);
 	}
@@ -200,7 +198,6 @@ void encrypt_decrypt_aes_ccm(void)
 	size_t block_len;
 	size_t output_len;
 	size_t written_len;
-	size_t rem;
 	size_t len;
 
 	printf("AES CCM 256bit key encryption/decryption\n");
@@ -253,15 +250,15 @@ void encrypt_decrypt_aes_ccm(void)
 		if (yaca_malloc(enc_len, (void**)&enc) != YACA_ERROR_NONE)
 			goto exit;
 
-		written_len = enc_len;
 		if (yaca_encrypt_update(ctx, lorem4096, LOREM4096_SIZE, enc, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		rem = enc_len - written_len;
-		if (yaca_encrypt_finalize(ctx, enc + written_len, &rem) != YACA_ERROR_NONE)
+		enc_len = written_len;
+
+		if (yaca_encrypt_finalize(ctx, enc + written_len, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
-		enc_len = rem + written_len;
+		enc_len += written_len;
 
 		/* Get the tag after final encryption */
 		if (yaca_context_get_property(ctx, YACA_PROPERTY_CCM_TAG, (void**)tag, &tag_len) != YACA_ERROR_NONE)
@@ -302,7 +299,6 @@ void encrypt_decrypt_aes_ccm(void)
 		if (yaca_malloc(dec_len, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
-		written_len = dec_len;
 		/* The tag verify is performed when you call the final yaca_decrypt_update(),
 		 * there is no call to yaca_decrypt_finalize() */
 		if (yaca_decrypt_update(ctx, enc, enc_len, dec, &written_len) != YACA_ERROR_NONE)
