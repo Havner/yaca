@@ -1735,8 +1735,10 @@ API void yaca_key_destroy(yaca_key_h key)
 	struct yaca_key_simple_s *simple_key = key_get_simple(key);
 	struct yaca_key_evp_s *evp_key = key_get_evp(key);
 
-	if (simple_key != NULL)
+	if (simple_key != NULL) {
+		OPENSSL_cleanse(simple_key->d, simple_key->bit_len / 8);
 		yaca_free(simple_key);
+	}
 
 	if (evp_key != NULL) {
 		EVP_PKEY_free(evp_key->evp);

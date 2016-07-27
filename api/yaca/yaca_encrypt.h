@@ -125,6 +125,9 @@ int yaca_encrypt_update(yaca_context_h ctx,
 /**
  * @brief  Encrypts the final chunk of the data.
  *
+ * @remarks  Skipping yaca_encrypt_update() and calling only yaca_encrypt_finalize() will produce an
+ *           encryption of an empty message.
+ *
  * @since_tizen 3.0
  *
  * @param[in,out] ctx             A valid encrypt context
@@ -210,6 +213,9 @@ int yaca_decrypt_update(yaca_context_h ctx,
 
 /**
  * @brief  Decrypts the final chunk of the data.
+ *
+ * @remarks  Skipping yaca_decrypt_update() and calling only yaca_decrypt_finalize() will produce a
+ *           decryption of an empty ciphertext.
  *
  * @since_tizen 3.0
  *

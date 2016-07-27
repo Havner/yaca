@@ -17,7 +17,7 @@
 #define __TIZEN_CORE_YACA_INTEGRITY_DOC_H__
 /**
   * @ingroup CAPI_YACA_MODULE
-  * @defgroup CAPI_YACA_INTEGRITY_MODULE yaca integrity module
+  * @defgroup CAPI_YACA_INTEGRITY_MODULE YACA Integrity
   * @brief    Provides APIs for creating/verifying a signature and digesting a message.
   *
   * @section CAPI_YACA_INTEGRITY_MODULE_HEADER Required Header

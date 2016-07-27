@@ -23,6 +23,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <openssl/evp.h>
 
@@ -33,120 +34,171 @@
 
 #include "internal.h"
 
-API int yaca_seal_initialize(yaca_context_h *ctx,
-                             const yaca_key_h pub_key,
-                             yaca_encrypt_algorithm_e algo,
-                             yaca_block_cipher_mode_e bcm,
-                             size_t sym_key_bit_len,
-                             yaca_key_h *sym_key,
-                             yaca_key_h *iv)
+static int seal_generate_sym_key(const EVP_CIPHER *cipher, yaca_key_h *sym_key)
 {
-	struct yaca_key_evp_s *lpub;
-	struct yaca_key_simple_s *lkey = NULL;
-	struct yaca_key_simple_s *liv = NULL;
-	struct yaca_encrypt_context_s *nc;
-	const EVP_CIPHER *cipher;
-	int pub_key_length;
-	unsigned char *key_data = NULL;
-	int key_data_length;
-	unsigned char *iv_data = NULL;
-	int iv_length;
 	int ret;
+	int key_len;
 
-	if (ctx == NULL || pub_key == YACA_KEY_NULL)
+	assert(sym_key != NULL);
+	assert(cipher != NULL);
+
+	ret = EVP_CIPHER_key_length(cipher);
+	if (ret <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+	key_len = ret;
+
+	return yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, key_len * 8, sym_key);
+}
+
+static int seal_generate_iv(const EVP_CIPHER *cipher, yaca_key_h *iv)
+{
+	int ret;
+	int iv_len;
+
+	assert(iv != NULL);
+	assert(cipher != NULL);
+
+	ret = EVP_CIPHER_iv_length(cipher);
+	if (ret < 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	iv_len = ret;
+	if (iv_len == 0) {
+		*iv = YACA_KEY_NULL;
+		return YACA_ERROR_NONE;
+	}
+
+	return yaca_key_generate(YACA_KEY_TYPE_IV, iv_len * 8, iv);
+}
+
+/* used for asymmetric encryption and decryption */
+static int seal_encrypt_decrypt_key(const yaca_key_h asym_key,
+                                    const yaca_key_h in_key,
+                                    yaca_key_h *out_key)
+{
+	int ret;
+	const struct yaca_key_evp_s *lasym_key;
+	const struct yaca_key_simple_s *lin_key;
+	struct yaca_key_simple_s *lout_key;
+	size_t output_len;
+
+	lin_key = key_get_simple(in_key);
+	if (lin_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (pub_key->type != YACA_KEY_TYPE_RSA_PUB)
+	if (asym_key->type != YACA_KEY_TYPE_RSA_PRIV && asym_key->type != YACA_KEY_TYPE_RSA_PUB)
 		return YACA_ERROR_INVALID_PARAMETER;
-	lpub = key_get_evp(pub_key);
-	assert(lpub);
 
-	ret = yaca_zalloc(sizeof(struct yaca_encrypt_context_s), (void**)&nc);
+	lasym_key = key_get_evp(asym_key);
+	if (lasym_key == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = EVP_PKEY_size(lasym_key->evp);
+	if (ret <= 0)
+		return YACA_ERROR_INTERNAL;
+
+	output_len = ret;
+
+	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + output_len, (void**)&lout_key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	nc->ctx.type = YACA_CONTEXT_ENCRYPT;
-	nc->ctx.context_destroy = destroy_encrypt_context;
-	nc->ctx.get_output_length = get_encrypt_output_length;
-	nc->ctx.set_property = set_encrypt_property;
-	nc->ctx.get_property = get_encrypt_property;
-	nc->op_type = OP_SEAL;
-	nc->tag_len = 0;
+	lout_key->key.type = YACA_KEY_TYPE_SYMMETRIC;
+	lout_key->bit_len = output_len * 8;
 
-	nc->cipher_ctx = EVP_CIPHER_CTX_new();
-	if (nc->cipher_ctx == NULL) {
-		ret =  YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
+	if (asym_key->type == YACA_KEY_TYPE_RSA_PRIV)
+		ret = EVP_PKEY_decrypt_old((unsigned char*)lout_key->d,
+		                           (unsigned char*)lin_key->d,
+		                           lin_key->bit_len / 8,
+		                           lasym_key->evp);
+	else
+		ret = EVP_PKEY_encrypt_old((unsigned char*)lout_key->d,
+		                           (unsigned char*)lin_key->d,
+		                           lin_key->bit_len / 8,
+		                           lasym_key->evp);
 
-	ret = EVP_PKEY_size(lpub->evp);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	pub_key_length = ret;
-	ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + pub_key_length, (void**)&lkey);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-	key_data = (unsigned char*)lkey->d;
+	output_len = ret;
 
-	ret = encrypt_get_algorithm(algo, bcm, sym_key_bit_len, &cipher);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
+	/* Update the key length just in case */
+	lout_key->bit_len = output_len * 8;
 
-	ret = EVP_CIPHER_iv_length(cipher);
-	if (ret < 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
+	*out_key = (yaca_key_h)lout_key;
+	lout_key = NULL;
 
-	iv_length = ret;
-	if (iv_length > 0) {
-		ret = yaca_zalloc(sizeof(struct yaca_key_simple_s) + iv_length, (void**)&liv);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-		iv_data = (unsigned char*)liv->d;
-	}
-
-	ret = EVP_SealInit(nc->cipher_ctx,
-	                   cipher,
-	                   &key_data,
-	                   &key_data_length,
-	                   iv_data,
-	                   &lpub->evp,
-	                   1);
-
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	lkey->bit_len = key_data_length * 8;
-	lkey->key.type = YACA_KEY_TYPE_SYMMETRIC;
-	*sym_key = (yaca_key_h)lkey;
-	lkey = NULL;
-
-	if (iv_length > 0) {
-		liv->bit_len = iv_length * 8;
-		liv->key.type = YACA_KEY_TYPE_IV;
-		*iv = (yaca_key_h)liv;
-		liv = NULL;
-	} else {
-		*iv = NULL;
-	}
-	*ctx = (yaca_context_h)nc;
-	nc = NULL;
 	ret = YACA_ERROR_NONE;
 
 exit:
-	yaca_free(liv);
-	yaca_free(lkey);
-	yaca_context_destroy((yaca_context_h)nc);
+	yaca_key_destroy((yaca_key_h)lout_key);
+
+	return ret;
+}
+
+API int yaca_seal_initialize(yaca_context_h *ctx,
+                             const yaca_key_h pub_key,
+                             yaca_encrypt_algorithm_e algo,
+                             yaca_block_cipher_mode_e bcm,
+                             size_t bit_len,
+                             yaca_key_h *enc_sym_key,
+                             yaca_key_h *iv)
+{
+	int ret;
+	const EVP_CIPHER *cipher;
+	yaca_key_h lsym_key = YACA_KEY_NULL;
+	yaca_key_h liv = YACA_KEY_NULL;
+	yaca_key_h lenc_sym_key = YACA_KEY_NULL;
+
+	if (pub_key == YACA_KEY_NULL || pub_key->type != YACA_KEY_TYPE_RSA_PUB ||
+	    enc_sym_key == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = encrypt_get_algorithm(algo, bcm, bit_len, &cipher);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = seal_generate_sym_key(cipher, &lsym_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = seal_generate_iv(cipher, &liv);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	if (liv != YACA_KEY_NULL && iv == NULL) {
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		goto exit;
+	}
+
+	/* using public key will make it encrypt the symmetric key */
+	ret = seal_encrypt_decrypt_key(pub_key, lsym_key, &lenc_sym_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = encrypt_initialize(ctx, cipher, lsym_key, liv, OP_SEAL);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	*enc_sym_key = lenc_sym_key;
+	lenc_sym_key = YACA_KEY_NULL;
+	*iv = liv;
+	liv = YACA_KEY_NULL;
+	ret = YACA_ERROR_NONE;
+
+exit:
+	yaca_key_destroy(liv);
+	yaca_key_destroy(lsym_key);
+	yaca_key_destroy(lenc_sym_key);
 
 	return ret;
 }
@@ -172,105 +224,35 @@ API int yaca_open_initialize(yaca_context_h *ctx,
                              const yaca_key_h prv_key,
                              yaca_encrypt_algorithm_e algo,
                              yaca_block_cipher_mode_e bcm,
-                             size_t sym_key_bit_len,
-                             const yaca_key_h sym_key,
+                             size_t bit_len,
+                             const yaca_key_h enc_sym_key,
                              const yaca_key_h iv)
 {
-	const struct yaca_key_evp_s *lprv;
-	const struct yaca_key_simple_s *lkey;
-	const struct yaca_key_simple_s *liv;
-	struct yaca_encrypt_context_s *nc;
-	const EVP_CIPHER *cipher;
-	unsigned char *iv_data = NULL;
-	size_t iv_bit_len;
-	size_t iv_bit_len_check;
 	int ret;
+	const EVP_CIPHER *cipher;
+	yaca_key_h lsym_key = YACA_KEY_NULL;
 
-	if (ctx == NULL || prv_key == YACA_KEY_NULL || sym_key == YACA_KEY_NULL)
+	if (prv_key == YACA_KEY_NULL || prv_key->type != YACA_KEY_TYPE_RSA_PRIV ||
+	    enc_sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (prv_key->type != YACA_KEY_TYPE_RSA_PRIV)
-		return YACA_ERROR_INVALID_PARAMETER;
-	lprv = key_get_evp(prv_key);
-	assert(lprv);
-
-	lkey = key_get_simple(sym_key);
-	if (lkey == NULL || lkey->key.type != YACA_KEY_TYPE_SYMMETRIC)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	ret = yaca_zalloc(sizeof(struct yaca_encrypt_context_s), (void**)&nc);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
-
-	nc->ctx.type = YACA_CONTEXT_ENCRYPT;
-	nc->ctx.context_destroy = destroy_encrypt_context;
-	nc->ctx.get_output_length = get_encrypt_output_length;
-	nc->ctx.set_property = set_encrypt_property;
-	nc->ctx.get_property = get_encrypt_property;
-	nc->op_type = OP_OPEN;
-	nc->tag_len = 0;
-
-	ret = encrypt_get_algorithm(algo, bcm, sym_key_bit_len, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = EVP_CIPHER_iv_length(cipher);
-	if (ret < 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+	/* using private key will make it decrypt the symmetric key */
+	ret = seal_encrypt_decrypt_key(prv_key, enc_sym_key, &lsym_key);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
-	iv_bit_len = ret * 8;
-	if (iv_bit_len == 0 && iv != NULL) { /* 0 -> cipher doesn't use iv, but it was provided */
-		ret = YACA_ERROR_INVALID_PARAMETER;
+	ret = encrypt_initialize(ctx, cipher, lsym_key, iv, OP_OPEN);
+	if (ret != YACA_ERROR_NONE)
 		goto exit;
-	}
 
-	if (iv_bit_len > 0) { /* cipher requires iv*/
-		liv = key_get_simple(iv);
-		if (liv == NULL || liv->key.type != YACA_KEY_TYPE_IV) { /* iv was not provided */
-			ret = YACA_ERROR_INVALID_PARAMETER;
-			goto exit;
-		}
-		ret = yaca_key_get_bit_length(iv, &iv_bit_len_check);
-		if (ret != YACA_ERROR_NONE) {
-			ret = YACA_ERROR_INVALID_PARAMETER;
-			goto exit;
-		}
-		/* IV length doesn't match cipher */
-		if (iv_bit_len != iv_bit_len_check) {
-			ret = YACA_ERROR_INVALID_PARAMETER;
-			goto exit;
-		}
-		iv_data = (unsigned char*)liv->d;
-	}
-
-	nc->cipher_ctx = EVP_CIPHER_CTX_new();
-	if (nc->cipher_ctx == NULL) {
-		ret =  YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	ret = EVP_OpenInit(nc->cipher_ctx, cipher,
-	                   (unsigned char*)lkey->d,
-	                   EVP_PKEY_size(lprv->evp),
-	                   iv_data,
-	                   lprv->evp);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	*ctx = (yaca_context_h)nc;
-	nc = NULL;
 	ret = YACA_ERROR_NONE;
 
 exit:
-	yaca_context_destroy((yaca_context_h)nc);
-
+	yaca_key_destroy(lsym_key);
 	return ret;
 }
 

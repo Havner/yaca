@@ -120,6 +120,9 @@ int yaca_seal_update(yaca_context_h ctx,
 /**
  * @brief  Encrypts the final piece of the data.
  *
+ * @remarks  Skipping yaca_seal_update() and calling only yaca_seal_finalize() will produce an
+ *           encryption of an empty message.
+ *
  * @since_tizen 3.0
  *
  * @param[in,out] ctx             A valid seal context
@@ -211,6 +214,9 @@ int yaca_open_update(yaca_context_h ctx,
 
 /**
  * @brief  Decrypts last chunk of sealed message.
+ *
+ * @remarks  Skipping yaca_open_update() and calling only yaca_open_finalize() will produce a
+ *           decryption of an empty ciphertext.
  *
  * @since_tizen 3.0
  *

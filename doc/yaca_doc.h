@@ -17,7 +17,7 @@
 #define __TIZEN_CORE_YACA_DOC_H__
 /**
   * @ingroup CAPI_SECURITY_FRAMEWORK
-  * @defgroup CAPI_YACA_MODULE yaca crypto module
+  * @defgroup CAPI_YACA_MODULE YACA
   * @brief    The YACA (Yet Another Crypto Api) provides a crypto function such as key management, data integrity and data en/decryption.
   *           Key management provides APIs for generating secured key,importing a key trying to match it to the key_type specified and exporting a key to arbitrary format.
   *           Data Integrity provides Advanced/Simpled API for the integrity handling - HMAC, CMAC, message digests and digital signature.
@@ -48,8 +48,6 @@
   * Key management provides APIs for generating secured key, importing a key trying to match it to the key type specified and exporting a key to arbitrary format.
   * Data Integrity provides Advanced/Simpled API for the integrity handling - HMAC, CMAC, message digest and digital signature.
   * Data en/decryption provides Advanced/Simpled APIs for en/decrypting a data and creating a IV.
-  *
-  * @image html capi_yaca_overview_diagram.png
   *
   * The yaca provides 3 types of API.
   * - key management APIs : These APIs provides generating key using random number or password, importing a key trying to match it to the key_type specified and exporting a key to arbitrary format.

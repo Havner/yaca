@@ -258,14 +258,19 @@ int yaca_context_get_property(const yaca_context_h ctx,
 void yaca_context_destroy(yaca_context_h ctx);
 
 /**
- * @brief  Returns the output length for a given algorithm. Can only be called
- *         on an initialized context.
+ * @brief  Returns the minimum required size of the output buffer for a single crypto function call.
  *
  * @since_tizen 3.0
  *
- * @remarks  This function can be used to learn the required size of the output buffer
- *           for a single operation (eg. *_update or *_finalize). In case the operation
- *           has no input (eg. *_finalize), the value of @a input_len has to be set to 0.
+ * @remarks  This function should be used to learn the required size of the output buffer
+ *           for a single function call (eg. *_update or *_finalize). The actual output length
+ *           (number of bytes that has been used) will be returned by the function call itself.
+ *
+ * @remarks  In case the function call has no output (e.g. yaca_sign_update(),
+ *           yaca_digest_update()), there is no need to use this function.
+ *
+ * @remarks  In case the function call has no input (eg. *_finalize), the value of
+ *           @a input_len has to be set to 0.
  *
  * @param[in]  ctx         Previously initialized crypto context
  * @param[in]  input_len   Length of the input data to be processed
