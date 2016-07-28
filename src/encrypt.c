@@ -569,6 +569,50 @@ static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
 	}
 }
 
+static int check_key_bit_length_for_algo(yaca_encrypt_algorithm_e algo, size_t key_bit_len)
+{
+	assert(key_bit_len % 8 == 0);
+	int ret = YACA_ERROR_NONE;
+
+	switch (algo) {
+	case YACA_ENCRYPT_AES:
+		if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_128BIT &&
+		    key_bit_len != YACA_KEY_LENGTH_192BIT &&
+		    key_bit_len != YACA_KEY_LENGTH_256BIT)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	case YACA_ENCRYPT_UNSAFE_DES:
+		if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_64BIT)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	case YACA_ENCRYPT_UNSAFE_3DES_2TDEA:
+		if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_128BIT)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	case YACA_ENCRYPT_3DES_3TDEA:
+		if (key_bit_len != YACA_KEY_LENGTH_192BIT)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	case YACA_ENCRYPT_UNSAFE_RC2:
+		if (key_bit_len < YACA_KEY_LENGTH_UNSAFE_8BIT || key_bit_len > YACA_KEY_LENGTH_1024BIT)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	case YACA_ENCRYPT_UNSAFE_RC4:
+		if (key_bit_len < YACA_KEY_LENGTH_UNSAFE_40BIT || key_bit_len > YACA_KEY_LENGTH_2048BIT)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	case YACA_ENCRYPT_CAST5:
+		if (key_bit_len < YACA_KEY_LENGTH_UNSAFE_40BIT || key_bit_len > YACA_KEY_LENGTH_UNSAFE_128BIT)
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	default:
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		break;
+	}
+
+	return ret;
+}
+
 int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           yaca_block_cipher_mode_e bcm,
                           size_t key_bit_len,
@@ -584,6 +628,10 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 
 	if (algo_name == NULL || bcm_name == NULL || key_bit_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = check_key_bit_length_for_algo(algo, key_bit_len);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	switch (algo) {
 	case YACA_ENCRYPT_AES:
@@ -629,49 +677,7 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 	*cipher = lcipher;
 	return YACA_ERROR_NONE;
 }
-static int check_key_bit_length_for_algo(yaca_encrypt_algorithm_e algo, size_t key_bit_len)
-{
-	assert(key_bit_len % 8 == 0);
-	int ret = YACA_ERROR_NONE;
 
-	switch (algo) {
-	case YACA_ENCRYPT_AES:
-		if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_128BIT &&
-		    key_bit_len != YACA_KEY_LENGTH_192BIT &&
-		    key_bit_len != YACA_KEY_LENGTH_256BIT)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	case YACA_ENCRYPT_UNSAFE_DES:
-		if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_64BIT)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	case YACA_ENCRYPT_UNSAFE_3DES_2TDEA:
-		if (key_bit_len != YACA_KEY_LENGTH_UNSAFE_128BIT)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	case YACA_ENCRYPT_3DES_3TDEA:
-		if (key_bit_len != YACA_KEY_LENGTH_192BIT)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	case YACA_ENCRYPT_UNSAFE_RC2:
-		if (key_bit_len < YACA_KEY_LENGTH_UNSAFE_8BIT || key_bit_len > YACA_KEY_LENGTH_1024BIT)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	case YACA_ENCRYPT_UNSAFE_RC4:
-		if (key_bit_len < YACA_KEY_LENGTH_UNSAFE_40BIT || key_bit_len > YACA_KEY_LENGTH_2048BIT)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	case YACA_ENCRYPT_CAST5:
-		if (key_bit_len < YACA_KEY_LENGTH_UNSAFE_40BIT || key_bit_len > YACA_KEY_LENGTH_UNSAFE_128BIT)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	default:
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	}
-
-	return ret;
-}
 
 int encrypt_initialize(yaca_context_h *ctx,
                        const EVP_CIPHER *cipher,
@@ -689,6 +695,10 @@ int encrypt_initialize(yaca_context_h *ctx,
 
 	lsym_key = key_get_simple(sym_key);
 	if (lsym_key == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	if (lsym_key->key.type != YACA_KEY_TYPE_DES &&
+	    lsym_key->key.type != YACA_KEY_TYPE_SYMMETRIC)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = encrypt_ctx_create(&nc, op_type, cipher);
@@ -807,10 +817,6 @@ API int yaca_encrypt_initialize(yaca_context_h *ctx,
 	if (key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = check_key_bit_length_for_algo(algo, key->bit_len);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
-
 	ret = encrypt_get_algorithm(algo, bcm, key->bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
@@ -847,10 +853,6 @@ API int yaca_decrypt_initialize(yaca_context_h *ctx,
 
 	if (key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
-
-	ret = check_key_bit_length_for_algo(algo, key->bit_len);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
 
 	ret = encrypt_get_algorithm(algo, bcm, key->bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
