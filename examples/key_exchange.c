@@ -30,21 +30,58 @@
 #include "misc.h"
 #include "../src/debug.h"
 
-void key_exchange_dh(void)
+/* send own public key and get peer public key */
+static yaca_key_h exchange_keys(const yaca_key_h pkey)
 {
 	int ret;
+	char *secret = NULL;
+	size_t secret_len;
+
+	yaca_key_h private_key = YACA_KEY_NULL;
+	yaca_key_h public_key = YACA_KEY_NULL;
+	yaca_key_h params = YACA_KEY_NULL;
+
+	ret = yaca_key_extract_parameters(pkey, &params);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_key_generate_from_parameters(params, &private_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_key_extract_public(private_key, &public_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	/* derive secret */
+	ret = yaca_key_derive_dh(private_key, pkey, &secret, &secret_len);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	dump_hex(secret, secret_len, "\n***** Peer Secret: *****");
+
+exit:
+	yaca_key_destroy(private_key);
+	yaca_key_destroy(params);
+	yaca_free(secret);
+
+	return public_key;
+}
+
+void key_exchange_dh_standard_parameters(void)
+{
+	int ret;
+	char *secret = NULL;
+	size_t secret_len;
 
 	yaca_key_h private_key = YACA_KEY_NULL;
 	yaca_key_h public_key = YACA_KEY_NULL;
 	yaca_key_h peer_key = YACA_KEY_NULL;
-	yaca_key_h secret = YACA_KEY_NULL;
 
-	FILE *fp = NULL;
-	char *buffer = NULL;
-	long size;
+	printf("\n***** Diffie Hellman key exchange with standard DH parameters *****");
 
-	/* generate  private, public key */
-	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_LENGTH_2048BIT, &private_key);
+	/* generate private, public key */
+	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_LENGTH_DH_RFC_2048_256, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -53,59 +90,86 @@ void key_exchange_dh(void)
 		goto exit;
 
 	/* get peer public key */
-	// TODO: read key from file to buffer can be replaced with read_file() from misc.h
-	fp = fopen("key.pub", "r");
-	if (!fp) goto exit;
-
-	fseek(fp, 0L, SEEK_END);
-	size = ftell(fp);
-	rewind(fp);
-
-	/* allocate memory for entire content */
-	if (yaca_malloc(size + 1, (void**)&buffer) != YACA_ERROR_NONE)
-		goto exit;
-
-	/* copy the file into the buffer */
-	if (1 != fread(buffer, size, 1, fp))
-		goto exit;
-
-	ret = yaca_key_import(YACA_KEY_TYPE_DH_PUB, NULL,
-	                      buffer, size, &peer_key);
-	if (ret != YACA_ERROR_NONE)
+	peer_key = exchange_keys(public_key);
+	if (peer_key == YACA_KEY_NULL)
 		goto exit;
 
 	/* derive secret */
-	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
+	ret = yaca_key_derive_dh(private_key, peer_key, &secret, &secret_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
+
+	dump_hex(secret, secret_len, "\n***** My Secret: *****");
 
 exit:
 	yaca_key_destroy(private_key);
 	yaca_key_destroy(public_key);
 	yaca_key_destroy(peer_key);
-	yaca_key_destroy(secret);
-	if (fp != NULL)
-		fclose(fp);
-	yaca_free(buffer);
+	yaca_free(secret);
 }
 
-// TODO ECDH is not supported yet
-#if 0
+void key_exchange_dh_generated_parameters(void)
+{
+	int ret;
+	char *secret = NULL;
+	size_t secret_len;
+
+	yaca_key_h params = YACA_KEY_NULL;
+	yaca_key_h private_key = YACA_KEY_NULL;
+	yaca_key_h public_key = YACA_KEY_NULL;
+	yaca_key_h peer_key = YACA_KEY_NULL;
+
+	printf("\n***** Diffie Hellman key exchange with parameters generation *****");
+
+	/* generate parameters */
+	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PARAMS,
+	                        YACA_KEY_LENGTH_DH_GENERATOR_2 | 1024, &params);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	/* generate private, public key */
+	ret = yaca_key_generate_from_parameters(params, &private_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_key_extract_public(private_key, &public_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	/* get peer public key */
+	peer_key = exchange_keys(public_key);
+	if (peer_key == YACA_KEY_NULL)
+		goto exit;
+
+	/* derive secret */
+	ret = yaca_key_derive_dh(private_key, peer_key, &secret, &secret_len);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	dump_hex(secret, secret_len, "\n***** My Secret: *****");
+
+exit:
+	yaca_key_destroy(params);
+	yaca_key_destroy(private_key);
+	yaca_key_destroy(public_key);
+	yaca_key_destroy(peer_key);
+	yaca_free(secret);
+}
+
 void key_exchange_ecdh(void)
 {
 	int ret;
+	char *secret = NULL;
+	size_t secret_len;
 
 	yaca_key_h private_key = YACA_KEY_NULL;
 	yaca_key_h public_key = YACA_KEY_NULL;
 	yaca_key_h peer_key = YACA_KEY_NULL;
-	yaca_key_h secret = YACA_KEY_NULL;
 
-	FILE *fp = NULL;
-	char *buffer = NULL;
-	long size;
+	printf("\n***** Elliptic Curve Diffie Hellman key exchange *****");
 
 	/* generate  private, public key */
-	ret = yaca_key_generate(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_CURVE_P256, &private_key);
+	ret = yaca_key_generate(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_LENGTH_EC_PRIME256V1, &private_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -114,42 +178,23 @@ void key_exchange_ecdh(void)
 		goto exit;
 
 	/* get peer public key */
-	// TODO: read key from file to buffer can be replaced with read_file() from misc.h
-	fp = fopen("key.pub", "r");
-	if (fp == NULL)
-		goto exit;
-
-	fseek(fp, 0L, SEEK_END);
-	size = ftell(fp);
-	rewind(fp);
-
-	/* allocate memory for entire content */
-	if (yaca_malloc(size + 1, (void**)&buffer) != YACA_ERROR_NONE)
-		goto exit;
-
-	/* copy the file into the buffer */
-	if (1 != fread(buffer, size, 1, fp))
-		goto exit;
-
-	ret = yaca_key_import(YACA_KEY_TYPE_EC_PUB, NULL, buffer, size, &peer_key);
-	if (ret != YACA_ERROR_NONE)
+	peer_key = exchange_keys(public_key);
+	if (peer_key == YACA_KEY_NULL)
 		goto exit;
 
 	/* derive secret */
-	ret = yaca_key_derive_dh(private_key, peer_key, &secret);
+	ret = yaca_key_derive_dh(private_key, peer_key, &secret, &secret_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
+
+	dump_hex(secret, secret_len, "\n***** My Secret: *****");
 
 exit:
 	yaca_key_destroy(private_key);
 	yaca_key_destroy(public_key);
 	yaca_key_destroy(peer_key);
-	yaca_key_destroy(secret);
-	if (fp != NULL)
-		fclose(fp);
-	yaca_free(buffer);
+	yaca_free(secret);
 }
-#endif
 
 int main()
 {
@@ -159,8 +204,9 @@ int main()
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	key_exchange_dh();
-	//key_exchange_ecdh();
+	key_exchange_dh_standard_parameters();
+	key_exchange_dh_generated_parameters();
+	key_exchange_ecdh();
 
 	yaca_cleanup();
 	return ret;
