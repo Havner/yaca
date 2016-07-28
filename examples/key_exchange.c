@@ -36,10 +36,12 @@ static yaca_key_h exchange_keys(const yaca_key_h pkey)
 	int ret;
 	char *secret = NULL;
 	size_t secret_len;
+	char *key_material = NULL;
 
 	yaca_key_h private_key = YACA_KEY_NULL;
 	yaca_key_h public_key = YACA_KEY_NULL;
 	yaca_key_h params = YACA_KEY_NULL;
+	yaca_key_h aes_key = YACA_KEY_NULL;
 
 	ret = yaca_key_extract_parameters(pkey, &params);
 	if (ret != YACA_ERROR_NONE)
@@ -58,12 +60,25 @@ static yaca_key_h exchange_keys(const yaca_key_h pkey)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
+	ret = yaca_key_derive_kdf(YACA_KDF_X962, YACA_DIGEST_SHA512, secret, secret_len,
+	                          NULL, 0, YACA_KEY_LENGTH_192BIT, &key_material);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, key_material, YACA_KEY_LENGTH_192BIT,
+	                      &aes_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
 	dump_hex(secret, secret_len, "\n***** Peer Secret: *****");
+	dump_hex(key_material, YACA_KEY_LENGTH_192BIT, "\n***** Peer AES key: *****");
 
 exit:
 	yaca_key_destroy(private_key);
 	yaca_key_destroy(params);
+	yaca_key_destroy(aes_key);
 	yaca_free(secret);
+	yaca_free(key_material);
 
 	return public_key;
 }
@@ -73,10 +88,12 @@ void key_exchange_dh_standard_parameters(void)
 	int ret;
 	char *secret = NULL;
 	size_t secret_len;
+	char *key_material = NULL;
 
 	yaca_key_h private_key = YACA_KEY_NULL;
 	yaca_key_h public_key = YACA_KEY_NULL;
 	yaca_key_h peer_key = YACA_KEY_NULL;
+	yaca_key_h aes_key = YACA_KEY_NULL;
 
 	printf("\n***** Diffie Hellman key exchange with standard DH parameters *****");
 
@@ -99,13 +116,26 @@ void key_exchange_dh_standard_parameters(void)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
+	ret = yaca_key_derive_kdf(YACA_KDF_X962, YACA_DIGEST_SHA512, secret, secret_len,
+	                          NULL, 0, YACA_KEY_LENGTH_192BIT, &key_material);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, key_material, YACA_KEY_LENGTH_192BIT,
+	                      &aes_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
 	dump_hex(secret, secret_len, "\n***** My Secret: *****");
+	dump_hex(key_material, YACA_KEY_LENGTH_192BIT, "\n***** My AES key: *****");
 
 exit:
 	yaca_key_destroy(private_key);
 	yaca_key_destroy(public_key);
 	yaca_key_destroy(peer_key);
+	yaca_key_destroy(aes_key);
 	yaca_free(secret);
+	yaca_free(key_material);
 }
 
 void key_exchange_dh_generated_parameters(void)
@@ -113,11 +143,13 @@ void key_exchange_dh_generated_parameters(void)
 	int ret;
 	char *secret = NULL;
 	size_t secret_len;
+	char *key_material = NULL;
 
 	yaca_key_h params = YACA_KEY_NULL;
 	yaca_key_h private_key = YACA_KEY_NULL;
 	yaca_key_h public_key = YACA_KEY_NULL;
 	yaca_key_h peer_key = YACA_KEY_NULL;
+	yaca_key_h aes_key = YACA_KEY_NULL;
 
 	printf("\n***** Diffie Hellman key exchange with parameters generation *****");
 
@@ -146,14 +178,27 @@ void key_exchange_dh_generated_parameters(void)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
+	ret = yaca_key_derive_kdf(YACA_KDF_X962, YACA_DIGEST_SHA512, secret, secret_len,
+	                          NULL, 0, YACA_KEY_LENGTH_192BIT, &key_material);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, key_material, YACA_KEY_LENGTH_192BIT,
+	                      &aes_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
 	dump_hex(secret, secret_len, "\n***** My Secret: *****");
+	dump_hex(key_material, YACA_KEY_LENGTH_192BIT, "\n***** My AES key: *****");
 
 exit:
 	yaca_key_destroy(params);
 	yaca_key_destroy(private_key);
 	yaca_key_destroy(public_key);
 	yaca_key_destroy(peer_key);
+	yaca_key_destroy(aes_key);
 	yaca_free(secret);
+	yaca_free(key_material);
 }
 
 void key_exchange_ecdh(void)
@@ -161,10 +206,12 @@ void key_exchange_ecdh(void)
 	int ret;
 	char *secret = NULL;
 	size_t secret_len;
+	char *key_material = NULL;
 
 	yaca_key_h private_key = YACA_KEY_NULL;
 	yaca_key_h public_key = YACA_KEY_NULL;
 	yaca_key_h peer_key = YACA_KEY_NULL;
+	yaca_key_h aes_key = YACA_KEY_NULL;
 
 	printf("\n***** Elliptic Curve Diffie Hellman key exchange *****");
 
@@ -187,13 +234,26 @@ void key_exchange_ecdh(void)
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
+	ret = yaca_key_derive_kdf(YACA_KDF_X962, YACA_DIGEST_SHA512, secret, secret_len,
+	                          NULL, 0, YACA_KEY_LENGTH_192BIT, &key_material);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, key_material, YACA_KEY_LENGTH_192BIT,
+	                      &aes_key);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
 	dump_hex(secret, secret_len, "\n***** My Secret: *****");
+	dump_hex(key_material, YACA_KEY_LENGTH_192BIT, "\n***** My AES key: *****");
 
 exit:
 	yaca_key_destroy(private_key);
 	yaca_key_destroy(public_key);
 	yaca_key_destroy(peer_key);
+	yaca_key_destroy(aes_key);
 	yaca_free(secret);
+	yaca_free(key_material);
 }
 
 int main()

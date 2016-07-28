@@ -613,6 +613,25 @@ typedef enum {
 } yaca_padding_e;
 
 /**
+ * @brief Enumeration of YACA key derivation functions.
+ *
+ * @since_tizen 3.0
+ */
+typedef enum {
+	/**
+	 * ANSI X9.42 key derivation function,
+	 * (shared secret derived using Diffie-Helmann key exchange protocol).
+	 */
+	YACA_KDF_X942,
+
+	/**
+	 * ANSI X9.62 key derivation function,
+	 * (shared secret derived using EC Diffie-Helmann key exchange protocol).
+	 */
+	YACA_KDF_X962,
+} yaca_kdf_e;
+
+/**
   * @}
   */
 

@@ -1822,6 +1822,67 @@ exit:
 	return ret;
 }
 
+API int yaca_key_derive_kdf(yaca_kdf_e kdf,
+                            yaca_digest_algorithm_e algo,
+                            const char *secret,
+                            size_t secret_len,
+                            const char *info,
+                            size_t info_len,
+                            size_t key_material_bit_len,
+                            char **key_material)
+{
+	int ret;
+	char *out = NULL;
+	const EVP_MD *md;
+
+	if (secret == NULL || secret_len == 0 ||
+	    (info == NULL && info_len > 0) || (info != NULL && info_len == 0) ||
+	    key_material_bit_len == 0 || key_material == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = yaca_zalloc(key_material_bit_len, (void**)&out);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = digest_get_algorithm(algo, &md);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	switch (kdf) {
+	case YACA_KDF_X942:
+		ret = DH_KDF_X9_42((unsigned char*)out, key_material_bit_len,
+		                   (unsigned char*)secret, secret_len,
+		                   OBJ_nid2obj(NID_id_smime_alg_ESDH), (unsigned char*)info, info_len, md);
+		if (ret != 1 || out == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
+		break;
+	case YACA_KDF_X962:
+		ret = ECDH_KDF_X9_62((unsigned char*)out, key_material_bit_len,
+		                     (unsigned char*)secret, secret_len,
+		                     (unsigned char*)info, info_len, md);
+		if (ret != 1 || out == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
+		break;
+	default:
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		goto exit;
+	}
+
+	*key_material = out;
+	out = NULL;
+	ret = YACA_ERROR_NONE;
+
+exit:
+	yaca_free(out);
+	return ret;
+}
+
 API int yaca_key_derive_pbkdf2(const char *password,
                                const char *salt,
                                size_t salt_len,

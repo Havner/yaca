@@ -350,6 +350,7 @@ void yaca_key_destroy(yaca_key_h key);
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
+ * @see yaca_key_derive_kdf()
  * @see yaca_simple_calculate_digest()
  * @see yaca_free()
  */
@@ -357,6 +358,49 @@ int yaca_key_derive_dh(const yaca_key_h prv_key,
                        const yaca_key_h pub_key,
                        char **secret,
                        size_t *secret_len);
+
+/**
+ * @brief  Derives a key material from shared secret.
+ *
+ * @since_tizen 3.0
+ *
+ * @remarks  The @a info parameter is ANSI X9.42 OtherInfo or ANSI X9.62 SharedInfo structure,
+ *           more information can be found in ANSI X9.42/62 standard specification
+ *
+ * @remarks  The @a key_material or separate parts of it can be used to import a symmetric key with yaca_key_import()
+ *
+ * @remarks  The @a key_material should be freed using yaca_free()
+ *
+ * @param[in]  kdf                    Key derivation function
+ * @param[in]  algo                   Digest algorithm that should be used in key derivation
+ * @param[in]  secret                 Shared secret
+ * @param[in]  secret_len             Size of the shared secret
+ * @param[in]  info                   Optional additional info, use NULL if not appending extra info
+ * @param[in]  info_len               Length of additional info, use 0 if not using additional info
+ * @param[in]  key_material_bit_len   Length of a key material (in bits) to be generated
+ * @param[out] key_material           Newly generated key material
+ *
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
+ *                                       invalid algo or kdf)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ *
+ * @see #yaca_kdf_e
+ * @see #yaca_digest_algorithm_e
+ * @see yaca_key_derive_dh()
+ * @see yaca_key_import()
+ * @see yaca_free()
+ */
+int yaca_key_derive_kdf(yaca_kdf_e kdf,
+                        yaca_digest_algorithm_e algo,
+                        const char *secret,
+                        size_t secret_len,
+                        const char *info,
+                        size_t info_len,
+                        size_t key_material_bit_len,
+                        char **key_material);
 
 /**
  * @brief  Derives a key from user password (PKCS #5 a.k.a. pbkdf2 algorithm).
