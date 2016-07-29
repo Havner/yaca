@@ -276,13 +276,15 @@ typedef enum {
 
 	/**
 	 * CTR block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CTR,
 
 	/**
 	 * CBC block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CBC,
 
@@ -316,25 +318,29 @@ typedef enum {
 
 	/**
 	 * Default CFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB,
 
 	/**
 	 * 1 bit CFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB1,
 
 	/**
 	 * 8 bits CFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB8,
 
 	/**
 	 * OFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_OFB,
 
