@@ -441,7 +441,12 @@ typedef enum {
 
 	/**
 	 * ECB block cipher mode.
-	 * Encrypts 64 bit at a time. No IV is used.
+	 * No IV is used.
+	 *
+	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
+	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
+	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
+	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
 	 */
 	YACA_BCM_ECB,
 
@@ -454,6 +459,11 @@ typedef enum {
 	/**
 	 * CBC block cipher mode.
 	 * 16-byte initialization vector is mandatory.
+	 *
+	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
+	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
+	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
+	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
 	 */
 	YACA_BCM_CBC,
 
@@ -575,7 +585,7 @@ typedef enum {
  */
 typedef enum {
 	/**
-	 * Padding for the sign/verify operation. Property type is #yaca_padding_e.
+	 * Padding for the encrypt/decrypt or sign/verify operation. Property type is #yaca_padding_e.
 	 *
 	 * This property can be set at the latest before the *_finalize() call.
 	 */

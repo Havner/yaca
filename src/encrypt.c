@@ -494,6 +494,17 @@ int set_encrypt_property(yaca_context_h ctx,
 
 		ret = encrypt_ctx_set_ccm_tag_len(c, *(size_t*)value);
 		break;
+	case YACA_PROPERTY_PADDING:
+		if ((mode != EVP_CIPH_ECB_MODE && mode != EVP_CIPH_CBC_MODE) ||
+		    value_len != sizeof(yaca_padding_e) ||
+		    *(yaca_padding_e*)value != YACA_PADDING_NONE)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		if (EVP_CIPHER_CTX_set_padding(c->cipher_ctx, 0) != 1) {
+			ERROR_DUMP(YACA_ERROR_INTERNAL);
+			return YACA_ERROR_INTERNAL;
+		}
+		break;
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
@@ -828,11 +839,8 @@ int encrypt_finalize(yaca_context_h ctx,
 
 	if (EVP_CIPHER_CTX_mode(c->cipher_ctx) != EVP_CIPH_WRAP_MODE) {
 		ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
-		if (ret != 1 || loutput_len < 0) {
-			ret = YACA_ERROR_INTERNAL;
-			ERROR_DUMP(ret);
-			return ret;
-		}
+		if (ret != 1 || loutput_len < 0)
+			return ERROR_HANDLE();
 	}
 
 	*output_len = loutput_len;
