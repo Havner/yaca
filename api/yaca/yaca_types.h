@@ -232,6 +232,7 @@ typedef enum {
 	 * #YACA_BCM_OFB,\n
 	 * #YACA_BCM_CFB,\n
 	 * #YACA_BCM_ECB
+	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
 	YACA_ENCRYPT_UNSAFE_RC2,
 
@@ -239,6 +240,7 @@ typedef enum {
 	 * RC4 encryption.
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 40–2048 bits in steps of 8 bits.
+	 * No IV is used.
 	 * This cipher doesn't support block cipher modes, use #YACA_BCM_NONE instead.
 	 */
 	YACA_ENCRYPT_UNSAFE_RC4,
@@ -265,6 +267,7 @@ typedef enum {
 typedef enum {
 	/**
 	 * Used when algorithm doesn't support block ciphers modes.
+	 * No IV is used.
 	 */
 	YACA_BCM_NONE,
 
