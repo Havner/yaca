@@ -403,6 +403,7 @@ typedef enum {
 	 * #YACA_BCM_OFB,\n
 	 * #YACA_BCM_CFB,\n
 	 * #YACA_BCM_ECB
+	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
 	YACA_ENCRYPT_UNSAFE_RC2,
 
@@ -410,6 +411,7 @@ typedef enum {
 	 * RC4 encryption.
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 40–2048 bits in steps of 8 bits.
+	 * No IV is used.
 	 * This cipher doesn't support block cipher modes, use #YACA_BCM_NONE instead.
 	 */
 	YACA_ENCRYPT_UNSAFE_RC4,
@@ -436,6 +438,7 @@ typedef enum {
 typedef enum {
 	/**
 	 * Used when algorithm doesn't support block ciphers modes.
+	 * No IV is used.
 	 */
 	YACA_BCM_NONE,
 
@@ -452,13 +455,15 @@ typedef enum {
 
 	/**
 	 * CTR block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CTR,
 
 	/**
 	 * CBC block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+         * 16-byte initialization vector for AES,
+         * 8-byte for other algorithms is mandatory.
 	 *
 	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
 	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
@@ -497,25 +502,29 @@ typedef enum {
 
 	/**
 	 * Default CFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB,
 
 	/**
 	 * 1 bit CFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB1,
 
 	/**
 	 * 8 bits CFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB8,
 
 	/**
 	 * OFB block cipher mode.
-	 * 16-byte initialization vector is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 */
 	YACA_BCM_OFB,
 
