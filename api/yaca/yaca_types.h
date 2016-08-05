@@ -462,8 +462,8 @@ typedef enum {
 
 	/**
 	 * CBC block cipher mode.
-         * 16-byte initialization vector for AES,
-         * 8-byte for other algorithms is mandatory.
+	 * 16-byte initialization vector for AES,
+	 * 8-byte for other algorithms is mandatory.
 	 *
 	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
 	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,

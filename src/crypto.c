@@ -83,8 +83,7 @@ API int yaca_initialize(void)
 
 	pthread_mutex_lock(&init_mutex);
 	{
-		if (threads_cnt == 0)
-		{
+		if (threads_cnt == 0) {
 			assert(mutexes == NULL);
 
 			OPENSSL_init();
