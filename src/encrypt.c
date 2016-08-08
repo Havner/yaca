@@ -38,6 +38,80 @@
 static const size_t DEFAULT_GCM_TAG_LEN = 16;
 static const size_t DEFAULT_CCM_TAG_LEN = 12;
 
+static const struct {
+	yaca_encrypt_algorithm_e algo;
+	yaca_block_cipher_mode_e bcm;
+	size_t key_bit_len;
+	const EVP_CIPHER *(*cipher)(void);
+} ENCRYPTION_CIPHERS[] = {
+	{YACA_ENCRYPT_AES, YACA_BCM_CBC,  128, EVP_aes_128_cbc},
+	{YACA_ENCRYPT_AES, YACA_BCM_CCM,  128, EVP_aes_128_ccm},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB,  128, EVP_aes_128_cfb},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB1, 128, EVP_aes_128_cfb1},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB8, 128, EVP_aes_128_cfb8},
+	{YACA_ENCRYPT_AES, YACA_BCM_CTR,  128, EVP_aes_128_ctr},
+	{YACA_ENCRYPT_AES, YACA_BCM_ECB,  128, EVP_aes_128_ecb},
+	{YACA_ENCRYPT_AES, YACA_BCM_GCM,  128, EVP_aes_128_gcm},
+	{YACA_ENCRYPT_AES, YACA_BCM_OFB,  128, EVP_aes_128_ofb},
+	{YACA_ENCRYPT_AES, YACA_BCM_WRAP, 128, EVP_aes_128_wrap},
+
+	{YACA_ENCRYPT_AES, YACA_BCM_CBC,  192, EVP_aes_192_cbc},
+	{YACA_ENCRYPT_AES, YACA_BCM_CCM,  192, EVP_aes_192_ccm},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB,  192, EVP_aes_192_cfb},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB1, 192, EVP_aes_192_cfb1},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB8, 192, EVP_aes_192_cfb8},
+	{YACA_ENCRYPT_AES, YACA_BCM_CTR,  192, EVP_aes_192_ctr},
+	{YACA_ENCRYPT_AES, YACA_BCM_ECB,  192, EVP_aes_192_ecb},
+	{YACA_ENCRYPT_AES, YACA_BCM_GCM,  192, EVP_aes_192_gcm},
+	{YACA_ENCRYPT_AES, YACA_BCM_OFB,  192, EVP_aes_192_ofb},
+	{YACA_ENCRYPT_AES, YACA_BCM_WRAP, 192, EVP_aes_192_wrap},
+
+	{YACA_ENCRYPT_AES, YACA_BCM_CBC,  256, EVP_aes_256_cbc},
+	{YACA_ENCRYPT_AES, YACA_BCM_CCM,  256, EVP_aes_256_ccm},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB,  256, EVP_aes_256_cfb},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB1, 256, EVP_aes_256_cfb1},
+	{YACA_ENCRYPT_AES, YACA_BCM_CFB8, 256, EVP_aes_256_cfb8},
+	{YACA_ENCRYPT_AES, YACA_BCM_CTR,  256, EVP_aes_256_ctr},
+	{YACA_ENCRYPT_AES, YACA_BCM_ECB,  256, EVP_aes_256_ecb},
+	{YACA_ENCRYPT_AES, YACA_BCM_GCM,  256, EVP_aes_256_gcm},
+	{YACA_ENCRYPT_AES, YACA_BCM_OFB,  256, EVP_aes_256_ofb},
+	{YACA_ENCRYPT_AES, YACA_BCM_WRAP, 256, EVP_aes_256_wrap},
+
+	{YACA_ENCRYPT_UNSAFE_DES, YACA_BCM_CBC,  -1, EVP_des_cbc},
+	{YACA_ENCRYPT_UNSAFE_DES, YACA_BCM_CFB,  -1, EVP_des_cfb},
+	{YACA_ENCRYPT_UNSAFE_DES, YACA_BCM_CFB1, -1, EVP_des_cfb1},
+	{YACA_ENCRYPT_UNSAFE_DES, YACA_BCM_CFB8, -1, EVP_des_cfb8},
+	{YACA_ENCRYPT_UNSAFE_DES, YACA_BCM_ECB,  -1, EVP_des_ecb},
+	{YACA_ENCRYPT_UNSAFE_DES, YACA_BCM_OFB,  -1, EVP_des_ofb},
+
+	{YACA_ENCRYPT_UNSAFE_3DES_2TDEA, YACA_BCM_CBC, -1, EVP_des_ede_cbc},
+	{YACA_ENCRYPT_UNSAFE_3DES_2TDEA, YACA_BCM_CFB, -1, EVP_des_ede_cfb},
+	{YACA_ENCRYPT_UNSAFE_3DES_2TDEA, YACA_BCM_ECB, -1, EVP_des_ede_ecb},
+	{YACA_ENCRYPT_UNSAFE_3DES_2TDEA, YACA_BCM_OFB, -1, EVP_des_ede_ofb},
+
+	{YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_CBC,  -1, EVP_des_ede3_cbc},
+	{YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_CFB,  -1, EVP_des_ede3_cfb},
+	{YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_CFB1, -1, EVP_des_ede3_cfb1},
+	{YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_CFB8, -1, EVP_des_ede3_cfb8},
+	{YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_ECB,  -1, EVP_des_ede3_ecb},
+	{YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_OFB,  -1, EVP_des_ede3_ofb},
+	{YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_WRAP, -1, EVP_des_ede3_wrap},
+
+	{YACA_ENCRYPT_UNSAFE_RC2, YACA_BCM_CBC, -1, EVP_rc2_cbc},
+	{YACA_ENCRYPT_UNSAFE_RC2, YACA_BCM_CFB, -1, EVP_rc2_cfb},
+	{YACA_ENCRYPT_UNSAFE_RC2, YACA_BCM_ECB, -1, EVP_rc2_ecb},
+	{YACA_ENCRYPT_UNSAFE_RC2, YACA_BCM_OFB, -1, EVP_rc2_ofb},
+
+	{YACA_ENCRYPT_UNSAFE_RC4, YACA_BCM_NONE, -1, EVP_rc4},
+
+	{YACA_ENCRYPT_CAST5, YACA_BCM_CBC, -1, EVP_cast5_cbc},
+	{YACA_ENCRYPT_CAST5, YACA_BCM_CFB, -1, EVP_cast5_cfb},
+	{YACA_ENCRYPT_CAST5, YACA_BCM_ECB, -1, EVP_cast5_ecb},
+	{YACA_ENCRYPT_CAST5, YACA_BCM_OFB, -1, EVP_cast5_ofb},
+};
+
+static const size_t ENCRYPTION_CIPHERS_SIZE = sizeof(ENCRYPTION_CIPHERS) / sizeof(ENCRYPTION_CIPHERS[0]);
+
 static bool is_encryption_op(enum encrypt_op_type_e op_type)
 {
 	return (op_type == OP_ENCRYPT || op_type == OP_SEAL);
@@ -568,58 +642,6 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 	return YACA_ERROR_NONE;
 }
 
-static const char *encrypt_algo_to_str(yaca_encrypt_algorithm_e algo)
-{
-	switch (algo) {
-	case YACA_ENCRYPT_AES:
-		return "aes";
-	case YACA_ENCRYPT_UNSAFE_DES:
-		return "des";
-	case YACA_ENCRYPT_UNSAFE_3DES_2TDEA:
-		return "des-ede";
-	case YACA_ENCRYPT_3DES_3TDEA:
-		return "des-ede3";
-	case YACA_ENCRYPT_UNSAFE_RC2:
-		return "rc2";
-	case YACA_ENCRYPT_UNSAFE_RC4:
-		return "rc4";
-	case YACA_ENCRYPT_CAST5:
-		return "cast5";
-	default:
-		return NULL;
-	}
-}
-
-static const char *bcm_to_str(yaca_block_cipher_mode_e bcm)
-{
-	switch (bcm) {
-	case YACA_BCM_NONE:
-		return "none";
-	case YACA_BCM_ECB:
-		return "ecb";
-	case YACA_BCM_CBC:
-		return "cbc";
-	case YACA_BCM_CTR:
-		return "ctr";
-	case YACA_BCM_GCM:
-		return "gcm";
-	case YACA_BCM_CFB:
-		return "cfb";
-	case YACA_BCM_CFB1:
-		return "cfb1";
-	case YACA_BCM_CFB8:
-		return "cfb8";
-	case YACA_BCM_OFB:
-		return "ofb";
-	case YACA_BCM_CCM:
-		return "ccm";
-	case YACA_BCM_WRAP:
-		return "wrap";
-	default:
-		return NULL;
-	}
-}
-
 static int check_key_bit_length_for_algo(yaca_encrypt_algorithm_e algo, size_t key_bit_len)
 {
 	assert(key_bit_len % 8 == 0);
@@ -669,78 +691,35 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           size_t key_bit_len,
                           const EVP_CIPHER **cipher)
 {
-	char cipher_name[32];
-	const char *algo_name = encrypt_algo_to_str(algo);
-	const char *bcm_name = bcm_to_str(bcm);
-	const EVP_CIPHER *lcipher;
 	int ret;
+	size_t i;
 
 	assert(cipher != NULL);
-
-	if (algo_name == NULL || bcm_name == NULL || key_bit_len == 0)
-		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = check_key_bit_length_for_algo(algo, key_bit_len);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	switch (algo) {
-	case YACA_ENCRYPT_AES:
-		if (bcm == YACA_BCM_WRAP)
-			ret = snprintf(cipher_name, sizeof(cipher_name), "id-%s%zu-%s",
-			               algo_name, key_bit_len, bcm_name);
-		else
-			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%zu-%s",
-			               algo_name, key_bit_len, bcm_name);
-		break;
-	case YACA_ENCRYPT_UNSAFE_DES:
-	case YACA_ENCRYPT_UNSAFE_RC2:
-	case YACA_ENCRYPT_CAST5:
-		ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
-		               algo_name, bcm_name);
-		break;
-	case YACA_ENCRYPT_UNSAFE_3DES_2TDEA:
-		if (bcm == YACA_BCM_ECB)
-			ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
-		else
-			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
-			               algo_name, bcm_name);
-		break;
-	case YACA_ENCRYPT_3DES_3TDEA:
-		if (bcm == YACA_BCM_ECB)
-			ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
-		else if (bcm == YACA_BCM_WRAP)
-			ret = snprintf(cipher_name, sizeof(cipher_name), "id-smime-alg-CMS3DESwrap");
-		else
-			ret = snprintf(cipher_name, sizeof(cipher_name), "%s-%s",
-			               algo_name, bcm_name);
-		break;
-	case YACA_ENCRYPT_UNSAFE_RC4:
-		if (bcm != YACA_BCM_NONE)
-			ret = YACA_ERROR_INVALID_PARAMETER;
-		else
-			ret = snprintf(cipher_name, sizeof(cipher_name), "%s", algo_name);
-		break;
-	default:
-		return YACA_ERROR_INVALID_PARAMETER;
+	*cipher = NULL;
+	ret = YACA_ERROR_INVALID_PARAMETER;
+
+	for (i = 0; i < ENCRYPTION_CIPHERS_SIZE; ++i)
+		if (ENCRYPTION_CIPHERS[i].algo == algo &&
+		    ENCRYPTION_CIPHERS[i].bcm == bcm &&
+		    (ENCRYPTION_CIPHERS[i].key_bit_len == key_bit_len ||
+		     ENCRYPTION_CIPHERS[i].key_bit_len == (size_t)-1)) {
+			*cipher = ENCRYPTION_CIPHERS[i].cipher();
+			ret = YACA_ERROR_NONE;
+			break;
+		}
+
+	if (ret == YACA_ERROR_NONE && *cipher == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
 	}
 
-	if (ret < 0)
-		return YACA_ERROR_INVALID_PARAMETER;
-	if ((unsigned)ret >= sizeof(cipher_name)) /* output was truncated */
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	lcipher = EVP_get_cipherbyname(cipher_name);
-	if (lcipher == NULL) {
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		ERROR_CLEAR();
-		return ret;
-	}
-
-	*cipher = lcipher;
-	return YACA_ERROR_NONE;
+	return ret;
 }
-
 
 int encrypt_initialize(yaca_context_h *ctx,
                        const EVP_CIPHER *cipher,

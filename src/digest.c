@@ -31,6 +31,20 @@
 
 #include "internal.h"
 
+static const struct {
+	yaca_digest_algorithm_e algo;
+	const EVP_MD *(*digest)(void);
+} MESSAGE_DIGESTS[] = {
+	{YACA_DIGEST_MD5,    EVP_md5},
+	{YACA_DIGEST_SHA1,   EVP_sha1},
+	{YACA_DIGEST_SHA224, EVP_sha224},
+	{YACA_DIGEST_SHA256, EVP_sha256},
+	{YACA_DIGEST_SHA384, EVP_sha384},
+	{YACA_DIGEST_SHA512, EVP_sha512},
+};
+
+static const size_t MESSAGE_DIGESTS_SIZE = sizeof(MESSAGE_DIGESTS) / sizeof(MESSAGE_DIGESTS[0]);
+
 struct yaca_digest_context_s {
 	struct yaca_context_s ctx;
 
@@ -83,36 +97,20 @@ static void destroy_digest_context(yaca_context_h ctx)
 
 int digest_get_algorithm(yaca_digest_algorithm_e algo, const EVP_MD **md)
 {
-	int ret = YACA_ERROR_NONE;
+	int ret;
+	size_t i;
 
-	if (!md)
-		return YACA_ERROR_INVALID_PARAMETER;
+	assert(md != NULL);
 
 	*md = NULL;
+	ret = YACA_ERROR_INVALID_PARAMETER;
 
-	switch (algo) {
-	case YACA_DIGEST_MD5:
-		*md = EVP_md5();
-		break;
-	case YACA_DIGEST_SHA1:
-		*md = EVP_sha1();
-		break;
-	case YACA_DIGEST_SHA224:
-		*md = EVP_sha224();
-		break;
-	case YACA_DIGEST_SHA256:
-		*md = EVP_sha256();
-		break;
-	case YACA_DIGEST_SHA384:
-		*md = EVP_sha384();
-		break;
-	case YACA_DIGEST_SHA512:
-		*md = EVP_sha512();
-		break;
-	default:
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		break;
-	}
+	for (i = 0; i < MESSAGE_DIGESTS_SIZE; ++i)
+		if (MESSAGE_DIGESTS[i].algo == algo) {
+			*md = MESSAGE_DIGESTS[i].digest();
+			ret = YACA_ERROR_NONE;
+			break;
+		}
 
 	if (ret == YACA_ERROR_NONE && *md == NULL) {
 		ret = YACA_ERROR_INTERNAL;
