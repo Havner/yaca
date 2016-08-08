@@ -1782,8 +1782,7 @@ API int yaca_key_derive_dh(const yaca_key_h prv_key,
 
 	ret = EVP_PKEY_derive_set_peer(ctx, lpub_key->evp);
 	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto exit;
 	}
 
