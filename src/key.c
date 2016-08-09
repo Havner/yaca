@@ -1827,7 +1827,7 @@ API int yaca_key_derive_kdf(yaca_kdf_e kdf,
                             size_t secret_len,
                             const char *info,
                             size_t info_len,
-                            size_t key_material_bit_len,
+                            size_t key_material_len,
                             char **key_material)
 {
 	int ret;
@@ -1836,10 +1836,10 @@ API int yaca_key_derive_kdf(yaca_kdf_e kdf,
 
 	if (secret == NULL || secret_len == 0 ||
 	    (info == NULL && info_len > 0) || (info != NULL && info_len == 0) ||
-	    key_material_bit_len == 0 || key_material == NULL)
+	    key_material_len == 0 || key_material == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_zalloc(key_material_bit_len, (void**)&out);
+	ret = yaca_zalloc(key_material_len, (void**)&out);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -1849,7 +1849,7 @@ API int yaca_key_derive_kdf(yaca_kdf_e kdf,
 
 	switch (kdf) {
 	case YACA_KDF_X942:
-		ret = DH_KDF_X9_42((unsigned char*)out, key_material_bit_len,
+		ret = DH_KDF_X9_42((unsigned char*)out, key_material_len,
 		                   (unsigned char*)secret, secret_len,
 		                   OBJ_nid2obj(NID_id_smime_alg_ESDH), (unsigned char*)info, info_len, md);
 		if (ret != 1 || out == NULL) {
@@ -1859,7 +1859,7 @@ API int yaca_key_derive_kdf(yaca_kdf_e kdf,
 		}
 		break;
 	case YACA_KDF_X962:
-		ret = ECDH_KDF_X9_62((unsigned char*)out, key_material_bit_len,
+		ret = ECDH_KDF_X9_62((unsigned char*)out, key_material_len,
 		                     (unsigned char*)secret, secret_len,
 		                     (unsigned char*)info, info_len, md);
 		if (ret != 1 || out == NULL) {

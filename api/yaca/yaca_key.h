@@ -371,14 +371,14 @@ int yaca_key_derive_dh(const yaca_key_h prv_key,
  *
  * @remarks  The @a key_material should be freed using yaca_free()
  *
- * @param[in]  kdf                    Key derivation function
- * @param[in]  algo                   Digest algorithm that should be used in key derivation
- * @param[in]  secret                 Shared secret
- * @param[in]  secret_len             Size of the shared secret
- * @param[in]  info                   Optional additional info, use NULL if not appending extra info
- * @param[in]  info_len               Length of additional info, use 0 if not using additional info
- * @param[in]  key_material_bit_len   Length of a key material (in bits) to be generated
- * @param[out] key_material           Newly generated key material
+ * @param[in]  kdf               Key derivation function
+ * @param[in]  algo              Digest algorithm that should be used in key derivation
+ * @param[in]  secret            Shared secret
+ * @param[in]  secret_len        Size of the shared secret
+ * @param[in]  info              Optional additional info, use NULL if not appending extra info
+ * @param[in]  info_len          Length of additional info, use 0 if not using additional info
+ * @param[in]  key_material_len  Length of a key material to be generated
+ * @param[out] key_material      Newly generated key material
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -399,7 +399,7 @@ int yaca_key_derive_kdf(yaca_kdf_e kdf,
                         size_t secret_len,
                         const char *info,
                         size_t info_len,
-                        size_t key_material_bit_len,
+                        size_t key_material_len,
                         char **key_material);
 
 /**
