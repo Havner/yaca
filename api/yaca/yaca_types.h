@@ -482,7 +482,8 @@ typedef enum {
 	 *   (recommended 128 bits tag).\n
 	 *   Set after yaca_encrypt_finalize() / yaca_seal_finalize() and before
 	 *   yaca_context_get_property(#YACA_PROPERTY_GCM_TAG)
-	 *   in encryption / seal operation. The @a value should be a size_t variable.\n\n
+	 *   in encryption / seal operation. The @a value should be a size_t variable.\n
+	 *   In decryption / open operation tag length is not set.\n\n
 	 *
 	 * - #YACA_PROPERTY_GCM_TAG = GCM tag\n
 	 *   Get after yaca_encrypt_finalize() / yaca_seal_finalize() in encryption / seal operation.\n
@@ -495,8 +496,6 @@ typedef enum {
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
 	 *   @see yaca_context_set_property()
-	 *   @see examples/encrypt_aes_gcm_ccm.c
-	 *   @see examples/seal.c
 	 */
 	YACA_BCM_GCM,
 
@@ -538,7 +537,8 @@ typedef enum {
 	 *   Supported tag lengths: 32-128 bits in step of 16 bits (recommended 96 bits tag).\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
 	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.
-	 *   The @a value should be a size_t variable. \n\n
+	 *   The @a value should be a size_t variable.\n
+	 *   In decryption / open operation tag length is not set.\n\n
 	 *
 	 * - #YACA_PROPERTY_CCM_TAG = CCM tag\n
 	 *   Get after yaca_encrypt_finalize() / yaca_seal_finalize() in encryption / seal operation.\n
@@ -558,8 +558,7 @@ typedef enum {
 	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
-	 *   @see examples/encrypt_aes_gcm_ccm.c
-	 *   @see examples/seal.c
+	 *   @see yaca_context_set_property()
 	 */
 	YACA_BCM_CCM,
 
