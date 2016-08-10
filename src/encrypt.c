@@ -117,6 +117,90 @@ static bool is_encryption_op(enum encrypt_op_type_e op_type)
 	return (op_type == OP_ENCRYPT || op_type == OP_SEAL);
 }
 
+static bool DEFAULT_STATES[STATE_COUNT][STATE_COUNT] = {
+/* from \ to  INIT, MLEN, AAD,  MSG,  TAG,  TLEN, FIN */
+/* INIT */  { 0,    0,    0,    1,    0,    0,    1 },
+/* MLEN  */ { 0,    0,    0,    0,    0,    0,    0 },
+/* AAD  */  { 0,    0,    0,    0,    0,    0,    0 },
+/* MSG  */  { 0,    0,    0,    1,    0,    0,    1 },
+/* TAG  */  { 0,    0,    0,    0,    0,    0,    0 },
+/* TLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* FIN  */  { 0,    0,    0,    0,    0,    0,    0 },
+};
+
+static bool GCM_STATES[2][STATE_COUNT][STATE_COUNT] = { {
+/* ENCRYPTION */
+/* from \ to  INIT, MLEN, AAD,  MSG,  TAG,  TLEN, FIN */
+/* INIT */  { 0,    0,    1,    1,    0,    0,    1 },
+/* MLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* AAD  */  { 0,    0,    1,    1,    0,    0,    1 },
+/* MSG  */  { 0,    0,    0,    1,    0,    0,    1 },
+/* TAG  */  { 0,    0,    0,    0,    0,    0,    0 },
+/* TLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* FIN  */  { 0,    0,    0,    0,    0,    1,    0 },
+}, {
+/* DECRYPTION */
+/* from \ to  INIT, MLEN, AAD,  MSG,  TAG,  TLEN, FIN */
+/* INIT */  { 0,    0,    1,    1,    1,    0,    0 },
+/* MLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* AAD  */  { 0,    0,    1,    1,    1,    0,    0 },
+/* MSG  */  { 0,    0,    0,    1,    1,    0,    0 },
+/* TAG  */  { 0,    0,    0,    0,    0,    0,    1 },
+/* TLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* FIN  */  { 0,    0,    0,    0,    0,    0,    0 },
+} };
+
+static bool CCM_STATES[2][STATE_COUNT][STATE_COUNT] = { {
+/* ENCRYPTION */
+/* from \ to  INIT, MLEN, AAD,  MSG,  TAG,  TLEN, FIN */
+/* INIT */  { 0,    1,    0,    1,    0,    1,    0 },
+/* MLEN */  { 0,    0,    1,    0,    0,    0,    0 },
+/* AAD  */  { 0,    0,    0,    1,    0,    0,    0 },
+/* MSG  */  { 0,    0,    0,    0,    0,    0,    1 },
+/* TAG  */  { 0,    0,    0,    0,    0,    0,    0 },
+/* TLEN */  { 0,    1,    0,    1,    0,    0,    0 },
+/* FIN  */  { 0,    0,    0,    0,    0,    0,    0 },
+}, {
+/* DECRYPTION */
+/* from \ to  INIT, MLEN, AAD,  MSG,  TAG,  TLEN, FIN */
+/* INIT */  { 0,    0,    0,    0,    1,    0,    0 },
+/* MLEN */  { 0,    0,    1,    0,    0,    0,    0 },
+/* AAD  */  { 0,    0,    0,    1,    0,    0,    0 },
+/* MSG  */  { 0,    0,    0,    0,    0,    0,    1 },
+/* TAG  */  { 0,    1,    0,    1,    0,    0,    0 },
+/* TLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* FIN  */  { 0,    0,    0,    0,    0,    0,    0 },
+} };
+
+static bool WRAP_STATES[STATE_COUNT][STATE_COUNT] = {
+/* from \ to  INIT, MLEN, AAD,  MSG,  TAG,  TLEN, FIN */
+/* INIT */  { 0,    0,    0,    1,    0,    0,    1 },
+/* MLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* AAD  */  { 0,    0,    0,    0,    0,    0,    0 },
+/* MSG  */  { 0,    0,    0,    0,    0,    0,    1 },
+/* TAG  */  { 0,    0,    0,    0,    0,    0,    0 },
+/* TLEN */  { 0,    0,    0,    0,    0,    0,    0 },
+/* FIN  */  { 0,    0,    0,    0,    0,    0,    0 },
+};
+
+static bool verify_state_change(struct yaca_encrypt_context_s *c, enum encrypt_context_state_e to)
+{
+	int mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
+	bool encryption = is_encryption_op(c->op_type);
+	int from = c->state;
+
+	if (mode == EVP_CIPH_CCM_MODE)
+		return CCM_STATES[encryption ? 0 : 1][from][to];
+	else if (mode == EVP_CIPH_GCM_MODE)
+		return GCM_STATES[encryption ? 0 : 1][from][to];
+	else if (mode == EVP_CIPH_WRAP_MODE)
+		return WRAP_STATES[from][to];
+	else
+		return DEFAULT_STATES[from][to];
+
+	return false;
+}
+
 struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx)
 {
 	if (ctx == YACA_CONTEXT_NULL)
@@ -233,7 +317,6 @@ static int encrypt_ctx_create(struct yaca_encrypt_context_s **c,
 	nc->ctx.get_property = get_encrypt_property;
 	nc->op_type = op_type;
 	nc->tag_len = 0;
-	nc->update_called = false;
 
 	/* set default tag length for GCM and CCM */
 	if (mode == EVP_CIPH_GCM_MODE)
@@ -525,23 +608,34 @@ int set_encrypt_property(yaca_context_h ctx,
 		if (mode != EVP_CIPH_GCM_MODE)
 			return YACA_ERROR_INVALID_PARAMETER;
 
-		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
-		}
-		break;
-	case YACA_PROPERTY_CCM_AAD:
-		if (mode != EVP_CIPH_CCM_MODE)
+		if (!verify_state_change(c, STATE_AAD_UPDATED))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
+		c->state = STATE_AAD_UPDATED;
+		break;
+	case YACA_PROPERTY_CCM_AAD:
+		if (mode != EVP_CIPH_CCM_MODE)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		if (!verify_state_change(c, STATE_AAD_UPDATED))
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
+			ERROR_DUMP(YACA_ERROR_INTERNAL);
+			return YACA_ERROR_INTERNAL;
+		}
+		c->state = STATE_AAD_UPDATED;
 		break;
 	case YACA_PROPERTY_GCM_TAG:
 		if (mode != EVP_CIPH_GCM_MODE || is_encryption_op(c->op_type) ||
 		    value_len == 0 || value_len > INT_MAX)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		if (!verify_state_change(c, STATE_TAG_SET))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
@@ -551,6 +645,7 @@ int set_encrypt_property(yaca_context_h ctx,
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
+		c->state = STATE_TAG_SET;
 		break;
 	case YACA_PROPERTY_GCM_TAG_LEN:
 		if (value_len != sizeof(size_t) || mode != EVP_CIPH_GCM_MODE ||
@@ -558,25 +653,44 @@ int set_encrypt_property(yaca_context_h ctx,
 		    *(size_t*)value == 0 || *(size_t*)value > INT_MAX)
 			return YACA_ERROR_INVALID_PARAMETER;
 
+		if (!verify_state_change(c, STATE_TAG_LENGTH_SET))
+			return YACA_ERROR_INVALID_PARAMETER;
+
 		c->tag_len = *(size_t*)value;
+		c->state = STATE_TAG_LENGTH_SET;
 		break;
 	case YACA_PROPERTY_CCM_TAG:
 		if (mode != EVP_CIPH_CCM_MODE || is_encryption_op(c->op_type))
 			return YACA_ERROR_INVALID_PARAMETER;
 
+		if (!verify_state_change(c, STATE_TAG_SET))
+			return YACA_ERROR_INVALID_PARAMETER;
+
 		ret = encrypt_ctx_set_ccm_tag(c, (char*)value, value_len);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
+		c->state = STATE_TAG_SET;
 		break;
 	case YACA_PROPERTY_CCM_TAG_LEN:
 		if (value_len != sizeof(size_t) || mode != EVP_CIPH_CCM_MODE ||
 		    !is_encryption_op(c->op_type))
 			return YACA_ERROR_INVALID_PARAMETER;
 
+		if (!verify_state_change(c, STATE_TAG_LENGTH_SET))
+			return YACA_ERROR_INVALID_PARAMETER;
+
 		ret = encrypt_ctx_set_ccm_tag_len(c, *(size_t*)value);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
+		c->state = STATE_TAG_LENGTH_SET;
 		break;
 	case YACA_PROPERTY_PADDING:
 		if ((mode != EVP_CIPH_ECB_MODE && mode != EVP_CIPH_CBC_MODE) ||
 		    value_len != sizeof(yaca_padding_e) ||
-		    *(yaca_padding_e*)value != YACA_PADDING_NONE)
+		    *(yaca_padding_e*)value != YACA_PADDING_NONE ||
+		    c->state == STATE_FINALIZED)
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CIPHER_CTX_set_padding(c->cipher_ctx, 0) != 1) {
@@ -605,7 +719,10 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 
 	switch (property) {
 	case YACA_PROPERTY_GCM_TAG:
-		if (value_len == NULL || !is_encryption_op(c->op_type) || mode != EVP_CIPH_GCM_MODE)
+		if (value_len == NULL ||
+		    !is_encryption_op(c->op_type) ||
+		    mode != EVP_CIPH_GCM_MODE ||
+		    (c->state != STATE_TAG_LENGTH_SET && c->state != STATE_FINALIZED))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		assert(c->tag_len <= INT_MAX);
@@ -620,7 +737,10 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 		*value_len = c->tag_len;
 		break;
 	case YACA_PROPERTY_CCM_TAG:
-		if (value_len == NULL || !is_encryption_op(c->op_type) || mode != EVP_CIPH_CCM_MODE)
+		if (value_len == NULL ||
+		    !is_encryption_op(c->op_type) ||
+		    mode != EVP_CIPH_CCM_MODE ||
+		    c->state != STATE_FINALIZED)
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		assert(c->tag_len <= INT_MAX);
@@ -762,6 +882,8 @@ int encrypt_initialize(yaca_context_h *ctx,
 			goto exit;
 	}
 
+	nc->state = STATE_INITIALIZED;
+
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
 	ret = YACA_ERROR_NONE;
@@ -789,11 +911,18 @@ int encrypt_update(yaca_context_h ctx,
 	mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
 	type = EVP_CIPHER_type(c->cipher_ctx->cipher);
 
-	if (mode != EVP_CIPH_CCM_MODE && (input == NULL || output == NULL))
-			return YACA_ERROR_INVALID_PARAMETER;
+	enum encrypt_context_state_e target_state;
+	if (output == NULL && input == NULL)
+		target_state = STATE_MSG_LENGTH_UPDATED;
+	else if (output == NULL)
+		target_state = STATE_AAD_UPDATED;
+	else if (input == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+	else
+		target_state = STATE_MSG_UPDATED;
 
-	if (mode == EVP_CIPH_WRAP_MODE && c->update_called == true)
-			return YACA_ERROR_INVALID_PARAMETER;
+	if (!verify_state_change(c, target_state))
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	if (mode == EVP_CIPH_WRAP_MODE && op_type == OP_ENCRYPT) {
 		if (type == NID_id_aes128_wrap || type == NID_id_aes192_wrap || type == NID_id_aes256_wrap) {
@@ -823,7 +952,8 @@ int encrypt_update(yaca_context_h ctx,
 	}
 
 	*output_len = loutput_len;
-	c->update_called = true;
+
+	c->state = target_state;
 
 	/* Fix for OpenSSL error in 3DES CFB1 */
 	if ((c->cipher_ctx->flags & EVP_CIPH_FLAG_LENGTH_BITS) != 0)
@@ -843,6 +973,9 @@ int encrypt_finalize(yaca_context_h ctx,
 	if (c == NULL || output == NULL || output_len == NULL || op_type != c->op_type)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (!verify_state_change(c, STATE_FINALIZED))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	if (EVP_CIPHER_CTX_mode(c->cipher_ctx) != EVP_CIPH_WRAP_MODE) {
 		ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
 		if (ret != 1 || loutput_len < 0)
@@ -855,6 +988,7 @@ int encrypt_finalize(yaca_context_h ctx,
 	if ((c->cipher_ctx->flags & EVP_CIPH_FLAG_LENGTH_BITS) != 0)
 		*output_len /= 8;
 
+	c->state = STATE_FINALIZED;
 	return YACA_ERROR_NONE;
 }
 

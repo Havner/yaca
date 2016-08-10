@@ -67,6 +67,18 @@ struct yaca_backup_context_s {
 	yaca_key_h iv;
 };
 
+enum encrypt_context_state_e {
+	STATE_INITIALIZED = 0,
+	STATE_MSG_LENGTH_UPDATED,
+	STATE_AAD_UPDATED,
+	STATE_MSG_UPDATED,
+	STATE_TAG_SET,
+	STATE_TAG_LENGTH_SET,
+	STATE_FINALIZED,
+
+	STATE_COUNT,
+};
+
 struct yaca_encrypt_context_s {
 	struct yaca_context_s ctx;
 	struct yaca_backup_context_s *backup_ctx;
@@ -74,7 +86,7 @@ struct yaca_encrypt_context_s {
 	EVP_CIPHER_CTX *cipher_ctx;
 	enum encrypt_op_type_e op_type; /* Operation context was created for */
 	size_t tag_len;
-	bool update_called;
+	enum encrypt_context_state_e state;
 };
 
 /* Base structure for crypto keys - to be inherited */
