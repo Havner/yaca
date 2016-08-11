@@ -183,4 +183,6 @@ void error_dump(const char *file, int line, const char *function, int code);
 int error_handle(const char *file, int line, const char *function);
 #define ERROR_HANDLE() error_handle(__FILE__, __LINE__, __func__)
 
+int rsa_padding2openssl(yaca_padding_e padding);
+
 #endif /* YACA_INTERNAL_H */

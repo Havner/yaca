@@ -133,17 +133,15 @@ int set_sign_property(yaca_context_h ctx,
 
 	switch (padding) {
 	case YACA_PADDING_X931:
-		pad = RSA_X931_PADDING;
-		break;
 	case YACA_PADDING_PKCS1:
-		pad = RSA_PKCS1_PADDING;
-		break;
 	case YACA_PADDING_PKCS1_PSS:
-		pad = RSA_PKCS1_PSS_PADDING;
 		break;
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
+
+	pad = rsa_padding2openssl(padding);
+	assert(pad != -1);
 
 	pkey = EVP_PKEY_CTX_get0_pkey(c->md_ctx->pctx);
 	if (pkey == NULL) {
