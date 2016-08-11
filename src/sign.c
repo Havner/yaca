@@ -251,9 +251,8 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
 	switch (key->type) {
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_EC_PRIV:
 		break;
-//	case YACA_KEY_TYPE_EC_PRIV:
-//		TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
@@ -503,9 +502,8 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
 	switch (key->type) {
 	case YACA_KEY_TYPE_RSA_PUB:
 	case YACA_KEY_TYPE_DSA_PUB:
+	case YACA_KEY_TYPE_EC_PUB:
 		break;
-//	case YACA_KEY_TYPE_EC_PUB:
-//		TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}

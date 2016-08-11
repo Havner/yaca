@@ -32,10 +32,12 @@
 #include <openssl/bio.h>
 #include <openssl/pem.h>
 #include <openssl/des.h>
+#include <openssl/dh.h>
 
 #include <yaca_crypto.h>
 #include <yaca_error.h>
 #include <yaca_key.h>
+#include <yaca_types.h>
 
 #include "internal.h"
 
@@ -44,7 +46,7 @@ struct openssl_password_data {
 	const char *password;
 };
 
-int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
+static int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 {
 	struct openssl_password_data *cb_data = u;
 
@@ -62,12 +64,71 @@ int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 	return pass_len;
 }
 
-int openssl_password_cb_error(UNUSED char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
+static int openssl_password_cb_error(UNUSED char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
 {
 	return 0;
 }
 
-int base64_decode_length(const char *data, size_t data_len, size_t *len)
+static const struct {
+	size_t ec;
+	int nid;
+} EC_NID_PAIRS[] = {
+	{YACA_KEY_LENGTH_EC_PRIME192V1, NID_X9_62_prime192v1},
+	{YACA_KEY_LENGTH_EC_PRIME256V1, NID_X9_62_prime256v1},
+	{YACA_KEY_LENGTH_EC_SECP256K1,  NID_secp256k1},
+	{YACA_KEY_LENGTH_EC_SECP384R1,  NID_secp384r1},
+	{YACA_KEY_LENGTH_EC_SECP521R1,  NID_secp521r1}
+};
+
+static const size_t EC_NID_PAIRS_SIZE = sizeof(EC_NID_PAIRS) / sizeof(EC_NID_PAIRS[0]);
+
+static const struct {
+	int evp_id;
+	yaca_key_type_e priv;
+	yaca_key_type_e pub;
+	yaca_key_type_e params;
+} KEY_TYPES_PARAMS[] = {
+	{EVP_PKEY_RSA, YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_TYPE_RSA_PUB, -1},
+	{EVP_PKEY_DSA, YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_TYPE_DSA_PUB, YACA_KEY_TYPE_DSA_PARAMS},
+	{EVP_PKEY_DH,  YACA_KEY_TYPE_DH_PRIV,  YACA_KEY_TYPE_DH_PUB,  YACA_KEY_TYPE_DH_PARAMS},
+	{EVP_PKEY_EC,  YACA_KEY_TYPE_EC_PRIV,  YACA_KEY_TYPE_EC_PUB,  YACA_KEY_TYPE_EC_PARAMS},
+	/* The following line is only used to import DHX (RFC5114) keys/params.
+	 * In all other cases DH is used. It has to be below the DH one so conversions from YACA
+	 * internal types are prioritized to EVP_PKEY_DH which is what we want. */
+	{EVP_PKEY_DHX, YACA_KEY_TYPE_DH_PRIV,  YACA_KEY_TYPE_DH_PUB,  YACA_KEY_TYPE_DH_PARAMS}
+};
+
+static const size_t KEY_TYPES_PARAMS_SIZE = sizeof(KEY_TYPES_PARAMS) / sizeof(KEY_TYPES_PARAMS[0]);
+
+#define CONVERT_TYPES_TEMPLATE(data, src_type, src, dst_type, dst) \
+	static int convert_##src##_to_##dst (src_type src, dst_type *dst) \
+	{ \
+		assert(dst != NULL); \
+		size_t i; \
+		for (i = 0; i < data##_SIZE; ++i) \
+			if (data[i].src == src) { \
+				if (data[i].dst != (dst_type)-1) { \
+					*dst = data[i].dst; \
+					return YACA_ERROR_NONE; \
+				} \
+			} \
+		return YACA_ERROR_INVALID_PARAMETER; \
+	}
+
+CONVERT_TYPES_TEMPLATE(EC_NID_PAIRS, int, nid, size_t, ec)
+CONVERT_TYPES_TEMPLATE(EC_NID_PAIRS, size_t, ec, int, nid)
+
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, params, int, evp_id)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, priv,   int, evp_id)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, params, yaca_key_type_e, priv)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, priv,   yaca_key_type_e, pub)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, priv,   yaca_key_type_e, params)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, yaca_key_type_e, pub,    yaca_key_type_e, params)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, priv)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, pub)
+CONVERT_TYPES_TEMPLATE(KEY_TYPES_PARAMS, int, evp_id,             yaca_key_type_e, params)
+
+static int base64_decode_length(const char *data, size_t data_len, size_t *len)
 {
 	assert(data != NULL);
 	assert(data_len != 0);
@@ -91,7 +152,7 @@ int base64_decode_length(const char *data, size_t data_len, size_t *len)
 
 #define TMP_BUF_LEN 512
 
-int base64_decode(const char *data, size_t data_len, BIO **output)
+static int base64_decode(const char *data, size_t data_len, BIO **output)
 {
 	assert(data != NULL);
 	assert(data_len != 0);
@@ -184,10 +245,10 @@ exit:
 	return ret;
 }
 
-int import_simple(yaca_key_h *key,
-                  yaca_key_type_e key_type,
-                  const char *data,
-                  size_t data_len)
+static int import_simple(yaca_key_h *key,
+                         yaca_key_type_e key_type,
+                         const char *data,
+                         size_t data_len)
 {
 	assert(key != NULL);
 	assert(data != NULL);
@@ -253,11 +314,101 @@ exit:
 	return ret;
 }
 
-int import_evp(yaca_key_h *key,
-               yaca_key_type_e key_type,
-               const char *password,
-               const char *data,
-               size_t data_len)
+static EVP_PKEY *d2i_DSAparams_bio_helper(BIO *src)
+{
+	assert(src != NULL);
+
+	DSA *dsa = NULL;
+	EVP_PKEY *pkey = NULL;
+
+	dsa = d2i_DSAparams_bio(src, NULL);
+	if (dsa == NULL)
+		return NULL;
+
+	pkey = EVP_PKEY_new();
+	if (pkey == NULL)
+		goto exit;
+
+	if (EVP_PKEY_assign_DSA(pkey, dsa) != 1)
+		goto exit;
+
+	return pkey;
+
+exit:
+	EVP_PKEY_free(pkey);
+	DSA_free(dsa);
+	return NULL;
+}
+
+static EVP_PKEY *d2i_DHparams_bio_helper(BIO *src)
+{
+	assert(src != NULL);
+
+	DH *dh = NULL;
+	EVP_PKEY *pkey = NULL;
+
+	dh = d2i_DHparams_bio(src, NULL);
+	if (dh == NULL)
+		return NULL;
+
+	pkey = EVP_PKEY_new();
+	if (pkey == NULL)
+		goto exit;
+
+	if (EVP_PKEY_assign_DH(pkey, dh) != 1)
+		goto exit;
+
+	return pkey;
+
+exit:
+	EVP_PKEY_free(pkey);
+	DH_free(dh);
+	return NULL;
+}
+
+static EVP_PKEY *d2i_ECPKParameters_bio_helper(BIO *src)
+{
+	assert(src != NULL);
+
+	EC_GROUP *ecg = NULL;
+	EC_KEY *eck = NULL;
+	EVP_PKEY *pkey = NULL;
+
+	ecg = d2i_ECPKParameters_bio(src, NULL);
+	if (ecg == NULL)
+		return NULL;
+
+	eck = EC_KEY_new();
+	if (eck == NULL)
+		goto exit;
+
+	if (EC_KEY_set_group(eck, ecg) != 1)
+		goto exit;
+
+	EC_GROUP_free(ecg);
+	ecg = NULL;
+
+	pkey = EVP_PKEY_new();
+	if (pkey == NULL)
+		goto exit;
+
+	if (EVP_PKEY_assign_EC_KEY(pkey, eck) != 1)
+		goto exit;
+
+	return pkey;
+
+exit:
+	EVP_PKEY_free(pkey);
+	EC_KEY_free(eck);
+	EC_GROUP_free(ecg);
+	return NULL;
+}
+
+static int import_evp(yaca_key_h *key,
+                      yaca_key_type_e key_type,
+                      const char *password,
+                      const char *data,
+                      size_t data_len)
 {
 	assert(key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -269,9 +420,14 @@ int import_evp(yaca_key_h *key,
 	EVP_PKEY *pkey = NULL;
 	pem_password_cb *cb = openssl_password_cb;
 	struct openssl_password_data cb_data = {false, password};
-	bool private;
+	int imported_evp_id;
+	enum {
+		IMPORTED_KEY_CATEGORY_PRIVATE,
+		IMPORTED_KEY_CATEGORY_PUBLIC,
+		IMPORTED_KEY_CATEGORY_PARAMETERS
+	} imported_key_category;
+	yaca_key_type_e imported_key_type;
 	bool password_supported;
-	yaca_key_type_e type;
 	struct yaca_key_evp_s *nk = NULL;
 
 	/* Neither PEM nor DER will ever be shorter then 4 bytes (12 seems
@@ -298,7 +454,7 @@ int import_evp(yaca_key_h *key,
 			pkey = PEM_read_bio_PrivateKey(src, NULL, cb, (void*)&cb_data);
 			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
 				return YACA_ERROR_INVALID_PASSWORD;
-			private = true;
+			imported_key_category = IMPORTED_KEY_CATEGORY_PRIVATE;
 			password_supported = true;
 		}
 
@@ -306,7 +462,15 @@ int import_evp(yaca_key_h *key,
 			BIO_reset(src);
 			pkey = PEM_read_bio_PUBKEY(src, NULL, openssl_password_cb_error, NULL);
 			ERROR_CLEAR();
-			private = false;
+			imported_key_category = IMPORTED_KEY_CATEGORY_PUBLIC;
+			password_supported = false;
+		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = PEM_read_bio_Parameters(src, NULL);
+			ERROR_CLEAR();
+			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
 			password_supported = false;
 		}
 
@@ -318,7 +482,7 @@ int import_evp(yaca_key_h *key,
 				X509_free(x509);
 			}
 			ERROR_CLEAR();
-			private = false;
+			imported_key_category = IMPORTED_KEY_CATEGORY_PUBLIC;
 			password_supported = false;
 		}
 	}
@@ -329,7 +493,7 @@ int import_evp(yaca_key_h *key,
 			pkey = d2i_PKCS8PrivateKey_bio(src, NULL, cb, (void*)&cb_data);
 			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
 				return YACA_ERROR_INVALID_PASSWORD;
-			private = true;
+			imported_key_category = IMPORTED_KEY_CATEGORY_PRIVATE;
 			password_supported = true;
 		}
 
@@ -337,7 +501,7 @@ int import_evp(yaca_key_h *key,
 			BIO_reset(src);
 			pkey = d2i_PrivateKey_bio(src, NULL);
 			ERROR_CLEAR();
-			private = true;
+			imported_key_category = IMPORTED_KEY_CATEGORY_PRIVATE;
 			password_supported = false;
 		}
 
@@ -345,7 +509,31 @@ int import_evp(yaca_key_h *key,
 			BIO_reset(src);
 			pkey = d2i_PUBKEY_bio(src, NULL);
 			ERROR_CLEAR();
-			private = false;
+			imported_key_category = IMPORTED_KEY_CATEGORY_PUBLIC;
+			password_supported = false;
+		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = d2i_DSAparams_bio_helper(src);
+			ERROR_CLEAR();
+			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
+			password_supported = false;
+		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = d2i_DHparams_bio_helper(src);
+			ERROR_CLEAR();
+			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
+			password_supported = false;
+		}
+
+		if (pkey == NULL) {
+			BIO_reset(src);
+			pkey = d2i_ECPKParameters_bio_helper(src);
+			ERROR_CLEAR();
+			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
 			password_supported = false;
 		}
 
@@ -357,7 +545,7 @@ int import_evp(yaca_key_h *key,
 				X509_free(x509);
 			}
 			ERROR_CLEAR();
-			private = false;
+			imported_key_category = IMPORTED_KEY_CATEGORY_PUBLIC;
 			password_supported = false;
 		}
 	}
@@ -376,25 +564,26 @@ int import_evp(yaca_key_h *key,
 		goto exit;
 	}
 
-	switch (EVP_PKEY_type(pkey->type)) {
-	case EVP_PKEY_RSA:
-		type = private ? YACA_KEY_TYPE_RSA_PRIV : YACA_KEY_TYPE_RSA_PUB;
+	imported_evp_id = EVP_PKEY_type(pkey->type);
+
+	switch (imported_key_category) {
+	case IMPORTED_KEY_CATEGORY_PRIVATE:
+		ret = convert_evp_id_to_priv(imported_evp_id, &imported_key_type);
 		break;
-
-	case EVP_PKEY_DSA:
-		type = private ? YACA_KEY_TYPE_DSA_PRIV : YACA_KEY_TYPE_DSA_PUB;
+	case IMPORTED_KEY_CATEGORY_PUBLIC:
+		ret = convert_evp_id_to_pub(imported_evp_id, &imported_key_type);
 		break;
-
-//	case EVP_PKEY_EC:
-//		type = private ? YACA_KEY_TYPE_EC_PRIV : YACA_KEY_TYPE_EC_PUB;
-//		break;
-
+	case IMPORTED_KEY_CATEGORY_PARAMETERS:
+		ret = convert_evp_id_to_params(imported_evp_id, &imported_key_type);
+		break;
 	default:
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		goto exit;
+		assert(false);
+		return YACA_ERROR_INTERNAL;
 	}
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
 
-	if (type != key_type) {
+	if (imported_key_type != key_type) {
 		ret = YACA_ERROR_INVALID_PARAMETER;
 		goto exit;
 	}
@@ -405,7 +594,7 @@ int import_evp(yaca_key_h *key,
 
 	nk->evp = pkey;
 	*key = (yaca_key_h)nk;
-	(*key)->type = type;
+	(*key)->type = key_type;
 
 	pkey = NULL;
 	ret = YACA_ERROR_NONE;
@@ -416,9 +605,9 @@ exit:
 	return ret;
 }
 
-int export_simple_raw(struct yaca_key_simple_s *simple_key,
-                      char **data,
-                      size_t *data_len)
+static int export_simple_raw(struct yaca_key_simple_s *simple_key,
+                             char **data,
+                             size_t *data_len)
 {
 	int ret;
 	assert(simple_key != NULL);
@@ -439,9 +628,9 @@ int export_simple_raw(struct yaca_key_simple_s *simple_key,
 	return YACA_ERROR_NONE;
 }
 
-int export_simple_base64(struct yaca_key_simple_s *simple_key,
-                         char **data,
-                         size_t *data_len)
+static int export_simple_base64(struct yaca_key_simple_s *simple_key,
+                                char **data,
+                                size_t *data_len)
 {
 	assert(simple_key != NULL);
 	assert(data != NULL);
@@ -506,10 +695,10 @@ exit:
 	return ret;
 }
 
-int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
-                           yaca_key_file_format_e key_file_fmt,
-                           const char *password,
-                           BIO *mem)
+static int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
+                                  yaca_key_file_format_e key_file_fmt,
+                                  const char *password,
+                                  BIO *mem)
 {
 	assert(evp_key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -527,26 +716,30 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 		switch (evp_key->key.type) {
 
 		case YACA_KEY_TYPE_RSA_PRIV:
-			ret = PEM_write_bio_RSAPrivateKey(mem, EVP_PKEY_get0(evp_key->evp),
-			                                  enc, NULL, 0, NULL, (void*)password);
-			break;
 		case YACA_KEY_TYPE_DSA_PRIV:
-			ret = PEM_write_bio_DSAPrivateKey(mem, EVP_PKEY_get0(evp_key->evp),
-			                                  enc, NULL, 0, NULL, (void*)password);
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
+			ret = PEM_write_bio_PrivateKey(mem, evp_key->evp, enc,
+			                               NULL, 0, NULL, (void*)password);
 			break;
 
 		case YACA_KEY_TYPE_RSA_PUB:
 		case YACA_KEY_TYPE_DSA_PUB:
+		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_EC_PUB:
 			if (password != NULL)
 				return YACA_ERROR_INVALID_PARAMETER;
 			ret = PEM_write_bio_PUBKEY(mem, evp_key->evp);
 			break;
 
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_DH_PUB:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//		case YACA_KEY_TYPE_EC_PUB:
-//			TODO NOT_IMPLEMENTED
+		case YACA_KEY_TYPE_DSA_PARAMS:
+		case YACA_KEY_TYPE_DH_PARAMS:
+		case YACA_KEY_TYPE_EC_PARAMS:
+			if (password != NULL)
+				return YACA_ERROR_INVALID_PARAMETER;
+			ret = PEM_write_bio_Parameters(mem, evp_key->evp);
+			break;
+
 		default:
 			return YACA_ERROR_INVALID_PARAMETER;
 		}
@@ -554,32 +747,39 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 		break;
 
 	case YACA_KEY_FILE_FORMAT_DER:
+		/* None of the formats in DEFAULT DER support a password */
+		if (password != NULL)
+			return YACA_ERROR_INVALID_PARAMETER;
+
 		switch (evp_key->key.type) {
 
 		case YACA_KEY_TYPE_RSA_PRIV:
-			if (password != NULL)
-				return YACA_ERROR_INVALID_PARAMETER;
-			ret = i2d_RSAPrivateKey_bio(mem, EVP_PKEY_get0(evp_key->evp));
-			break;
-
 		case YACA_KEY_TYPE_DSA_PRIV:
-			if (password != NULL)
-				return YACA_ERROR_INVALID_PARAMETER;
-			ret = i2d_DSAPrivateKey_bio(mem, EVP_PKEY_get0(evp_key->evp));
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
+			ret = i2d_PrivateKey_bio(mem, evp_key->evp);
 			break;
 
 		case YACA_KEY_TYPE_RSA_PUB:
 		case YACA_KEY_TYPE_DSA_PUB:
-			if (password != NULL)
-				return YACA_ERROR_INVALID_PARAMETER;
+		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_EC_PUB:
 			ret = i2d_PUBKEY_bio(mem, evp_key->evp);
 			break;
 
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_DH_PUB:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//		case YACA_KEY_TYPE_EC_PUB:
-//			TODO NOT_IMPLEMENTED
+		case YACA_KEY_TYPE_DSA_PARAMS:
+			ret = i2d_DSAparams_bio(mem, EVP_PKEY_get0(evp_key->evp));
+			break;
+		case YACA_KEY_TYPE_DH_PARAMS:
+			ret = i2d_DHparams_bio(mem, EVP_PKEY_get0(evp_key->evp));
+			break;
+		case YACA_KEY_TYPE_EC_PARAMS: {
+			const EC_KEY *eck = EVP_PKEY_get0(evp_key->evp);
+			const EC_GROUP *ecg = EC_KEY_get0_group(eck);
+			ret = i2d_ECPKParameters_bio(mem, ecg);
+			break;
+		}
+
 		default:
 			return YACA_ERROR_INVALID_PARAMETER;
 		}
@@ -599,10 +799,10 @@ int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 	return YACA_ERROR_NONE;
 }
 
-int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
-                         yaca_key_file_format_e key_file_fmt,
-                         const char *password,
-                         BIO *mem)
+static int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
+                                yaca_key_file_format_e key_file_fmt,
+                                const char *password,
+                                BIO *mem)
 {
 	assert(evp_key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -622,14 +822,13 @@ int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 
 		case YACA_KEY_TYPE_RSA_PRIV:
 		case YACA_KEY_TYPE_DSA_PRIV:
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
 			ret = PEM_write_bio_PKCS8PrivateKey_nid(mem, evp_key->evp, nid,
 			                                        NULL, 0, NULL, (void*)password);
 			break;
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//			TODO NOT_IMPLEMENTED
+
 		default:
-			/* Public keys are not supported by PKCS8 */
 			return YACA_ERROR_INVALID_PARAMETER;
 		}
 
@@ -640,15 +839,13 @@ int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 
 		case YACA_KEY_TYPE_RSA_PRIV:
 		case YACA_KEY_TYPE_DSA_PRIV:
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_EC_PRIV:
 			ret = i2d_PKCS8PrivateKey_nid_bio(mem, evp_key->evp, nid,
 			                                  NULL, 0, NULL, (void*)password);
 			break;
 
-//		case YACA_KEY_TYPE_DH_PRIV:
-//		case YACA_KEY_TYPE_EC_PRIV:
-//			TODO NOT_IMPLEMENTED
 		default:
-			/* Public keys are not supported by PKCS8 */
 			return YACA_ERROR_INVALID_PARAMETER;
 		}
 
@@ -667,12 +864,12 @@ int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 	return YACA_ERROR_NONE;
 }
 
-int export_evp(struct yaca_key_evp_s *evp_key,
-               yaca_key_format_e key_fmt,
-               yaca_key_file_format_e key_file_fmt,
-               const char *password,
-               char **data,
-               size_t *data_len)
+static int export_evp(struct yaca_key_evp_s *evp_key,
+                      yaca_key_format_e key_fmt,
+                      yaca_key_file_format_e key_file_fmt,
+                      const char *password,
+                      char **data,
+                      size_t *data_len)
 {
 	assert(evp_key != NULL);
 	assert(password == NULL || password[0] != '\0');
@@ -734,9 +931,12 @@ exit:
 	return ret;
 }
 
-int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
+static int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
+
+	if (key_bit_len % 8 != 0)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	int ret;
 	struct yaca_key_simple_s *nk;
@@ -756,7 +956,7 @@ int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
 	return YACA_ERROR_NONE;
 }
 
-int generate_simple_des(struct yaca_key_simple_s **out, size_t key_bit_len)
+static int generate_simple_des(struct yaca_key_simple_s **out, size_t key_bit_len)
 {
 	assert(out != NULL);
 
@@ -810,86 +1010,74 @@ exit:
 	return ret;
 }
 
-// TODO: consider merging generate_evp_*, they share awful lot of common code
-int generate_evp_rsa(struct yaca_key_evp_s **out, size_t key_bit_len)
+static int generate_evp_pkey_params(int evp_id, size_t key_bit_len, EVP_PKEY **params)
 {
-	assert(out != NULL);
 	assert(key_bit_len > 0);
-	assert(key_bit_len % 8 == 0);
+	assert(params != NULL);
 
 	int ret;
-	struct yaca_key_evp_s *nk;
-	EVP_PKEY_CTX *ctx;
-	EVP_PKEY *pkey = NULL;
-
-	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
-
-	ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
-	if (ctx == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	ret = EVP_PKEY_keygen_init(ctx);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	ret = EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, key_bit_len);
-	if (ret != 1) {
-		ret = ERROR_HANDLE();
-		goto exit;
-	}
-
-	ret = EVP_PKEY_keygen(ctx, &pkey);
-	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		goto exit;
-	}
-
-	nk->evp = pkey;
-	pkey = NULL;
-	*out = nk;
-	nk = NULL;
-
-	ret = YACA_ERROR_NONE;
-
-exit:
-	EVP_PKEY_CTX_free(ctx);
-	yaca_free(nk);
-
-	return ret;
-}
-
-int generate_evp_dsa(struct yaca_key_evp_s **out, size_t key_bit_len)
-{
-	assert(out != NULL);
-	assert(key_bit_len > 0);
-	assert(key_bit_len % 8 == 0);
-
-	/* Openssl generates 512-bit key for key lengths smaller than 512. It also
-	 * rounds key size to multiplication of 64. */
-	if (key_bit_len < 512 || key_bit_len % 64 != 0)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	int ret;
-	struct yaca_key_evp_s *nk;
 	EVP_PKEY_CTX *pctx = NULL;
-	EVP_PKEY_CTX *kctx = NULL;
-	EVP_PKEY *pkey = NULL;
-	EVP_PKEY *params = NULL;
+	int bit_len = 0;
+	int dh_prime_len = 0;
+	int dh_generator = 0;
+	int dh_rfc5114 = 0;
+	int ec_nid = 0;
 
-	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
+	switch (evp_id) {
+	case EVP_PKEY_DSA:
+		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_BITS ||
+		    key_bit_len > INT_MAX || key_bit_len < 512 || key_bit_len % 64 != 0)
+			return YACA_ERROR_INVALID_PARAMETER;
 
-	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_DSA, NULL);
+		bit_len = key_bit_len;
+
+		break;
+	case EVP_PKEY_DH:
+		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) == YACA_INTERNAL_KEYLEN_TYPE_DH) {
+			size_t gen_block = key_bit_len & YACA_INTERNAL_KEYLEN_DH_GEN_MASK;
+			size_t prime_len_block = key_bit_len & YACA_INTERNAL_KEYLEN_DH_PRIME_MASK;
+
+			/* This is impossible now as we take only 16 bits,
+			 * but for the sake of type safety */
+			if (prime_len_block > INT_MAX)
+				return YACA_ERROR_INVALID_PARAMETER;
+			dh_prime_len = prime_len_block;
+
+			if (gen_block == YACA_INTERNAL_KEYLEN_DH_GEN_2)
+				dh_generator = 2;
+			else if (gen_block == YACA_INTERNAL_KEYLEN_DH_GEN_5)
+				dh_generator = 5;
+			else
+				return YACA_ERROR_INVALID_PARAMETER;
+
+		} else if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) == YACA_INTERNAL_KEYLEN_TYPE_DH_RFC) {
+			if (key_bit_len == YACA_KEY_LENGTH_DH_RFC_1024_160)
+				dh_rfc5114 = 1; /* OpenSSL magic numbers */
+			else if (key_bit_len == YACA_KEY_LENGTH_DH_RFC_2048_224)
+				dh_rfc5114 = 2;
+			else if (key_bit_len == YACA_KEY_LENGTH_DH_RFC_2048_256)
+				dh_rfc5114 = 3;
+			else
+				return YACA_ERROR_INVALID_PARAMETER;
+
+		} else {
+			return YACA_ERROR_INVALID_PARAMETER;
+		}
+
+		break;
+	case EVP_PKEY_EC:
+		ret = convert_ec_to_nid(key_bit_len, &ec_nid);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
+		break;
+	default:
+		/* We shouldn't be here */
+		assert(false);
+		return YACA_ERROR_INTERNAL;
+	}
+
+	pctx = EVP_PKEY_CTX_new_id(evp_id, NULL);
 	if (pctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -903,20 +1091,80 @@ int generate_evp_dsa(struct yaca_key_evp_s **out, size_t key_bit_len)
 		goto exit;
 	}
 
-	ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, key_bit_len);
-	if (ret != 1) {
-		ret = ERROR_HANDLE();
-		goto exit;
+	switch (evp_id) {
+	case EVP_PKEY_DSA:
+		ret = EVP_PKEY_CTX_set_dsa_paramgen_bits(pctx, bit_len);
+		break;
+	case EVP_PKEY_DH:
+		if (dh_rfc5114 > 0) {
+			/* The following code is based on the macro call below.
+			 * Unfortunately it doesn't work and the suspected reason is the
+			 * fact that the _set_dh_ variant actually passes EVP_PKEY_DHX:
+			 * ret = EVP_PKEY_CTX_set_dh_rfc5114(pctx, dh_rfc5114); */
+			ret = EVP_PKEY_CTX_ctrl(pctx, EVP_PKEY_DH, EVP_PKEY_OP_PARAMGEN,
+			                        EVP_PKEY_CTRL_DH_RFC5114, dh_rfc5114, NULL);
+		} else {
+			ret = EVP_PKEY_CTX_set_dh_paramgen_prime_len(pctx, dh_prime_len);
+			if (ret == 1)
+				ret = EVP_PKEY_CTX_set_dh_paramgen_generator(pctx, dh_generator);
+		}
+		break;
+	case EVP_PKEY_EC:
+		ret = EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, ec_nid);
+		if (ret == 1)
+			ret = EVP_PKEY_CTX_set_ec_param_enc(pctx, OPENSSL_EC_NAMED_CURVE);
+		break;
 	}
-
-	ret = EVP_PKEY_paramgen(pctx, &params);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
 
-	kctx = EVP_PKEY_CTX_new(params, NULL);
+	ret = EVP_PKEY_paramgen(pctx, params);
+	if (ret != 1 || params == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = YACA_ERROR_NONE;
+
+exit:
+	EVP_PKEY_CTX_free(pctx);
+	return ret;
+}
+
+static int generate_evp_pkey_key(int evp_id, size_t key_bit_len, EVP_PKEY *params, EVP_PKEY **key)
+{
+	assert(key != NULL);
+	assert(key_bit_len > 0 || params != NULL);
+
+	int ret;
+	EVP_PKEY_CTX *kctx = NULL;
+
+	switch (evp_id) {
+	case EVP_PKEY_RSA:
+		assert(params == NULL);
+		kctx = EVP_PKEY_CTX_new_id(evp_id, NULL);
+		break;
+	case EVP_PKEY_DSA:
+	case EVP_PKEY_DH:
+	case EVP_PKEY_EC:
+		if (params == NULL) {
+			ret = generate_evp_pkey_params(evp_id, key_bit_len, &params);
+			if (ret != YACA_ERROR_NONE)
+				return ret;
+		} else {
+			CRYPTO_add(&params->references, 1, CRYPTO_LOCK_EVP_PKEY);
+		}
+
+		kctx = EVP_PKEY_CTX_new(params, NULL);
+		break;
+	default:
+		assert(false);
+		return YACA_ERROR_INTERNAL;
+	}
 	if (kctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -930,26 +1178,98 @@ int generate_evp_dsa(struct yaca_key_evp_s **out, size_t key_bit_len)
 		goto exit;
 	}
 
-	ret = EVP_PKEY_keygen(kctx, &pkey);
-	if (ret != 1) {
+	if (evp_id == EVP_PKEY_RSA) {
+		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_BITS ||
+		    key_bit_len > INT_MAX || key_bit_len % 8 != 0) {
+			ret = YACA_ERROR_INVALID_PARAMETER;
+			goto exit;
+		}
+
+		ret = EVP_PKEY_CTX_set_rsa_keygen_bits(kctx, (int)key_bit_len);
+		if (ret != 1) {
+			ret = ERROR_HANDLE();
+			goto exit;
+		}
+	}
+
+	ret = EVP_PKEY_keygen(kctx, key);
+	if (ret != 1 || key == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		goto exit;
 	}
-
-	nk->evp = pkey;
-	pkey = NULL;
-	*out = nk;
-	nk = NULL;
 
 	ret = YACA_ERROR_NONE;
 
 exit:
 	EVP_PKEY_CTX_free(kctx);
 	EVP_PKEY_free(params);
-	EVP_PKEY_CTX_free(pctx);
-	yaca_free(nk);
+	return ret;
+}
 
+static int generate_evp(yaca_key_type_e out_type, size_t key_bit_len,
+                        struct yaca_key_evp_s *params, struct yaca_key_evp_s **out)
+{
+	assert(out != NULL);
+	assert(key_bit_len > 0 || params != NULL);
+
+	int ret;
+	int evp_id;
+	EVP_PKEY *pkey_out = NULL;
+	EVP_PKEY *pkey_params = NULL;
+
+	if (params != NULL) {
+		yaca_key_type_e key_type;
+		yaca_key_type_e params_type = params->key.type;
+
+		ret = convert_params_to_priv(params_type, &key_type);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
+		if (out_type != key_type)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		pkey_params = params->evp;
+	}
+
+	switch (out_type) {
+	case YACA_KEY_TYPE_DSA_PARAMS:
+	case YACA_KEY_TYPE_DH_PARAMS:
+	case YACA_KEY_TYPE_EC_PARAMS:
+		assert(params == NULL);
+		ret = convert_params_to_evp_id(out_type, &evp_id);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
+		ret = generate_evp_pkey_params(evp_id, key_bit_len, &pkey_out);
+		break;
+	case YACA_KEY_TYPE_RSA_PRIV:
+	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_EC_PRIV:
+		ret = convert_priv_to_evp_id(out_type, &evp_id);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
+		ret = generate_evp_pkey_key(evp_id, key_bit_len, pkey_params, &pkey_out);
+		break;
+	default:
+		return YACA_ERROR_INVALID_PARAMETER;
+	}
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)out);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	(*out)->evp = pkey_out;
+	pkey_out = NULL;
+
+	ret = YACA_ERROR_NONE;
+
+exit:
+	EVP_PKEY_free(pkey_out);
 	return ret;
 }
 
@@ -989,6 +1309,13 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key)
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_DSA_PARAMS:
+	case YACA_KEY_TYPE_DH_PUB:
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_DH_PARAMS:
+	case YACA_KEY_TYPE_EC_PUB:
+	case YACA_KEY_TYPE_EC_PRIV:
+	case YACA_KEY_TYPE_EC_PARAMS:
 		k = (struct yaca_key_evp_s *)key;
 
 		/* sanity check */
@@ -1074,16 +1401,47 @@ API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len)
 	if (evp_key != NULL) {
 		int ret;
 
-		// TODO: handle ECC keys when they're implemented
-		ret = EVP_PKEY_bits(evp_key->evp);
-		if (ret <= 0) {
-			ret = YACA_ERROR_INTERNAL;
-			ERROR_DUMP(ret);
-			return ret;
-		}
+		switch (evp_key->key.type) {
+		case YACA_KEY_TYPE_RSA_PRIV:
+		case YACA_KEY_TYPE_RSA_PUB:
+		case YACA_KEY_TYPE_DSA_PRIV:
+		case YACA_KEY_TYPE_DSA_PUB:
+		case YACA_KEY_TYPE_DSA_PARAMS:
+		case YACA_KEY_TYPE_DH_PRIV:
+		case YACA_KEY_TYPE_DH_PUB:
+		case YACA_KEY_TYPE_DH_PARAMS:
+			ret = EVP_PKEY_bits(evp_key->evp);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				return ret;
+			}
 
-		*key_bit_len = ret;
-		return YACA_ERROR_NONE;
+			*key_bit_len = ret;
+			return YACA_ERROR_NONE;
+		case YACA_KEY_TYPE_EC_PRIV:
+		case YACA_KEY_TYPE_EC_PUB:
+		case YACA_KEY_TYPE_EC_PARAMS: {
+			assert(EVP_PKEY_type(evp_key->evp->type) == EVP_PKEY_EC);
+
+			const EC_KEY *eck = EVP_PKEY_get0(evp_key->evp);
+			const EC_GROUP *ecg = EC_KEY_get0_group(eck);
+			int flags = EC_GROUP_get_asn1_flag(ecg);
+			int nid;
+
+			if (!(flags & OPENSSL_EC_NAMED_CURVE))
+				/* This is case of a custom (not named) curve, that can happen when someone
+				   imports such a key into YACA. There is nothing that can be returned here */
+				return YACA_ERROR_INVALID_PARAMETER;
+
+			nid = EC_GROUP_get_curve_name(ecg);
+			return convert_nid_to_ec(nid, key_bit_len);
+		}
+		default:
+			/* We shouldn't be here */
+			assert(false);
+			return YACA_ERROR_INTERNAL;
+		}
 	}
 
 	return YACA_ERROR_INVALID_PARAMETER;
@@ -1113,12 +1471,14 @@ API int yaca_key_import(yaca_key_type_e key_type,
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_DSA_PRIV:
+	case YACA_KEY_TYPE_DSA_PARAMS:
+	case YACA_KEY_TYPE_DH_PUB:
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_DH_PARAMS:
+	case YACA_KEY_TYPE_EC_PUB:
+	case YACA_KEY_TYPE_EC_PRIV:
+	case YACA_KEY_TYPE_EC_PARAMS:
 		return import_evp(key, key_type, password, data, data_len);
-//	case YACA_KEY_TYPE_DH_PUB:
-//	case YACA_KEY_TYPE_DH_PRIV:
-//	case YACA_KEY_TYPE_EC_PUB:
-//	case YACA_KEY_TYPE_EC_PRIV:
-//		TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
@@ -1169,7 +1529,7 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 	struct yaca_key_simple_s *nk_simple = NULL;
 	struct yaca_key_evp_s *nk_evp = NULL;
 
-	if (key == NULL || key_bit_len == 0 || key_bit_len % 8 != 0)
+	if (key == NULL || key_bit_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	switch (key_type) {
@@ -1181,14 +1541,14 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 		ret = generate_simple_des(&nk_simple, key_bit_len);
 		break;
 	case YACA_KEY_TYPE_RSA_PRIV:
-		ret = generate_evp_rsa(&nk_evp, key_bit_len);
-		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
-		ret = generate_evp_dsa(&nk_evp, key_bit_len);
+	case YACA_KEY_TYPE_DSA_PARAMS:
+	case YACA_KEY_TYPE_DH_PRIV:
+	case YACA_KEY_TYPE_DH_PARAMS:
+	case YACA_KEY_TYPE_EC_PRIV:
+	case YACA_KEY_TYPE_EC_PARAMS:
+		ret = generate_evp(key_type, key_bit_len, NULL, &nk_evp);
 		break;
-//	case YACA_KEY_TYPE_DH_PRIV:
-//	case YACA_KEY_TYPE_EC_PRIV:
-//		TODO NOT_IMPLEMENTED
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
 	}
@@ -1202,22 +1562,64 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 	} else if (nk_evp != NULL) {
 		nk_evp->key.type = key_type;
 		*key = (yaca_key_h)nk_evp;
+	} else {
+		assert(false);
 	}
 
 	return YACA_ERROR_NONE;
+}
 
+API int yaca_key_generate_from_parameters(const yaca_key_h params, yaca_key_h *prv_key)
+{
+	int ret;
+	struct yaca_key_evp_s *evp_params = key_get_evp(params);
+	yaca_key_type_e params_type;
+	yaca_key_type_e key_type;
+	struct yaca_key_evp_s *nk_evp = NULL;
+
+	if (evp_params == NULL || prv_key == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = yaca_key_get_type(params, &params_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = convert_params_to_priv(params_type, &key_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = generate_evp(key_type, 0, evp_params, &nk_evp);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	assert(nk_evp != NULL);
+
+	nk_evp->key.type = key_type;
+	*prv_key = (yaca_key_h)nk_evp;
+
+	return YACA_ERROR_NONE;
 }
 
 API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 {
 	int ret;
 	struct yaca_key_evp_s *evp_key = key_get_evp(prv_key);
-	struct yaca_key_evp_s *nk;
+	struct yaca_key_evp_s *nk = NULL;
+	yaca_key_type_e prv_type;
+	yaca_key_type_e pub_type;
 	BIO *mem = NULL;
 	EVP_PKEY *pkey = NULL;
 
-	if (prv_key == YACA_KEY_NULL || evp_key == NULL || pub_key == NULL)
+	if (evp_key == NULL || pub_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = yaca_key_get_type(prv_key, &prv_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = convert_priv_to_pub(prv_type, &pub_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
 	if (ret != YACA_ERROR_NONE)
@@ -1247,24 +1649,76 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	BIO_free(mem);
 	mem = NULL;
 
-	switch (prv_key->type) {
-	case YACA_KEY_TYPE_RSA_PRIV:
-		nk->key.type = YACA_KEY_TYPE_RSA_PUB;
-		break;
-	case YACA_KEY_TYPE_DSA_PRIV:
-		nk->key.type = YACA_KEY_TYPE_DSA_PUB;
-		break;
-//	case YACA_KEY_TYPE_EC_PRIV:
-//		nk->key.type = YACA_KEY_TYPE_EC_PUB;
-//		break;
-	default:
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		goto exit;
-	}
-
+	nk->key.type = pub_type;
 	nk->evp = pkey;
 	pkey = NULL;
 	*pub_key = (yaca_key_h)nk;
+	nk = NULL;
+	ret = YACA_ERROR_NONE;
+
+exit:
+	EVP_PKEY_free(pkey);
+	BIO_free(mem);
+	yaca_free(nk);
+
+	return ret;
+}
+
+API int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params)
+{
+	int ret;
+	struct yaca_key_evp_s *evp_key = key_get_evp(key);
+	struct yaca_key_evp_s *nk = NULL;
+	yaca_key_type_e key_type;
+	yaca_key_type_e params_type;
+	BIO *mem = NULL;
+	EVP_PKEY *pkey = NULL;
+
+	if (evp_key == NULL || params == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = yaca_key_get_type(key, &key_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = convert_priv_to_params(key_type, &params_type);
+	if (ret != YACA_ERROR_NONE)
+		ret = convert_pub_to_params(key_type, &params_type);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	mem = BIO_new(BIO_s_mem());
+	if (mem == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = PEM_write_bio_Parameters(mem, evp_key->evp);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	pkey = PEM_read_bio_Parameters(mem, NULL);
+	if (pkey == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	BIO_free(mem);
+	mem = NULL;
+
+	nk->key.type = params_type;
+	nk->evp = pkey;
+	pkey = NULL;
+	*params = (yaca_key_h)nk;
 	nk = NULL;
 	ret = YACA_ERROR_NONE;
 
@@ -1290,6 +1744,142 @@ API void yaca_key_destroy(yaca_key_h key)
 		EVP_PKEY_free(evp_key->evp);
 		yaca_free(evp_key);
 	}
+}
+
+API int yaca_key_derive_dh(const yaca_key_h prv_key,
+                           const yaca_key_h pub_key,
+                           char **secret,
+                           size_t *secret_len)
+{
+	int ret;
+	struct yaca_key_evp_s *lprv_key = key_get_evp(prv_key);
+	struct yaca_key_evp_s *lpub_key = key_get_evp(pub_key);
+	EVP_PKEY_CTX *ctx;
+	char *data = NULL;
+	size_t data_len;
+
+	if (lprv_key == NULL || lpub_key == NULL || secret == NULL || secret_len == NULL ||
+	    (!(lprv_key->key.type == YACA_KEY_TYPE_DH_PRIV &&
+	       lpub_key->key.type == YACA_KEY_TYPE_DH_PUB)
+	    &&
+	     !(lprv_key->key.type == YACA_KEY_TYPE_EC_PRIV &&
+	       lpub_key->key.type == YACA_KEY_TYPE_EC_PUB)))
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ctx = EVP_PKEY_CTX_new(lprv_key->evp, NULL);
+	if (ctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = EVP_PKEY_derive_init(ctx);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = EVP_PKEY_derive_set_peer(ctx, lpub_key->evp);
+	if (ret != 1) {
+		ret = ERROR_HANDLE();
+		goto exit;
+	}
+
+	ret = EVP_PKEY_derive(ctx, NULL, &data_len);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	if (data_len == 0 || data_len > SIZE_MAX / 8) {
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		goto exit;
+	}
+
+	ret = yaca_zalloc(data_len, (void**)&data);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = EVP_PKEY_derive(ctx, (unsigned char*)data, &data_len);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	*secret = data;
+	data = NULL;
+	*secret_len = data_len;
+
+	ret = YACA_ERROR_NONE;
+
+exit:
+	EVP_PKEY_CTX_free(ctx);
+	yaca_free(data);
+	return ret;
+}
+
+API int yaca_key_derive_kdf(yaca_kdf_e kdf,
+                            yaca_digest_algorithm_e algo,
+                            const char *secret,
+                            size_t secret_len,
+                            const char *info,
+                            size_t info_len,
+                            size_t key_material_len,
+                            char **key_material)
+{
+	int ret;
+	char *out = NULL;
+	const EVP_MD *md;
+
+	if (secret == NULL || secret_len == 0 ||
+	    (info == NULL && info_len > 0) || (info != NULL && info_len == 0) ||
+	    key_material_len == 0 || key_material == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = yaca_zalloc(key_material_len, (void**)&out);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = digest_get_algorithm(algo, &md);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	switch (kdf) {
+	case YACA_KDF_X942:
+		ret = DH_KDF_X9_42((unsigned char*)out, key_material_len,
+		                   (unsigned char*)secret, secret_len,
+		                   OBJ_nid2obj(NID_id_smime_alg_ESDH), (unsigned char*)info, info_len, md);
+		if (ret != 1 || out == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
+		break;
+	case YACA_KDF_X962:
+		ret = ECDH_KDF_X9_62((unsigned char*)out, key_material_len,
+		                     (unsigned char*)secret, secret_len,
+		                     (unsigned char*)info, info_len, md);
+		if (ret != 1 || out == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto exit;
+		}
+		break;
+	default:
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		goto exit;
+	}
+
+	*key_material = out;
+	out = NULL;
+	ret = YACA_ERROR_NONE;
+
+exit:
+	yaca_free(out);
+	return ret;
 }
 
 API int yaca_key_derive_pbkdf2(const char *password,

@@ -33,6 +33,108 @@ extern "C" {
  * @{
  */
 
+/* The format of the unsigned int used to indicate key_bit_len is as follows:
+ *
+ *      Bits indicating a type:
+ *           bits 31-28 (4 bits) indicate key_length type:
+ *                0000(0) - regular type for RSA, DSA
+ *                0001(1) - DH with specified generator
+ *                0010(2) - DH with RFC 5114
+ *                0011(3) - elliptic curve
+ *                remaining combinations reserved
+ *
+ *      Bits for a regular type:
+ *           bits 27-0  (28 bits) indicate length of the key in bits
+ *
+ *      Bits for a DH with specified generator number:
+ *           bits 27-24 (4 bits) indicate DH generator
+ *                0000(0) - generator 2
+ *                0001(1) - generator 5
+ *                remaining combinations reserved
+ *           bits 23-16 (8 bits) reserved
+ *           bits 15-0 (16 bits) length of the safe prime in bits
+ *
+ *      Bits for a DH with RFC 5114:
+ *           bits 27-24 (4 bits) indicate a bit subgroup:
+ *                0000(0) - 160
+ *                0001(1) - 224
+ *                0010(2) - 256
+ *                remaining combinations reserved
+ *           bits 23-16 (8 bits) reserved
+ *           bits 15-0 (16 bits) length of the safe prime in bits
+ *
+ *      Bits for an elliptic curve type:
+ *           bits 27-24 (4 bits) indicate type of an elliptic curve:
+ *                0000(0) - X9.62 Prime
+ *                0001(1) - SECP
+ *                0010(2) - SECT
+ *                0011(3) - Brainpool
+ *                remaining combinations reserved (c2pnb, c2tnb, c2onb...)
+ *           bits 23-20 (4 bits) indicate a letter:
+ *                0000(0) - v
+ *                0001(1) - r
+ *                0010(2) - k
+ *                0011(3) - t
+ *                remaining combinations reserved (w...)
+ *           bits 19-16 (4 bits) indicate a number:
+ *                0000(0) - 1
+ *                0001(1) - 2
+ *                0010(2) - 3
+ *                0011(3) - 4
+ *                remaining combinations reserved
+ *           bits 15-0 (16 bits) - length of the prime field in bits
+ *
+ * Those bits are used for DH and EC. For any other keys key_bit_len can be passed just
+ * as a number of bits (4 most significant bits set to 0000, 28 bits for bit length).
+ *
+ * In any case those defines are not be used directly.
+ *
+ * For DH keys use YACA_KEY_LENGTH_DH_GENERATOR_* or'ed with safe prime length.
+ * Alternatively one can use values from yaca_key_bit_length_dh_rfc_e enum to use
+ * RFC 5114 parameters.
+ *
+ * For elliptic curves use values from yaca_key_bit_length_ec_e enum.
+ */
+
+/** @cond  Don't include those defines in doxygen, they are not to be used directly */
+
+/* types */
+#define YACA_INTERNAL_KEYLEN_TYPE_MASK     (0xF << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_BITS     (0U << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_DH       (1U << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_DH_RFC   (2U << 28)
+#define YACA_INTERNAL_KEYLEN_TYPE_EC       (3U << 28)
+
+/* DH type */
+#define YACA_INTERNAL_KEYLEN_DH_GEN_MASK   (0xF << 24)
+#define YACA_INTERNAL_KEYLEN_DH_GEN_2      (0U << 24)
+#define YACA_INTERNAL_KEYLEN_DH_GEN_5      (1U << 24)
+
+#define YACA_INTERNAL_KEYLEN_DH_PRIME_MASK (0xFFFF << 0)
+
+/* DH_RFC type */
+#define YACA_INTERNAL_KEYLEN_DH_RFC_MASK   (0xF << 24)
+#define YACA_INTERNAL_KEYLEN_DH_RFC_160    (0U << 24)
+#define YACA_INTERNAL_KEYLEN_DH_RFC_224    (1U << 24)
+#define YACA_INTERNAL_KEYLEN_DH_RFC_256    (2U << 24)
+
+/* EC type */
+#define YACA_INTERNAL_KEYLEN_EC_PRIME      (0U << 24)
+#define YACA_INTERNAL_KEYLEN_EC_SECP       (1U << 24)
+#define YACA_INTERNAL_KEYLEN_EC_SECT       (2U << 24)
+#define YACA_INTERNAL_KEYLEN_EC_BRAINPOOL  (3U << 24)
+
+#define YACA_INTERNAL_KEYLEN_EC_V          (0U << 20)
+#define YACA_INTERNAL_KEYLEN_EC_R          (1U << 20)
+#define YACA_INTERNAL_KEYLEN_EC_K          (2U << 20)
+#define YACA_INTERNAL_KEYLEN_EC_T          (3U << 20)
+
+#define YACA_INTERNAL_KEYLEN_EC_1          (0U << 16)
+#define YACA_INTERNAL_KEYLEN_EC_2          (1U << 16)
+#define YACA_INTERNAL_KEYLEN_EC_3          (2U << 16)
+#define YACA_INTERNAL_KEYLEN_EC_4          (3U << 16)
+/** @endcond */
+
 /**
  * @brief The context handle.
  *
@@ -41,7 +143,7 @@ extern "C" {
 typedef struct yaca_context_s *yaca_context_h;
 
 /**
- * @brief The key handle.
+ * @brief The handle of a key, an IV or a key generation parameters.
  *
  * @since_tizen 3.0
  */
@@ -97,6 +199,23 @@ typedef enum {
 	YACA_KEY_TYPE_DSA_PUB,
 	/** Digital Signature Algorithm private key */
 	YACA_KEY_TYPE_DSA_PRIV,
+
+	/** Diffie-Hellman public key */
+	YACA_KEY_TYPE_DH_PUB,
+	/** Diffie-Hellman private key */
+	YACA_KEY_TYPE_DH_PRIV,
+
+	/** Elliptic Curve public key (for DSA and DH) */
+	YACA_KEY_TYPE_EC_PUB,
+	/** Elliptic Curve private key (for DSA and DH) */
+	YACA_KEY_TYPE_EC_PRIV,
+
+	/** Digital Signature Algorithm parameters */
+	YACA_KEY_TYPE_DSA_PARAMS,
+	/** Diffie-Hellman parameters */
+	YACA_KEY_TYPE_DH_PARAMS,
+	/** Elliptic Curve parameters */
+	YACA_KEY_TYPE_EC_PARAMS
 } yaca_key_type_e;
 
 /**
@@ -138,6 +257,56 @@ typedef enum {
 } yaca_key_bit_length_e;
 
 /**
+ * @brief Enumeration of YACA elliptic curve types with their bit lengths.
+ *        It's meant to be passed or returned as a @a key_bit_len param
+ *        in appropriate functions when dealing with elliptic curves.
+ *
+ * @since_tizen 3.0
+ */
+typedef enum {
+	/** Elliptic curve prime192v1 */
+	YACA_KEY_LENGTH_EC_PRIME192V1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_PRIME | YACA_INTERNAL_KEYLEN_EC_V | YACA_INTERNAL_KEYLEN_EC_1 | 192U,
+	/** Elliptic curve prime256v1 */
+	YACA_KEY_LENGTH_EC_PRIME256V1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_PRIME | YACA_INTERNAL_KEYLEN_EC_V | YACA_INTERNAL_KEYLEN_EC_1 | 256U,
+	/** Elliptic curve secp256k1 */
+	YACA_KEY_LENGTH_EC_SECP256K1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_SECP | YACA_INTERNAL_KEYLEN_EC_K | YACA_INTERNAL_KEYLEN_EC_1 | 256U,
+	/** Elliptic curve secp384r1 */
+	YACA_KEY_LENGTH_EC_SECP384R1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_SECP | YACA_INTERNAL_KEYLEN_EC_R | YACA_INTERNAL_KEYLEN_EC_1 | 384U,
+	/** Elliptic curve secp521r1 */
+	YACA_KEY_LENGTH_EC_SECP521R1 = YACA_INTERNAL_KEYLEN_TYPE_EC | YACA_INTERNAL_KEYLEN_EC_SECP | YACA_INTERNAL_KEYLEN_EC_R | YACA_INTERNAL_KEYLEN_EC_1 | 521U
+} yaca_key_bit_length_ec_e;
+
+/**
+ * @brief A value indicating generator equal 2 for DH parameters.
+ *        To be or'ed with safe prime length in bits. Prime length is recommended
+ *        to be 2048 bits or higher.
+ */
+#define YACA_KEY_LENGTH_DH_GENERATOR_2 (YACA_INTERNAL_KEYLEN_TYPE_DH | YACA_INTERNAL_KEYLEN_DH_GEN_2)
+/**
+ * @brief A value indicating generator equal 5 for DH parameters.
+ *        To be or'ed with safe prime length in bits. Prime length is recommended
+ *        to be 2048 bits or higher.
+ */
+#define YACA_KEY_LENGTH_DH_GENERATOR_5 (YACA_INTERNAL_KEYLEN_TYPE_DH | YACA_INTERNAL_KEYLEN_DH_GEN_5)
+
+/**
+ * @brief Enumeration of YACA DH parameters taken from RFC 5114.
+ *        It's meant to be passed or returned as a @a key_bit_len param
+ *        in appropriate functions when dealing with DH and wanting to
+ *        use RFC 5114 values.
+ *
+ * @since_tizen 3.0
+ */
+typedef enum {
+	/** RFC 5114 DH parameters 1024_160 */
+	YACA_KEY_LENGTH_DH_RFC_1024_160 = YACA_INTERNAL_KEYLEN_TYPE_DH_RFC | YACA_INTERNAL_KEYLEN_DH_RFC_160 | 1024U,
+	/** RFC 5114 DH parameters 2048_224 */
+	YACA_KEY_LENGTH_DH_RFC_2048_224 = YACA_INTERNAL_KEYLEN_TYPE_DH_RFC | YACA_INTERNAL_KEYLEN_DH_RFC_224 | 2048U,
+	/** RFC 5114 DH parameters 2048_256 */
+	YACA_KEY_LENGTH_DH_RFC_2048_256 = YACA_INTERNAL_KEYLEN_TYPE_DH_RFC | YACA_INTERNAL_KEYLEN_DH_RFC_256 | 2048U
+} yaca_key_bit_length_dh_rfc_e;
+
+/**
  * @brief Enumeration of YACA message digest algorithms.
  *
  * @since_tizen 3.0
@@ -175,7 +344,8 @@ typedef enum {
 	 * #YACA_BCM_ECB,\n
 	 * #YACA_BCM_GCM,\n
 	 * #YACA_BCM_CCM,\n
-	 * #YACA_BCM_CTR
+	 * #YACA_BCM_CTR,\n
+	 * #YACA_BCM_WRAP
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 */
 	YACA_ENCRYPT_AES = 0,
@@ -216,7 +386,8 @@ typedef enum {
 	 * #YACA_BCM_CFB,\n
 	 * #YACA_BCM_CFB1,\n
 	 * #YACA_BCM_CFB8,\n
-	 * #YACA_BCM_ECB
+	 * #YACA_BCM_ECB,\n
+	 * #YACA_BCM_WRAP
 	 * - see #yaca_block_cipher_mode_e for details on additional properties (mandatory).
 	 * - Use triple DES keys to perform corresponding 3-key 3DES encryption.
 	 */
@@ -273,7 +444,12 @@ typedef enum {
 
 	/**
 	 * ECB block cipher mode.
-	 * Encrypts 64 bit at a time. No IV is used.
+	 * No IV is used.
+	 *
+	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
+	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
+	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
+	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
 	 */
 	YACA_BCM_ECB,
 
@@ -288,6 +464,11 @@ typedef enum {
 	 * CBC block cipher mode.
 	 * 16-byte initialization vector for AES,
 	 * 8-byte for other algorithms is mandatory.
+	 *
+	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
+	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
+	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
+	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
 	 */
 	YACA_BCM_CBC,
 
@@ -301,7 +482,8 @@ typedef enum {
 	 *   (recommended 128 bits tag).\n
 	 *   Set after yaca_encrypt_finalize() / yaca_seal_finalize() and before
 	 *   yaca_context_get_property(#YACA_PROPERTY_GCM_TAG)
-	 *   in encryption / seal operation. The @a value should be a size_t variable.\n\n
+	 *   in encryption / seal operation. The @a value should be a size_t variable.\n
+	 *   In decryption / open operation tag length is not set.\n\n
 	 *
 	 * - #YACA_PROPERTY_GCM_TAG = GCM tag\n
 	 *   Get after yaca_encrypt_finalize() / yaca_seal_finalize() in encryption / seal operation.\n
@@ -314,8 +496,6 @@ typedef enum {
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
 	 *   @see yaca_context_set_property()
-	 *   @see examples/encrypt_aes_gcm_ccm.c
-	 *   @see examples/seal.c
 	 */
 	YACA_BCM_GCM,
 
@@ -357,7 +537,8 @@ typedef enum {
 	 *   Supported tag lengths: 32-128 bits in step of 16 bits (recommended 96 bits tag).\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
 	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.
-	 *   The @a value should be a size_t variable. \n\n
+	 *   The @a value should be a size_t variable.\n
+	 *   In decryption / open operation tag length is not set.\n\n
 	 *
 	 * - #YACA_PROPERTY_CCM_TAG = CCM tag\n
 	 *   Get after yaca_encrypt_finalize() / yaca_seal_finalize() in encryption / seal operation.\n
@@ -377,10 +558,28 @@ typedef enum {
 	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
-	 *   @see examples/encrypt_aes_gcm_ccm.c
-	 *   @see examples/seal.c
+	 *   @see yaca_context_set_property()
 	 */
-	YACA_BCM_CCM
+	YACA_BCM_CCM,
+
+	/**
+	 * Used with #YACA_ENCRYPT_AES or #YACA_ENCRYPT_3DES_3TDEA to perform a key wrapping
+	 * (key material symmetric encryption).
+	 *
+	 * Only a single yaca_encrypt_update() / yaca_decrypt_update() is allowed.
+	 *
+	 * Usage in yaca_seal_initialize() / yaca_open_finalize() is forbidden.
+	 *
+	 * Key used to do the wrapping with #YACA_ENCRYPT_AES can be a 128-bit key, a 192-bit key, or a 256-bit key.
+	 * Wrapped key can be a 128-bit key, a 192-bit key, or a 256-bit key.
+	 * #YACA_ENCRYPT_AES allows wrapping multiple keys together.
+	 *
+	 * Key used to do the wrapping with #YACA_ENCRYPT_3DES_3TDEA can be a 192 bit DES key only.
+	 * Wrapped key can be a 128-bit DES key (two-key), or a 192-bit DES key (three-key).
+	 * #YACA_ENCRYPT_3DES_3TDEA allows wrapping only one key.
+	 *
+	 */
+	YACA_BCM_WRAP
 
 } yaca_block_cipher_mode_e;
 
@@ -394,7 +593,7 @@ typedef enum {
  */
 typedef enum {
 	/**
-	 * Padding for the sign/verify operation. Property type is #yaca_padding_e.
+	 * Padding for the encrypt/decrypt or sign/verify operation. Property type is #yaca_padding_e.
 	 *
 	 * This property can be set at the latest before the *_finalize() call.
 	 */
@@ -430,6 +629,25 @@ typedef enum {
 	/** RSA signature/verify operations */
 	YACA_PADDING_PKCS1_PSS,
 } yaca_padding_e;
+
+/**
+ * @brief Enumeration of YACA key derivation functions.
+ *
+ * @since_tizen 3.0
+ */
+typedef enum {
+	/**
+	 * ANSI X9.42 key derivation function,
+	 * (shared secret derived using Diffie-Helmann key exchange protocol).
+	 */
+	YACA_KDF_X942,
+
+	/**
+	 * ANSI X9.62 key derivation function,
+	 * (shared secret derived using EC Diffie-Helmann key exchange protocol).
+	 */
+	YACA_KDF_X962,
+} yaca_kdf_e;
 
 /**
   * @}

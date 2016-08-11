@@ -25,6 +25,7 @@
  *           - All operations are single-shot (no streaming possible)
  *           - Context is not used
  *           - For now only digest and symmetric ciphers are supported
+ *           - Disabling PKCS#5 padding for ECB and CBC chaining is not supported.
  *           - GCM and CCM chaining is not supported
  *           - All outputs are allocated by the library
  */
@@ -82,7 +83,7 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  *
  * @param[in]  algo            Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
  * @param[in]  bcm             Chaining mode (select #YACA_BCM_CBC if unsure)
- * @param[in]  sym_key         Symmetric encryption key (see key.h for key generation functions)
+ * @param[in]  sym_key         Symmetric encryption key (see yaca_key.h for key generation functions)
  * @param[in]  iv              Initialization vector
  * @param[in]  plaintext       Plaintext to be encrypted
  * @param[in]  plaintext_len   Length of the plaintext

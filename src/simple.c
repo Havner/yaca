@@ -120,22 +120,19 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	}
 
 	lciphertext_len += out_len;
-
 	assert(lciphertext_len > 0);
 
 	ret = yaca_malloc(lciphertext_len, (void**)&lciphertext);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	out_len = lciphertext_len;
 	ret = yaca_encrypt_update(ctx, plaintext, plaintext_len, lciphertext, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	assert(out_len <= lciphertext_len);
-
 	written = out_len;
-	out_len = lciphertext_len - written;
+
 	ret = yaca_encrypt_finalize(ctx, lciphertext + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -202,15 +199,13 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	out_len = lplaintext_len;
 	ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, lplaintext, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	assert(out_len <= lplaintext_len);
-
 	written = out_len;
-	out_len = lplaintext_len - written;
+
 	ret = yaca_decrypt_finalize(ctx, lplaintext + written, &out_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
