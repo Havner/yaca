@@ -49,6 +49,8 @@ extern "C" {
  *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
+ * @remarks  The @a pub_key must be #YACA_KEY_TYPE_RSA_PUB
+ *
  * @remarks  The @a sym_key should be released using yaca_key_destroy()
  *
  * @remarks  The @a iv should be released using yaca_key_destroy()
@@ -151,6 +153,8 @@ int yaca_seal_finalize(yaca_context_h ctx,
  * @since_tizen 3.0
  *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
+ *
+ * @remarks  The @a prv_key must be #YACA_KEY_TYPE_RSA_PRIV
  *
  * @param[out] ctx              Newly created context
  * @param[in]  prv_key          Private key, part of the pair that was used for the encryption

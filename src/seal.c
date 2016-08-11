@@ -149,8 +149,8 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
                              const yaca_key_h pub_key,
                              yaca_encrypt_algorithm_e algo,
                              yaca_block_cipher_mode_e bcm,
-                             size_t bit_len,
-                             yaca_key_h *enc_sym_key,
+                             size_t sym_key_bit_len,
+                             yaca_key_h *sym_key,
                              yaca_key_h *iv)
 {
 	int ret;
@@ -160,10 +160,10 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
 	yaca_key_h lenc_sym_key = YACA_KEY_NULL;
 
 	if (pub_key == YACA_KEY_NULL || pub_key->type != YACA_KEY_TYPE_RSA_PUB ||
-	    enc_sym_key == NULL || bcm == YACA_BCM_WRAP)
+	    sym_key == NULL || bcm == YACA_BCM_WRAP || sym_key_bit_len % 8 != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = encrypt_get_algorithm(algo, bcm, bit_len, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, sym_key_bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -189,7 +189,7 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	*enc_sym_key = lenc_sym_key;
+	*sym_key = lenc_sym_key;
 	lenc_sym_key = YACA_KEY_NULL;
 	*iv = liv;
 	liv = YACA_KEY_NULL;
@@ -224,8 +224,8 @@ API int yaca_open_initialize(yaca_context_h *ctx,
                              const yaca_key_h prv_key,
                              yaca_encrypt_algorithm_e algo,
                              yaca_block_cipher_mode_e bcm,
-                             size_t bit_len,
-                             const yaca_key_h enc_sym_key,
+                             size_t sym_key_bit_len,
+                             const yaca_key_h sym_key,
                              const yaca_key_h iv)
 {
 	int ret;
@@ -233,15 +233,15 @@ API int yaca_open_initialize(yaca_context_h *ctx,
 	yaca_key_h lsym_key = YACA_KEY_NULL;
 
 	if (prv_key == YACA_KEY_NULL || prv_key->type != YACA_KEY_TYPE_RSA_PRIV ||
-	    enc_sym_key == YACA_KEY_NULL || bcm == YACA_BCM_WRAP)
+	    sym_key == YACA_KEY_NULL || bcm == YACA_BCM_WRAP || sym_key_bit_len % 8 != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = encrypt_get_algorithm(algo, bcm, bit_len, &cipher);
+	ret = encrypt_get_algorithm(algo, bcm, sym_key_bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	/* using private key will make it decrypt the symmetric key */
-	ret = seal_encrypt_decrypt_key(prv_key, enc_sym_key, &lsym_key);
+	ret = seal_encrypt_decrypt_key(prv_key, sym_key, &lsym_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
