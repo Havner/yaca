@@ -172,7 +172,8 @@ int yaca_key_import(yaca_key_type_e key_type,
  *
  * @remarks  Encryption is obligatory for #YACA_KEY_FORMAT_PKCS8 format (for both, PEM and DER
  *           file formats). If no password is provided the #YACA_ERROR_INVALID_PARAMETER will
- *           be returned. The encryption algorithm used in this case is PBE with DES-CBC.
+ *           be returned. The encryption algorithm used in this case is AES-256-CBC. The key is
+ *           generated from password using PBKDF2 with HMAC-SHA1 function and 2048 iterations.
  *
  * @remarks  Encryption is not supported for the symmetric, public keys and key generation
  *           parameters in all their supported formats. If a password is provided in such

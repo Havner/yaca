@@ -809,7 +809,7 @@ static int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 	assert(mem != NULL);
 
 	int ret;
-	int nid = NID_pbeWithMD5AndDES_CBC;
+	const EVP_CIPHER *enc = EVP_aes_256_cbc();;
 
 	/* PKCS8 export requires a password */
 	if (password == NULL)
@@ -824,8 +824,8 @@ static int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_DSA_PRIV:
 		case YACA_KEY_TYPE_DH_PRIV:
 		case YACA_KEY_TYPE_EC_PRIV:
-			ret = PEM_write_bio_PKCS8PrivateKey_nid(mem, evp_key->evp, nid,
-			                                        NULL, 0, NULL, (void*)password);
+			ret = PEM_write_bio_PKCS8PrivateKey(mem, evp_key->evp, enc,
+			                                    NULL, 0, NULL, (void*)password);
 			break;
 
 		default:
@@ -841,8 +841,8 @@ static int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 		case YACA_KEY_TYPE_DSA_PRIV:
 		case YACA_KEY_TYPE_DH_PRIV:
 		case YACA_KEY_TYPE_EC_PRIV:
-			ret = i2d_PKCS8PrivateKey_nid_bio(mem, evp_key->evp, nid,
-			                                  NULL, 0, NULL, (void*)password);
+			ret = i2d_PKCS8PrivateKey_bio(mem, evp_key->evp, enc,
+			                              NULL, 0, NULL, (void*)password);
 			break;
 
 		default:
