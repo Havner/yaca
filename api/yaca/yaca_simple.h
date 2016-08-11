@@ -162,7 +162,7 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
  *                            - #YACA_KEY_TYPE_DSA_PRIV,
  * @param[in]  data           Data to be signed
  * @param[in]  data_len       Length of the data
- * @param[out] signature      Message signature, will be allocated by the
+ * @param[out] signature      Message signature, will be allocated by the library
  * @param[out] signature_len  Length of the signature
  *
  * @return #YACA_ERROR_NONE on success, negative on error
