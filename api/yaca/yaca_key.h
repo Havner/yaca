@@ -318,19 +318,6 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
 int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params);
 
 /**
- * @brief  Release the key created by the library. Passing YACA_KEY_NULL is allowed.
- *
- * @since_tizen 3.0
- *
- * @param[in,out] key  Key to be released
- *
- * @see yaca_key_import()
- * @see yaca_key_export()
- * @see yaca_key_generate()
- */
-void yaca_key_destroy(yaca_key_h key);
-
-/**
  * @brief  Derives a shared secret using Diffie-Helmann or EC Diffie-Helmann key exchange protocol.
  *
  * @since_tizen 3.0
@@ -435,6 +422,19 @@ int yaca_key_derive_pbkdf2(const char *password,
                            yaca_digest_algorithm_e algo,
                            size_t key_bit_len,
                            yaca_key_h *key);
+
+/**
+ * @brief  Release the key created by the library. Passing YACA_KEY_NULL is allowed.
+ *
+ * @since_tizen 3.0
+ *
+ * @param[in,out] key  Key to be released
+ *
+ * @see yaca_key_import()
+ * @see yaca_key_export()
+ * @see yaca_key_generate()
+ */
+void yaca_key_destroy(yaca_key_h key);
 
 /**
   * @}

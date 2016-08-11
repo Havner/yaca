@@ -245,19 +245,6 @@ int yaca_context_get_property(const yaca_context_h ctx,
                               size_t *value_len);
 
 /**
- * @brief  Destroys the crypto context. Must be called on all contexts that are
- *         no longer used. Passing #YACA_CONTEXT_NULL is allowed.
- *
- * @since_tizen 3.0
- *
- * @param[in,out] ctx  Crypto context
- *
- * @see #yaca_context_h
- *
- */
-void yaca_context_destroy(yaca_context_h ctx);
-
-/**
  * @brief  Returns the minimum required size of the output buffer for a single crypto function call.
  *
  * @since_tizen 3.0
@@ -285,6 +272,19 @@ void yaca_context_destroy(yaca_context_h ctx);
 int yaca_context_get_output_length(const yaca_context_h ctx,
                                    size_t input_len,
                                    size_t *output_len);
+
+/**
+ * @brief  Destroys the crypto context. Must be called on all contexts that are
+ *         no longer used. Passing #YACA_CONTEXT_NULL is allowed.
+ *
+ * @since_tizen 3.0
+ *
+ * @param[in,out] ctx  Crypto context
+ *
+ * @see #yaca_context_h
+ *
+ */
+void yaca_context_destroy(yaca_context_h ctx);
 
 /**
   * @}

@@ -46,35 +46,6 @@ extern "C" {
  */
 
 /**
- * @brief  Calculates a digest of a buffer.
- *
- * @since_tizen 3.0
- *
- * @remarks  The @a digest should be freed using yaca_free()
- *
- * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure)
- * @param[in]  data        Data from which the digest is to be calculated
- * @param[in]  data_len    Length of the data. Can be 0.
- * @param[out] digest      Message digest, will be allocated by the library
- * @param[out] digest_len  Length of message digest (depends on algorithm)
- *
- * @return #YACA_ERROR_NONE on success, negative on error
- * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo)
- * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
- * @retval #YACA_ERROR_INTERNAL Internal error
- *
- * @see #yaca_digest_algorithm_e
- * @see yaca_free()
- */
-int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
-                                 const char *data,
-                                 size_t data_len,
-                                 char **digest,
-                                 size_t *digest_len);
-
-/**
  * @brief  Encrypts data using a symmetric cipher.
  *
  * @since_tizen 3.0
@@ -147,6 +118,35 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
                         size_t ciphertext_len,
                         char **plaintext,
                         size_t *plaintext_len);
+
+/**
+ * @brief  Calculates a digest of a buffer.
+ *
+ * @since_tizen 3.0
+ *
+ * @remarks  The @a digest should be freed using yaca_free()
+ *
+ * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure)
+ * @param[in]  data        Data from which the digest is to be calculated
+ * @param[in]  data_len    Length of the data. Can be 0.
+ * @param[out] digest      Message digest, will be allocated by the library
+ * @param[out] digest_len  Length of message digest (depends on algorithm)
+ *
+ * @return #YACA_ERROR_NONE on success, negative on error
+ * @retval #YACA_ERROR_NONE Successful
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
+ *                                       invalid algo)
+ * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
+ * @retval #YACA_ERROR_INTERNAL Internal error
+ *
+ * @see #yaca_digest_algorithm_e
+ * @see yaca_free()
+ */
+int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
+                                 const char *data,
+                                 size_t data_len,
+                                 char **digest,
+                                 size_t *digest_len);
 
 /**
  * @brief  Creates a signature using asymmetric private key.
