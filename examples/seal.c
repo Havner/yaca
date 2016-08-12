@@ -30,7 +30,6 @@
 
 #include "lorem.h"
 #include "misc.h"
-#include "../src/debug.h"
 
 void encrypt_seal(const yaca_encrypt_algorithm_e algo,
                   const yaca_block_cipher_mode_e bcm,
@@ -428,8 +427,6 @@ exit:
 
 int main()
 {
-	yaca_debug_set_error_cb(debug_func);
-
 	int ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		return ret;

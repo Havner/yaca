@@ -18,12 +18,13 @@
 
 #include <stdio.h>
 #include <string.h>
+
 #include <yaca_crypto.h>
 #include <yaca_key.h>
 #include <yaca_types.h>
 #include <yaca_error.h>
+
 #include "misc.h"
-#include "../src/debug.h"
 
 void example_password(const yaca_key_h key, yaca_key_format_e key_fmt,
                       yaca_key_file_format_e key_file_fmt)
@@ -80,8 +81,6 @@ int main()
 {
 	int ret;
 	yaca_key_h key = YACA_KEY_NULL;
-
-	yaca_debug_set_error_cb(debug_func);
 
 	ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)

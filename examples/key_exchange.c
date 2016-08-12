@@ -28,7 +28,6 @@
 #include <yaca_error.h>
 
 #include "misc.h"
-#include "../src/debug.h"
 
 /* send own public key and get peer public key */
 static yaca_key_h exchange_keys(const yaca_key_h pkey)
@@ -167,8 +166,6 @@ exit:
 
 int main()
 {
-	yaca_debug_set_error_cb(debug_func);
-
 	yaca_key_h ecdh_key = YACA_KEY_NULL;
 	yaca_key_h dh_params = YACA_KEY_NULL;
 	yaca_key_h dh_key_from_params = YACA_KEY_NULL;

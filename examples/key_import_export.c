@@ -28,7 +28,6 @@
 #include <yaca_error.h>
 
 #include "misc.h"
-#include "../src/debug.h"
 
 int key_import_export_sym(yaca_key_h sym)
 {
@@ -252,8 +251,6 @@ int main()
 	ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		return ret;
-
-	yaca_debug_set_error_cb(debug_func);
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_1024BIT, &sym);
 	if (ret != YACA_ERROR_NONE)

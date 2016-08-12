@@ -17,20 +17,19 @@
  */
 
 #include <stdio.h>
+
 #include <yaca_crypto.h>
 #include <yaca_key.h>
 #include <yaca_types.h>
 #include <yaca_error.h>
+
 #include "misc.h"
-#include "../src/debug.h"
 
 int main()
 {
 	int ret;
 	yaca_key_h key = YACA_KEY_NULL;
 	yaca_key_h key_params = YACA_KEY_NULL;
-
-	yaca_debug_set_error_cb(debug_func);
 
 	ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
