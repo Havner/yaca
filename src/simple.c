@@ -99,7 +99,8 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 
 	if (plaintext == NULL || plaintext_len == 0 ||
 	    ciphertext == NULL || ciphertext_len == NULL ||
-	    sym_key == YACA_KEY_NULL)
+	    sym_key == YACA_KEY_NULL ||
+	    bcm == YACA_BCM_CCM || bcm == YACA_BCM_GCM)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_encrypt_initialize(&ctx, algo, bcm, sym_key, iv);
@@ -172,7 +173,8 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 
 	if (ciphertext == NULL || ciphertext_len == 0 ||
 	    plaintext == NULL || plaintext_len == NULL ||
-	    sym_key == YACA_KEY_NULL)
+	    sym_key == YACA_KEY_NULL ||
+	    bcm == YACA_BCM_CCM || bcm == YACA_BCM_GCM)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_decrypt_initialize(&ctx, algo, bcm, sym_key, iv);

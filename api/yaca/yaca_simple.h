@@ -50,6 +50,8 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
+ * @remarks  yaca_simple_encrypt() doesn't support #YACA_BCM_GCM and #YACA_BCM_CCM
+ *
  * @remarks  The @a ciphertext should be freed using yaca_free()
  *
  * @param[in]  algo            Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
@@ -86,6 +88,8 @@ int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
  * @brief  Decrypts data using a symmetric cipher.
  *
  * @since_tizen 3.0
+ *
+ * @remarks  yaca_simple_decrypt() doesn't support #YACA_BCM_GCM and #YACA_BCM_CCM
  *
  * @remarks  The @a plaintext should be freed using yaca_free()
  *
