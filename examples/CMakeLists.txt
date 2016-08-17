@@ -53,6 +53,7 @@ BUILD_EXAMPLE("yaca-example-key-exchange"     key_exchange.c)
 BUILD_EXAMPLE("yaca-example-key-impexp"       key_import_export.c)
 BUILD_EXAMPLE("yaca-example-key-password"     key_password.c)
 BUILD_EXAMPLE("yaca-example-key-wrap"         key_wrap.c)
+BUILD_EXAMPLE("yaca-example-rsa"              rsa.c)
 
 INSTALL(FILES       ${COMMON_SOURCES}
         DESTINATION ${EXAMPLES_DIR})
