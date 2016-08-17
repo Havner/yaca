@@ -938,13 +938,31 @@ int encrypt_update(yaca_context_h ctx,
 	if (!verify_state_change(c, target_state))
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (mode == EVP_CIPH_WRAP_MODE && op_type == OP_ENCRYPT) {
-		if (type == NID_id_aes128_wrap || type == NID_id_aes192_wrap || type == NID_id_aes256_wrap) {
-			if (input_len % 8 != 0 || input_len < (YACA_KEY_LENGTH_UNSAFE_128BIT / 8))
-				return YACA_ERROR_INVALID_PARAMETER;
-		} else if (type == NID_id_smime_alg_CMS3DESwrap) {
-			if (input_len != (YACA_KEY_LENGTH_UNSAFE_128BIT / 8) && input_len != (YACA_KEY_LENGTH_192BIT / 8))
-				return YACA_ERROR_INVALID_PARAMETER;
+	if (mode == EVP_CIPH_WRAP_MODE) {
+		if (op_type == OP_ENCRYPT) {
+			if (type == NID_id_aes128_wrap || type == NID_id_aes192_wrap || type == NID_id_aes256_wrap) {
+				if (input_len % 8 != 0 || input_len < (YACA_KEY_LENGTH_UNSAFE_128BIT / 8))
+					return YACA_ERROR_INVALID_PARAMETER;
+			} else if (type == NID_id_smime_alg_CMS3DESwrap) {
+				if (input_len != (YACA_KEY_LENGTH_UNSAFE_128BIT / 8) &&
+				    input_len != (YACA_KEY_LENGTH_192BIT / 8))
+					return YACA_ERROR_INVALID_PARAMETER;
+			} else {
+				assert(false);
+				return YACA_ERROR_INTERNAL;
+			}
+		} else if (op_type == OP_DECRYPT) {
+			if (type == NID_id_aes128_wrap || type == NID_id_aes192_wrap || type == NID_id_aes256_wrap) {
+				if (input_len % 8 != 0 || input_len < (YACA_KEY_LENGTH_UNSAFE_128BIT / 8 + 8))
+					return YACA_ERROR_INVALID_PARAMETER;
+			} else if (type == NID_id_smime_alg_CMS3DESwrap) {
+				if (input_len != (YACA_KEY_LENGTH_UNSAFE_128BIT / 8 + 16) &&
+				    input_len != (YACA_KEY_LENGTH_192BIT / 8 + 16))
+					return YACA_ERROR_INVALID_PARAMETER;
+			} else {
+				assert(false);
+				return YACA_ERROR_INTERNAL;
+			}
 		} else {
 			assert(false);
 			return YACA_ERROR_INTERNAL;
