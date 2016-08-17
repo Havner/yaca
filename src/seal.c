@@ -100,8 +100,11 @@ static int seal_encrypt_decrypt_key(const yaca_key_h asym_key,
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = EVP_PKEY_size(lasym_key->evp);
-	if (ret <= 0)
-		return YACA_ERROR_INTERNAL;
+	if (ret <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	output_len = ret;
 
