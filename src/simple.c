@@ -95,9 +95,11 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	yaca_context_h ctx;
 	int ret;
 	char *lciphertext = NULL;
-	size_t out_len, lciphertext_len, written;
+	size_t out_len = 0;
+	size_t lciphertext_len = 0;
+	size_t written = 0;
 
-	if (plaintext == NULL || plaintext_len == 0 ||
+	if ((plaintext == NULL && plaintext_len > 0) || (plaintext != NULL && plaintext_len == 0) ||
 	    ciphertext == NULL || ciphertext_len == NULL ||
 	    sym_key == YACA_KEY_NULL ||
 	    bcm == YACA_BCM_CCM || bcm == YACA_BCM_GCM)
@@ -107,9 +109,11 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_context_get_output_length(ctx, plaintext_len, &out_len);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
+	if (plaintext_len > 0) {
+		ret = yaca_context_get_output_length(ctx, plaintext_len, &out_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	}
 
 	ret = yaca_context_get_output_length(ctx, 0, &lciphertext_len);
 	if (ret != YACA_ERROR_NONE)
@@ -127,9 +131,11 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_encrypt_update(ctx, plaintext, plaintext_len, lciphertext, &out_len);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
+	if (plaintext_len > 0) {
+		ret = yaca_encrypt_update(ctx, plaintext, plaintext_len, lciphertext, &out_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	}
 
 	assert(out_len <= lciphertext_len);
 	written = out_len;
@@ -139,11 +145,22 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 		goto exit;
 
 	written += out_len;
-	assert(written <= lciphertext_len && written > 0);
+	assert(written <= lciphertext_len);
 
-	ret = yaca_realloc(written, (void**)&lciphertext);
-	if (ret != YACA_ERROR_NONE)
+	if (((bcm == YACA_BCM_CBC || bcm == YACA_BCM_ECB) && written == 0) ||
+	    (bcm != YACA_BCM_CBC && bcm != YACA_BCM_ECB && plaintext_len == 0 && written > 0)) {
+		ret = YACA_ERROR_INTERNAL;
 		goto exit;
+	}
+
+	if (written > 0) {
+		ret = yaca_realloc(written, (void**)&lciphertext);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	} else {
+		yaca_free(lciphertext);
+		lciphertext = NULL;
+	}
 
 	*ciphertext = lciphertext;
 	*ciphertext_len = written;
@@ -169,9 +186,12 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	yaca_context_h ctx;
 	int ret;
 	char *lplaintext = NULL;
-	size_t out_len, lplaintext_len, written;
+	size_t out_len = 0;
+	size_t lplaintext_len = 0;
+	size_t written = 0;
 
-	if (ciphertext == NULL || ciphertext_len == 0 ||
+	if ((ciphertext == NULL && ciphertext_len > 0) || (ciphertext != NULL && ciphertext_len == 0) ||
+	    ((bcm == YACA_BCM_ECB || bcm == YACA_BCM_CBC) && ciphertext == NULL && ciphertext_len == 0) ||
 	    plaintext == NULL || plaintext_len == NULL ||
 	    sym_key == YACA_KEY_NULL ||
 	    bcm == YACA_BCM_CCM || bcm == YACA_BCM_GCM)
@@ -181,9 +201,11 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
-	ret = yaca_context_get_output_length(ctx, ciphertext_len, &out_len);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
+	if (ciphertext_len > 0) {
+		ret = yaca_context_get_output_length(ctx, ciphertext_len, &out_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	}
 
 	ret = yaca_context_get_output_length(ctx, 0, &lplaintext_len);
 	if (ret != YACA_ERROR_NONE)
@@ -201,9 +223,11 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, lplaintext, &out_len);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
+	if (ciphertext_len > 0) {
+		ret = yaca_decrypt_update(ctx, ciphertext, ciphertext_len, lplaintext, &out_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	}
 
 	assert(out_len <= lplaintext_len);
 	written = out_len;
@@ -213,11 +237,21 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 		goto exit;
 
 	written += out_len;
-	assert(written <= lplaintext_len && written > 0);
+	assert(written <= lplaintext_len);
 
-	ret = yaca_realloc(written, (void**)&lplaintext);
-	if (ret != YACA_ERROR_NONE)
+	if (bcm != YACA_BCM_CBC && bcm != YACA_BCM_ECB && ciphertext_len == 0 && written > 0) {
+		ret = YACA_ERROR_INTERNAL;
 		goto exit;
+	}
+
+	if (written > 0) {
+		ret = yaca_realloc(written, (void**)&lplaintext);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+	} else {
+		yaca_free(lplaintext);
+		lplaintext = NULL;
+	}
 
 	*plaintext = lplaintext;
 	*plaintext_len = written;

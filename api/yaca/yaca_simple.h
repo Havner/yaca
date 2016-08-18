@@ -24,8 +24,8 @@
  *           Design constraints:
  *           - All operations are single-shot (no streaming possible)
  *           - Context is not used
- *           - For now only digest and symmetric ciphers are supported
- *           - Disabling PKCS#5 padding for ECB and CBC chaining is not supported.
+ *           - Only digest, signatures and symmetric ciphers are supported
+ *           - Disabling PKCS#5 padding for ECB and CBC chaining is not supported
  *           - GCM and CCM chaining is not supported
  *           - All outputs are allocated by the library
  */
