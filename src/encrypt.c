@@ -201,6 +201,10 @@ static bool verify_state_change(struct yaca_encrypt_context_s *c, enum encrypt_c
 	return false;
 }
 
+static const size_t VALID_GCM_TAG_LENGTHS[] = { 4, 8, 12, 13, 14, 15, 16 };
+static const size_t VALID_GCM_TAG_LENGTHS_LENGTH =
+		sizeof(VALID_GCM_TAG_LENGTHS) / sizeof(VALID_GCM_TAG_LENGTHS[0]);
+
 struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx)
 {
 	if (ctx == YACA_CONTEXT_NULL)
@@ -656,8 +660,18 @@ int set_encrypt_property(yaca_context_h ctx,
 		if (!verify_state_change(c, STATE_TAG_LENGTH_SET))
 			return YACA_ERROR_INVALID_PARAMETER;
 
-		c->tag_len = *(size_t*)value;
-		c->state = STATE_TAG_LENGTH_SET;
+		/* check allowed tag lengths */
+		{
+			size_t tag_len = *(size_t*)value;
+			for (size_t i = 0; i < VALID_GCM_TAG_LENGTHS_LENGTH; i++) {
+				if (tag_len == VALID_GCM_TAG_LENGTHS[i]) {
+					c->tag_len = tag_len;
+					c->state = STATE_TAG_LENGTH_SET;
+					return YACA_ERROR_NONE;
+				}
+			}
+			return YACA_ERROR_INVALID_PARAMETER;
+		}
 		break;
 	case YACA_PROPERTY_CCM_TAG:
 		if (mode != EVP_CIPH_CCM_MODE || is_encryption_op(c->op_type))

@@ -478,8 +478,8 @@ typedef enum {
 	 *
 	 * Supported properties:
 	 * - #YACA_PROPERTY_GCM_TAG_LEN = GCM tag length\n
-	 *   Supported tag lengths: @c 32, @c 64, @c 96, @c 104, @c 112, @c 120, @c 128,
-	 *   (recommended 128 bits tag).\n
+	 *   Supported tag lengths: @c 4, @c 8, @c 12, @c 13, @c 14, @c 15, @c 16,
+	 *   (recommended 16 bytes tag).\n
 	 *   Set after yaca_encrypt_finalize() / yaca_seal_finalize() and before
 	 *   yaca_context_get_property(#YACA_PROPERTY_GCM_TAG)
 	 *   in encryption / seal operation. The @a value should be a size_t variable.\n
@@ -534,7 +534,7 @@ typedef enum {
 	 *
 	 * Supported properties:
 	 * - #YACA_PROPERTY_CCM_TAG_LEN = CCM tag length\n
-	 *   Supported tag lengths: 32-128 bits in step of 16 bits (recommended 96 bits tag).\n
+	 *   Supported tag lengths: 4-16 bytes in steps of 2 bytes (recommended 12 bytes tag).\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
 	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.
 	 *   The @a value should be a size_t variable.\n
@@ -603,14 +603,14 @@ typedef enum {
 	YACA_PROPERTY_GCM_AAD,
 	/** GCM Tag. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_GCM_TAG,
-	/** GCM Tag length. Property type is size_t. */
+	/** GCM Tag length in bytes. Property type is size_t. */
 	YACA_PROPERTY_GCM_TAG_LEN,
 
 	/** CCM Additional Authentication Data. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_CCM_AAD,
 	/** CCM Tag. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_CCM_TAG,
-	/** CCM Tag length. Property type is size_t. */
+	/** CCM Tag length in bytes. Property type is size_t. */
 	YACA_PROPERTY_CCM_TAG_LEN
 } yaca_property_e;
 
