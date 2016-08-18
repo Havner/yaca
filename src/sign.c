@@ -131,8 +131,6 @@ int set_sign_property(yaca_context_h ctx,
 
 	padding = *(yaca_padding_e *)(value);
 
-	// TODO: investigate whether it's possible to set
-	// RSA_NO_PADDING or RSA_SSLV23_PADDING in some cases
 	switch (padding) {
 	case YACA_PADDING_X931:
 		pad = RSA_X931_PADDING;
