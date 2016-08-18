@@ -100,8 +100,7 @@ static int encrypt_decrypt(yaca_padding_e padding,
 	         lpadding);
 
 	if (ret < 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto exit;
 	}
 
