@@ -46,13 +46,13 @@ extern "C" {
  *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
- * @param[out] ctx   Newly created context
- * @param[in]  algo  Digest algorithm that will be used
- * @param[in]  key   Private key that will be used, algorithm is deduced based
- *                   on key type, supported key types:
- *                   - #YACA_KEY_TYPE_RSA_PRIV,
- *                   - #YACA_KEY_TYPE_DSA_PRIV,
- *                   - #YACA_KEY_TYPE_EC_PRIV
+ * @param[out] ctx      Newly created context
+ * @param[in]  algo     Digest algorithm that will be used
+ * @param[in]  prv_key  Private key that will be used, algorithm is deduced based
+ *                      on key type, supported key types:
+ *                      - #YACA_KEY_TYPE_RSA_PRIV,
+ *                      - #YACA_KEY_TYPE_DSA_PRIV,
+ *                      - #YACA_KEY_TYPE_EC_PRIV
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -72,7 +72,7 @@ extern "C" {
  */
 int yaca_sign_initialize(yaca_context_h *ctx,
                          yaca_digest_algorithm_e algo,
-                         const yaca_key_h key);
+                         const yaca_key_h prv_key);
 
 /**
  * @brief  Initializes a signature context for HMAC.
@@ -84,11 +84,11 @@ int yaca_sign_initialize(yaca_context_h *ctx,
  *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
- * @param[out] ctx   Newly created context
- * @param[in]  algo  Digest algorithm that will be used
- * @param[in]  key   Symmetric key that will be used, supported key types:
- *                   - #YACA_KEY_TYPE_SYMMETRIC,
- *                   - #YACA_KEY_TYPE_DES
+ * @param[out] ctx      Newly created context
+ * @param[in]  algo     Digest algorithm that will be used
+ * @param[in]  sym_key  Symmetric key that will be used, supported key types:
+ *                      - #YACA_KEY_TYPE_SYMMETRIC,
+ *                      - #YACA_KEY_TYPE_DES
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -106,7 +106,7 @@ int yaca_sign_initialize(yaca_context_h *ctx,
  */
 int yaca_sign_initialize_hmac(yaca_context_h *ctx,
                               yaca_digest_algorithm_e algo,
-                              const yaca_key_h key);
+                              const yaca_key_h sym_key);
 
 /**
  * @brief  Initializes a signature context for CMAC.
@@ -118,11 +118,11 @@ int yaca_sign_initialize_hmac(yaca_context_h *ctx,
  *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
- * @param[out] ctx   Newly created context
- * @param[in]  algo  Encryption algorithm that will be used
- * @param[in]  key   Symmetric key that will be used, supported key types:
- *                   - #YACA_KEY_TYPE_SYMMETRIC,
- *                   - #YACA_KEY_TYPE_DES
+ * @param[out] ctx      Newly created context
+ * @param[in]  algo     Encryption algorithm that will be used
+ * @param[in]  sym_key  Symmetric key that will be used, supported key types:
+ *                      - #YACA_KEY_TYPE_SYMMETRIC,
+ *                      - #YACA_KEY_TYPE_DES
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -140,7 +140,7 @@ int yaca_sign_initialize_hmac(yaca_context_h *ctx,
  */
 int yaca_sign_initialize_cmac(yaca_context_h *ctx,
                               yaca_encrypt_algorithm_e algo,
-                              const yaca_key_h key);
+                              const yaca_key_h sym_key);
 
 /**
  * @brief  Feeds the data into the digital signature or MAC algorithm.
@@ -204,13 +204,13 @@ int yaca_sign_finalize(yaca_context_h ctx,
  *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
- * @param[out] ctx   Newly created context
- * @param[in]  algo  Digest algorithm that will be used
- * @param[in]  key   Public key that will be used, algorithm is deduced based on
- *                   key type, supported key types:
- *                   - #YACA_KEY_TYPE_RSA_PUB,
- *                   - #YACA_KEY_TYPE_DSA_PUB,
- *                   - #YACA_KEY_TYPE_EC_PUB
+ * @param[out] ctx      Newly created context
+ * @param[in]  algo     Digest algorithm that will be used
+ * @param[in]  pub_key  Public key that will be used, algorithm is deduced based on
+ *                      key type, supported key types:
+ *                      - #YACA_KEY_TYPE_RSA_PUB,
+ *                      - #YACA_KEY_TYPE_DSA_PUB,
+ *                      - #YACA_KEY_TYPE_EC_PUB
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -227,7 +227,7 @@ int yaca_sign_finalize(yaca_context_h ctx,
  */
 int yaca_verify_initialize(yaca_context_h *ctx,
                            yaca_digest_algorithm_e algo,
-                           const yaca_key_h key);
+                           const yaca_key_h pub_key);
 
 /**
  * @brief  Feeds the data into the digital signature verification algorithm.

@@ -236,17 +236,17 @@ int get_sign_property(const yaca_context_h ctx,
 
 API int yaca_sign_initialize(yaca_context_h *ctx,
                              yaca_digest_algorithm_e algo,
-                             const yaca_key_h key)
+                             const yaca_key_h prv_key)
 {
 	struct yaca_sign_context_s *nc = NULL;
 	const EVP_MD *md = NULL;
 	int ret;
-	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
+	const struct yaca_key_evp_s *evp_key = key_get_evp(prv_key);
 
 	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	switch (key->type) {
+	switch (prv_key->type) {
 	case YACA_KEY_TYPE_RSA_PRIV:
 	case YACA_KEY_TYPE_DSA_PRIV:
 	case YACA_KEY_TYPE_EC_PRIV:
@@ -296,16 +296,16 @@ exit:
 
 API int yaca_sign_initialize_hmac(yaca_context_h *ctx,
                                   yaca_digest_algorithm_e algo,
-                                  const yaca_key_h key)
+                                  const yaca_key_h sym_key)
 {
 	struct yaca_sign_context_s *nc = NULL;
 	EVP_PKEY *pkey = NULL;
 	const EVP_MD *md;
 	int ret;
-	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
+	const struct yaca_key_simple_s *simple_key = key_get_simple(sym_key);
 
 	if (ctx == NULL || simple_key == NULL ||
-	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
+	    (sym_key->type != YACA_KEY_TYPE_SYMMETRIC && sym_key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_zalloc(sizeof(struct yaca_sign_context_s), (void**)&nc);
@@ -360,17 +360,17 @@ exit:
 
 API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
                                   yaca_encrypt_algorithm_e algo,
-                                  const yaca_key_h key)
+                                  const yaca_key_h sym_key)
 {
 	struct yaca_sign_context_s *nc = NULL;
 	CMAC_CTX* cmac_ctx = NULL;
 	const EVP_CIPHER* cipher = NULL;
 	EVP_PKEY *pkey = NULL;
 	int ret;
-	const struct yaca_key_simple_s *simple_key = key_get_simple(key);
+	const struct yaca_key_simple_s *simple_key = key_get_simple(sym_key);
 
 	if (ctx == NULL || simple_key == NULL ||
-	    (key->type != YACA_KEY_TYPE_SYMMETRIC && key->type != YACA_KEY_TYPE_DES))
+	    (sym_key->type != YACA_KEY_TYPE_SYMMETRIC && sym_key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_zalloc(sizeof(struct yaca_sign_context_s), (void**)&nc);
@@ -487,17 +487,17 @@ API int yaca_sign_finalize(yaca_context_h ctx,
 
 API int yaca_verify_initialize(yaca_context_h *ctx,
                                yaca_digest_algorithm_e algo,
-                               const yaca_key_h key)
+                               const yaca_key_h pub_key)
 {
 	struct yaca_sign_context_s *nc = NULL;
 	const EVP_MD *md = NULL;
 	int ret;
-	const struct yaca_key_evp_s *evp_key = key_get_evp(key);
+	const struct yaca_key_evp_s *evp_key = key_get_evp(pub_key);
 
 	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	switch (key->type) {
+	switch (pub_key->type) {
 	case YACA_KEY_TYPE_RSA_PUB:
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_EC_PUB:

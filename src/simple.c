@@ -265,7 +265,7 @@ static int sign(const yaca_context_h ctx, const char *data, size_t data_len,
 }
 
 API int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
-                                        const yaca_key_h key,
+                                        const yaca_key_h prv_key,
                                         const char *data,
                                         size_t data_len,
                                         char **signature,
@@ -278,7 +278,7 @@ API int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
 	    signature == NULL || signature_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_sign_initialize(&ctx, algo, key);
+	ret = yaca_sign_initialize(&ctx, algo, prv_key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -290,7 +290,7 @@ API int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
 }
 
 API int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
-                                     const yaca_key_h key,
+                                     const yaca_key_h pub_key,
                                      const char *data,
                                      size_t data_len,
                                      const char *signature,
@@ -303,7 +303,7 @@ API int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
 	    signature == NULL || signature_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_verify_initialize(&ctx, algo, key);
+	ret = yaca_verify_initialize(&ctx, algo, pub_key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -322,7 +322,7 @@ exit:
 }
 
 API int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
-                                   const yaca_key_h key,
+                                   const yaca_key_h sym_key,
                                    const char *data,
                                    size_t data_len,
                                    char **mac,
@@ -335,7 +335,7 @@ API int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
 	    mac == NULL || mac_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_sign_initialize_hmac(&ctx, algo, key);
+	ret = yaca_sign_initialize_hmac(&ctx, algo, sym_key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
@@ -347,7 +347,7 @@ API int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
 }
 
 API int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
-                                   const yaca_key_h key,
+                                   const yaca_key_h sym_key,
                                    const char *data,
                                    size_t data_len,
                                    char **mac,
@@ -360,7 +360,7 @@ API int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
 	    mac == NULL || mac_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_sign_initialize_cmac(&ctx, algo, key);
+	ret = yaca_sign_initialize_cmac(&ctx, algo, sym_key);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 

@@ -160,10 +160,11 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  * @remarks  The @a signature should be freed using yaca_free()
  *
  * @param[in]  algo           Digest algorithm that will be used
- * @param[in]  key            Private key that will be used, algorithm is
+ * @param[in]  prv_key        Private key that will be used, algorithm is
  *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PRIV,
  *                            - #YACA_KEY_TYPE_DSA_PRIV,
+ *                            - #YACA_KEY_TYPE_EC_PRIV
  * @param[in]  data           Data to be signed
  * @param[in]  data_len       Length of the data
  * @param[out] signature      Message signature, will be allocated by the library
@@ -182,7 +183,7 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  * @see yaca_free()
  */
 int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
-                                    const yaca_key_h key,
+                                    const yaca_key_h prv_key,
                                     const char *data,
                                     size_t data_len,
                                     char **signature,
@@ -194,10 +195,11 @@ int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
  * @since_tizen 3.0
  *
  * @param[in]  algo           Digest algorithm that will be used
- * @param[in]  key            Public key that will be used, algorithm is
+ * @param[in]  pub_key        Public key that will be used, algorithm is
  *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PUB,
  *                            - #YACA_KEY_TYPE_DSA_PUB,
+ *                            - #YACA_KEY_TYPE_EC_PUB
  * @param[in]  data           Signed data
  * @param[in]  data_len       Length of the data
  * @param[in]  signature      Message signature
@@ -216,7 +218,7 @@ int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
  * @see yaca_simple_calculate_signature()
  */
 int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
-                                 const yaca_key_h key,
+                                 const yaca_key_h pub_key,
                                  const char *data,
                                  size_t data_len,
                                  const char *signature,
@@ -233,7 +235,7 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
  * @remarks  The @a mac should be freed using yaca_free()
  *
  * @param[in]  algo      Digest algorithm that will be used
- * @param[in]  key       Key that will be used, supported key types:
+ * @param[in]  sym_key   Key that will be used, supported key types:
  *                       - #YACA_KEY_TYPE_SYMMETRIC,
  *                       - #YACA_KEY_TYPE_DES
  * @param[in]  data      Data to calculate HMAC from
@@ -254,7 +256,7 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
  * @see yaca_free()
  */
 int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
-                               const yaca_key_h key,
+                               const yaca_key_h sym_key,
                                const char *data,
                                size_t data_len,
                                char **mac,
@@ -271,7 +273,7 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
  * @remarks  The @a mac should be freed using yaca_free()
  *
  * @param[in]  algo      Encryption algorithm that will be used
- * @param[in]  key       Key that will be used, supported key types:
+ * @param[in]  sym_key   Key that will be used, supported key types:
  *                       - #YACA_KEY_TYPE_SYMMETRIC,
  *                       - #YACA_KEY_TYPE_DES
  * @param[in]  data      Data to calculate CMAC from
@@ -292,7 +294,7 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
  * @see yaca_free()
  */
 int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
-                               const yaca_key_h key,
+                               const yaca_key_h sym_key,
                                const char *data,
                                size_t data_len,
                                char **mac,
