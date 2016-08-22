@@ -174,7 +174,7 @@ static bool CCM_STATES[2][STATE_COUNT][STATE_COUNT] = { {
 
 static bool WRAP_STATES[STATE_COUNT][STATE_COUNT] = {
 /* from \ to  INIT, MLEN, AAD,  MSG,  TAG,  TLEN, FIN */
-/* INIT */  { 0,    0,    0,    1,    0,    0,    1 },
+/* INIT */  { 0,    0,    0,    1,    0,    0,    0 },
 /* MLEN */  { 0,    0,    0,    0,    0,    0,    0 },
 /* AAD  */  { 0,    0,    0,    0,    0,    0,    0 },
 /* MSG  */  { 0,    0,    0,    0,    0,    0,    1 },
