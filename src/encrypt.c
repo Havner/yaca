@@ -506,6 +506,7 @@ static int encrypt_ctx_backup(struct yaca_encrypt_context_s *c,
 	bc->cipher = cipher;
 	bc->sym_key = key_copy(sym_key);
 	bc->iv = key_copy(iv);
+	bc->padding_none = false;
 
 	c->backup_ctx = bc;
 
@@ -532,6 +533,13 @@ static int encrypt_ctx_restore(struct yaca_encrypt_context_s *c)
 
 	ret = encrypt_ctx_init(c, c->backup_ctx->cipher, key->bit_len);
 	assert(ret != YACA_ERROR_INVALID_PARAMETER);
+
+	if (c->backup_ctx->padding_none && EVP_CIPHER_CTX_set_padding(c->cipher_ctx, 0) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
 	return ret;
 }
 
@@ -591,6 +599,32 @@ static int encrypt_ctx_set_ccm_tag(struct yaca_encrypt_context_s *c, char *tag, 
 	return ret;
 }
 
+static int encrypt_ctx_set_rc2_effective_key_bits(struct yaca_encrypt_context_s *c, size_t key_bits)
+{
+	int ret;
+
+	assert(c != NULL);
+	assert(c->backup_ctx != NULL);
+
+	if (key_bits == 0 || key_bits > 1024)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	ret = encrypt_ctx_restore(c);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	ret = EVP_CIPHER_CTX_ctrl(c->cipher_ctx, EVP_CTRL_SET_RC2_KEY_BITS, key_bits, NULL);
+	if (ret != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	ret = encrypt_ctx_setup(c, c->backup_ctx->sym_key, c->backup_ctx->iv);
+	assert(ret != YACA_ERROR_INVALID_PARAMETER);
+	return ret;
+}
+
 int set_encrypt_property(yaca_context_h ctx,
                          yaca_property_e property,
                          const void *value,
@@ -600,12 +634,14 @@ int set_encrypt_property(yaca_context_h ctx,
 	int len;
 	int ret = YACA_ERROR_NONE;
 	int mode;
+	int nid;
 
 	if (c == NULL || value == NULL || value_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 	assert(c->cipher_ctx != NULL);
 
 	mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
+	nid = EVP_CIPHER_nid(c->cipher_ctx->cipher);
 
 	switch (property) {
 	case YACA_PROPERTY_GCM_AAD:
@@ -711,6 +747,16 @@ int set_encrypt_property(yaca_context_h ctx,
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
+		if (c->backup_ctx != NULL)
+			c->backup_ctx->padding_none = true;
+		break;
+	case YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS:
+		if (value_len != sizeof(size_t) ||
+		    (nid != NID_rc2_cbc && nid != NID_rc2_ecb && nid != NID_rc2_cfb64 && nid != NID_rc2_ofb64) ||
+		    c->state != STATE_INITIALIZED)
+			return YACA_ERROR_INVALID_PARAMETER;
+
+		ret = encrypt_ctx_set_rc2_effective_key_bits(c, *(size_t*)value);
 		break;
 	default:
 		return YACA_ERROR_INVALID_PARAMETER;
@@ -865,6 +911,7 @@ int encrypt_initialize(yaca_context_h *ctx,
 	struct yaca_key_simple_s *lsym_key;
 	int ret;
 	int mode;
+	int nid;
 
 	if (ctx == NULL || sym_key == YACA_KEY_NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
@@ -890,7 +937,9 @@ int encrypt_initialize(yaca_context_h *ctx,
 		goto exit;
 
 	mode = EVP_CIPHER_CTX_mode(nc->cipher_ctx);
-	if (mode == EVP_CIPH_CCM_MODE) {
+	nid = EVP_CIPHER_nid(nc->cipher_ctx->cipher);
+	if (mode == EVP_CIPH_CCM_MODE ||
+	    nid == NID_rc2_cbc || nid == NID_rc2_ecb || nid == NID_rc2_cfb64 || nid == NID_rc2_ofb64) {
 		ret = encrypt_ctx_backup(nc, cipher, sym_key, iv);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;

@@ -65,6 +65,7 @@ struct yaca_backup_context_s {
 	const EVP_CIPHER *cipher;
 	yaca_key_h sym_key;
 	yaca_key_h iv;
+	bool padding_none;
 };
 
 enum encrypt_context_state_e {

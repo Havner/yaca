@@ -27,6 +27,7 @@
  *           - Only digest, signatures and symmetric ciphers are supported
  *           - Disabling PKCS#5 padding for ECB and CBC chaining is not supported
  *           - GCM and CCM chaining is not supported
+ *           - RC2 effective key bits property is not supported
  *           - All outputs are allocated by the library
  */
 

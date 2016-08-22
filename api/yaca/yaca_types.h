@@ -397,7 +397,12 @@ typedef enum {
 	 * RC2 encryption.
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 8-1024 bits in steps of 8 bits.
-	 * - Effective key bits property by default equals to 128 bits.
+	 * - Effective key bits property by default equals to 128 bits.\n
+	 * Effective key bits can be set using yaca_context_set_property() and
+	 * #YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS.\n
+	 * It can be set after yaca_encrypt_initialize() / yaca_decrypt_initialize(), and before
+	 * yaca_encrypt_update() / yaca_decrypt_update() in encryption / decryption operation.
+	 *
 	 * - Supported block cipher modes:\n
 	 * #YACA_BCM_CBC,\n
 	 * #YACA_BCM_OFB,\n
@@ -617,7 +622,10 @@ typedef enum {
 	/** CCM Tag. Property type is a buffer (e.g. char*) */
 	YACA_PROPERTY_CCM_TAG,
 	/** CCM Tag length in bytes. Property type is size_t. */
-	YACA_PROPERTY_CCM_TAG_LEN
+	YACA_PROPERTY_CCM_TAG_LEN,
+
+	/** RC2 effective key bits, 1-1024, 1 bit resolution. Property type is size_t. */
+	YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
 } yaca_property_e;
 
 /**
