@@ -53,6 +53,8 @@ extern "C" {
  *
  * @remarks  The @a pub_key must be #YACA_KEY_TYPE_RSA_PUB
  *
+ * @remarks  The @a sym_key_bit_len must be at least 96 bits shorter than the @a pub_key bit length
+ *
  * @remarks  The @a sym_key should be released using yaca_key_destroy()
  *
  * @remarks  The @a iv should be released using yaca_key_destroy()

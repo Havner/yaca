@@ -34,23 +34,18 @@
 
 #include "internal.h"
 
-static int seal_generate_sym_key(const EVP_CIPHER *cipher, yaca_key_h *sym_key)
+static int seal_generate_sym_key(yaca_encrypt_algorithm_e algo,
+                                 size_t sym_key_bit_len,
+                                 yaca_key_h *sym_key)
 {
-	int ret;
-	int key_len;
-
 	assert(sym_key != NULL);
-	assert(cipher != NULL);
 
-	ret = EVP_CIPHER_key_length(cipher);
-	if (ret <= 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
-	key_len = ret;
-
-	return yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, key_len * 8, sym_key);
+	if (algo == YACA_ENCRYPT_3DES_3TDEA ||
+	    algo == YACA_ENCRYPT_UNSAFE_3DES_2TDEA ||
+	    algo == YACA_ENCRYPT_UNSAFE_DES)
+		return yaca_key_generate(YACA_KEY_TYPE_DES, sym_key_bit_len, sym_key);
+	else
+		return yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, sym_key_bit_len, sym_key);
 }
 
 static int seal_generate_iv(const EVP_CIPHER *cipher, yaca_key_h *iv)
@@ -127,8 +122,7 @@ static int seal_encrypt_decrypt_key(const yaca_key_h asym_key,
 		                           lasym_key->evp);
 
 	if (ret <= 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto exit;
 	}
 
@@ -170,7 +164,7 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = seal_generate_sym_key(cipher, &lsym_key);
+	ret = seal_generate_sym_key(algo, sym_key_bit_len, &lsym_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
