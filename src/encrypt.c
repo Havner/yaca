@@ -276,13 +276,14 @@ int get_wrap_output_length(const yaca_context_h ctx, size_t input_len, size_t *o
 		return YACA_ERROR_INVALID_PARAMETER;
 	assert(c->cipher_ctx != NULL);
 
+	bool encryption = is_encryption_op(c->op_type);
 	int type = EVP_CIPHER_type(c->cipher_ctx->cipher);
 
 	if (input_len > 0) {
 		if (type == NID_id_aes128_wrap || type == NID_id_aes192_wrap || type == NID_id_aes256_wrap) {
-			*output_len = input_len + 8;
+			*output_len = encryption ? input_len + 8 : input_len - 8;
 		} else if (type == NID_id_smime_alg_CMS3DESwrap) {
-			*output_len = input_len + 16;
+			*output_len = encryption ? input_len + 16 : input_len - 16;
 		} else {
 			assert(false);
 			return YACA_ERROR_INTERNAL;
