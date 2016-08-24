@@ -37,17 +37,18 @@ extern "C" {
  */
 
 /**
- * @brief  Returns the recommended/default length of the IV for a given encryption configuration.
+ * @brief  Returns the recommended/default length of the Initialization Vector
+ *         for a given encryption configuration.
  *
  * @since_tizen 3.0
  *
  * @remarks  If returned iv_bit_len equals 0 that means that for this
- *           specific algorithm and its parameters IV is not used.
+ *           specific algorithm and its parameters Initialization Vector is not used.
  *
  * @param[in]  algo         Encryption algorithm
  * @param[in]  bcm          Chain mode
  * @param[in]  key_bit_len  Key length in bits
- * @param[out] iv_bit_len   Recommended IV length in bits
+ * @param[out] iv_bit_len   Recommended Initialization Vector length in bits
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -72,7 +73,7 @@ int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
  * @param[in]  algo     Encryption algorithm that will be used
  * @param[in]  bcm      Chaining mode that will be used
  * @param[in]  sym_key  Symmetric key that will be used
- * @param[in]  iv       Initialization vector that will be used
+ * @param[in]  iv       Initialization Vector that will be used
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -161,7 +162,7 @@ int yaca_encrypt_finalize(yaca_context_h ctx,
  * @param[in]  algo     Encryption algorithm that was used to encrypt the data
  * @param[in]  bcm      Chaining mode that was used to encrypt the data
  * @param[in]  sym_key  Symmetric key that was used to encrypt the data
- * @param[in]  iv       Initialization vector that was used to encrypt the data
+ * @param[in]  iv       Initialization Vector that was used to encrypt the data
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful

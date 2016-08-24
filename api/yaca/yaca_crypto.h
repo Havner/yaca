@@ -221,7 +221,8 @@ int yaca_context_set_property(yaca_context_h ctx,
  * @remarks  The @a value has to be of type appropriate for given property. See #yaca_property_e
  *           for details on corresponding types.
  *
- * @remarks  @a value_len can be NULL if returned @a value is a single object (i.e. not an array/buffer)
+ * @remarks  @a value_len can be NULL if returned @a value is a single object
+ *           (i.e. not an array/buffer)
  *
  * @param[in]  ctx        Previously initialized crypto context
  * @param[in]  property   Property to be read

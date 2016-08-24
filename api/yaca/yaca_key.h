@@ -18,7 +18,7 @@
 
 /**
  * @file   yaca_key.h
- * @brief  Advanced API for the key and IV handling.
+ * @brief  Advanced API for the key and Initialization Vector handling.
  */
 
 #ifndef YACA_KEY_H
@@ -64,7 +64,7 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  *
  * @since_tizen 3.0
  *
- * @remarks  @a key can be any symmetric (including an IV) or
+ * @remarks  @a key can be any symmetric (including an Initialization Vector) or
  *           asymmetric key (including key generation parameters).
  *
  * @remarks  For Diffie-Helmann @a key_bit_len returns prime length in bits. Values
@@ -98,7 +98,7 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  * @remarks  This function imports a key trying to match it to the @a key_type specified.
  *           It should autodetect both the key format and the file format.
  *
- * @remarks  For symmetric, IV and DES keys RAW binary format and BASE64 encoded
+ * @remarks  For symmetric, Initialization Vector and DES keys RAW binary format and BASE64 encoded
  *           binary format are supported.
  *           For asymmetric keys PEM and DER file formats are supported.
  *
@@ -154,9 +154,10 @@ int yaca_key_import(yaca_key_type_e key_type,
  * @remarks  This function exports the key to an arbitrary key format and key file format.
  *
  * @remarks  For key formats two values are allowed:
- *           - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric
- *                                       keys (or IV), for asymmetric keys it will export to their
- *                                       default ASN1 structure format (e.g. PKCS#1, SSLeay, PKCS#3).
+ *           - #YACA_KEY_FORMAT_DEFAULT: this is the only option possible in case of symmetric keys
+ *                                       (or Initialization Vector), for asymmetric keys it will
+ *                                       export to their default ASN1 structure format
+ *                                       (e.g. PKCS#1, SSLeay, PKCS#3).
  *           - #YACA_KEY_FORMAT_PKCS8: this will only work for private asymmetric keys.
  *
  * @remarks  The following file formats are supported:
@@ -207,7 +208,7 @@ int yaca_key_export(const yaca_key_h key,
                     size_t *data_len);
 
 /**
- * @brief  Generates a secure key or key generation parameters (or an initialization vector).
+ * @brief  Generates a secure key or key generation parameters (or an Initialization Vector).
  *
  * @since_tizen 3.0
  *
@@ -323,7 +324,8 @@ int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params);
  * @since_tizen 3.0
  *
  * @remarks  The @a secret should not be used as a symmetric key,
- *           to produce a symmetric key pass the secret to a key derivation function (KDF) or a message digest function
+ *           to produce a symmetric key pass the secret to a key derivation function (KDF)
+ *           or a message digest function
  *
  * @remarks  The @a secret should be freed with yaca_free()
  *
@@ -355,7 +357,8 @@ int yaca_key_derive_dh(const yaca_key_h prv_key,
  * @remarks  The @a info parameter is ANSI X9.42 OtherInfo or ANSI X9.62 SharedInfo structure,
  *           more information can be found in ANSI X9.42/62 standard specification
  *
- * @remarks  The @a key_material or separate parts of it can be used to import a symmetric key with yaca_key_import()
+ * @remarks  The @a key_material or separate parts of it can be used to import a symmetric key
+ *           with yaca_key_import()
  *
  * @remarks  The @a key_material should be freed using yaca_free()
  *

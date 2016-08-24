@@ -20,8 +20,9 @@
  * @file   yaca_seal.h
  * @brief  Advanced API for the asymmetric encryption.
  *
- * @details  Seal does more than just encrypt. It first generates the encryption key and IV,
- *           then encrypts whole message using this key (and selected symmetric algorithm).
+ * @details  Seal does more than just encrypt. It first generates the encryption key and
+ *           Initialization Vector, then encrypts whole message using this key
+ *           (and selected symmetric algorithm).
  *           Finally it encrypts symmetric key with public key.
  */
 
@@ -41,7 +42,8 @@ extern "C" {
  */
 
 /**
- * @brief  Initializes an asymmetric encryption context and generates symmetric key and IV.
+ * @brief  Initializes an asymmetric encryption context and generates
+ *         symmetric key and Initialization Vector.
  *
  * @remarks  Generated symmetric key is encrypted with public key,
  *           so can be ONLY used with yaca_open_initialize(). It can be exported,
@@ -64,7 +66,7 @@ extern "C" {
  * @param[in]  sym_key_bit_len  Symmetric key length (in bits) that will be generated
  * @param[out] sym_key          Generated symmetric key that will be used,
  *                              it is encrypted with peer's public key
- * @param[out] iv               Generated initialization vector that will be used
+ * @param[out] iv               Generated Initialization Vector that will be used
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -163,7 +165,7 @@ int yaca_seal_finalize(yaca_context_h ctx,
  * @param[in]  sym_key_bit_len  Symmetric key length (in bits) that was used for the encryption
  * @param[in]  sym_key          Symmetric key, encrypted with the public key,
  *                              that was used to encrypt the data
- * @param[in]  iv               Initialization vector that was used for the encryption
+ * @param[in]  iv               Initialization Vector that was used for the encryption
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful

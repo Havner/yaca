@@ -143,7 +143,7 @@ extern "C" {
 typedef struct yaca_context_s *yaca_context_h;
 
 /**
- * @brief The handle of a key, an IV or a key generation parameters.
+ * @brief The handle of a key, an Initialization Vector or a key generation parameters.
  *
  * @since_tizen 3.0
  */
@@ -178,7 +178,7 @@ typedef enum {
 } yaca_key_file_format_e;
 
 /**
- * @brief Enumeration of YACA key types, IV is considered as key.
+ * @brief Enumeration of YACA key types, Initialization Vector is considered as key.
  *
  * @since_tizen 3.0
  */
@@ -334,7 +334,7 @@ typedef enum {
 typedef enum {
 	/**
 	 * AES encryption.
-	 * - Supported key lengths: @c 128, @c 192 and @c 256.
+	 * - Supported key lengths: @c 128, @c 192 and @c 256 bits.
 	 * - Supported block cipher modes:\n
 	 * #YACA_BCM_CBC,\n
 	 * #YACA_BCM_OFB,\n
@@ -352,7 +352,7 @@ typedef enum {
 
 	/**
 	 * DES encryption.
-	 * - Supported key lengths: @c 64.
+	 * - Supported key lengths: @c 64 bits.
 	 * - Supported block cipher modes:\n
 	 * #YACA_BCM_CBC,\n
 	 * #YACA_BCM_OFB,\n
@@ -366,7 +366,7 @@ typedef enum {
 
 	/**
 	 * 3DES 2-key encryption.
-	 * - Supported key lengths: @c 128.
+	 * - Supported key lengths: @c 128 bits.
 	 * - Supported block cipher modes:\n
 	 * #YACA_BCM_CBC,\n
 	 * #YACA_BCM_OFB,\n
@@ -379,7 +379,7 @@ typedef enum {
 
 	/**
 	 * 3DES 3-key encryption.
-	 * - Supported key lengths: @c 192.
+	 * - Supported key lengths: @c 192 bits.
 	 * - Supported block cipher modes:\n
 	 * #YACA_BCM_CBC,\n
 	 * #YACA_BCM_OFB,\n
@@ -397,7 +397,7 @@ typedef enum {
 	 * RC2 encryption.
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 8-1024 bits in steps of 8 bits.
-	 * - Effective key bits property by default equals to 128.
+	 * - Effective key bits property by default equals to 128 bits.
 	 * - Supported block cipher modes:\n
 	 * #YACA_BCM_CBC,\n
 	 * #YACA_BCM_OFB,\n
@@ -411,15 +411,15 @@ typedef enum {
 	 * RC4 encryption.
 	 * This is a variable key length cipher.
 	 * - Supported key lengths: 40–2048 bits in steps of 8 bits.
-	 * No IV is used.
-	 * This cipher doesn't support block cipher modes, use #YACA_BCM_NONE instead.
+	 * - Initialization Vector is not used.
+	 * - This cipher doesn't support block cipher modes, use #YACA_BCM_NONE instead.
 	 */
 	YACA_ENCRYPT_UNSAFE_RC4,
 
 	/**
 	 * CAST5 encryption.
 	 * This is a variable key length cipher.
-	 * Supported key lengths: 40-128 bits in steps of 8 bits.
+	 * - Supported key lengths: 40-128 bits in steps of 8 bits.
 	 * - Supported block cipher modes:\n
 	 * #YACA_BCM_CBC,\n
 	 * #YACA_BCM_OFB,\n
@@ -438,16 +438,17 @@ typedef enum {
 typedef enum {
 	/**
 	 * Used when algorithm doesn't support block ciphers modes.
-	 * No IV is used.
+	 * Initialization Vector is not used.
 	 */
 	YACA_BCM_NONE,
 
 	/**
 	 * ECB block cipher mode.
-	 * No IV is used.
+	 * Initialization Vector is not used.
 	 *
 	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
-	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
+	 * Padding can be disabled using yaca_context_set_property() and
+	 * #YACA_PROPERTY_PADDING,#YACA_PADDING_NONE,
 	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
 	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
 	 */
@@ -455,18 +456,19 @@ typedef enum {
 
 	/**
 	 * CTR block cipher mode.
-	 * 16-byte initialization vector for AES,
-	 * 8-byte for other algorithms is mandatory.
+	 * 128-bit Initialization Vector for AES,
+	 * 64-bit for other algorithms is mandatory.
 	 */
 	YACA_BCM_CTR,
 
 	/**
 	 * CBC block cipher mode.
-	 * 16-byte initialization vector for AES,
-	 * 8-byte for other algorithms is mandatory.
+	 * 128-bit Initialization Vector for AES,
+	 * 64-bit for other algorithms is mandatory.
 	 *
 	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
-	 * Padding can be disabled using yaca_context_set_property() and #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
+	 * Padding can be disabled using yaca_context_set_property() and
+	 * #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
 	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
 	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
 	 */
@@ -474,15 +476,15 @@ typedef enum {
 
 	/**
 	 * GCM block cipher mode.
-	 * This is a variable IV length mode (recommended 96 bits IV).
+	 * This is a variable Initialization Vector length mode (recommended 96-bits).
 	 *
 	 * Supported properties:
 	 * - #YACA_PROPERTY_GCM_TAG_LEN = GCM tag length\n
 	 *   Supported tag lengths: @c 4, @c 8, @c 12, @c 13, @c 14, @c 15, @c 16,
 	 *   (recommended 16 bytes tag).\n
 	 *   Set after yaca_encrypt_finalize() / yaca_seal_finalize() and before
-	 *   yaca_context_get_property(#YACA_PROPERTY_GCM_TAG)
-	 *   in encryption / seal operation. The @a value should be a size_t variable.\n
+	 *   yaca_context_get_property(#YACA_PROPERTY_GCM_TAG) in encryption / seal operation.\n
+	 *   The @a value should be a size_t variable.\n
 	 *   In decryption / open operation tag length is not set.\n\n
 	 *
 	 * - #YACA_PROPERTY_GCM_TAG = GCM tag\n
@@ -501,42 +503,43 @@ typedef enum {
 
 	/**
 	 * Default CFB block cipher mode.
-	 * 16-byte initialization vector for AES,
-	 * 8-byte for other algorithms is mandatory.
+	 * 128-bit Initialization Vector for AES,
+	 * 64-bit for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB,
 
 	/**
 	 * 1 bit CFB block cipher mode.
-	 * 16-byte initialization vector for AES,
-	 * 8-byte for other algorithms is mandatory.
+	 * 128-bit Initialization Vector for AES,
+	 * 64-bit for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB1,
 
 	/**
 	 * 8 bits CFB block cipher mode.
-	 * 16-byte initialization vector for AES,
-	 * 8-byte for other algorithms is mandatory.
+	 * 128-bit Initialization Vector for AES,
+	 * 64-bit for other algorithms is mandatory.
 	 */
 	YACA_BCM_CFB8,
 
 	/**
 	 * OFB block cipher mode.
-	 * 16-byte initialization vector for AES,
-	 * 8-byte for other algorithms is mandatory.
+	 * 128-bit Initialization Vector for AES,
+	 * 64-bit for other algorithms is mandatory.
 	 */
 	YACA_BCM_OFB,
 
 	/**
 	 * CBC-MAC Mode (AES).
-	 * This is a variable IV length mode.\n
-	 * Supported IV lengths: 56-104 bits in steps of 8 bits (recommended 56 bits IV).\n\n
+	 * This is a variable Initialization Vector length mode.\n
+	 * Supported Initialization Vector lengths: 56-104 bits in steps of 8 bits
+	 * (recommended 56-bits).\n\n
 	 *
 	 * Supported properties:
 	 * - #YACA_PROPERTY_CCM_TAG_LEN = CCM tag length\n
 	 *   Supported tag lengths: 4-16 bytes in steps of 2 bytes (recommended 12 bytes tag).\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
-	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.
+	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.\n
 	 *   The @a value should be a size_t variable.\n
 	 *   In decryption / open operation tag length is not set.\n\n
 	 *
@@ -570,12 +573,15 @@ typedef enum {
 	 *
 	 * Usage in yaca_seal_initialize() / yaca_open_finalize() is forbidden.
 	 *
-	 * Key used to do the wrapping with #YACA_ENCRYPT_AES can be a 128-bit key, a 192-bit key, or a 256-bit key.
-	 * Wrapped key can be a 128-bit key, a 192-bit key, or a 256-bit key.
+	 * Key used to do the wrapping with #YACA_ENCRYPT_AES can be a 128-bit key, a 192-bit key,
+	 * or a 256-bit key.\n
+	 * 64-bit Initialization Vector is used.\n
+	 * Wrapped key can be a 128-bit key, a 192-bit key, or a 256-bit key.\n
 	 * #YACA_ENCRYPT_AES allows wrapping multiple keys together.
 	 *
-	 * Key used to do the wrapping with #YACA_ENCRYPT_3DES_3TDEA can be a 192 bit DES key only.
-	 * Wrapped key can be a 128-bit DES key (two-key), or a 192-bit DES key (three-key).
+	 * Key used to do the wrapping with #YACA_ENCRYPT_3DES_3TDEA can be a 192-bit DES key only.\n
+	 * Initialization Vector is not used.\n
+	 * Wrapped key can be a 128-bit DES key (two-key), or a 192-bit DES key (three-key).\n
 	 * #YACA_ENCRYPT_3DES_3TDEA allows wrapping only one key.
 	 *
 	 */

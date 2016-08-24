@@ -57,7 +57,7 @@ extern "C" {
  * @param[in]  algo            Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
  * @param[in]  bcm             Chaining mode (select #YACA_BCM_CBC if unsure)
  * @param[in]  sym_key         Symmetric encryption key (see yaca_key.h for key generation functions)
- * @param[in]  iv              Initialization vector
+ * @param[in]  iv              Initialization Vector
  * @param[in]  plaintext       Plaintext to be encrypted
  * @param[in]  plaintext_len   Length of the plaintext
  * @param[out] ciphertext      Encrypted data, will be allocated by the library
@@ -96,7 +96,7 @@ int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
  * @param[in]  algo            Decryption algorithm that was used to encrypt the data
  * @param[in]  bcm             Chaining mode that was used to encrypt the data
  * @param[in]  sym_key         Symmetric encryption key that was used to encrypt the data
- * @param[in]  iv              Initialization vector that was used to encrypt the data
+ * @param[in]  iv              Initialization Vector that was used to encrypt the data
  * @param[in]  ciphertext      Ciphertext to be decrypted
  * @param[in]  ciphertext_len  Length of ciphertext
  * @param[out] plaintext       Decrypted data, will be allocated by the library
