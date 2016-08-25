@@ -50,22 +50,22 @@ void simple_sign_verify_asym(yaca_key_type_e type, const char *algo)
 
 	/* SIGN */
 	if (yaca_simple_calculate_signature(YACA_DIGEST_SHA512,
-	              prv,
-	              lorem4096,
-	              LOREM4096_SIZE,
-	              &signature,
-	              &signature_len) != YACA_ERROR_NONE)
+	                                    prv,
+	                                    lorem4096,
+	                                    LOREM4096_SIZE,
+	                                    &signature,
+	                                    &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
 	dump_hex(signature, signature_len, "[Simple API] %s Signature of lorem4096:", algo);
 
 	/* VERIFY */
 	if (yaca_simple_verify_signature(YACA_DIGEST_SHA512,
-	                pub,
-	                lorem4096,
-	                LOREM4096_SIZE,
-	                signature,
-	                signature_len) != YACA_ERROR_NONE)
+	                                 pub,
+	                                 lorem4096,
+	                                 LOREM4096_SIZE,
+	                                 signature,
+	                                 signature_len) != YACA_ERROR_NONE)
 		printf("[Simple API] %s verification failed\n", algo);
 	else
 		printf("[Simple API] %s verification successful\n", algo);
@@ -90,22 +90,22 @@ void simple_sign_verify_hmac(void)
 
 	/* SIGN */
 	if (yaca_simple_calculate_hmac(YACA_DIGEST_SHA512,
-	              key,
-	              lorem4096,
-	              LOREM4096_SIZE,
-	              &signature1,
-	              &signature_len) != YACA_ERROR_NONE)
+	                               key,
+	                               lorem4096,
+	                               LOREM4096_SIZE,
+	                               &signature1,
+	                               &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
 	dump_hex(signature1, signature_len, "[Simple API] HMAC Signature of lorem4096:");
 
 	/* VERIFY */
 	if (yaca_simple_calculate_hmac(YACA_DIGEST_SHA512,
-	              key,
-	              lorem4096,
-	              LOREM4096_SIZE,
-	              &signature2,
-	              &signature_len) != YACA_ERROR_NONE)
+	                               key,
+	                               lorem4096,
+	                               LOREM4096_SIZE,
+	                               &signature2,
+	                               &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_memcmp(signature1, signature2, signature_len) != YACA_ERROR_NONE)
@@ -133,11 +133,11 @@ void simple_sign_verify_cmac(void)
 
 	/* SIGN */
 	if (yaca_simple_calculate_cmac(YACA_ENCRYPT_AES,
-	              key,
-	              lorem4096,
-	              LOREM4096_SIZE,
-	              &signature1,
-	              &signature_len) != YACA_ERROR_NONE)
+	                               key,
+	                               lorem4096,
+	                               LOREM4096_SIZE,
+	                               &signature1,
+	                               &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
 	dump_hex(signature1, signature_len, "[Simple API] CMAC Signature of lorem4096:");
@@ -145,11 +145,11 @@ void simple_sign_verify_cmac(void)
 
 	/* VERIFY */
 	if (yaca_simple_calculate_cmac(YACA_ENCRYPT_AES,
-	              key,
-	              lorem4096,
-	              LOREM4096_SIZE,
-	              &signature2,
-	              &signature_len) != YACA_ERROR_NONE)
+	                               key,
+	                               lorem4096,
+	                               LOREM4096_SIZE,
+	                               &signature2,
+	                               &signature_len) != YACA_ERROR_NONE)
 		goto exit;
 
 	if (yaca_memcmp(signature1, signature2, signature_len) != YACA_ERROR_NONE)

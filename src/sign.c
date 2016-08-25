@@ -343,8 +343,6 @@ API int yaca_sign_initialize_hmac(yaca_context_h *ctx,
 		goto exit;
 	}
 
-	pkey = NULL;
-
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
 	ret = YACA_ERROR_NONE;
@@ -426,8 +424,6 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 		ERROR_DUMP(ret);
 		goto exit;
 	}
-
-	pkey = NULL;
 
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
