@@ -506,7 +506,7 @@ static int encrypt_ctx_backup(struct yaca_encrypt_context_s *c,
 	bc->cipher = cipher;
 	bc->sym_key = key_copy(sym_key);
 	bc->iv = key_copy(iv);
-	bc->padding_none = false;
+	bc->padding = YACA_PADDING_PKCS7;
 
 	c->backup_ctx = bc;
 
@@ -534,7 +534,8 @@ static int encrypt_ctx_restore(struct yaca_encrypt_context_s *c)
 	ret = encrypt_ctx_init(c, c->backup_ctx->cipher, key->bit_len);
 	assert(ret != YACA_ERROR_INVALID_PARAMETER);
 
-	if (c->backup_ctx->padding_none && EVP_CIPHER_CTX_set_padding(c->cipher_ctx, 0) != 1) {
+	if (c->backup_ctx->padding == YACA_PADDING_NONE &&
+	    EVP_CIPHER_CTX_set_padding(c->cipher_ctx, 0) != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
 		return ret;
@@ -739,16 +740,18 @@ int set_encrypt_property(yaca_context_h ctx,
 	case YACA_PROPERTY_PADDING:
 		if ((mode != EVP_CIPH_ECB_MODE && mode != EVP_CIPH_CBC_MODE) ||
 		    value_len != sizeof(yaca_padding_e) ||
-		    *(yaca_padding_e*)value != YACA_PADDING_NONE ||
+		    (*(yaca_padding_e*)value != YACA_PADDING_NONE &&
+		    *(yaca_padding_e*)value != YACA_PADDING_PKCS7) ||
 		    c->state == STATE_FINALIZED)
 			return YACA_ERROR_INVALID_PARAMETER;
 
-		if (EVP_CIPHER_CTX_set_padding(c->cipher_ctx, 0) != 1) {
+		yaca_padding_e padding = *(yaca_padding_e*)value;
+		if (EVP_CIPHER_CTX_set_padding(c->cipher_ctx, padding) != 1) {
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
 		if (c->backup_ctx != NULL)
-			c->backup_ctx->padding_none = true;
+			c->backup_ctx->padding = padding;
 		break;
 	case YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS:
 		if (value_len != sizeof(size_t) ||

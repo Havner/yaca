@@ -451,7 +451,7 @@ typedef enum {
 	 * ECB block cipher mode.
 	 * Initialization Vector is not used.
 	 *
-	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
+	 * By default the input data is padded using standard block padding (#YACA_PADDING_PKCS7).
 	 * Padding can be disabled using yaca_context_set_property() and
 	 * #YACA_PROPERTY_PADDING,#YACA_PADDING_NONE,
 	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
@@ -471,7 +471,7 @@ typedef enum {
 	 * 128-bit Initialization Vector for AES,
 	 * 64-bit for other algorithms is mandatory.
 	 *
-	 * By default the input data is padded using standard block padding (aka PKCS#5 padding).
+	 * By default the input data is padded using standard block padding (#YACA_PADDING_PKCS7).
 	 * Padding can be disabled using yaca_context_set_property() and
 	 * #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
 	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
@@ -642,6 +642,8 @@ typedef enum {
 	YACA_PADDING_PKCS1,
 	/** RSA signature/verify operations */
 	YACA_PADDING_PKCS1_PSS,
+	/** PKCS #7 padding. Suitable for symmetric encrypt/decrypt operation. */
+	YACA_PADDING_PKCS7
 } yaca_padding_e;
 
 /**
