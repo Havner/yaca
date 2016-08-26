@@ -115,6 +115,7 @@ int main()
 	yaca_key_destroy(key);
 	yaca_key_destroy(key_params);
 
+	yaca_cleanup();
 	return 0;
 
 error:
