@@ -21,15 +21,23 @@
  * @brief
  */
 
+#define _GNU_SOURCE
 #include <assert.h>
 #include <string.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <linux/random.h>
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#include <openssl/rand.h>
 
 #include <yaca_crypto.h>
 #include <yaca_error.h>
@@ -41,6 +49,84 @@ static pthread_mutex_t *mutexes = NULL;
 static __thread bool current_thread_initialized = false;
 static size_t threads_cnt = 0;
 static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
+static const RAND_METHOD *saved_rand_method = NULL;
+#ifndef SYS_getrandom
+static int urandom_fd = -2;
+#endif  /* SYS_getrandom */
+
+static int getrandom_wrapper(unsigned char *buf, int num)
+{
+	size_t received = 0;
+	size_t remaining = num;
+
+#ifndef SYS_getrandom
+	if (urandom_fd == -2)
+		return 0;
+#endif /* SYS_getrandom */
+
+	while (remaining > 0) {
+#ifdef SYS_getrandom
+		ssize_t n = syscall(SYS_getrandom, buf + received, remaining, 0);
+#else /* SYS_getrandom */
+		ssize_t n = read(urandom_fd, buf + received, remaining);
+#endif /* SYS_getrandom */
+
+		if (n == -1) {
+			if (errno == EINTR)
+				continue;
+
+			return 0;
+		}
+
+		received += n;
+		remaining -= n;
+	}
+
+	return 1;
+}
+
+static void RAND_METHOD_seed(UNUSED const void *buf, UNUSED int num)
+{
+}
+
+static int RAND_METHOD_bytes(unsigned char *buf, int num)
+{
+	return getrandom_wrapper(buf, num);
+}
+
+static void RAND_METHOD_cleanup(void)
+{
+}
+
+static void RAND_METHOD_add(UNUSED const void *buf, UNUSED int num, UNUSED double entropy)
+{
+}
+
+static int RAND_METHOD_pseudorand(UNUSED unsigned char *buf, UNUSED int num)
+{
+	return getrandom_wrapper(buf, num);
+}
+
+static int RAND_METHOD_status(void)
+{
+#ifdef SYS_getrandom
+	char tmp;
+	int n = syscall(SYS_getrandom, &tmp, 1, GRND_NONBLOCK);
+	if (n == -1 && errno == EAGAIN)
+		return 0;
+#endif /* SYS_getrandom */
+
+	return 1;
+}
+
+static const RAND_METHOD new_rand_method = {
+	RAND_METHOD_seed,
+	RAND_METHOD_bytes,
+	RAND_METHOD_cleanup,
+	RAND_METHOD_add,
+	RAND_METHOD_pseudorand,
+	RAND_METHOD_status,
+};
 
 static void locking_callback(int mode, int type, UNUSED const char *file, UNUSED int line)
 {
@@ -86,22 +172,39 @@ API int yaca_initialize(void)
 		if (threads_cnt == 0) {
 			assert(mutexes == NULL);
 
+#ifndef SYS_getrandom
+			if (urandom_fd == -2) {
+				int fd;
+
+				do {
+					fd = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
+				} while (fd == -1 && errno == EINTR);
+
+				if (fd < 0) {
+					ret = YACA_ERROR_INTERNAL;
+					goto exit;
+				}
+
+				urandom_fd = fd;
+			}
+#endif /* SYS_getrandom */
+
 			OPENSSL_init();
 
-			/* This should never fail on a /dev/random equipped system. If it does it
-			 * means we might need to figure out another way of a truly random seed.
-			 * https://wiki.openssl.org/index.php/Random_Numbers
+			/* Use getrandom from urandom pool by default.
+			 * As per the following:
+			 * http://www.2uo.de/myths-about-urandom/
+			 * http://sockpuppet.org/blog/2014/02/25/safely-generate-random-numbers/
 			 *
-			 * Another things to maybe consider for the future:
+			 * OpenSSL's PRNG has issues:
+			 * https://eprint.iacr.org/2016/367.pdf
+
+			 * Some other things to check/consider for the future:
 			 * - entropy on a mobile device (no mouse/keyboard)
-			 * - fork safety: https://wiki.openssl.org/index.php/Random_fork-safety
 			 * - hardware random generator (RdRand on new Intels, Samsung hardware?)
 			 */
-			if (RAND_status() != 1) {
-				ERROR_DUMP(YACA_ERROR_INTERNAL);
-				ret = YACA_ERROR_INTERNAL;
-				goto exit;
-			}
+			saved_rand_method = RAND_get_rand_method();
+			RAND_set_rand_method(&new_rand_method);
 
 			OpenSSL_add_all_digests();
 			OpenSSL_add_all_ciphers();
@@ -140,11 +243,9 @@ API int yaca_initialize(void)
 
 			/*
 			 * TODO:
-			 * - We should also decide on Openssl config.
+			 * - We should also decide on OpenSSL config.
 			 * - Here's a good tutorial for initialization and cleanup:
 			 *   https://wiki.openssl.org/index.php/Library_Initialization
-			 * - We should also initialize the entropy for random number generator:
-			 *   https://wiki.openssl.org/index.php/Random_Numbers#Initialization
 			 */
 		}
 		threads_cnt++;
@@ -175,6 +276,11 @@ API void yaca_cleanup(void)
 			EVP_cleanup();
 			RAND_cleanup();
 			CRYPTO_cleanup_all_ex_data();
+			RAND_set_rand_method(saved_rand_method);
+#ifndef SYS_getrandom
+			close(urandom_fd);
+			urandom_fd = -2;
+#endif /* SYS_getrandom */
 
 			/* threads support cleanup */
 			CRYPTO_set_id_callback(NULL);
