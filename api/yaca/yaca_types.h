@@ -634,14 +634,48 @@ typedef enum {
  * @since_tizen 3.0
  */
 typedef enum {
-	/** The total number of data bytes MUST be a multiple of block size */
+	/**
+	 * No padding at all. This method assumes that the input data already has a proper length for
+	 * a given cryptographic operation (e.g. it has been padded by the client). Suitable for
+	 * symmetric encrypt/decrypt operations as well as low-level RSA operations.
+	 */
 	YACA_PADDING_NONE = 0,
-	/** RSA X9.31 padding */
+
+	/**
+	 * X9.31 padding. Suitable for RSA sign/verify operation. Not supported in low-level
+	 * RSA operations.
+	 */
 	YACA_PADDING_X931,
-	/** RSA signature/verify operations */
+
+	/**
+	 * PKCS #1 v1.5 padding. Suitable for RSA sign/verify and low-level RSA operations.
+	 * For low-level operations the input must be at least 12 bytes shorter than the key length.
+	 */
 	YACA_PADDING_PKCS1,
-	/** RSA signature/verify operations */
+
+	/**
+	 * PKCS #1 PSS padding. Suitable for RSA sign/verify operations. Not supported in low-level
+	 * RSA operations.
+	 */
 	YACA_PADDING_PKCS1_PSS,
+
+	/**
+	 * EME-OAEP as defined in PKCS #1 v2.0 with SHA-1, MGF1 and an empty encoding parameter.
+	 * Suitable for low-level RSA public_encrypt/private_decrypt operations. For low-level
+	 * operations the input must be at least 42 bytes shorter than the key length.
+	 */
+	YACA_PADDING_PKCS1_OAEP,
+
+	/**
+	 * PKCS #1 v1.5 padding with an SSL-specific modification that denotes that the party
+	 * is SSL3 capable. It is used for rollback attack detection in SSLv3. If during decryption it
+	 * turns out that both parties are using #YACA_PADDING_PKCS1_SSL23 (both are communicating
+	 * using SSL2 and both are SSL3 capable) it is treated as a rollback attack and an error is
+	 * returned. Suitable for low-level RSA public_encrypt/private_decrypt operations. For
+	 * low-level operations the input must be at least 12 bytes shorter than the key length.
+	 */
+	YACA_PADDING_PKCS1_SSLV23,
+
 	/** PKCS #7 padding. Suitable for symmetric encrypt/decrypt operation. */
 	YACA_PADDING_PKCS7
 } yaca_padding_e;
