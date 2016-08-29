@@ -1025,7 +1025,7 @@ static int generate_evp_pkey_params(int evp_id, size_t key_bit_len, EVP_PKEY **p
 
 	switch (evp_id) {
 	case EVP_PKEY_DSA:
-		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_BITS ||
+		if ((key_bit_len & YACA_KEYLEN_COMPONENT_TYPE_MASK) != YACA_KEYLEN_COMPONENT_TYPE_BITS ||
 		    key_bit_len > INT_MAX || key_bit_len < 512 || key_bit_len % 64 != 0)
 			return YACA_ERROR_INVALID_PARAMETER;
 
@@ -1033,9 +1033,9 @@ static int generate_evp_pkey_params(int evp_id, size_t key_bit_len, EVP_PKEY **p
 
 		break;
 	case EVP_PKEY_DH:
-		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) == YACA_INTERNAL_KEYLEN_TYPE_DH) {
-			size_t gen_block = key_bit_len & YACA_INTERNAL_KEYLEN_DH_GEN_MASK;
-			size_t prime_len_block = key_bit_len & YACA_INTERNAL_KEYLEN_DH_PRIME_MASK;
+		if ((key_bit_len & YACA_KEYLEN_COMPONENT_TYPE_MASK) == YACA_KEYLEN_COMPONENT_TYPE_DH) {
+			size_t gen_block = key_bit_len & YACA_KEYLEN_COMPONENT_DH_GEN_MASK;
+			size_t prime_len_block = key_bit_len & YACA_KEYLEN_COMPONENT_DH_PRIME_MASK;
 
 			/* This is impossible now as we take only 16 bits,
 			 * but for the sake of type safety */
@@ -1043,14 +1043,14 @@ static int generate_evp_pkey_params(int evp_id, size_t key_bit_len, EVP_PKEY **p
 				return YACA_ERROR_INVALID_PARAMETER;
 			dh_prime_len = prime_len_block;
 
-			if (gen_block == YACA_INTERNAL_KEYLEN_DH_GEN_2)
+			if (gen_block == YACA_KEYLEN_COMPONENT_DH_GEN_2)
 				dh_generator = 2;
-			else if (gen_block == YACA_INTERNAL_KEYLEN_DH_GEN_5)
+			else if (gen_block == YACA_KEYLEN_COMPONENT_DH_GEN_5)
 				dh_generator = 5;
 			else
 				return YACA_ERROR_INVALID_PARAMETER;
 
-		} else if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) == YACA_INTERNAL_KEYLEN_TYPE_DH_RFC) {
+		} else if ((key_bit_len & YACA_KEYLEN_COMPONENT_TYPE_MASK) == YACA_KEYLEN_COMPONENT_TYPE_DH_RFC) {
 			if (key_bit_len == YACA_KEY_LENGTH_DH_RFC_1024_160)
 				dh_rfc5114 = 1; /* OpenSSL magic numbers */
 			else if (key_bit_len == YACA_KEY_LENGTH_DH_RFC_2048_224)
@@ -1179,7 +1179,7 @@ static int generate_evp_pkey_key(int evp_id, size_t key_bit_len, EVP_PKEY *param
 	}
 
 	if (evp_id == EVP_PKEY_RSA) {
-		if ((key_bit_len & YACA_INTERNAL_KEYLEN_TYPE_MASK) != YACA_INTERNAL_KEYLEN_TYPE_BITS ||
+		if ((key_bit_len & YACA_KEYLEN_COMPONENT_TYPE_MASK) != YACA_KEYLEN_COMPONENT_TYPE_BITS ||
 		    key_bit_len > INT_MAX || key_bit_len % 8 != 0) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
