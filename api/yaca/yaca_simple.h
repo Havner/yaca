@@ -55,6 +55,8 @@ extern "C" {
  *
  * @remarks  The @a ciphertext should be freed using yaca_free()
  *
+ * @remarks  The @a plaintext can be NULL but then @a plaintext_len must be 0
+ *
  * @param[in]  algo            Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
  * @param[in]  bcm             Chaining mode (select #YACA_BCM_CBC if unsure)
  * @param[in]  sym_key         Symmetric encryption key (see yaca_key.h for key generation functions)
@@ -94,6 +96,8 @@ int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
  *
  * @remarks  The @a plaintext should be freed using yaca_free()
  *
+ * @remarks  The @a ciphertext can be NULL but then @a ciphertext_len must be 0
+ *
  * @param[in]  algo            Decryption algorithm that was used to encrypt the data
  * @param[in]  bcm             Chaining mode that was used to encrypt the data
  * @param[in]  sym_key         Symmetric encryption key that was used to encrypt the data
@@ -125,17 +129,19 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
                         size_t *plaintext_len);
 
 /**
- * @brief  Calculates a digest of a buffer.
+ * @brief  Calculates a digest of a message.
  *
  * @since_tizen 3.0
  *
  * @remarks  The @a digest should be freed using yaca_free()
  *
- * @param[in]  algo        Digest algorithm (select #YACA_DIGEST_SHA256 if unsure)
- * @param[in]  data        Data from which the digest is to be calculated
- * @param[in]  data_len    Length of the data. Can be 0.
- * @param[out] digest      Message digest, will be allocated by the library
- * @param[out] digest_len  Length of message digest (depends on algorithm)
+ * @remarks  The @a message can be NULL but then @a message_len must be 0
+ *
+ * @param[in]  algo         Digest algorithm (select #YACA_DIGEST_SHA256 if unsure)
+ * @param[in]  message      Message from which the digest is to be calculated
+ * @param[in]  message_len  Length of the message
+ * @param[out] digest       Message digest, will be allocated by the library
+ * @param[out] digest_len   Length of message digest (depends on algorithm)
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -148,8 +154,8 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
  * @see yaca_free()
  */
 int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
-                                 const char *data,
-                                 size_t data_len,
+                                 const char *message,
+                                 size_t message_len,
                                  char **digest,
                                  size_t *digest_len);
 
@@ -160,14 +166,16 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  *
  * @remarks  The @a signature should be freed using yaca_free()
  *
+ * @remarks  The @a message can be NULL but then @a message_len must be 0
+ *
  * @param[in]  algo           Digest algorithm that will be used
  * @param[in]  prv_key        Private key that will be used, algorithm is
  *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PRIV,
  *                            - #YACA_KEY_TYPE_DSA_PRIV,
  *                            - #YACA_KEY_TYPE_EC_PRIV
- * @param[in]  data           Data to be signed
- * @param[in]  data_len       Length of the data
+ * @param[in]  message        Message to be signed
+ * @param[in]  message_len    Length of the message
  * @param[out] signature      Message signature, will be allocated by the library
  * @param[out] signature_len  Length of the signature
  *
@@ -185,8 +193,8 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  */
 int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
                                     const yaca_key_h prv_key,
-                                    const char *data,
-                                    size_t data_len,
+                                    const char *message,
+                                    size_t message_len,
                                     char **signature,
                                     size_t *signature_len);
 
@@ -195,15 +203,17 @@ int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
+ * @remarks  The @a message can be NULL but then @a message_len must be 0
+ *
  * @param[in]  algo           Digest algorithm that will be used
  * @param[in]  pub_key        Public key that will be used, algorithm is
  *                            deduced based on key type, supported key types:
  *                            - #YACA_KEY_TYPE_RSA_PUB,
  *                            - #YACA_KEY_TYPE_DSA_PUB,
  *                            - #YACA_KEY_TYPE_EC_PUB
- * @param[in]  data           Signed data
- * @param[in]  data_len       Length of the data
- * @param[in]  signature      Message signature
+ * @param[in]  message        Message
+ * @param[in]  message_len    Length of the message
+ * @param[in]  signature      Message signature to be verified
  * @param[in]  signature_len  Length of the signature
  *
  * @return #YACA_ERROR_NONE on success, negative on error
@@ -220,8 +230,8 @@ int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
  */
 int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
                                  const yaca_key_h pub_key,
-                                 const char *data,
-                                 size_t data_len,
+                                 const char *message,
+                                 size_t message_len,
                                  const char *signature,
                                  size_t signature_len);
 
@@ -235,14 +245,16 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
  *
  * @remarks  The @a mac should be freed using yaca_free()
  *
- * @param[in]  algo      Digest algorithm that will be used
- * @param[in]  sym_key   Key that will be used, supported key types:
- *                       - #YACA_KEY_TYPE_SYMMETRIC,
- *                       - #YACA_KEY_TYPE_DES
- * @param[in]  data      Data to calculate HMAC from
- * @param[in]  data_len  Length of the data
- * @param[out] mac       MAC, will be allocated by the library
- * @param[out] mac_len   Length of the MAC
+ * @remarks  The @a message can be NULL but then @a message_len must be 0
+ *
+ * @param[in]  algo         Digest algorithm that will be used
+ * @param[in]  sym_key      Key that will be used, supported key types:
+ *                          - #YACA_KEY_TYPE_SYMMETRIC,
+ *                          - #YACA_KEY_TYPE_DES
+ * @param[in]  message      Message to calculate HMAC from
+ * @param[in]  message_len  Length of the message
+ * @param[out] mac          MAC, will be allocated by the library
+ * @param[out] mac_len      Length of the MAC
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -258,8 +270,8 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
  */
 int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
                                const yaca_key_h sym_key,
-                               const char *data,
-                               size_t data_len,
+                               const char *message,
+                               size_t message_len,
                                char **mac,
                                size_t *mac_len);
 
@@ -273,14 +285,16 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
  *
  * @remarks  The @a mac should be freed using yaca_free()
  *
- * @param[in]  algo      Encryption algorithm that will be used
- * @param[in]  sym_key   Key that will be used, supported key types:
- *                       - #YACA_KEY_TYPE_SYMMETRIC,
- *                       - #YACA_KEY_TYPE_DES
- * @param[in]  data      Data to calculate CMAC from
- * @param[in]  data_len  Length of the data
- * @param[out] mac       MAC, will be allocated by the library
- * @param[out] mac_len   Length of the MAC
+ * @remarks  The @a message can be NULL but then @a message_len must be 0
+ *
+ * @param[in]  algo         Encryption algorithm that will be used
+ * @param[in]  sym_key      Key that will be used, supported key types:
+ *                          - #YACA_KEY_TYPE_SYMMETRIC,
+ *                          - #YACA_KEY_TYPE_DES
+ * @param[in]  message      Message to calculate CMAC from
+ * @param[in]  message_len  Length of the message
+ * @param[out] mac          MAC, will be allocated by the library
+ * @param[out] mac_len      Length of the MAC
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -296,8 +310,8 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
  */
 int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
                                const yaca_key_h sym_key,
-                               const char *data,
-                               size_t data_len,
+                               const char *message,
+                               size_t message_len,
                                char **mac,
                                size_t *mac_len);
 

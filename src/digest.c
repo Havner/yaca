@@ -165,15 +165,15 @@ exit:
 	return ret;
 }
 
-API int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len)
+API int yaca_digest_update(yaca_context_h ctx, const char *message, size_t message_len)
 {
 	struct yaca_digest_context_s *c = get_digest_context(ctx);
 	int ret;
 
-	if (c == NULL || data == NULL || data_len == 0)
+	if (c == NULL || message == NULL || message_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestUpdate(c->md_ctx, data, data_len);
+	ret = EVP_DigestUpdate(c->md_ctx, message, message_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);

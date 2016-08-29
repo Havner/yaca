@@ -61,13 +61,13 @@ extern "C" {
 int yaca_digest_initialize(yaca_context_h *ctx, yaca_digest_algorithm_e algo);
 
 /**
- * @brief  Feeds the data into the message digest algorithm.
+ * @brief  Feeds the message into the message digest algorithm.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx       Context created by yaca_digest_initialize()
- * @param[in]     data      Data from which the digest is to be calculated
- * @param[in]     data_len  Length of the data
+ * @param[in,out] ctx          Context created by yaca_digest_initialize()
+ * @param[in]     message      Message from which the digest is to be calculated
+ * @param[in]     message_len  Length of the message
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -78,7 +78,7 @@ int yaca_digest_initialize(yaca_context_h *ctx, yaca_digest_algorithm_e algo);
  * @see yaca_digest_initialize()
  * @see yaca_digest_finalize()
  */
-int yaca_digest_update(yaca_context_h ctx, const char *data, size_t data_len);
+int yaca_digest_update(yaca_context_h ctx, const char *message, size_t message_len);
 
 /**
  * @brief  Calculates the final digest.

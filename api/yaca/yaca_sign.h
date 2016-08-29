@@ -143,14 +143,14 @@ int yaca_sign_initialize_cmac(yaca_context_h *ctx,
                               const yaca_key_h sym_key);
 
 /**
- * @brief  Feeds the data into the digital signature or MAC algorithm.
+ * @brief  Feeds the message into the digital signature or MAC algorithm.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx       Context created by yaca_sign_initialize(),
- *                          yaca_sign_initialize_hmac() or yaca_sign_initialize_cmac()
- * @param[in]     data      Data to be signed
- * @param[in]     data_len  Length of the data
+ * @param[in,out] ctx          Context created by yaca_sign_initialize(),
+ *                             yaca_sign_initialize_hmac() or yaca_sign_initialize_cmac()
+ * @param[in]     message      Message to be signed
+ * @param[in]     message_len  Length of the message
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -164,8 +164,8 @@ int yaca_sign_initialize_cmac(yaca_context_h *ctx,
  * @see yaca_sign_initialize_cmac()
  */
 int yaca_sign_update(yaca_context_h ctx,
-                     const char *data,
-                     size_t data_len);
+                     const char *message,
+                     size_t message_len);
 
 /**
  * @brief  Calculates the final signature or MAC.
@@ -176,7 +176,7 @@ int yaca_sign_update(yaca_context_h ctx,
  *           signature or MAC of an empty message.
  *
  * @param[in,out] ctx              A valid sign context
- * @param[out]    signature        Buffer for the MAC or the signature
+ * @param[out]    signature        Buffer for the MAC or the message signature
  *                                 (must be allocated by client, see yaca_context_get_output_length())
  * @param[out]    signature_len    Length of the MAC or the signature,
  *                                 actual number of bytes written will be returned here
@@ -230,13 +230,13 @@ int yaca_verify_initialize(yaca_context_h *ctx,
                            const yaca_key_h pub_key);
 
 /**
- * @brief  Feeds the data into the digital signature verification algorithm.
+ * @brief  Feeds the message into the digital signature verification algorithm.
  *
  * @since_tizen 3.0
  *
- * @param[in,out] ctx       Context created by yaca_verify_initialize()
- * @param[in]     data      Data to be verified
- * @param[in]     data_len  Length of the data
+ * @param[in,out] ctx          Context created by yaca_verify_initialize()
+ * @param[in]     message      Message
+ * @param[in]     message_len  Length of the message
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
@@ -248,8 +248,8 @@ int yaca_verify_initialize(yaca_context_h *ctx,
  * @see yaca_verify_finalize()
  */
 int yaca_verify_update(yaca_context_h ctx,
-                       const char *data,
-                       size_t data_len);
+                       const char *message,
+                       size_t message_len);
 
 /**
  * @brief  Performs the verification.
@@ -260,8 +260,8 @@ int yaca_verify_update(yaca_context_h ctx,
  *           the signature of an empty message.
  *
  * @param[in,out] ctx            A valid verify context
- * @param[in]     signature      Input signature (returned by yaca_sign_finalize())
- * @param[in]     signature_len  Size of the signature
+ * @param[in]     signature      Message signature to be verified
+ * @param[in]     signature_len  Length of the signature
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful

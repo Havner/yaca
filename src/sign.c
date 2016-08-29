@@ -442,17 +442,17 @@ exit:
 }
 
 API int yaca_sign_update(yaca_context_h ctx,
-                         const char *data,
-                         size_t data_len)
+                         const char *message,
+                         size_t message_len)
 {
 	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	int ret;
 
 	if (c == NULL || c->op_type != OP_SIGN ||
-	    data == NULL || data_len == 0)
+	    message == NULL || message_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestSignUpdate(c->md_ctx, data, data_len);
+	ret = EVP_DigestSignUpdate(c->md_ctx, message, message_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -544,16 +544,16 @@ exit:
 }
 
 API int yaca_verify_update(yaca_context_h ctx,
-                           const char *data,
-                           size_t data_len)
+                           const char *message,
+                           size_t message_len)
 {
 	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	int ret;
 
-	if (c == NULL || data == NULL || data_len == 0 || c->op_type != OP_VERIFY)
+	if (c == NULL || message == NULL || message_len == 0 || c->op_type != OP_VERIFY)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_DigestVerifyUpdate(c->md_ctx, data, data_len);
+	ret = EVP_DigestVerifyUpdate(c->md_ctx, message, message_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
