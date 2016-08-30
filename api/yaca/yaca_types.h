@@ -649,7 +649,7 @@ typedef enum {
 
 	/**
 	 * PKCS #1 v1.5 padding. Suitable for RSA sign/verify and low-level RSA operations.
-	 * For low-level operations the input must be at least 12 bytes shorter than the key length.
+	 * For low-level operations the input must be at least 11 bytes shorter than the key length.
 	 */
 	YACA_PADDING_PKCS1,
 
@@ -672,7 +672,7 @@ typedef enum {
 	 * turns out that both parties are using #YACA_PADDING_PKCS1_SSL23 (both are communicating
 	 * using SSL2 and both are SSL3 capable) it is treated as a rollback attack and an error is
 	 * returned. Suitable for low-level RSA public_encrypt/private_decrypt operations. For
-	 * low-level operations the input must be at least 12 bytes shorter than the key length.
+	 * low-level operations the input must be at least 11 bytes shorter than the key length.
 	 */
 	YACA_PADDING_PKCS1_SSLV23,
 
