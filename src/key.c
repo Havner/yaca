@@ -101,7 +101,7 @@ static const struct {
 static const size_t KEY_TYPES_PARAMS_SIZE = sizeof(KEY_TYPES_PARAMS) / sizeof(KEY_TYPES_PARAMS[0]);
 
 #define CONVERT_TYPES_TEMPLATE(data, src_type, src, dst_type, dst) \
-	static int convert_##src##_to_##dst (src_type src, dst_type *dst) \
+	static int convert_##src##_to_##dst(src_type src, dst_type *dst) \
 	{ \
 		assert(dst != NULL); \
 		size_t i; \

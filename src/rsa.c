@@ -130,7 +130,7 @@ API int yaca_rsa_public_encrypt(yaca_padding_e padding,
 	if (pub_key == YACA_KEY_NULL || pub_key->type != YACA_KEY_TYPE_RSA_PUB)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	switch(padding) {
+	switch (padding) {
 	case YACA_PADDING_NONE:
 	case YACA_PADDING_PKCS1:
 	case YACA_PADDING_PKCS1_OAEP:
@@ -159,7 +159,7 @@ API int yaca_rsa_private_decrypt(yaca_padding_e padding,
 	if (prv_key == YACA_KEY_NULL || prv_key->type != YACA_KEY_TYPE_RSA_PRIV)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	switch(padding) {
+	switch (padding) {
 	case YACA_PADDING_NONE:
 	case YACA_PADDING_PKCS1:
 	case YACA_PADDING_PKCS1_OAEP:
@@ -188,7 +188,7 @@ API int yaca_rsa_private_encrypt(yaca_padding_e padding,
 	if (prv_key == YACA_KEY_NULL || prv_key->type != YACA_KEY_TYPE_RSA_PRIV)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	switch(padding) {
+	switch (padding) {
 	case YACA_PADDING_NONE:
 	case YACA_PADDING_PKCS1:
 		break;
@@ -215,7 +215,7 @@ API int yaca_rsa_public_decrypt(yaca_padding_e padding,
 	if (pub_key == YACA_KEY_NULL || pub_key->type != YACA_KEY_TYPE_RSA_PUB)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	switch(padding) {
+	switch (padding) {
 	case YACA_PADDING_NONE:
 	case YACA_PADDING_PKCS1:
 		break;

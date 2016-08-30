@@ -48,7 +48,7 @@ static int public_encrypt()
 
 	/* Key generation */
 	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, key_bit_len, &prv_key);
-	if (ret!= YACA_ERROR_NONE)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	ret = yaca_key_extract_public(prv_key, &pub_key);
@@ -101,7 +101,7 @@ static int private_encrypt()
 
 	/* Key generation */
 	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, key_bit_len, &prv_key);
-	if (ret!= YACA_ERROR_NONE)
+	if (ret != YACA_ERROR_NONE)
 		return ret;
 
 	ret = yaca_key_extract_public(prv_key, &pub_key);
