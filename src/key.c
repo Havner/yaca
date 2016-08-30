@@ -452,8 +452,10 @@ static int import_evp(yaca_key_h *key,
 		if (pkey == NULL) {
 			BIO_reset(src);
 			pkey = PEM_read_bio_PrivateKey(src, NULL, cb, (void*)&cb_data);
-			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
-				return YACA_ERROR_INVALID_PASSWORD;
+			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD) {
+				ret = YACA_ERROR_INVALID_PASSWORD;
+				goto exit;
+			}
 			imported_key_category = IMPORTED_KEY_CATEGORY_PRIVATE;
 			password_supported = true;
 		}
@@ -491,8 +493,10 @@ static int import_evp(yaca_key_h *key,
 		if (pkey == NULL) {
 			BIO_reset(src);
 			pkey = d2i_PKCS8PrivateKey_bio(src, NULL, cb, (void*)&cb_data);
-			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD)
-				return YACA_ERROR_INVALID_PASSWORD;
+			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD) {
+				ret = YACA_ERROR_INVALID_PASSWORD;
+				goto exit;
+			}
 			imported_key_category = IMPORTED_KEY_CATEGORY_PRIVATE;
 			password_supported = true;
 		}
@@ -550,10 +554,10 @@ static int import_evp(yaca_key_h *key,
 		}
 	}
 
-	BIO_free(src);
-
-	if (pkey == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
+	if (pkey == NULL) {
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		goto exit;
+	}
 
 	/* password was given, but it was not required to perform import */
 	if (password != NULL && !cb_data.password_requested) {
@@ -578,7 +582,8 @@ static int import_evp(yaca_key_h *key,
 		break;
 	default:
 		assert(false);
-		return YACA_ERROR_INTERNAL;
+		ret = YACA_ERROR_INTERNAL;
+		goto exit;
 	}
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -601,7 +606,7 @@ static int import_evp(yaca_key_h *key,
 
 exit:
 	EVP_PKEY_free(pkey);
-
+	BIO_free_all(src);
 	return ret;
 }
 
