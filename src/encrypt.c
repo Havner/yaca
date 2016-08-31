@@ -746,7 +746,7 @@ int set_encrypt_property(yaca_context_h ctx,
 		    c->state == STATE_FINALIZED)
 			return YACA_ERROR_INVALID_PARAMETER;
 
-		yaca_padding_e padding = *(yaca_padding_e*)value;
+		int padding = *(yaca_padding_e*)value == YACA_PADDING_NONE ? 0 : 1;
 		if (EVP_CIPHER_CTX_set_padding(c->cipher_ctx, padding) != 1) {
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
