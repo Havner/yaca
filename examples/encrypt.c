@@ -146,7 +146,7 @@ void encrypt_advanced(const yaca_encrypt_algorithm_e algo,
 			goto exit;
 
 		/* For the update */
-		if (yaca_context_get_output_length(ctx, LOREM4096_SIZE, &output_len) != YACA_ERROR_NONE)
+		if (yaca_context_get_output_length(ctx, enc_len, &output_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		/* For the finalize */
