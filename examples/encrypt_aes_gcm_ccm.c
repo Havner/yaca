@@ -298,12 +298,15 @@ void encrypt_decrypt_aes_ccm(void)
 		if (yaca_malloc(dec_len, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
-		/* The tag verify is performed when you call the final yaca_decrypt_update(),
-		 * there is no call to yaca_decrypt_finalize() */
 		if (yaca_decrypt_update(ctx, enc, enc_len, dec, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		dec_len = written_len;
+
+		if (yaca_decrypt_finalize(ctx, dec + written_len, &written_len) != YACA_ERROR_NONE)
+			goto exit;
+
+		dec_len += written_len;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_len, dec);
 	}

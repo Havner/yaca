@@ -199,7 +199,8 @@ int yaca_decrypt_initialize(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context)
+ *                                       invalid context), wrong #YACA_PROPERTY_CCM_AAD or
+ *                                       wrong #YACA_PROPERTY_CCM_TAG was used
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_decrypt_initialize()
@@ -229,7 +230,8 @@ int yaca_decrypt_update(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context)
+ *                                       invalid context), wrong #YACA_PROPERTY_GCM_AAD or
+ *                                       wrong #YACA_PROPERTY_GCM_TAG was used
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_decrypt_initialize()

@@ -403,12 +403,15 @@ void encrypt_seal_aes_ccm(void)
 		if (yaca_malloc(dec_len, (void**)&dec) != YACA_ERROR_NONE)
 			goto exit;
 
-		/* The tag verify is performed when you call the final yaca_open_update(),
-		 * there is no call to yaca_open_finalize() */
 		if (yaca_open_update(ctx, enc, enc_len, dec, &written_len) != YACA_ERROR_NONE)
 			goto exit;
 
 		dec_len = written_len;
+
+		if (yaca_open_finalize(ctx, dec + written_len, &written_len) != YACA_ERROR_NONE)
+			goto exit;
+
+		dec_len += written_len;
 
 		printf("Decrypted data (16 of %zu bytes): %.16s\n\n", dec_len, dec);
 	}

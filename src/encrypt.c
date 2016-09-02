@@ -205,6 +205,30 @@ static const size_t VALID_GCM_TAG_LENGTHS[] = { 4, 8, 12, 13, 14, 15, 16 };
 static const size_t VALID_GCM_TAG_LENGTHS_LENGTH =
 		sizeof(VALID_GCM_TAG_LENGTHS) / sizeof(VALID_GCM_TAG_LENGTHS[0]);
 
+static const size_t VALID_CCM_TAG_LENGTHS[] = { 4, 6, 8, 10, 12, 14, 16 };
+static const size_t VALID_CCM_TAG_LENGTHS_LENGTH =
+		sizeof(VALID_CCM_TAG_LENGTHS) / sizeof(VALID_CCM_TAG_LENGTHS[0]);
+
+static bool is_valid_tag_len(int mode, size_t tag_len)
+{
+	switch (mode) {
+	case EVP_CIPH_GCM_MODE:
+		for (size_t i = 0; i < VALID_GCM_TAG_LENGTHS_LENGTH; i++) {
+			if (tag_len == VALID_GCM_TAG_LENGTHS[i])
+				return true;
+		}
+		return false;
+	case EVP_CIPH_CCM_MODE:
+		for (size_t i = 0; i < VALID_CCM_TAG_LENGTHS_LENGTH; i++) {
+			if (tag_len == VALID_CCM_TAG_LENGTHS[i])
+				return true;
+		}
+		return false;
+	default:
+		return false;
+	}
+}
+
 struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx)
 {
 	if (ctx == YACA_CONTEXT_NULL)
@@ -556,9 +580,6 @@ static int encrypt_ctx_set_ccm_tag_len(struct yaca_encrypt_context_s *c, size_t 
 	assert(c->backup_ctx != NULL);
 	assert(is_encryption_op(c->op_type));
 
-	if (tag_len == 0 || tag_len > INT_MAX)
-		return YACA_ERROR_INVALID_PARAMETER;
-
 	ret = encrypt_ctx_restore(c);
 	if (ret != YACA_ERROR_NONE)
 		return ret;
@@ -584,9 +605,6 @@ static int encrypt_ctx_set_ccm_tag(struct yaca_encrypt_context_s *c, char *tag, 
 	assert(c->backup_ctx != NULL);
 	assert(!is_encryption_op(c->op_type));
 	assert(tag != NULL);
-
-	if (tag_len == 0 || tag_len > INT_MAX)
-		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = encrypt_ctx_restore(c);
 	if (ret != YACA_ERROR_NONE)
@@ -650,10 +668,8 @@ int set_encrypt_property(yaca_context_h ctx,
 
 	switch (property) {
 	case YACA_PROPERTY_GCM_AAD:
-		if (mode != EVP_CIPH_GCM_MODE)
-			return YACA_ERROR_INVALID_PARAMETER;
-
-		if (!verify_state_change(c, STATE_AAD_UPDATED))
+		if (mode != EVP_CIPH_GCM_MODE ||
+		    !verify_state_change(c, STATE_AAD_UPDATED))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
@@ -663,10 +679,8 @@ int set_encrypt_property(yaca_context_h ctx,
 		c->state = STATE_AAD_UPDATED;
 		break;
 	case YACA_PROPERTY_CCM_AAD:
-		if (mode != EVP_CIPH_CCM_MODE)
-			return YACA_ERROR_INVALID_PARAMETER;
-
-		if (!verify_state_change(c, STATE_AAD_UPDATED))
+		if (mode != EVP_CIPH_CCM_MODE ||
+		    !verify_state_change(c, STATE_AAD_UPDATED))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
@@ -677,16 +691,11 @@ int set_encrypt_property(yaca_context_h ctx,
 		break;
 	case YACA_PROPERTY_GCM_TAG:
 		if (mode != EVP_CIPH_GCM_MODE || is_encryption_op(c->op_type) ||
-		    value_len == 0 || value_len > INT_MAX)
+		    !is_valid_tag_len(mode, value_len) ||
+		    !verify_state_change(c, STATE_TAG_SET))
 			return YACA_ERROR_INVALID_PARAMETER;
 
-		if (!verify_state_change(c, STATE_TAG_SET))
-			return YACA_ERROR_INVALID_PARAMETER;
-
-		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
-		                        EVP_CTRL_GCM_SET_TAG,
-		                        value_len,
-		                        (void*)value) != 1) {
+		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx, EVP_CTRL_GCM_SET_TAG, value_len, (void*)value) != 1) {
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
@@ -695,30 +704,17 @@ int set_encrypt_property(yaca_context_h ctx,
 	case YACA_PROPERTY_GCM_TAG_LEN:
 		if (value_len != sizeof(size_t) || mode != EVP_CIPH_GCM_MODE ||
 		    !is_encryption_op(c->op_type) ||
-		    *(size_t*)value == 0 || *(size_t*)value > INT_MAX)
+		    !is_valid_tag_len(mode, *(size_t*)value) ||
+		    !verify_state_change(c, STATE_TAG_LENGTH_SET))
 			return YACA_ERROR_INVALID_PARAMETER;
 
-		if (!verify_state_change(c, STATE_TAG_LENGTH_SET))
-			return YACA_ERROR_INVALID_PARAMETER;
-
-		/* check allowed tag lengths */
-		{
-			size_t tag_len = *(size_t*)value;
-			for (size_t i = 0; i < VALID_GCM_TAG_LENGTHS_LENGTH; i++) {
-				if (tag_len == VALID_GCM_TAG_LENGTHS[i]) {
-					c->tag_len = tag_len;
-					c->state = STATE_TAG_LENGTH_SET;
-					return YACA_ERROR_NONE;
-				}
-			}
-			return YACA_ERROR_INVALID_PARAMETER;
-		}
+		c->tag_len = *(size_t*)value;
+		c->state = STATE_TAG_LENGTH_SET;
 		break;
 	case YACA_PROPERTY_CCM_TAG:
-		if (mode != EVP_CIPH_CCM_MODE || is_encryption_op(c->op_type))
-			return YACA_ERROR_INVALID_PARAMETER;
-
-		if (!verify_state_change(c, STATE_TAG_SET))
+		if (mode != EVP_CIPH_CCM_MODE || is_encryption_op(c->op_type) ||
+		    !is_valid_tag_len(mode, value_len) ||
+		    !verify_state_change(c, STATE_TAG_SET))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		ret = encrypt_ctx_set_ccm_tag(c, (char*)value, value_len);
@@ -729,10 +725,9 @@ int set_encrypt_property(yaca_context_h ctx,
 		break;
 	case YACA_PROPERTY_CCM_TAG_LEN:
 		if (value_len != sizeof(size_t) || mode != EVP_CIPH_CCM_MODE ||
-		    !is_encryption_op(c->op_type))
-			return YACA_ERROR_INVALID_PARAMETER;
-
-		if (!verify_state_change(c, STATE_TAG_LENGTH_SET))
+		    !is_encryption_op(c->op_type) ||
+		    !is_valid_tag_len(mode, *(size_t*)value) ||
+		    !verify_state_change(c, STATE_TAG_LENGTH_SET))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		ret = encrypt_ctx_set_ccm_tag_len(c, *(size_t*)value);
@@ -1034,8 +1029,17 @@ int encrypt_update(yaca_context_h ctx,
 
 	ret = EVP_CipherUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
 	if (ret != 1 || loutput_len < 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		if (mode == EVP_CIPH_CCM_MODE && op_type == OP_DECRYPT) {
+			/* A non positive return value from EVP_CipherUpdate should be considered as
+			 * a failure to authenticate ciphertext and/or AAD.
+			 * It does not necessarily indicate a more serious error.
+			 * There is no call to EVP_CipherFinal.
+			 */
+			ret = YACA_ERROR_INVALID_PARAMETER;
+		} else {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+		}
 		return ret;
 	}
 
@@ -1056,6 +1060,7 @@ int encrypt_finalize(yaca_context_h ctx,
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int ret;
+	int mode;
 	int loutput_len = 0;
 
 	if (c == NULL || output == NULL || output_len == NULL || op_type != c->op_type)
@@ -1064,10 +1069,19 @@ int encrypt_finalize(yaca_context_h ctx,
 	if (!verify_state_change(c, STATE_FINALIZED))
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (EVP_CIPHER_CTX_mode(c->cipher_ctx) != EVP_CIPH_WRAP_MODE) {
+	mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
+	if (mode != EVP_CIPH_WRAP_MODE && mode != EVP_CIPH_CCM_MODE) {
 		ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
-		if (ret != 1 || loutput_len < 0)
-			return ERROR_HANDLE();
+		if (ret != 1 || loutput_len < 0) {
+			if (mode == EVP_CIPH_GCM_MODE && op_type == OP_DECRYPT)
+			/* A non positive return value from EVP_CipherFinal should be considered as
+			 * a failure to authenticate ciphertext and/or AAD.
+			 * It does not necessarily indicate a more serious error.
+			 */
+				return YACA_ERROR_INVALID_PARAMETER;
+			else
+				return ERROR_HANDLE();
+		}
 	}
 
 	*output_len = loutput_len;

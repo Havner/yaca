@@ -484,9 +484,9 @@ typedef enum {
 	 * This is a variable Initialization Vector length mode (recommended 96-bits).
 	 *
 	 * Supported properties:
-	 * - #YACA_PROPERTY_GCM_TAG_LEN = GCM tag length\n
-	 *   Supported tag lengths: @c 4, @c 8, @c 12, @c 13, @c 14, @c 15, @c 16,
-	 *   (recommended 16 bytes tag).\n
+	 * - #YACA_PROPERTY_GCM_TAG_LEN = GCM tag length (optional)\n
+	 *   Supported tag lengths: @c 4, @c 8, @c 12, @c 13, @c 14, @c 15, @c 16
+	 *   (16 bytes tag by default).\n
 	 *   Set after yaca_encrypt_finalize() / yaca_seal_finalize() and before
 	 *   yaca_context_get_property(#YACA_PROPERTY_GCM_TAG) in encryption / seal operation.\n
 	 *   The @a value should be a size_t variable.\n
@@ -494,7 +494,8 @@ typedef enum {
 	 *
 	 * - #YACA_PROPERTY_GCM_TAG = GCM tag\n
 	 *   Get after yaca_encrypt_finalize() / yaca_seal_finalize() in encryption / seal operation.\n
-	 *   Set before yaca_decrypt_finalize() / yaca_open_finalize() in decryption / open operation.\n\n
+	 *   Set after yaca_decrypt_update() / yaca_open_update() and before
+	 *   yaca_decrypt_finalize() / yaca_open_finalize() in decryption / open operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_GCM_AAD = additional authentication data (optional)\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
@@ -503,6 +504,8 @@ typedef enum {
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
 	 *   @see yaca_context_set_property()
+	 *   @see yaca_context_get_property()
+	 *
 	 */
 	YACA_BCM_GCM,
 
@@ -541,8 +544,8 @@ typedef enum {
 	 * (recommended 56-bits).\n\n
 	 *
 	 * Supported properties:
-	 * - #YACA_PROPERTY_CCM_TAG_LEN = CCM tag length\n
-	 *   Supported tag lengths: 4-16 bytes in steps of 2 bytes (recommended 12 bytes tag).\n
+	 * - #YACA_PROPERTY_CCM_TAG_LEN = CCM tag length (optional)\n
+	 *   Supported tag lengths: 4-16 bytes in steps of 2 bytes (12 bytes tag by default).\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
 	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.\n
 	 *   The @a value should be a size_t variable.\n
@@ -564,9 +567,13 @@ typedef enum {
 	 *   The total encrypted text length must be passed to yaca_decrypt_update() /
 	 *   yaca_open_update() if AAD is used.\n
 	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
-	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
+	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n
+	 *   You can only call yaca_decrypt_update() / yaca_open_update() once for AAD
+	 *   and once for the encrypted text.\n\n
 	 *
 	 *   @see yaca_context_set_property()
+	 *   @see yaca_context_get_property()
+	 *
 	 */
 	YACA_BCM_CCM,
 
