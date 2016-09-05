@@ -568,7 +568,7 @@ static int import_evp(yaca_key_h *key,
 		goto exit;
 	}
 
-	imported_evp_id = EVP_PKEY_type(pkey->type);
+	imported_evp_id = EVP_PKEY_type(EVP_PKEY_id(pkey));
 
 	switch (imported_key_category) {
 	case IMPORTED_KEY_CATEGORY_PRIVATE:
@@ -1161,7 +1161,7 @@ static int generate_evp_pkey_key(int evp_id, size_t key_bit_len, EVP_PKEY *param
 			if (ret != YACA_ERROR_NONE)
 				return ret;
 		} else {
-			CRYPTO_add(&params->references, 1, CRYPTO_LOCK_EVP_PKEY);
+			EVP_PKEY_up_ref(params);
 		}
 
 		kctx = EVP_PKEY_CTX_new(params, NULL);
@@ -1359,7 +1359,7 @@ static yaca_key_h key_copy_evp(const struct yaca_key_evp_s *key)
 		return YACA_KEY_NULL;
 
 	/* raise the refcount */
-	CRYPTO_add(&key->evp->references, 1, CRYPTO_LOCK_EVP_PKEY);
+	EVP_PKEY_up_ref(key->evp);
 
 	copy->key.type = key->key.type;
 	copy->evp = key->evp;
@@ -1427,7 +1427,7 @@ API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len)
 		case YACA_KEY_TYPE_EC_PRIV:
 		case YACA_KEY_TYPE_EC_PUB:
 		case YACA_KEY_TYPE_EC_PARAMS: {
-			assert(EVP_PKEY_type(evp_key->evp->type) == EVP_PKEY_EC);
+			assert(EVP_PKEY_type(EVP_PKEY_id(evp_key->evp)) == EVP_PKEY_EC);
 
 			const EC_KEY *eck = EVP_PKEY_get0(evp_key->evp);
 			const EC_GROUP *ecg = EC_KEY_get0_group(eck);

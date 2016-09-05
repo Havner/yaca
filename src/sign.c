@@ -70,16 +70,18 @@ static int get_sign_output_length(const yaca_context_h ctx,
 	assert(output_len != NULL);
 
 	struct yaca_sign_context_s *c = get_sign_context(ctx);
+	EVP_PKEY_CTX *pctx;
 
 	if (c == NULL || input_len != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	assert(c->md_ctx != NULL);
 
-	if (c->md_ctx->pctx == NULL)
+	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
+	if (pctx == NULL)
 		return YACA_ERROR_INTERNAL;
 
-	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(c->md_ctx->pctx);
+	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(pctx);
 	if (pkey == NULL) {
 		ERROR_DUMP(YACA_ERROR_INTERNAL);
 		return YACA_ERROR_INTERNAL;
@@ -116,13 +118,15 @@ int set_sign_property(yaca_context_h ctx,
 	yaca_padding_e padding;
 	int pad;
 	EVP_PKEY *pkey;
+	EVP_PKEY_CTX *pctx;
 
 	if (c == NULL || value == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	assert(c->md_ctx != NULL);
 
-	if (c->md_ctx->pctx == NULL)
+	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
+	if (pctx == NULL)
 		return YACA_ERROR_INTERNAL;
 
 	/* this function only supports padding */
@@ -143,7 +147,7 @@ int set_sign_property(yaca_context_h ctx,
 	pad = rsa_padding2openssl(padding);
 	assert(pad != -1);
 
-	pkey = EVP_PKEY_CTX_get0_pkey(c->md_ctx->pctx);
+	pkey = EVP_PKEY_CTX_get0_pkey(pctx);
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -151,10 +155,10 @@ int set_sign_property(yaca_context_h ctx,
 	}
 
 	/* padding only works for RSA */
-	if (pkey->type != EVP_PKEY_RSA)
+	if (EVP_PKEY_id(pkey) != EVP_PKEY_RSA)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_PKEY_CTX_set_rsa_padding(c->md_ctx->pctx, pad);
+	ret = EVP_PKEY_CTX_set_rsa_padding(pctx, pad);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -172,6 +176,7 @@ int get_sign_property(const yaca_context_h ctx,
 	int ret;
 	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	EVP_PKEY *pkey;
+	EVP_PKEY_CTX *pctx;
 	int pad;
 	yaca_padding_e padding;
 
@@ -180,14 +185,15 @@ int get_sign_property(const yaca_context_h ctx,
 
 	assert(c->md_ctx != NULL);
 
-	if (c->md_ctx->pctx == NULL)
+	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
+	if (pctx == NULL)
 		return YACA_ERROR_INTERNAL;
 
 	/* this function only supports padding */
 	if (property != YACA_PROPERTY_PADDING)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	pkey = EVP_PKEY_CTX_get0_pkey(c->md_ctx->pctx);
+	pkey = EVP_PKEY_CTX_get0_pkey(pctx);
 	if (pkey == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
@@ -195,10 +201,10 @@ int get_sign_property(const yaca_context_h ctx,
 	}
 
 	/* padding only works for RSA */
-	if (pkey->type != EVP_PKEY_RSA)
+	if (EVP_PKEY_id(pkey) != EVP_PKEY_RSA)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = EVP_PKEY_CTX_get_rsa_padding(c->md_ctx->pctx, &pad);
+	ret = EVP_PKEY_CTX_get_rsa_padding(pctx, &pad);
 	if (ret <= 0) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);

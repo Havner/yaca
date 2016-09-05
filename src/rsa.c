@@ -97,7 +97,7 @@ static int encrypt_decrypt(yaca_padding_e padding,
 	ret = fn(input_len,
 	         (const unsigned char*)input,
 	         (unsigned char*)loutput,
-	         lasym_key->evp->pkey.rsa,
+	         EVP_PKEY_get0_RSA(lasym_key->evp),
 	         lpadding);
 
 	if (ret < 0) {
