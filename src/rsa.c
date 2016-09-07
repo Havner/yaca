@@ -78,7 +78,8 @@ static int encrypt_decrypt(yaca_padding_e padding,
 	assert(lpadding != -1);
 
 	lasym_key = key_get_evp(key);
-	assert(lasym_key != NULL);
+	if (lasym_key == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = EVP_PKEY_size(lasym_key->evp);
 	if (ret <= 0) {
