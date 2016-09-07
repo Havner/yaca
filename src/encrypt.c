@@ -464,10 +464,12 @@ static int encrypt_ctx_setup(struct yaca_encrypt_context_s *c,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	/* Fix for OpenSSL error in 3DES CFB1 */
 	int nid = EVP_CIPHER_CTX_nid(c->cipher_ctx);
 	if (nid == NID_des_ede3_cfb1)
 		EVP_CIPHER_CTX_set_flags(c->cipher_ctx, EVP_CIPH_FLAG_LENGTH_BITS);
+#endif
 
 	if (liv != NULL)
 		iv_data = (unsigned char*)liv->d;
@@ -1024,7 +1026,7 @@ int encrypt_update(yaca_context_h ctx,
 	}
 
 	/* Fix for OpenSSL error in 3DES CFB1 */
-	if ((EVP_CIPHER_CTX_flags(c->cipher_ctx) & EVP_CIPH_FLAG_LENGTH_BITS) != 0) {
+	if (EVP_CIPHER_CTX_test_flags(c->cipher_ctx, EVP_CIPH_FLAG_LENGTH_BITS) != 0) {
 		if (input_len > INT_MAX / 8)
 			return YACA_ERROR_INVALID_PARAMETER;
 		input_len *= 8;
@@ -1042,7 +1044,7 @@ int encrypt_update(yaca_context_h ctx,
 	c->state = target_state;
 
 	/* Fix for OpenSSL error in 3DES CFB1 */
-	if ((EVP_CIPHER_CTX_flags(c->cipher_ctx) & EVP_CIPH_FLAG_LENGTH_BITS) != 0)
+	if (EVP_CIPHER_CTX_test_flags(c->cipher_ctx, EVP_CIPH_FLAG_LENGTH_BITS) != 0)
 		*output_len /= 8;
 
 	return YACA_ERROR_NONE;
@@ -1071,7 +1073,7 @@ int encrypt_finalize(yaca_context_h ctx,
 	*output_len = loutput_len;
 
 	/* Fix for OpenSSL error in 3DES CFB1 */
-	if ((EVP_CIPHER_CTX_flags(c->cipher_ctx) & EVP_CIPH_FLAG_LENGTH_BITS) != 0)
+	if (EVP_CIPHER_CTX_test_flags(c->cipher_ctx, EVP_CIPH_FLAG_LENGTH_BITS) != 0)
 		*output_len /= 8;
 
 	c->state = STATE_FINALIZED;
