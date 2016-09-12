@@ -556,8 +556,7 @@ static int encrypt_ctx_restore(struct yaca_encrypt_context_s *c)
 	}
 
 	key = key_get_simple(c->backup_ctx->sym_key);
-	if (key == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
+	assert(key != NULL);
 
 	ret = encrypt_ctx_init(c, c->backup_ctx->cipher, key->bit_len);
 	assert(ret != YACA_ERROR_INVALID_PARAMETER);
