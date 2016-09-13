@@ -25,7 +25,8 @@
  *           - All operations are single-shot (no streaming possible)
  *           - Context is not used
  *           - Only digest, signatures and symmetric ciphers are supported
- *           - Disabling PKCS#5 padding for ECB and CBC chaining is not supported
+ *           - Disabling PKCS#7 padding for ECB and CBC chaining is not supported
+ *           - Changing the default PKCS#1 padding for sign/verify is not supported
  *           - GCM and CCM chaining is not supported
  *           - RC2 effective key bits property is not supported
  *           - All outputs are allocated by the library

@@ -44,6 +44,9 @@ extern "C" {
  * @remarks  For verification use yaca_verify_initialize(), yaca_verify_update() and
  *           yaca_verify_finalize() functions with matching public key.
  *
+ * @remarks  For RSA operations the default padding used is #YACA_PADDING_PKCS1. It can be
+ *           changed using yaca_context_set_property() with #YACA_PROPERTY_PADDING.
+ *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
  * @param[out] ctx      Newly created context
@@ -63,6 +66,8 @@ extern "C" {
  *
  * @see #yaca_key_type_e
  * @see #yaca_digest_algorithm_e
+ * @see #yaca_padding_e
+ * @see yaca_context_set_property()
  * @see yaca_sign_update()
  * @see yaca_sign_finalize()
  * @see yaca_verify_initialize()
@@ -202,6 +207,10 @@ int yaca_sign_finalize(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
+ * @remarks  For RSA operations the default padding used is #YACA_PADDING_PKCS1. It can be
+ *           changed using yaca_context_set_property() with #YACA_PROPERTY_PADDING.
+ *           For verify to succeed it has to be set to the same value it was signed with.
+ *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
  * @param[out] ctx      Newly created context
@@ -221,6 +230,8 @@ int yaca_sign_finalize(yaca_context_h ctx,
  *
  * @see #yaca_key_type_e
  * @see #yaca_digest_algorithm_e
+ * @see #yaca_padding_e
+ * @see yaca_context_set_property()
  * @see yaca_verify_update()
  * @see yaca_verify_finalize()
  * @see yaca_context_destroy()
