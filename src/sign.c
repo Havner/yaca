@@ -168,76 +168,6 @@ int set_sign_property(yaca_context_h ctx,
 	return YACA_ERROR_NONE;
 }
 
-int get_sign_property(const yaca_context_h ctx,
-                      yaca_property_e property,
-                      void **value,
-                      size_t *value_len)
-{
-	int ret;
-	struct yaca_sign_context_s *c = get_sign_context(ctx);
-	EVP_PKEY *pkey;
-	EVP_PKEY_CTX *pctx;
-	int pad;
-	yaca_padding_e padding;
-
-	if (c == NULL || value == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	assert(c->md_ctx != NULL);
-
-	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
-	if (pctx == NULL)
-		return YACA_ERROR_INTERNAL;
-
-	/* this function only supports padding */
-	if (property != YACA_PROPERTY_PADDING)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	pkey = EVP_PKEY_CTX_get0_pkey(pctx);
-	if (pkey == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
-
-	/* padding only works for RSA */
-	if (EVP_PKEY_id(pkey) != EVP_PKEY_RSA)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	ret = EVP_PKEY_CTX_get_rsa_padding(pctx, &pad);
-	if (ret <= 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
-
-	switch (pad) {
-	case RSA_X931_PADDING:
-		padding = YACA_PADDING_X931;
-		break;
-	case RSA_PKCS1_PADDING:
-		padding = YACA_PADDING_PKCS1;
-		break;
-	case RSA_PKCS1_PSS_PADDING:
-		padding = YACA_PADDING_PKCS1_PSS;
-		break;
-	default:
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
-		return ret;
-	}
-
-	ret = yaca_malloc(sizeof(yaca_padding_e), value);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
-
-	memcpy(*value, &padding, sizeof(yaca_padding_e));
-	if (value_len != NULL)
-		*value_len = sizeof(yaca_padding_e);
-
-	return YACA_ERROR_NONE;
-}
-
 API int yaca_sign_initialize(yaca_context_h *ctx,
                              yaca_digest_algorithm_e algo,
                              const yaca_key_h prv_key)
@@ -268,7 +198,7 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
 	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = get_sign_output_length;
 	nc->ctx.set_property = set_sign_property;
-	nc->ctx.get_property = get_sign_property;
+	nc->ctx.get_property = NULL;
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
@@ -515,7 +445,7 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
 	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = NULL;
 	nc->ctx.set_property = set_sign_property;
-	nc->ctx.get_property = get_sign_property;
+	nc->ctx.get_property = NULL;
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
