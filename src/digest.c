@@ -49,7 +49,22 @@ struct yaca_digest_context_s {
 	struct yaca_context_s ctx;
 
 	EVP_MD_CTX *md_ctx;
+	enum context_state_e state;
 };
+
+static bool CTX_DEFAULT_STATES[CTX_COUNT][CTX_COUNT] = {
+/* from \ to  INIT, MSG, FIN */
+/* INIT */  { 0,    1,    1 },
+/* MSG  */  { 0,    1,    1 },
+/* FIN  */  { 0,    0,    0 },
+};
+
+static bool verify_state_change(struct yaca_digest_context_s *c, enum context_state_e to)
+{
+	int from = c->state;
+
+	return CTX_DEFAULT_STATES[from][to];
+}
 
 static struct yaca_digest_context_s *get_digest_context(const yaca_context_h ctx)
 {
@@ -136,6 +151,8 @@ API int yaca_digest_initialize(yaca_context_h *ctx, yaca_digest_algorithm_e algo
 	nc->ctx.type = YACA_CONTEXT_DIGEST;
 	nc->ctx.context_destroy = destroy_digest_context;
 	nc->ctx.get_output_length = get_digest_output_length;
+	nc->ctx.set_property = NULL;
+	nc->ctx.get_property = NULL;
 
 	ret = digest_get_algorithm(algo, &md);
 	if (ret != YACA_ERROR_NONE)
@@ -155,6 +172,7 @@ API int yaca_digest_initialize(yaca_context_h *ctx, yaca_digest_algorithm_e algo
 		goto exit;
 	}
 
+	nc->state = CTX_INITIALIZED;
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
 	ret = YACA_ERROR_NONE;
@@ -173,6 +191,9 @@ API int yaca_digest_update(yaca_context_h ctx, const char *message, size_t messa
 	if (c == NULL || message == NULL || message_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (!verify_state_change(c, CTX_MSG_UPDATED))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	ret = EVP_DigestUpdate(c->md_ctx, message, message_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
@@ -180,6 +201,7 @@ API int yaca_digest_update(yaca_context_h ctx, const char *message, size_t messa
 		return ret;
 	}
 
+	c->state = CTX_MSG_UPDATED;
 	return YACA_ERROR_NONE;
 }
 
@@ -192,6 +214,9 @@ API int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_le
 	if (c == NULL || digest == NULL || digest_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (!verify_state_change(c, CTX_FINALIZED))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	if (*digest_len == 0 || *digest_len > UINT_MAX) /* DigestFinal accepts UINT */
 		return YACA_ERROR_INVALID_PARAMETER;
 
@@ -202,6 +227,7 @@ API int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_le
 		return ret;
 	}
 
+	c->state = CTX_FINALIZED;
 	*digest_len = len;
 
 	return YACA_ERROR_NONE;

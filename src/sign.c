@@ -48,7 +48,22 @@ struct yaca_sign_context_s {
 
 	EVP_MD_CTX *md_ctx;
 	enum sign_op_type op_type;
+	enum context_state_e state;
 };
+
+static bool CTX_DEFAULT_STATES[CTX_COUNT][CTX_COUNT] = {
+/* from \ to  INIT, MSG, FIN */
+/* INIT */  { 0,    1,    1 },
+/* MSG  */  { 0,    1,    1 },
+/* FIN  */  { 0,    0,    0 },
+};
+
+static bool verify_state_change(struct yaca_sign_context_s *c, enum context_state_e to)
+{
+	int from = c->state;
+
+	return CTX_DEFAULT_STATES[from][to];
+}
 
 static struct yaca_sign_context_s *get_sign_context(const yaca_context_h ctx)
 {
@@ -120,7 +135,7 @@ int set_sign_property(yaca_context_h ctx,
 	EVP_PKEY *pkey;
 	EVP_PKEY_CTX *pctx;
 
-	if (c == NULL || value == NULL)
+	if (c == NULL || value == NULL || c->state == CTX_FINALIZED)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	assert(c->md_ctx != NULL);
@@ -218,6 +233,7 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
 		goto exit;
 	}
 
+	nc->state = CTX_INITIALIZED;
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
 	ret = YACA_ERROR_NONE;
@@ -250,6 +266,8 @@ API int yaca_sign_initialize_hmac(yaca_context_h *ctx,
 	nc->ctx.type = YACA_CONTEXT_SIGN;
 	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = get_sign_output_length;
+	nc->ctx.set_property = NULL;
+	nc->ctx.get_property = NULL;
 
 	pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC,
 	                            NULL,
@@ -279,6 +297,7 @@ API int yaca_sign_initialize_hmac(yaca_context_h *ctx,
 		goto exit;
 	}
 
+	nc->state = CTX_INITIALIZED;
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
 	ret = YACA_ERROR_NONE;
@@ -313,6 +332,8 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 	nc->ctx.type = YACA_CONTEXT_SIGN;
 	nc->ctx.context_destroy = destroy_sign_context;
 	nc->ctx.get_output_length = get_sign_output_length;
+	nc->ctx.set_property = NULL;
+	nc->ctx.get_property = NULL;
 
 	ret = encrypt_get_algorithm(algo, YACA_BCM_CBC, simple_key->bit_len, &cipher);
 	if (ret != YACA_ERROR_NONE)
@@ -361,6 +382,7 @@ API int yaca_sign_initialize_cmac(yaca_context_h *ctx,
 		goto exit;
 	}
 
+	nc->state = CTX_INITIALIZED;
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
 	ret = YACA_ERROR_NONE;
@@ -384,6 +406,9 @@ API int yaca_sign_update(yaca_context_h ctx,
 	    message == NULL || message_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (!verify_state_change(c, CTX_MSG_UPDATED))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	ret = EVP_DigestSignUpdate(c->md_ctx, message, message_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
@@ -391,6 +416,7 @@ API int yaca_sign_update(yaca_context_h ctx,
 		return ret;
 	}
 
+	c->state = CTX_MSG_UPDATED;
 	return YACA_ERROR_NONE;
 }
 
@@ -405,6 +431,9 @@ API int yaca_sign_finalize(yaca_context_h ctx,
 	    signature == NULL || signature_len == NULL || *signature_len == 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (!verify_state_change(c, CTX_FINALIZED))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	ret = EVP_DigestSignFinal(c->md_ctx, (unsigned char *)signature, signature_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
@@ -412,6 +441,7 @@ API int yaca_sign_finalize(yaca_context_h ctx,
 		return ret;
 	}
 
+	c->state = CTX_FINALIZED;
 	return YACA_ERROR_NONE;
 }
 
@@ -465,6 +495,7 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
 		goto exit;
 	}
 
+	nc->state = CTX_INITIALIZED;
 	*ctx = (yaca_context_h)nc;
 	nc = NULL;
 	ret = YACA_ERROR_NONE;
@@ -485,6 +516,9 @@ API int yaca_verify_update(yaca_context_h ctx,
 	if (c == NULL || message == NULL || message_len == 0 || c->op_type != OP_VERIFY)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (!verify_state_change(c, CTX_MSG_UPDATED))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	ret = EVP_DigestVerifyUpdate(c->md_ctx, message, message_len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
@@ -492,6 +526,7 @@ API int yaca_verify_update(yaca_context_h ctx,
 		return ret;
 	}
 
+	c->state = CTX_MSG_UPDATED;
 	return YACA_ERROR_NONE;
 }
 
@@ -505,12 +540,17 @@ API int yaca_verify_finalize(yaca_context_h ctx,
 	if (c == NULL || signature == NULL || signature_len == 0 || c->op_type != OP_VERIFY)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	if (!verify_state_change(c, CTX_FINALIZED))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	ret = EVP_DigestVerifyFinal(c->md_ctx,
 	                            (unsigned char *)signature,
 	                            signature_len);
 
-	if (ret == 1)
+	if (ret == 1) {
+		c->state = CTX_FINALIZED;
 		return YACA_ERROR_NONE;
+	}
 
 	if (ret == 0) {
 		ERROR_CLEAR();
