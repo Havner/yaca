@@ -47,6 +47,13 @@ extern "C" {
  * @remarks  For RSA operations the default padding used is #YACA_PADDING_PKCS1. It can be
  *           changed using yaca_context_set_property() with #YACA_PROPERTY_PADDING.
  *
+ * @remarks  For #YACA_DIGEST_SHA384 and #YACA_DIGEST_SHA512 the RSA key size must be bigger than
+ *           #YACA_KEY_LENGTH_512BIT.
+ *
+ * @remarks  Using of #YACA_DIGEST_MD5 algorithm for DSA and ECDSA operations is prohibited.
+ *
+ * @remarks  Using of #YACA_DIGEST_MD5 or #YACA_DIGEST_SHA224 with #YACA_PADDING_X931 is prohibited.
+ *
  * @remarks  The @a ctx should be released using yaca_context_destroy()
  *
  * @param[out] ctx      Newly created context

@@ -175,8 +175,7 @@ int set_sign_property(yaca_context_h ctx,
 
 	ret = EVP_PKEY_CTX_set_rsa_padding(pctx, pad);
 	if (ret <= 0) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		return ret;
 	}
 
@@ -195,8 +194,16 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
 	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	ret = digest_get_algorithm(algo, &md);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
 	switch (prv_key->type) {
 	case YACA_KEY_TYPE_RSA_PRIV:
+		if (EVP_MD_size(md) >= EVP_PKEY_size(evp_key->evp) ||
+		    (algo == YACA_DIGEST_SHA384 && (EVP_PKEY_size(evp_key->evp) <= YACA_KEY_LENGTH_512BIT / 8)))
+			return YACA_ERROR_INVALID_PARAMETER;
+		break;
 	case YACA_KEY_TYPE_DSA_PRIV:
 	case YACA_KEY_TYPE_EC_PRIV:
 		break;
@@ -215,10 +222,6 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
 	nc->ctx.set_property = set_sign_property;
 	nc->ctx.get_property = NULL;
 
-	ret = digest_get_algorithm(algo, &md);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-
 	nc->md_ctx = EVP_MD_CTX_create();
 	if (nc->md_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
@@ -228,8 +231,7 @@ API int yaca_sign_initialize(yaca_context_h *ctx,
 
 	ret = EVP_DigestSignInit(nc->md_ctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto exit;
 	}
 
@@ -457,8 +459,16 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
 	if (ctx == NULL || evp_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
+	ret = digest_get_algorithm(algo, &md);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
 	switch (pub_key->type) {
 	case YACA_KEY_TYPE_RSA_PUB:
+		if (EVP_MD_size(md) >= EVP_PKEY_size(evp_key->evp) ||
+		    (algo == YACA_DIGEST_SHA384 && (EVP_PKEY_size(evp_key->evp) <= YACA_KEY_LENGTH_512BIT / 8)))
+			return YACA_ERROR_INVALID_PARAMETER;
+		break;
 	case YACA_KEY_TYPE_DSA_PUB:
 	case YACA_KEY_TYPE_EC_PUB:
 		break;
@@ -477,10 +487,6 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
 	nc->ctx.set_property = set_sign_property;
 	nc->ctx.get_property = NULL;
 
-	ret = digest_get_algorithm(algo, &md);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-
 	nc->md_ctx = EVP_MD_CTX_create();
 	if (nc->md_ctx == NULL) {
 		ret = YACA_ERROR_INTERNAL;
@@ -490,8 +496,7 @@ API int yaca_verify_initialize(yaca_context_h *ctx,
 
 	ret = EVP_DigestVerifyInit(nc->md_ctx, NULL, md, NULL, evp_key->evp);
 	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto exit;
 	}
 

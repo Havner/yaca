@@ -165,6 +165,11 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
+ * @remarks  For #YACA_DIGEST_SHA384 and #YACA_DIGEST_SHA512 the RSA key size must be bigger than
+ *           #YACA_KEY_LENGTH_512BIT.
+ *
+ * @remarks  Using of #YACA_DIGEST_MD5 algorithm for DSA and ECDSA operations is prohibited.
+ *
  * @remarks  The @a signature should be freed using yaca_free()
  *
  * @remarks  The @a message can be NULL but then @a message_len must be 0
