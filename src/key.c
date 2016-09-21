@@ -593,6 +593,12 @@ static int import_evp(yaca_key_h *key,
 		goto exit;
 	}
 
+	if ((key_type == YACA_KEY_TYPE_RSA_PRIV || key_type == YACA_KEY_TYPE_RSA_PUB) &&
+	    (EVP_PKEY_size(pkey) < YACA_KEY_LENGTH_512BIT / 8)) {
+		ret = YACA_ERROR_INVALID_PARAMETER;
+		goto exit;
+	}
+
 	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -1185,7 +1191,7 @@ static int generate_evp_pkey_key(int evp_id, size_t key_bit_len, EVP_PKEY *param
 
 	if (evp_id == EVP_PKEY_RSA) {
 		if ((key_bit_len & YACA_KEYLEN_COMPONENT_TYPE_MASK) != YACA_KEYLEN_COMPONENT_TYPE_BITS ||
-		    key_bit_len > INT_MAX || key_bit_len % 8 != 0) {
+		    key_bit_len > INT_MAX || key_bit_len < 512 || key_bit_len % 8 != 0) {
 			ret = YACA_ERROR_INVALID_PARAMETER;
 			goto exit;
 		}

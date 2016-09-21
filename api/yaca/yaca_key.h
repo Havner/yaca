@@ -216,7 +216,7 @@ int yaca_key_export(const yaca_key_h key,
  *           or key generation parameters for key types that support them (DSA, DH and EC).
  *
  * @remarks  Supported key lengths:
- *           - RSA: length >= 256bits
+ *           - RSA: length >= 512bits
  *           - DSA: length >= 512bits, multiple of 64
  *           - DH: a value taken from #yaca_key_bit_length_dh_rfc_e or
  *                 (YACA_KEY_LENGTH_DH_GENERATOR_* | prime_length_in_bits),
