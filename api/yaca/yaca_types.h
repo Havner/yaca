@@ -676,7 +676,7 @@ typedef enum {
 	/**
 	 * PKCS #1 v1.5 padding with an SSL-specific modification that denotes that the party
 	 * is SSL3 capable. It is used for rollback attack detection in SSLv3. If during decryption it
-	 * turns out that both parties are using #YACA_PADDING_PKCS1_SSL23 (both are communicating
+	 * turns out that both parties are using #YACA_PADDING_PKCS1_SSLV23 (both are communicating
 	 * using SSL2 and both are SSL3 capable) it is treated as a rollback attack and an error is
 	 * returned. Suitable for low-level RSA public_encrypt/private_decrypt operations. For
 	 * low-level operations the input must be at least 11 bytes shorter than the key length.
