@@ -54,7 +54,7 @@ extern "C" {
  *
  * @remarks  Using of #YACA_DIGEST_MD5 or #YACA_DIGEST_SHA224 with #YACA_PADDING_X931 is prohibited.
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
  * @param[out] ctx      Newly created context
  * @param[in]  algo     Digest algorithm that will be used
@@ -67,7 +67,7 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a prv_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -94,7 +94,7 @@ int yaca_sign_initialize(yaca_context_h *ctx,
  * @remarks  For verification, calculate message HMAC and compare with received MAC using
  *           yaca_memcmp().
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
  * @param[out] ctx      Newly created context
  * @param[in]  algo     Digest algorithm that will be used
@@ -105,7 +105,7 @@ int yaca_sign_initialize(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a sym_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -128,7 +128,7 @@ int yaca_sign_initialize_hmac(yaca_context_h *ctx,
  * @remarks  For verification, calculate message CMAC and compare with received MAC using
  *           yaca_memcmp().
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
  * @param[out] ctx      Newly created context
  * @param[in]  algo     Encryption algorithm that will be used
@@ -139,7 +139,7 @@ int yaca_sign_initialize_hmac(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a sym_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -167,7 +167,7 @@ int yaca_sign_initialize_cmac(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_sign_initialize()
@@ -196,7 +196,7 @@ int yaca_sign_update(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_sign_initialize()
@@ -210,7 +210,7 @@ int yaca_sign_finalize(yaca_context_h ctx,
                        size_t *signature_len);
 
 /**
- * @brief  Initializes a signature verification context for asymmetric signatures
+ * @brief  Initializes a signature verification context for asymmetric signatures.
  *
  * @since_tizen 3.0
  *
@@ -218,7 +218,7 @@ int yaca_sign_finalize(yaca_context_h ctx,
  *           changed using yaca_context_set_property() with #YACA_PROPERTY_PADDING.
  *           For verify to succeed it has to be set to the same value it was signed with.
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
  * @param[out] ctx      Newly created context
  * @param[in]  algo     Digest algorithm that will be used
@@ -231,7 +231,7 @@ int yaca_sign_finalize(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a pub_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -259,7 +259,7 @@ int yaca_verify_initialize(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_verify_initialize()
@@ -284,7 +284,7 @@ int yaca_verify_update(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  * @retval #YACA_ERROR_DATA_MISMATCH The verification failed
  *
@@ -297,8 +297,8 @@ int yaca_verify_finalize(yaca_context_h ctx,
                          size_t signature_len);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

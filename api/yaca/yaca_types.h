@@ -683,7 +683,9 @@ typedef enum {
 	 */
 	YACA_PADDING_PKCS1_SSLV23,
 
-	/** PKCS #7 padding. Suitable for symmetric encrypt/decrypt operation. */
+	/**
+	 * PKCS #7 padding. Suitable for symmetric encrypt/decrypt operation.
+	 */
 	YACA_PADDING_PKCS7
 } yaca_padding_e;
 
@@ -707,8 +709,8 @@ typedef enum {
 } yaca_kdf_e;
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

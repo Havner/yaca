@@ -73,7 +73,7 @@ void yaca_cleanup(void);
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a memory should be freed using yaca_free()
+ * @remarks  The @a memory should be freed using yaca_free().
  *
  * @param[in]  size   Size of the allocation (bytes)
  * @param[out] memory Allocated memory
@@ -94,7 +94,7 @@ int yaca_malloc(size_t size, void **memory);
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a memory should be freed using yaca_free()
+ * @remarks  The @a memory should be freed using yaca_free().
  *
  * @param[in]  size    Size of the allocation (bytes)
  * @param[out] memory  Allocated memory
@@ -121,7 +121,7 @@ int yaca_zalloc(size_t size, void **memory);
  *
  * @remarks  If the function fails the contents of @a memory will be left unchanged.
  *
- * @remarks  The @a memory should be freed using yaca_free()
+ * @remarks  The @a memory should be freed using yaca_free().
  *
  * @param[in]     size    Size of the new allocation (bytes)
  * @param[in,out] memory  Memory to be reallocated
@@ -199,7 +199,7 @@ int yaca_randomize_bytes(char *data, size_t data_len);
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid ctx or property)
+ *                                       invalid @a ctx or @a property)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see #yaca_property_e
@@ -216,13 +216,13 @@ int yaca_context_set_property(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a value should be freed using yaca_free()
+ * @remarks  The @a value should be freed using yaca_free().
  *
  * @remarks  The @a value has to be of type appropriate for given property. See #yaca_property_e
  *           for details on corresponding types.
  *
- * @remarks  @a value_len can be NULL if returned @a value is a single object
- *           (i.e. not an array/buffer)
+ * @remarks  The @a value_len can be NULL if returned @a value is a single object
+ *           (i.e. not an array/buffer).
  *
  * @param[in]  ctx        Previously initialized crypto context
  * @param[in]  property   Property to be read
@@ -232,7 +232,7 @@ int yaca_context_set_property(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid ctx or property)
+ *                                       invalid @a ctx or @a property)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -267,7 +267,7 @@ int yaca_context_get_property(const yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context or too big input_len)
+ *                                       invalid @a ctx or too big @a input_len)
  * @retval #YACA_ERROR_INTERNAL Internal error
  */
 int yaca_context_get_output_length(const yaca_context_h ctx,
@@ -288,8 +288,8 @@ int yaca_context_get_output_length(const yaca_context_h ctx,
 void yaca_context_destroy(yaca_context_h ctx);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

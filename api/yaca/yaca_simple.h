@@ -52,11 +52,11 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @remarks  yaca_simple_encrypt() doesn't support #YACA_BCM_GCM and #YACA_BCM_CCM
+ * @remarks  yaca_simple_encrypt() doesn't support #YACA_BCM_GCM and #YACA_BCM_CCM.
  *
- * @remarks  The @a ciphertext should be freed using yaca_free()
+ * @remarks  The @a ciphertext should be freed using yaca_free().
  *
- * @remarks  The @a plaintext can be NULL but then @a plaintext_len must be 0
+ * @remarks  The @a plaintext can be NULL but then @a plaintext_len must be 0.
  *
  * @param[in]  algo            Encryption algorithm (select #YACA_ENCRYPT_AES if unsure)
  * @param[in]  bcm             Chaining mode (select #YACA_BCM_CBC if unsure)
@@ -70,7 +70,7 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid algo, bcm, sym_key or iv)
+ *                                       invalid @a algo, @a bcm, @a sym_key or @a iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -93,11 +93,11 @@ int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @remarks  yaca_simple_decrypt() doesn't support #YACA_BCM_GCM and #YACA_BCM_CCM
+ * @remarks  yaca_simple_decrypt() doesn't support #YACA_BCM_GCM and #YACA_BCM_CCM.
  *
- * @remarks  The @a plaintext should be freed using yaca_free()
+ * @remarks  The @a plaintext should be freed using yaca_free().
  *
- * @remarks  The @a ciphertext can be NULL but then @a ciphertext_len must be 0
+ * @remarks  The @a ciphertext can be NULL but then @a ciphertext_len must be 0.
  *
  * @param[in]  algo            Decryption algorithm that was used to encrypt the data
  * @param[in]  bcm             Chaining mode that was used to encrypt the data
@@ -111,7 +111,7 @@ int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid algo, bcm, sym_key or iv)
+ *                                       invalid @a algo, @a bcm, @a sym_key or @a iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -134,9 +134,9 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a digest should be freed using yaca_free()
+ * @remarks  The @a digest should be freed using yaca_free().
  *
- * @remarks  The @a message can be NULL but then @a message_len must be 0
+ * @remarks  The @a message can be NULL but then @a message_len must be 0.
  *
  * @param[in]  algo         Digest algorithm (select #YACA_DIGEST_SHA256 if unsure)
  * @param[in]  message      Message from which the digest is to be calculated
@@ -147,7 +147,7 @@ int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo)
+ *                                       invalid @a algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -170,9 +170,9 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  *
  * @remarks  Using of #YACA_DIGEST_MD5 algorithm for DSA and ECDSA operations is prohibited.
  *
- * @remarks  The @a signature should be freed using yaca_free()
+ * @remarks  The @a signature should be freed using yaca_free().
  *
- * @remarks  The @a message can be NULL but then @a message_len must be 0
+ * @remarks  The @a message can be NULL but then @a message_len must be 0.
  *
  * @param[in]  algo           Digest algorithm that will be used
  * @param[in]  prv_key        Private key that will be used, algorithm is
@@ -188,7 +188,7 @@ int yaca_simple_calculate_digest(yaca_digest_algorithm_e algo,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a prv_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -209,7 +209,7 @@ int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a message can be NULL but then @a message_len must be 0
+ * @remarks  The @a message can be NULL but then @a message_len must be 0.
  *
  * @param[in]  algo           Digest algorithm that will be used
  * @param[in]  pub_key        Public key that will be used, algorithm is
@@ -225,7 +225,7 @@ int yaca_simple_calculate_signature(yaca_digest_algorithm_e algo,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a pub_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  * @retval #YACA_ERROR_DATA_MISMATCH The verification failed
@@ -249,9 +249,9 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
  * @remarks  For verification, calculate message HMAC and compare with received MAC using
  *           yaca_memcmp().
  *
- * @remarks  The @a mac should be freed using yaca_free()
+ * @remarks  The @a mac should be freed using yaca_free().
  *
- * @remarks  The @a message can be NULL but then @a message_len must be 0
+ * @remarks  The @a message can be NULL but then @a message_len must be 0.
  *
  * @param[in]  algo         Digest algorithm that will be used
  * @param[in]  sym_key      Key that will be used, supported key types:
@@ -265,7 +265,7 @@ int yaca_simple_verify_signature(yaca_digest_algorithm_e algo,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a sym_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -289,9 +289,9 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
  * @remarks  For verification, calculate message CMAC and compare with received MAC using
  *           yaca_memcmp().
  *
- * @remarks  The @a mac should be freed using yaca_free()
+ * @remarks  The @a mac should be freed using yaca_free().
  *
- * @remarks  The @a message can be NULL but then @a message_len must be 0
+ * @remarks  The @a message can be NULL but then @a message_len must be 0.
  *
  * @param[in]  algo         Encryption algorithm that will be used
  * @param[in]  sym_key      Key that will be used, supported key types:
@@ -305,7 +305,7 @@ int yaca_simple_calculate_hmac(yaca_digest_algorithm_e algo,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid algo or key)
+ *                                       invalid @a algo or @a sym_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -322,8 +322,8 @@ int yaca_simple_calculate_cmac(yaca_encrypt_algorithm_e algo,
                                size_t *mac_len);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

@@ -41,7 +41,7 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
  * @param[out] ctx   Newly created context
  * @param[in]  algo  Digest algorithm that will be used
@@ -49,7 +49,7 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo)
+ *                                       invalid @a algo)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -72,7 +72,7 @@ int yaca_digest_initialize(yaca_context_h *ctx, yaca_digest_algorithm_e algo);
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_digest_initialize()
@@ -97,7 +97,7 @@ int yaca_digest_update(yaca_context_h ctx, const char *message, size_t message_l
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_digest_initialize()
@@ -107,8 +107,8 @@ int yaca_digest_update(yaca_context_h ctx, const char *message, size_t message_l
 int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_len);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

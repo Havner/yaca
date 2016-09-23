@@ -63,8 +63,8 @@ typedef enum {
 } yaca_error_e;
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

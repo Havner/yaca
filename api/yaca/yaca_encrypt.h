@@ -42,7 +42,7 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @remarks  If returned iv_bit_len equals 0 that means that for this
+ * @remarks  If returned @a iv_bit_len equals 0 that means that for this
  *           specific algorithm and its parameters Initialization Vector is not used.
  *
  * @param[in]  algo         Encryption algorithm
@@ -53,7 +53,7 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo, bcm or key_bit_len)
+ *                                       invalid @a algo, @a bcm or @a key_bit_len)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  */
@@ -67,7 +67,7 @@ int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
  * @param[out] ctx      Newly created context
  * @param[in]  algo     Encryption algorithm that will be used
@@ -78,7 +78,7 @@ int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo, bcm, sym_key or iv)
+ *                                       invalid @a algo, @a bcm, @a sym_key or @a iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -110,7 +110,7 @@ int yaca_encrypt_initialize(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_encrypt_initialize()
@@ -140,7 +140,7 @@ int yaca_encrypt_update(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_encrypt_initialize()
@@ -156,7 +156,7 @@ int yaca_encrypt_finalize(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
  * @param[out] ctx      Newly created context
  * @param[in]  algo     Encryption algorithm that was used to encrypt the data
@@ -167,7 +167,7 @@ int yaca_encrypt_finalize(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo, bcm, sym_key or iv)
+ *                                       invalid @a algo, @a bcm, @a sym_key or @a iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -199,7 +199,7 @@ int yaca_decrypt_initialize(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context), wrong #YACA_PROPERTY_CCM_AAD or
+ *                                       invalid @a ctx), wrong #YACA_PROPERTY_CCM_AAD or
  *                                       wrong #YACA_PROPERTY_CCM_TAG was used
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -230,7 +230,7 @@ int yaca_decrypt_update(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context), wrong #YACA_PROPERTY_GCM_AAD or
+ *                                       invalid @a ctx), wrong #YACA_PROPERTY_GCM_AAD or
  *                                       wrong #YACA_PROPERTY_GCM_TAG was used
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -243,8 +243,8 @@ int yaca_decrypt_finalize(yaca_context_h ctx,
                           size_t *plaintext_len);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

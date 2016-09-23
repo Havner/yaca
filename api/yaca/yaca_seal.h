@@ -46,18 +46,18 @@ extern "C" {
  *         symmetric key and Initialization Vector.
  *
  * @remarks  Generated symmetric key is encrypted with public key,
- *           so can be ONLY used with yaca_open_initialize(). It can be exported,
- *           but after import it can be ONLY used with yaca_open_initialize() as well.
+ *           so can be only used with yaca_open_initialize(). It can be exported,
+ *           but after import it can be only used with yaca_open_initialize() as well.
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
- * @remarks  The @a pub_key must be #YACA_KEY_TYPE_RSA_PUB
+ * @remarks  The @a pub_key must be #YACA_KEY_TYPE_RSA_PUB.
  *
- * @remarks  The @a sym_key_bit_len must be at least 88 bits shorter than the @a pub_key bit length
+ * @remarks  The @a sym_key_bit_len must be at least 88 bits shorter than the @a pub_key bit length.
  *
- * @remarks  The @a sym_key should be released using yaca_key_destroy()
+ * @remarks  The @a sym_key should be released using yaca_key_destroy().
  *
- * @remarks  The @a iv should be released using yaca_key_destroy()
+ * @remarks  The @a iv should be released using yaca_key_destroy().
  *
  * @since_tizen 3.0
  *
@@ -73,7 +73,7 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid algo, bcm, sym_key_bit_len or pub_key)
+ *                                       invalid @a algo, @a bcm, @a sym_key_bit_len or @a pub_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -110,7 +110,7 @@ int yaca_seal_initialize(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_seal_initialize()
@@ -140,7 +140,7 @@ int yaca_seal_update(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context)
+ *                                       invalid @a ctx)
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
  * @see yaca_seal_initialize()
@@ -156,9 +156,9 @@ int yaca_seal_finalize(yaca_context_h ctx,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a ctx should be released using yaca_context_destroy()
+ * @remarks  The @a ctx should be released using yaca_context_destroy().
  *
- * @remarks  The @a prv_key must be #YACA_KEY_TYPE_RSA_PRIV
+ * @remarks  The @a prv_key must be #YACA_KEY_TYPE_RSA_PRIV.
  *
  * @param[out] ctx              Newly created context
  * @param[in]  prv_key          Private key, part of the pair that was used for the encryption
@@ -172,7 +172,8 @@ int yaca_seal_finalize(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, invalid
- *                                       algo, bcm, sym_key_bit_len, prv_key, sym_key or iv)
+ *                                       @a algo, @a bcm, @a sym_key_bit_len, @a prv_key,
+ *                                       @a sym_key or @a iv)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -207,7 +208,7 @@ int yaca_open_initialize(yaca_context_h *ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid context), wrong #YACA_PROPERTY_CCM_AAD or
+ *                                       invalid @a ctx), wrong #YACA_PROPERTY_CCM_AAD or
  *                                       wrong #YACA_PROPERTY_CCM_TAG was used
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -238,7 +239,7 @@ int yaca_open_update(yaca_context_h ctx,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid context), wrong #YACA_PROPERTY_GCM_AAD or
+ *                                       invalid @a ctx), wrong #YACA_PROPERTY_GCM_AAD or
  *                                       wrong #YACA_PROPERTY_GCM_TAG was used
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -251,8 +252,8 @@ int yaca_open_finalize(yaca_context_h ctx,
                        size_t *plaintext_len);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

@@ -41,14 +41,14 @@ extern "C" {
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a ciphertext should be freed using yaca_free()
+ * @remarks  The @a ciphertext should be freed using yaca_free().
  *
- * @remarks  The key used has to be of a #YACA_KEY_TYPE_RSA_PUB type
+ * @remarks  The @a pub_key used has to be of a #YACA_KEY_TYPE_RSA_PUB type.
  *
- * @remarks  The maximum length of plaintext depends on the key length and padding method,
- *           see #yaca_padding_e for details
+ * @remarks  The maximum length of plaintext depends on the key length and padding method.
+ *           See #yaca_padding_e for details.
  *
- * @remarks  The @a plaintext can be NULL but then the @a plaintext_len must be 0
+ * @remarks  The @a plaintext can be NULL but then the @a plaintext_len must be 0.
  *
  * @param[in]  padding         Padding method
  * @param[in]  pub_key         Public RSA key (see yaca_key.h for key generation functions)
@@ -60,7 +60,7 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid padding, pub_key or plaintext_len)
+ *                                       invalid @a padding, @a pub_key or @a plaintext_len)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -81,9 +81,9 @@ int yaca_rsa_public_encrypt(yaca_padding_e padding,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a plaintext should be freed using yaca_free()
+ * @remarks  The @a plaintext should be freed using yaca_free().
  *
- * @remarks  The key used has to be of a #YACA_KEY_TYPE_RSA_PRIV type
+ * @remarks  The @a prv_key used has to be of a #YACA_KEY_TYPE_RSA_PRIV type.
  *
  * @param[in]  padding         Padding method
  * @param[in]  prv_key         Private RSA key matching the public one used to encrypt the data
@@ -95,7 +95,7 @@ int yaca_rsa_public_encrypt(yaca_padding_e padding,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid padding or prv_key), padding check failed
+ *                                       invalid @a padding or @a prv_key), padding check failed
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -116,14 +116,14 @@ int yaca_rsa_private_decrypt(yaca_padding_e padding,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a ciphertext should be freed using yaca_free()
+ * @remarks  The @a ciphertext should be freed using yaca_free().
  *
- * @remarks  The key used has to be of a #YACA_KEY_TYPE_RSA_PRIV type
+ * @remarks  The @a prv_key used has to be of a #YACA_KEY_TYPE_RSA_PRIV type.
  *
  * @remarks  The maximum length of plaintext depends on the key length and padding method,
- *           see #yaca_padding_e for details
+ *           see #yaca_padding_e for details.
  *
- * @remarks  The @a plaintext can be NULL but then the @a plaintext_len must be 0
+ * @remarks  The @a plaintext can be NULL but then the @a plaintext_len must be 0.
  *
  * @param[in]  padding         Padding method
  * @param[in]  prv_key         Private RSA key (see yaca_key.h for key generation functions)
@@ -135,7 +135,7 @@ int yaca_rsa_private_decrypt(yaca_padding_e padding,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid padding, prv_key or message_len)
+ *                                       invalid @a padding, @a prv_key or @a plaintext_len)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -156,9 +156,9 @@ int yaca_rsa_private_encrypt(yaca_padding_e padding,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a plaintext should be freed using yaca_free()
+ * @remarks  The @a plaintext should be freed using yaca_free().
  *
- * @remarks  The key used has to be of a #YACA_KEY_TYPE_RSA_PUB type
+ * @remarks  The @a pub_key used has to be of a #YACA_KEY_TYPE_RSA_PUB type.
  *
  * @param[in]  padding         Padding method
  * @param[in]  pub_key         Public RSA key matching the private one used to encrypt the data
@@ -170,7 +170,7 @@ int yaca_rsa_private_encrypt(yaca_padding_e padding,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0
- *                                       invalid padding or pub_key), padding check failed
+ *                                       invalid @a padding or @a pub_key), padding check failed
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -187,8 +187,8 @@ int yaca_rsa_public_decrypt(yaca_padding_e padding,
                             size_t *plaintext_len);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */

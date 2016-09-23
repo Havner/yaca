@@ -64,7 +64,7 @@ int yaca_key_get_type(const yaca_key_h key, yaca_key_type_e *key_type);
  *
  * @since_tizen 3.0
  *
- * @remarks  @a key can be any symmetric (including an Initialization Vector) or
+ * @remarks  The @a key can be any symmetric (including an Initialization Vector) or
  *           asymmetric key (including key generation parameters).
  *
  * @remarks  For Diffie-Helmann @a key_bit_len returns prime length in bits. Values
@@ -116,10 +116,10 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  *           be returned. For a list of keys and formats that do support encryption
  *           see yaca_key_export() documentation.
  *
- * @remarks  The @a key should be released using yaca_key_destroy()
+ * @remarks  The @a key should be released using yaca_key_destroy().
  *
  * @param[in]  key_type  Type of the key
- * @param[in]  password  null terminated password for the key (can be NULL)
+ * @param[in]  password  Null-terminated password for the key (can be NULL)
  * @param[in]  data      Blob containing the key
  * @param[in]  data_len  Size of the blob
  * @param[out] key       Returned key
@@ -130,7 +130,7 @@ int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len);
  *                                       invalid @a key_type or @a data_len too big)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
- * @retval #YACA_ERROR_INVALID_PASSWORD Invalid password given or password was required
+ * @retval #YACA_ERROR_INVALID_PASSWORD Invalid @a password given or @a password was required
  *                                      and none was given
  *
  * @see #yaca_key_type_e
@@ -191,7 +191,7 @@ int yaca_key_import(yaca_key_type_e key_type,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid key/file format or @ data_len too big)
+ *                                       invalid @a key_fmt, @a key_file_fmt or @a data_len too big)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -223,7 +223,7 @@ int yaca_key_export(const yaca_key_h key,
  *                 where prime_length_in_bits can be any positive number
  *           - EC: a value taken from #yaca_key_bit_length_ec_e
  *
- * @remarks  The @a key should be released using yaca_key_destroy()
+ * @remarks  The @a key should be released using yaca_key_destroy().
  *
  * @param[in]  key_type     Type of the key to be generated
  * @param[in]  key_bit_len  Length of the key (in bits) to be generated
@@ -231,7 +231,7 @@ int yaca_key_export(const yaca_key_h key,
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER key is NULL, incorrect @a key_type or
+ * @retval #YACA_ERROR_INVALID_PARAMETER @a key is NULL, incorrect @a key_type or
  *                                       @a key_bit_len is not dividable by 8
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
@@ -256,14 +256,14 @@ int yaca_key_generate(yaca_key_type_e key_type,
  * @remarks  This function is used to generate private asymmetric keys
  *           based on pre-generated parameters.
  *
- * @remarks  The @a key should be released using yaca_key_destroy()
+ * @remarks  The @a key should be released using yaca_key_destroy().
  *
  * @param[in]  params   Pre-generated parameters
  * @param[out] prv_key  Newly generated private key
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER key is NULL or incorrect @a params
+ * @retval #YACA_ERROR_INVALID_PARAMETER @a prv_key is NULL or incorrect @a params
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -278,7 +278,7 @@ int yaca_key_generate_from_parameters(const yaca_key_h params, yaca_key_h *prv_k
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a pub_key should be released using yaca_key_destroy()
+ * @remarks  The @a pub_key should be released using yaca_key_destroy().
  *
  * @param[in]  prv_key  Private key to extract the public one from
  * @param[out] pub_key  Extracted public key
@@ -300,7 +300,7 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a params_key should be released using yaca_key_destroy()
+ * @remarks  The @a params should be released using yaca_key_destroy().
  *
  * @param[in]  key      A key to extract the parameters from
  * @param[out] params   Extracted parameters
@@ -325,9 +325,9 @@ int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params);
  *
  * @remarks  The @a secret should not be used as a symmetric key,
  *           to produce a symmetric key pass the secret to a key derivation function (KDF)
- *           or a message digest function
+ *           or a message digest function.
  *
- * @remarks  The @a secret should be freed with yaca_free()
+ * @remarks  The @a secret should be freed with yaca_free().
  *
  * @param[in]  prv_key      Our private key
  * @param[in]  pub_key      Peer public key
@@ -336,7 +336,8 @@ int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params);
  *
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
- * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (invalid key)
+ * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values
+ *                                       (invalid @a prv_key or @a pub_key)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -355,12 +356,12 @@ int yaca_key_derive_dh(const yaca_key_h prv_key,
  * @since_tizen 3.0
  *
  * @remarks  The @a info parameter is ANSI X9.42 OtherInfo or ANSI X9.62 SharedInfo structure,
- *           more information can be found in ANSI X9.42/62 standard specification
+ *           more information can be found in ANSI X9.42/62 standard specification.
  *
  * @remarks  The @a key_material or separate parts of it can be used to import a symmetric key
- *           with yaca_key_import()
+ *           with yaca_key_import().
  *
- * @remarks  The @a key_material should be freed using yaca_free()
+ * @remarks  The @a key_material should be freed using yaca_free().
  *
  * @param[in]  kdf               Key derivation function
  * @param[in]  algo              Digest algorithm that should be used in key derivation
@@ -374,7 +375,7 @@ int yaca_key_derive_dh(const yaca_key_h prv_key,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid algo or kdf)
+ *                                       invalid @a algo or @a kdf)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -398,9 +399,9 @@ int yaca_key_derive_kdf(yaca_kdf_e kdf,
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a key should be released using yaca_key_destroy()
+ * @remarks  The @a key should be released using yaca_key_destroy().
  *
- * @param[in]  password     User password as a NULL-terminated string
+ * @param[in]  password     User password as a null-terminated string
  * @param[in]  salt         Salt, should be a non-empty string
  * @param[in]  salt_len     Length of the salt
  * @param[in]  iterations   Number of iterations
@@ -411,7 +412,7 @@ int yaca_key_derive_kdf(yaca_kdf_e kdf,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid algo or key_bit_len not dividable by 8)
+ *                                       invalid @a algo or @a key_bit_len not dividable by 8)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -440,8 +441,8 @@ int yaca_key_derive_pbkdf2(const char *password,
 void yaca_key_destroy(yaca_key_h key);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #ifdef __cplusplus
 } /* extern */
