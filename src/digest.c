@@ -217,9 +217,6 @@ API int yaca_digest_finalize(yaca_context_h ctx, char *digest, size_t *digest_le
 	if (!verify_state_change(c, CTX_FINALIZED))
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	if (*digest_len == 0 || *digest_len > UINT_MAX) /* DigestFinal accepts UINT */
-		return YACA_ERROR_INVALID_PARAMETER;
-
 	ret = EVP_DigestFinal_ex(c->md_ctx, (unsigned char*)digest, &len);
 	if (ret != 1) {
 		ret = YACA_ERROR_INTERNAL;
