@@ -17,11 +17,11 @@
  */
 
 /**
- * @file sign.c
- * @brief Signature API example.
+ * @file sign_hmac.c
+ * @brief HMAC Signature API example.
  */
 
-//! [Signature API example]
+//! [HMAC Signature API example]
 #include <stdio.h>
 
 #include <yaca_crypto.h>
@@ -36,35 +36,25 @@ int main()
 {
 	int ret;
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
-	yaca_key_h priv_key = YACA_KEY_NULL;
-	yaca_key_h pub_key = YACA_KEY_NULL;
-	yaca_padding_e padding = YACA_PADDING_PKCS1_PSS;
+	yaca_key_h sym_key = YACA_KEY_NULL;
 
-	char *signature = NULL;
+	char *signature1 = NULL;
+	char *signature2 = NULL;
 	size_t signature_len;
 
 	ret = yaca_initialize();
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	/* Generate key pair */
-	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_LENGTH_2048BIT, &priv_key);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-
-	ret = yaca_key_extract_public(priv_key, &pub_key);
+	/* Key generation */
+	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &sym_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	/* Sign */
 	{
 		/* Initialize sign context */
-		ret = yaca_sign_initialize(&ctx, YACA_DIGEST_SHA256, priv_key);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Set padding method */
-		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &padding, sizeof(padding));
+		ret = yaca_sign_initialize_hmac(&ctx, YACA_DIGEST_SHA512, sym_key);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
@@ -78,17 +68,17 @@ int main()
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
-		ret = yaca_malloc(signature_len, (void**)&signature);
+		ret = yaca_malloc(signature_len, (void**)&signature1);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Calculate signature */
-		ret = yaca_sign_finalize(ctx, signature, &signature_len);
+		ret = yaca_sign_finalize(ctx, signature1, &signature_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		/* display signature in hexadecimal format */
-		dump_hex(signature, signature_len, "Signature of INPUT_DATA:");
+		dump_hex(signature1, signature_len, "HMAC Signature of INPUT_DATA:");
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
@@ -96,23 +86,32 @@ int main()
 
 	/* Verify */
 	{
-		/* Initialize verify context */
-		ret = yaca_verify_initialize(&ctx, YACA_DIGEST_SHA256, pub_key);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Set padding method */
-		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &padding, sizeof(padding));
+		/* Initialize sign context */
+		ret = yaca_sign_initialize_hmac(&ctx, YACA_DIGEST_SHA512, sym_key);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Feeds the message */
-		ret = yaca_verify_update(ctx, INPUT_DATA, INPUT_DATA_SIZE);
+		ret = yaca_sign_update(ctx, INPUT_DATA, INPUT_DATA_SIZE);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
+		/* Get signature length and allocate memory */
+		ret = yaca_context_get_output_length(ctx, 0, &signature_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
+		ret = yaca_malloc(signature_len, (void**)&signature2);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
+		/* Calculate signature */
+		ret = yaca_sign_finalize(ctx, signature2, &signature_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		/* Verify signature */
-		ret = yaca_verify_finalize(ctx, signature, signature_len);
+		ret = yaca_memcmp(signature1, signature2, signature_len);
 		if (ret != YACA_ERROR_NONE) {
 			printf("Verification failed\n");
 			goto exit;
@@ -122,12 +121,12 @@ int main()
 	}
 
 exit:
-	yaca_free(signature);
-	yaca_key_destroy(priv_key);
-	yaca_key_destroy(pub_key);
+	yaca_free(signature1);
+	yaca_free(signature2);
+	yaca_key_destroy(sym_key);
 	yaca_context_destroy(ctx);
 
 	yaca_cleanup();
 	return ret;
 }
-//! [Signature API example]
+//! [HMAC Signature API example]

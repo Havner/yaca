@@ -17,15 +17,15 @@
  */
 
 /**
- * @file seal.c
- * @brief Asymmetric Encryption API example.
+ * @file encrypt_gcm.c
+ * @brief AES GCM encrypt API example.
  */
 
-//! [Asymmetric Encryption API example]
+//! [AES GCM encrypt API example]
 #include <stdio.h>
 
 #include <yaca_crypto.h>
-#include <yaca_seal.h>
+#include <yaca_encrypt.h>
 #include <yaca_key.h>
 #include <yaca_error.h>
 
@@ -36,15 +36,18 @@ int main()
 {
 	int ret;
 	yaca_context_h ctx = YACA_CONTEXT_NULL;
-	yaca_key_h rsa_pub = YACA_KEY_NULL;
-	yaca_key_h rsa_priv = YACA_KEY_NULL;
-	yaca_key_h sym_key = YACA_KEY_NULL;
+	yaca_key_h key = YACA_KEY_NULL;
 	yaca_key_h iv = YACA_KEY_NULL;
 
 	char *encrypted = NULL;
 	char *decrypted = NULL;
 	size_t encrypted_len;
 	size_t decrypted_len;
+
+	char *aad = NULL;
+	char *tag = NULL;
+	size_t aad_len = 16;
+	size_t tag_len = 16;
 
 	size_t block_len;
 	size_t output_len;
@@ -56,20 +59,34 @@ int main()
 
 	printf("Plain data (16 of %zu bytes): %.16s\n", INPUT_DATA_SIZE, INPUT_DATA);
 
-	/* Generate key pair */
-	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_LENGTH_4096BIT, &rsa_priv);
+	/* Key generation */
+	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_key_extract_public(rsa_priv, &rsa_pub);
+	/* IV generation */
+	ret = yaca_key_generate(YACA_KEY_TYPE_IV, YACA_KEY_LENGTH_IV_128BIT, &iv);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	/* Additional Authentication Data generation */
+	ret = yaca_zalloc(aad_len, (void**)&aad);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	ret = yaca_randomize_bytes(aad, aad_len);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	/* Allocate memory for tag */
+	ret = yaca_zalloc(tag_len, (void**)&tag);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
 	/* Encryption */
 	{
 		/* Initialize encryption context */
-		ret = yaca_seal_initialize(&ctx, rsa_pub, YACA_ENCRYPT_AES, YACA_BCM_CBC,
-		                           YACA_KEY_LENGTH_256BIT, &sym_key, &iv);
+		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_AES, YACA_BCM_GCM, key, iv);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
@@ -89,14 +106,19 @@ int main()
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
+		/* Provide Additional Authentication Data */
+		ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD, aad, aad_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
 		/* Encrypt data */
-		ret = yaca_seal_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written_len);
+		ret = yaca_encrypt_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		encrypted_len = written_len;
 
-		ret = yaca_seal_finalize(ctx, encrypted + encrypted_len, &written_len);
+		ret = yaca_encrypt_finalize(ctx, encrypted + encrypted_len, &written_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
@@ -104,6 +126,15 @@ int main()
 
 		/* Resize output buffer */
 		ret = yaca_realloc(encrypted_len, (void**)&encrypted);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
+		/* Set the tag length and get the tag */
+		ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN, &tag_len, sizeof(tag_len));
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
+		ret = yaca_context_get_property(ctx, YACA_PROPERTY_GCM_TAG, (void**)tag, &tag_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
@@ -117,8 +148,7 @@ int main()
 	/* Decryption */
 	{
 		/* Initialize decryption context */
-		ret = yaca_open_initialize(&ctx, rsa_priv, YACA_ENCRYPT_AES, YACA_BCM_CBC,
-		                           YACA_KEY_LENGTH_256BIT, sym_key, iv);
+		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_AES, YACA_BCM_GCM, key, iv);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
@@ -138,14 +168,24 @@ int main()
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
+		/* Provide Additional Authentication Data */
+		ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD, aad, aad_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
 		/* Decrypt data */
-		ret = yaca_open_update(ctx, encrypted, encrypted_len, decrypted, &written_len);
+		ret = yaca_decrypt_update(ctx, encrypted, encrypted_len, decrypted, &written_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		decrypted_len = written_len;
 
-		ret = yaca_open_finalize(ctx, decrypted + decrypted_len, &written_len);
+		/* Set expected tag value before final decryption */
+		ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG, tag, tag_len);
+		if (ret != YACA_ERROR_NONE)
+			goto exit;
+
+		ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
@@ -162,13 +202,13 @@ int main()
 exit:
 	yaca_free(decrypted);
 	yaca_free(encrypted);
+	yaca_free(tag);
+	yaca_free(aad);
 	yaca_context_destroy(ctx);
-	yaca_key_destroy(sym_key);
 	yaca_key_destroy(iv);
-	yaca_key_destroy(rsa_pub);
-	yaca_key_destroy(rsa_priv);
+	yaca_key_destroy(key);
 
 	yaca_cleanup();
 	return ret;
 }
-//! [Asymmetric Encryption API example]
+//! [AES GCM encrypt API example]

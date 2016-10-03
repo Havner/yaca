@@ -22,8 +22,7 @@
 
 INCLUDE_DIRECTORIES(${API_FOLDER})
 
-SET(COMMON_SOURCES  ${CMAKE_CURRENT_SOURCE_DIR}/lorem.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/misc.c)
+SET(COMMON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/misc.c)
 
 FUNCTION(BUILD_EXAMPLE EXAMPLE_NAME SOURCE_FILE)
 	ADD_EXECUTABLE(${EXAMPLE_NAME}
@@ -44,16 +43,24 @@ FUNCTION(BUILD_EXAMPLE EXAMPLE_NAME SOURCE_FILE)
 ENDFUNCTION(BUILD_EXAMPLE)
 
 BUILD_EXAMPLE("yaca-example-digest"           digest.c)
+BUILD_EXAMPLE("yaca-example-digest-simple"    digest_simple.c)
 BUILD_EXAMPLE("yaca-example-encrypt"          encrypt.c)
-BUILD_EXAMPLE("yaca-example-seal"             seal.c)
-BUILD_EXAMPLE("yaca-example-encrypt-gcm-ccm"  encrypt_aes_gcm_ccm.c)
-BUILD_EXAMPLE("yaca-example-sign"             sign.c)
-BUILD_EXAMPLE("yaca-example-key-gen"          key_gen.c)
-BUILD_EXAMPLE("yaca-example-key-exchange"     key_exchange.c)
-BUILD_EXAMPLE("yaca-example-key-impexp"       key_import_export.c)
-BUILD_EXAMPLE("yaca-example-key-password"     key_password.c)
+BUILD_EXAMPLE("yaca-example-encrypt-gcm"      encrypt_gcm.c)
+BUILD_EXAMPLE("yaca-example-encrypt-ccm"      encrypt_ccm.c)
+BUILD_EXAMPLE("yaca-example-encrypt-simple"   encrypt_simple.c)
 BUILD_EXAMPLE("yaca-example-key-wrap"         key_wrap.c)
-BUILD_EXAMPLE("yaca-example-rsa"              rsa.c)
+BUILD_EXAMPLE("yaca-example-key-gen"          key_gen.c)
+BUILD_EXAMPLE("yaca-example-key-password"     key_password.c)
+BUILD_EXAMPLE("yaca-example-key-exchange"     key_exchange.c)
+BUILD_EXAMPLE("yaca-example-key-impexp-sym"   key_import_export_sym.c)
+BUILD_EXAMPLE("yaca-example-key-impexp-asym"  key_import_export_asym.c)
+BUILD_EXAMPLE("yaca-example-rsa-private"      rsa_private.c)
+BUILD_EXAMPLE("yaca-example-rsa-public"       rsa_public.c)
+BUILD_EXAMPLE("yaca-example-seal"             seal.c)
+BUILD_EXAMPLE("yaca-example-sign"             sign.c)
+BUILD_EXAMPLE("yaca-example-sign-hmac"        sign_hmac.c)
+BUILD_EXAMPLE("yaca-example-sign-simple"      sign_simple.c)
+BUILD_EXAMPLE("yaca-example-sign-simple-cmac" sign_simple_cmac.c)
 
 INSTALL(FILES       ${COMMON_SOURCES}
         DESTINATION ${EXAMPLES_DIR})

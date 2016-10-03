@@ -18,46 +18,48 @@
 
 /**
  * @file key_wrap.c
- * @brief
+ * @brief Key wrapping API example.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
+//! [Key wrapping API example]
 #include <yaca_crypto.h>
 #include <yaca_simple.h>
 #include <yaca_encrypt.h>
 #include <yaca_key.h>
 #include <yaca_error.h>
 
+/* include helpers functions and definitions */
 #include "misc.h"
 
-void key_wrap_aes(void)
+int main()
 {
 	int ret;
-	yaca_key_h sym_key = YACA_KEY_NULL;
-	yaca_key_h iv = YACA_KEY_NULL;
 	yaca_key_h aes_key = YACA_KEY_NULL;
-
+	yaca_key_h key = YACA_KEY_NULL;
+	yaca_key_h iv = YACA_KEY_NULL;
 	size_t iv_bit_len;
-	char *key_data = NULL;
-	size_t key_data_len;
-	char *wrapped_key = NULL;
-	size_t wrapped_key_len;
 
-	printf("\n***** AES key wrapping ******\n");
+	char *aes_key_data = NULL;
+	size_t aes_key_data_len;
+	char *wrapped_key_data = NULL;
+	size_t wrapped_key_data_len;
 
+	ret = yaca_initialize();
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	/* Generate key to wrap */
 	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &aes_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_192BIT, &sym_key);
+	/* Key generation */
+	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES,
-	                                     YACA_BCM_WRAP,
-	                                     YACA_KEY_LENGTH_192BIT,
+	/* IV generation */
+	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES, YACA_BCM_WRAP, YACA_KEY_LENGTH_256BIT,
 	                                     &iv_bit_len);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
@@ -71,139 +73,51 @@ void key_wrap_aes(void)
 	/* Key wrapping */
 	{
 		ret = yaca_key_export(aes_key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL,
-		                      &key_data, &key_data_len);
+		                      &aes_key_data, &aes_key_data_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
-		ret = yaca_simple_encrypt(YACA_ENCRYPT_AES, YACA_BCM_WRAP, sym_key, iv,
-		                          key_data, key_data_len,
-		                          &wrapped_key, &wrapped_key_len);
+		ret = yaca_simple_encrypt(YACA_ENCRYPT_AES, YACA_BCM_WRAP, key, iv,
+		                          aes_key_data, aes_key_data_len,
+		                          &wrapped_key_data, &wrapped_key_data_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
-		dump_hex(key_data, key_data_len, "***** Unwrapped key:*****");
-		dump_hex(wrapped_key, wrapped_key_len, "***** Wrapped key:*****");
+		/* display key in hexadecimal format */
+		dump_hex(aes_key_data, aes_key_data_len, "***** Unwrapped key:*****");
+		dump_hex(wrapped_key_data, wrapped_key_data_len, "***** Wrapped key:*****");
 	}
 
-	yaca_free(key_data);
-	key_data = NULL;
+	yaca_free(aes_key_data);
+	aes_key_data = NULL;
 	yaca_key_destroy(aes_key);
 	aes_key = YACA_KEY_NULL;
 
 	/* Key unwrapping */
 	{
-		ret = yaca_simple_decrypt(YACA_ENCRYPT_AES, YACA_BCM_WRAP, sym_key, iv,
-		                          wrapped_key, wrapped_key_len,
-		                          &key_data, &key_data_len);
+		ret = yaca_simple_decrypt(YACA_ENCRYPT_AES, YACA_BCM_WRAP, key, iv,
+		                          wrapped_key_data, wrapped_key_data_len,
+		                          &aes_key_data, &aes_key_data_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
-		ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, key_data, key_data_len, &aes_key);
+		ret = yaca_key_import(YACA_KEY_TYPE_SYMMETRIC, NULL, aes_key_data, aes_key_data_len,
+		                      &aes_key);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
-		dump_hex(key_data, key_data_len, "***** Unwrapped key:*****");
+		/* display key in hexadecimal format */
+		dump_hex(aes_key_data, aes_key_data_len, "***** Unwrapped key:*****");
 	}
 
 exit:
 	yaca_key_destroy(aes_key);
-	yaca_key_destroy(sym_key);
+	yaca_key_destroy(key);
 	yaca_key_destroy(iv);
-	yaca_free(key_data);
-	yaca_free(wrapped_key);
-}
-
-void key_wrap_des(void)
-{
-	int ret;
-	yaca_key_h sym_key = YACA_KEY_NULL;
-	yaca_key_h iv = YACA_KEY_NULL;
-	yaca_key_h des_key = YACA_KEY_NULL;
-
-	size_t iv_bit_len;
-	char *key_data = NULL;
-	size_t key_data_len;
-	char *wrapped_key = NULL;
-	size_t wrapped_key_len;
-
-	printf("\n***** 3DES key wrapping ******\n");
-
-	ret = yaca_key_generate(YACA_KEY_TYPE_DES, YACA_KEY_LENGTH_192BIT, &des_key);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-
-	ret = yaca_key_generate(YACA_KEY_TYPE_DES, YACA_KEY_LENGTH_192BIT, &sym_key);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-
-	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_3DES_3TDEA,
-	                                     YACA_BCM_WRAP,
-	                                     YACA_KEY_LENGTH_192BIT,
-	                                     &iv_bit_len);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-
-	if (iv_bit_len > 0) {
-		ret = yaca_key_generate(YACA_KEY_TYPE_IV, iv_bit_len, &iv);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-	}
-
-	/* Key wrapping */
-	{
-		ret = yaca_key_export(des_key, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW, NULL,
-		                      &key_data, &key_data_len);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		ret = yaca_simple_encrypt(YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_WRAP, sym_key, iv,
-		                          key_data, key_data_len,
-		                          &wrapped_key, &wrapped_key_len);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		dump_hex(key_data, key_data_len, "***** Unwrapped key:*****");
-		dump_hex(wrapped_key, wrapped_key_len, "***** Wrapped key:*****");
-	}
-
-	yaca_free(key_data);
-	key_data = NULL;
-	yaca_key_destroy(des_key);
-	des_key = YACA_KEY_NULL;
-
-	/* Key unwrapping */
-	{
-		ret = yaca_simple_decrypt(YACA_ENCRYPT_3DES_3TDEA, YACA_BCM_WRAP, sym_key, iv,
-		                          wrapped_key, wrapped_key_len,
-		                          &key_data, &key_data_len);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		ret = yaca_key_import(YACA_KEY_TYPE_DES, NULL, key_data, key_data_len, &des_key);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		dump_hex(key_data, key_data_len, "***** Unwrapped key:*****");
-	}
-
-exit:
-	yaca_key_destroy(des_key);
-	yaca_key_destroy(sym_key);
-	yaca_key_destroy(iv);
-	yaca_free(key_data);
-	yaca_free(wrapped_key);
-}
-
-int main()
-{
-	int ret = yaca_initialize();
-	if (ret != YACA_ERROR_NONE)
-		return ret;
-
-	key_wrap_aes();
-	key_wrap_des();
+	yaca_free(aes_key_data);
+	yaca_free(wrapped_key_data);
 
 	yaca_cleanup();
 	return ret;
 }
-
+//! [Key wrapping API example]

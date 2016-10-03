@@ -17,17 +17,17 @@
  */
 
 /**
- * @file sign.c
- * @brief Signature API example.
+ * @file sign_simple.c
+ * @brief Simple Signature API example.
  */
 
-//! [Signature API example]
+//! [Simple Signature API example]
 #include <stdio.h>
 
 #include <yaca_crypto.h>
-#include <yaca_sign.h>
 #include <yaca_key.h>
 #include <yaca_error.h>
+#include <yaca_simple.h>
 
 /* include helpers functions and definitions */
 #include "misc.h"
@@ -35,10 +35,8 @@
 int main()
 {
 	int ret;
-	yaca_context_h ctx = YACA_CONTEXT_NULL;
 	yaca_key_h priv_key = YACA_KEY_NULL;
 	yaca_key_h pub_key = YACA_KEY_NULL;
-	yaca_padding_e padding = YACA_PADDING_PKCS1_PSS;
 
 	char *signature = NULL;
 	size_t signature_len;
@@ -48,7 +46,7 @@ int main()
 		goto exit;
 
 	/* Generate key pair */
-	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_LENGTH_2048BIT, &priv_key);
+	ret = yaca_key_generate(YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_LENGTH_2048BIT, &priv_key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
@@ -58,61 +56,21 @@ int main()
 
 	/* Sign */
 	{
-		/* Initialize sign context */
-		ret = yaca_sign_initialize(&ctx, YACA_DIGEST_SHA256, priv_key);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Set padding method */
-		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &padding, sizeof(padding));
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Feeds the message */
-		ret = yaca_sign_update(ctx, INPUT_DATA, INPUT_DATA_SIZE);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Get signature length and allocate memory */
-		ret = yaca_context_get_output_length(ctx, 0, &signature_len);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		ret = yaca_malloc(signature_len, (void**)&signature);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Calculate signature */
-		ret = yaca_sign_finalize(ctx, signature, &signature_len);
+		ret = yaca_simple_calculate_signature(YACA_DIGEST_SHA384, priv_key,
+		                                      INPUT_DATA, INPUT_DATA_SIZE,
+		                                      &signature, &signature_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
 		/* display signature in hexadecimal format */
 		dump_hex(signature, signature_len, "Signature of INPUT_DATA:");
-
-		yaca_context_destroy(ctx);
-		ctx = YACA_CONTEXT_NULL;
 	}
 
 	/* Verify */
 	{
-		/* Initialize verify context */
-		ret = yaca_verify_initialize(&ctx, YACA_DIGEST_SHA256, pub_key);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Set padding method */
-		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &padding, sizeof(padding));
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Feeds the message */
-		ret = yaca_verify_update(ctx, INPUT_DATA, INPUT_DATA_SIZE);
-		if (ret != YACA_ERROR_NONE)
-			goto exit;
-
-		/* Verify signature */
-		ret = yaca_verify_finalize(ctx, signature, signature_len);
+		ret = yaca_simple_verify_signature(YACA_DIGEST_SHA384, pub_key,
+		                                   INPUT_DATA, INPUT_DATA_SIZE,
+		                                   signature, signature_len);
 		if (ret != YACA_ERROR_NONE) {
 			printf("Verification failed\n");
 			goto exit;
@@ -125,9 +83,8 @@ exit:
 	yaca_free(signature);
 	yaca_key_destroy(priv_key);
 	yaca_key_destroy(pub_key);
-	yaca_context_destroy(ctx);
 
 	yaca_cleanup();
 	return ret;
 }
-//! [Signature API example]
+//! [Simple Signature API example]

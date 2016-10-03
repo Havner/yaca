@@ -24,15 +24,10 @@
 #ifndef MISC_H
 #define MISC_H
 
-#include <stddef.h>
+extern const char INPUT_DATA[];
+#define INPUT_DATA_SIZE ((size_t)4096)
 
 void dump_hex(const char *buf, size_t dump_len, const char *fmt, ...);
-
-void debug_func(const char *buf);
-
-int write_file(const char *path, const char *data, size_t data_len);
-
-int read_file(const char *path, char **data, size_t *data_len);
 
 int read_stdin_line(const char *prompt, char **string);
 
