@@ -27,6 +27,13 @@
   * @section CAPI_YACA_INTEGRITY_MODULE_OVERVIEW Overview
   * It provides advanced APIs for creating a signature using asymmetric private key, verifying a signature using asymmetric public key, calculating a HMAC/CMAC of given message using symmetric key and calculating message digests of given message without key.
   *
+  * @section CAPI_YACA_INTEGRITY_MODULE_EXAMPLES Examples
+  * Message Digest API example
+  * @snippet examples/digest.c Message Digest API example
+  * Signature API example
+  * @snippet examples/sign.c Signature API example
+  * HMAC Signature API example
+  * @snippet examples/sign_hmac.c HMAC Signature API example
   */
 
 #endif /* __TIZEN_CORE_YACA_INTEGRITY_DOC_H__ */

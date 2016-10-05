@@ -27,6 +27,11 @@
   * It provides advanced APIs for low-level encryption/decryption operations
   * with asymmetric RSA keys.
   *
+  * @section CAPI_YACA_RSA_MODULE_EXAMPLES Examples
+  * Public RSA Encrypt API example
+  * @snippet examples/rsa_public.c Public RSA Encrypt API example
+  * Private RSA Encrypt API example
+  * @snippet examples/rsa_private.c Private RSA Encrypt API example
   */
 
 #endif /* __TIZEN_CORE_YACA_RSA_DOC_H__ */

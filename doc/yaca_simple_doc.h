@@ -26,6 +26,15 @@
   * @section CAPI_YACA_SIMPLE_MODULE_OVERVIEW Overview
   * It provides simple APIs for encryption/decryption, signing/verification, and message digestion.
   *
+  * @section CAPI_YACA_SIMPLE_MODULE_EXAMPLES Examples
+  * Simple Encrypt API example
+  * @snippet examples/encrypt_simple.c Simple Encrypt API example
+  * Simple Message Digest API example
+  * @snippet examples/digest_simple.c Simple Message Digest API example
+  * Simple Signature API example
+  * @snippet examples/sign_simple.c Simple Signature API example
+  * Simple CMAC Signature API example
+  * @snippet examples/sign_simple_cmac.c Simple CMAC Signature API example
   */
 
 #endif /* __TIZEN_CORE_YACA_SIMPLE_DOC_H__ */

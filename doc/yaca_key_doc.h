@@ -26,6 +26,19 @@
   * @section CAPI_YACA_KEY_MODULE_OVERVIEW Overview
   * It provides APIs for generating key using random number or password, importing a key trying to match it to the key_type specified and exporting a key to arbitrary format.
   *
+  * @section CAPI_YACA_KEY_MODULE_EXAMPLES Examples
+  * Key generation API example
+  * @snippet examples/key_gen.c Key generation API example
+  * Symmetric key import/export API example
+  * @snippet examples/key_import_export_sym.c Symmetric key import/export API example
+  * Asymmetric key import/export API example
+  * @snippet examples/key_import_export_asym.c Asymmetric key import/export API example
+  * Key import/export with password API example
+  * @snippet examples/key_password.c Key import/export with password API example
+  * Diffie-Helmann key exchange API example
+  * @snippet examples/key_exchange.c Diffie-Helmann key exchange API example
+  * Key wrapping API example
+  * @snippet examples/key_wrap.c Key wrapping API example
   */
 
 #endif /* __TIZEN_CORE_YACA_KEY_DOC_H__ */

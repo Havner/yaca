@@ -30,6 +30,15 @@
   * @section CAPI_YACA_ENCRYPTION_MODULE_OVERVIEW Overview
   * It provides advanced APIs for encryption/decryption operations with symmetric keys and sealing/opening operations with asymmetric keys.
   *
+  * @section CAPI_YACA_ENCRYPTION_MODULE_EXAMPLES Examples
+  * Encrypt API example
+  * @snippet examples/encrypt.c Encrypt API example
+  * AES GCM encrypt API example
+  * @snippet examples/encrypt_gcm.c AES GCM encrypt API example
+  * AES CCM encrypt API example
+  * @snippet examples/encrypt_ccm.c AES CCM encrypt API example
+  * Asymmetric Encryption API example
+  * @snippet examples/seal.c Asymmetric Encryption API example
   */
 
 #endif /* __TIZEN_CORE_YACA_ENCRYPTION_DOC_H__ */
