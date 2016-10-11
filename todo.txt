@@ -1,7 +1,0 @@
-Global:
-- Rethink and possibly add verification of output buffer lengths.
-  In other words check whether the user won't cause a buffer overflow.
-- Support for OCB mode was added in OpenSSL 1.1.0
-- We need a way to import keys encrypted with hw (or other) keys. New
-  function like yaca_key_load or sth?
-- Add extended description and examples in documentation.

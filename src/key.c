@@ -1926,7 +1926,7 @@ API int yaca_key_derive_pbkdf2(const char *password,
 		return ret;
 
 	nk->bit_len = key_bit_len;
-	nk->key.type = YACA_KEY_TYPE_SYMMETRIC; // TODO: how to handle other keys?
+	nk->key.type = YACA_KEY_TYPE_SYMMETRIC;
 
 	ret = PKCS5_PBKDF2_HMAC(password, -1, (const unsigned char*)salt,
 	                        salt_len, iterations, md, key_byte_len,
