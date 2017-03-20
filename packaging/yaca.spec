@@ -19,6 +19,7 @@ The package provides Yet Another Crypto API.
 %postun -p /sbin/ldconfig
 
 %files
+%license LICENSE
 %manifest yaca.manifest
 %{_libdir}/libyaca.so.0
 %{_libdir}/libyaca.so.%{version}
