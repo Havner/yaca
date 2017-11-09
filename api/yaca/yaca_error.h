@@ -24,7 +24,7 @@
 #ifndef YACA_ERROR_H
 #define YACA_ERROR_H
 
-#include <tizen.h>
+#include <errno.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,9 +35,9 @@ extern "C" {
  * @{
  */
 
-/* @cond  Define it temporarily until this code goes into capi-base-common package */
-#ifndef TIZEN_ERROR_YACA
-#define TIZEN_ERROR_YACA -0x01E30000
+/* @cond */
+#ifndef BASE_ERROR_YACA
+#define BASE_ERROR_YACA -0x01E30000
 #endif
 /* @endcond */
 
@@ -48,18 +48,18 @@ extern "C" {
  */
 typedef enum {
 	/** Successful */
-	YACA_ERROR_NONE               = TIZEN_ERROR_NONE,
+	YACA_ERROR_NONE               = 0,
 	/** Invalid function parameter */
-	YACA_ERROR_INVALID_PARAMETER  = TIZEN_ERROR_INVALID_PARAMETER,
+	YACA_ERROR_INVALID_PARAMETER  = -EINVAL,
 	/** Out of memory */
-	YACA_ERROR_OUT_OF_MEMORY      = TIZEN_ERROR_OUT_OF_MEMORY,
+	YACA_ERROR_OUT_OF_MEMORY      = -ENOMEM,
 
 	/** Internal error */
-	YACA_ERROR_INTERNAL           = TIZEN_ERROR_YACA | 0x01,
+	YACA_ERROR_INTERNAL           = BASE_ERROR_YACA | 0x01,
 	/** Data mismatch */
-	YACA_ERROR_DATA_MISMATCH      = TIZEN_ERROR_YACA | 0x02,
+	YACA_ERROR_DATA_MISMATCH      = BASE_ERROR_YACA | 0x02,
 	/** Invalid password */
-	YACA_ERROR_INVALID_PASSWORD   = TIZEN_ERROR_YACA | 0x03
+	YACA_ERROR_INVALID_PASSWORD   = BASE_ERROR_YACA | 0x03
 } yaca_error_e;
 
 /**

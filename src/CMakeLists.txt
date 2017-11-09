@@ -45,7 +45,7 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
                       VERSION    ${_LIB_VERSION_})
 
 ## Link libraries ##############################################################
-PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl capi-base-common)
+PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl)
 
 FIND_PACKAGE (Threads)
 

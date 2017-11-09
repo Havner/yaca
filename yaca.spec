@@ -6,7 +6,6 @@ License:            Apache-2.0
 Group:              Security/Other
 Summary:            Yet Another Crypto API
 BuildRequires:      cmake
-BuildRequires:      pkgconfig(capi-base-common)
 BuildRequires:      pkgconfig(openssl)
 Requires(post):     /sbin/ldconfig
 Requires(postun):   /sbin/ldconfig
@@ -20,7 +19,6 @@ The package provides Yet Another Crypto API.
 
 %files
 %license LICENSE
-%manifest yaca.manifest
 %{_libdir}/libyaca.so.0
 %{_libdir}/libyaca.so.%{version}
 
