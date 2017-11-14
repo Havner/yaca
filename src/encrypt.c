@@ -767,6 +767,8 @@ int set_encrypt_property(yaca_context_h ctx,
 int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
                          void **value, size_t *value_len)
 {
+	int ret;
+	void *tag = NULL;
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int mode;
 
@@ -786,13 +788,19 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 
 		assert(c->tag_len <= INT_MAX);
 
+		ret = yaca_malloc(c->tag_len, &tag);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
 		                        EVP_CTRL_GCM_GET_TAG,
 		                        c->tag_len,
-		                        value) != 1) {
+		                        tag) != 1) {
+			yaca_free(tag);
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
+		*value = tag;
 		*value_len = c->tag_len;
 		break;
 	case YACA_PROPERTY_CCM_TAG:
@@ -804,13 +812,19 @@ int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
 
 		assert(c->tag_len <= INT_MAX);
 
+		ret = yaca_malloc(c->tag_len, &tag);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx,
 		                        EVP_CTRL_CCM_GET_TAG,
 		                        c->tag_len,
-		                        value) != 1) {
+		                        tag) != 1) {
+			yaca_free(tag);
 			ERROR_DUMP(YACA_ERROR_INTERNAL);
 			return YACA_ERROR_INTERNAL;
 		}
+		*value = tag;
 		*value_len = c->tag_len;
 		break;
 	default:

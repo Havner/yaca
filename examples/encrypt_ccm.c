@@ -78,11 +78,6 @@ int main()
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
-	/* Allocate memory for tag */
-	ret = yaca_zalloc(tag_len, (void**)&tag);
-	if (ret != YACA_ERROR_NONE)
-		goto exit;
-
 	/* Encryption */
 	{
 		/* Initialize encryption context */
@@ -140,7 +135,7 @@ int main()
 			goto exit;
 
 		/* Get the tag after final encryption */
-		ret = yaca_context_get_property(ctx, YACA_PROPERTY_CCM_TAG, (void**)tag, &tag_len);
+		ret = yaca_context_get_property(ctx, YACA_PROPERTY_CCM_TAG, (void**)&tag, &tag_len);
 		if (ret != YACA_ERROR_NONE)
 			goto exit;
 
