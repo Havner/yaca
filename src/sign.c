@@ -430,11 +430,19 @@ API int yaca_sign_finalize(yaca_context_h ctx,
 	int ret;
 
 	if (c == NULL ||  c->op_type != OP_SIGN ||
-	    signature == NULL || signature_len == NULL || *signature_len == 0)
+	    signature == NULL || signature_len == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	if (!verify_state_change(c, CTX_FINALIZED))
 		return YACA_ERROR_INVALID_PARAMETER;
+
+	/* EVP_DigestSignFinal() is the only *Final that requires buffer
+	 * length as the [in,out], don't break the symmetry in our API,
+	 * don't require it from the user, get the apropriate length here.
+	 */
+	ret = ctx->get_output_length(ctx, 0, signature_len);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	ret = EVP_DigestSignFinal(c->md_ctx, (unsigned char *)signature, signature_len);
 	if (ret != 1) {
