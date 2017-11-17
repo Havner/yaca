@@ -256,6 +256,9 @@ int yaca_key_generate(yaca_key_type_e key_type,
  * @remarks  This function is used to generate private asymmetric keys
  *           based on pre-generated parameters.
  *
+ * @remarks  This function does not support RSA keys, as it's not possible
+ *           to extract parameters from them.
+ *
  * @remarks  The @a key should be released using yaca_key_destroy().
  *
  * @param[in]  params   Pre-generated parameters
@@ -302,6 +305,8 @@ int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key);
  *
  * @remarks  The @a params should be released using yaca_key_destroy().
  *
+ * @remarks  This function does not support RSA keys.
+ *
  * @param[in]  key      A key to extract the parameters from
  * @param[out] params   Extracted parameters
  *
@@ -323,9 +328,11 @@ int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params);
  *
  * @since_tizen 3.0
  *
- * @remarks  The @a secret should not be used as a symmetric key,
- *           to produce a symmetric key pass the secret to a key derivation function (KDF)
+ * @remarks  The @a secret should not be used as a symmetric key.
+ *           To produce a symmetric key pass the secret to a key derivation function (KDF)
  *           or a message digest function.
+ *
+ * @remarks  Both the keys passed should be of DH type.
  *
  * @remarks  The @a secret should be freed with yaca_free().
  *
