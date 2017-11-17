@@ -6,6 +6,7 @@ License:            Apache-2.0
 Group:              Security/Other
 Summary:            Yet Another Crypto API
 BuildRequires:      cmake
+BuildRequires:      python3 >= 3.4
 BuildRequires:      pkgconfig(openssl)
 Requires(post):     /sbin/ldconfig
 Requires(postun):   /sbin/ldconfig
@@ -33,6 +34,7 @@ make -k %{?jobs:-j%jobs}
 
 %install
 %make_install
+%py_byte_compile %{buildroot}/%{python3_sitelib}
 
 %clean
 rm -rf %{buildroot}
@@ -63,3 +65,15 @@ The package provides Yet Another Crypto API example files.
 %files examples
 %{_bindir}/yaca-example*
 %{_datadir}/%{name}/examples
+
+## Python3 Package ############################################################
+%package -n python3-yaca
+Summary:        Yet Another Crypto API Python3 bindings
+Group:          Security/Other
+Requires:       yaca = %{version}-%{release}
+
+%description -n python3-yaca
+The package provides Yet Another Crypto API bindings for Python3.
+
+%files -n python3-yaca
+%{python3_sitelib}/%{name}
