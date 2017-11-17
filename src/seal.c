@@ -188,8 +188,11 @@ API int yaca_seal_initialize(yaca_context_h *ctx,
 
 	*sym_key = lenc_sym_key;
 	lenc_sym_key = YACA_KEY_NULL;
-	*iv = liv;
-	liv = YACA_KEY_NULL;
+	if (iv != NULL) {
+		*iv = liv;
+		liv = YACA_KEY_NULL;
+	}
+
 	ret = YACA_ERROR_NONE;
 
 exit:
