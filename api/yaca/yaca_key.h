@@ -332,7 +332,7 @@ int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params);
  *           To produce a symmetric key pass the secret to a key derivation function (KDF)
  *           or a message digest function.
  *
- * @remarks  Both the keys passed should be of DH type.
+ * @remarks  Both the keys passed should be of DH or EC type.
  *
  * @remarks  The @a secret should be freed with yaca_free().
  *
