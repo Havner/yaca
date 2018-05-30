@@ -43,7 +43,7 @@ For examples see tests/examples in yaca.tests module.
 import enum as _enum
 import ctypes as _ctypes
 import yaca.library
-from yaca.error import *
+from yaca.error import InvalidParameterError
 del yaca.error
 
 # Initialization
@@ -55,7 +55,7 @@ del yaca.library
 # Helpers
 
 def _get_char_param_nullify_if_zero(param):
-    return None if len(param) == 0 else param
+    return None if not param else param
 
 
 def _context_get_output_length(ctx, input_length):
