@@ -255,8 +255,8 @@ def cleanup():
 
 def memcmp(first, second, length):
     """Safely compares first length bytes of two buffers."""
-    l = _ctypes.c_size_t(length)
-    return _lib.yaca_memcmp(first, second, l)
+    length = _ctypes.c_size_t(length)
+    return _lib.yaca_memcmp(first, second, length)
 
 
 def random_bytes(length):
