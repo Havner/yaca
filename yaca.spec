@@ -6,7 +6,7 @@ License:            Apache-2.0
 Group:              Security/Other
 Summary:            Yet Another Crypto API
 BuildRequires:      cmake
-BuildRequires:      python3 >= 3.4
+BuildRequires:      python3-devel >= 3.4
 BuildRequires:      pkgconfig(openssl)
 Requires(post):     /sbin/ldconfig
 Requires(postun):   /sbin/ldconfig
@@ -34,7 +34,7 @@ make -k %{?jobs:-j%jobs}
 
 %install
 %make_install
-%py_byte_compile %{buildroot}/%{python3_sitelib}
+%py_byte_compile %{__python3} %{buildroot}/%{python3_sitelib}
 
 %clean
 rm -rf %{buildroot}
