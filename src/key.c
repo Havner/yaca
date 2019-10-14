@@ -960,8 +960,10 @@ static int generate_simple(struct yaca_key_simple_s **out, size_t key_bit_len)
 	nk->bit_len = key_bit_len;
 
 	ret = yaca_randomize_bytes(nk->d, key_byte_len);
-	if (ret != YACA_ERROR_NONE)
+	if (ret != YACA_ERROR_NONE) {
+		yaca_free(nk);
 		return ret;
+	}
 
 	*out = nk;
 	return YACA_ERROR_NONE;
