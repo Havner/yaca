@@ -23,7 +23,7 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6.2)
 
 PROJECT(yaca)
-SET(VERSION "0.0.4")
+SET(VERSION "0.0.5")
 
 ## pkgconfig ###################################################################
 INCLUDE(FindPkgConfig)
