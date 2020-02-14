@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -41,21 +41,25 @@ int main()
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 	yaca_key_destroy(key);
+	key = YACA_KEY_NULL;
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_RSA_PRIV, YACA_KEY_LENGTH_2048BIT, &key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 	yaca_key_destroy(key);
+	key = YACA_KEY_NULL;
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEY_LENGTH_DH_RFC_2048_224, &key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 	yaca_key_destroy(key);
+	key = YACA_KEY_NULL;
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_LENGTH_EC_SECP384R1, &key);
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 	yaca_key_destroy(key);
+	key = YACA_KEY_NULL;
 
 	/* Params + key generation */
 	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PARAMS, YACA_KEY_LENGTH_DH_RFC_2048_256, &key_params);
@@ -66,6 +70,8 @@ int main()
 		goto exit;
 	yaca_key_destroy(key);
 	yaca_key_destroy(key_params);
+	key = YACA_KEY_NULL;
+	key_params = YACA_KEY_NULL;
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_EC_PARAMS, YACA_KEY_LENGTH_EC_PRIME256V1, &key_params);
 	if (ret != YACA_ERROR_NONE)
