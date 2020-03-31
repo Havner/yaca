@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -431,6 +431,9 @@ API int yaca_context_get_output_length(const yaca_context_h ctx,
 
 API int yaca_memcmp(const void *first, const void *second, size_t len)
 {
+	if (len > 0 && (first == NULL || second == NULL))
+		return YACA_ERROR_INVALID_PARAMETER;
+
 	if (CRYPTO_memcmp(first, second, len) == 0)
 		return YACA_ERROR_NONE;
 
