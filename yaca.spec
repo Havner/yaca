@@ -8,6 +8,7 @@ Summary:            Yet Another Crypto API
 BuildRequires:      cmake
 BuildRequires:      python3-devel >= 3.4
 BuildRequires:      pkgconfig(openssl)
+BuildRequires:      boost-devel
 Requires(post):     /sbin/ldconfig
 Requires(postun):   /sbin/ldconfig
 
@@ -65,6 +66,18 @@ The package provides Yet Another Crypto API example files.
 %files examples
 %{_bindir}/yaca-example*
 %{_datadir}/%{name}/examples
+
+## Tests Package ############################################################
+%package tests
+Summary:        Yet Another Crypto API tests
+Group:          Security/Other
+Requires:       yaca = %{version}-%{release}
+
+%description tests
+The package provides Yet Another Crypto API unit tests.
+
+%files tests
+%{_bindir}/yaca-unit-tests*
 
 ## Python3 Package ############################################################
 %package -n python3-yaca
