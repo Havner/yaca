@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+#  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
 #
 #  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
 #
@@ -54,6 +54,7 @@ MESSAGE(STATUS "-------------------------------------------------")
 
 SET(CMAKE_C_FLAGS_DEBUG        "-std=c11 -O0 -ggdb -Wp,-U_FORTIFY_SOURCE")
 SET(CMAKE_C_FLAGS_RELEASE      "-std=c11 -O2 -DNDEBUG")
+SET(CMAKE_C_FLAGS_COVERAGE     "-std=c11 -O0 -ggdb --coverage -Wp,-U_FORTIFY_SOURCE")
 
 ADD_DEFINITIONS("-fPIC")   # Position Independent Code
 ADD_DEFINITIONS("-Werror") # Make all warnings into errors
