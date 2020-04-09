@@ -68,17 +68,13 @@ static int getrandom_wrapper(unsigned char *buf, int num)
 
 	while (remaining > 0) {
 #ifdef SYS_getrandom
-		ssize_t n = syscall(SYS_getrandom, buf + received, remaining, 0);
+		ssize_t n = TEMP_FAILURE_RETRY(syscall(SYS_getrandom, buf + received, remaining, 0));
 #else /* SYS_getrandom */
-		ssize_t n = read(urandom_fd, buf + received, remaining);
+		ssize_t n = TEMP_FAILURE_RETRY(read(urandom_fd, buf + received, remaining));
 #endif /* SYS_getrandom */
 
-		if (n == -1) {
-			if (errno == EINTR)
-				continue;
-
+		if (n == -1)
 			return 0;
-		}
 
 		received += n;
 		remaining -= n;
