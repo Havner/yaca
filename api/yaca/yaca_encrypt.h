@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -53,9 +53,9 @@ extern "C" {
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL,
- *                                       invalid @a algo, @a bcm or @a key_bit_len)
+ *                                       invalid @a algo, @a bcm or @a key_bit_len not
+ *                                       divisible by 8)
  * @retval #YACA_ERROR_INTERNAL Internal error
- *
  */
 int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
                                    yaca_block_cipher_mode_e bcm,

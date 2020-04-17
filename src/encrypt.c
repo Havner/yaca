@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -1109,7 +1109,7 @@ API int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
 	const EVP_CIPHER *cipher;
 	int ret;
 
-	if (iv_bit_len == NULL)
+	if (iv_bit_len == NULL || key_bit_len % 8 != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = encrypt_get_algorithm(algo, bcm, key_bit_len, &cipher);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -232,7 +232,7 @@ int yaca_key_export(const yaca_key_h key,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER @a key is NULL, incorrect @a key_type or
- *                                       @a key_bit_len is not dividable by 8
+ *                                       @a key_bit_len is not divisible by 8
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
@@ -419,7 +419,7 @@ int yaca_key_derive_kdf(yaca_kdf_e kdf,
  * @return #YACA_ERROR_NONE on success, negative on error
  * @retval #YACA_ERROR_NONE Successful
  * @retval #YACA_ERROR_INVALID_PARAMETER Required parameters have incorrect values (NULL, 0,
- *                                       invalid @a algo or @a key_bit_len not dividable by 8)
+ *                                       invalid @a algo or @a key_bit_len not divisible by 8)
  * @retval #YACA_ERROR_OUT_OF_MEMORY Out of memory error
  * @retval #YACA_ERROR_INTERNAL Internal error
  *
