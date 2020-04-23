@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -147,12 +147,6 @@ API int yaca_simple_encrypt(yaca_encrypt_algorithm_e algo,
 	written += out_len;
 	assert(written <= lciphertext_len);
 
-	if (((bcm == YACA_BCM_CBC || bcm == YACA_BCM_ECB) && written == 0) ||
-	    (bcm != YACA_BCM_CBC && bcm != YACA_BCM_ECB && plaintext_len == 0 && written > 0)) {
-		ret = YACA_ERROR_INTERNAL;
-		goto exit;
-	}
-
 	if (written > 0) {
 		ret = yaca_realloc(written, (void**)&lciphertext);
 		if (ret != YACA_ERROR_NONE)
@@ -238,11 +232,6 @@ API int yaca_simple_decrypt(yaca_encrypt_algorithm_e algo,
 
 	written += out_len;
 	assert(written <= lplaintext_len);
-
-	if (bcm != YACA_BCM_CBC && bcm != YACA_BCM_ECB && ciphertext_len == 0 && written > 0) {
-		ret = YACA_ERROR_INTERNAL;
-		goto exit;
-	}
 
 	if (written > 0) {
 		ret = yaca_realloc(written, (void**)&lplaintext);

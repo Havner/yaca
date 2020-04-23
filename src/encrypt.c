@@ -260,6 +260,7 @@ static bool is_valid_tag_len(int mode, size_t tag_len)
 		}
 		return false;
 	default:
+		assert(false);
 		return false;
 	}
 }
@@ -280,9 +281,7 @@ static struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h c
 static void destroy_encrypt_context(const yaca_context_h ctx)
 {
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
-
-	if (c == NULL)
-		return;
+	assert(c != NULL);
 
 	if (c->backup_ctx != NULL) {
 		yaca_key_destroy(c->backup_ctx->iv);
@@ -299,11 +298,9 @@ static int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len,
 {
 	assert(output_len != NULL);
 
-	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int block_size;
-
-	if (c == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
+	assert(c != NULL);
 	assert(c->cipher_ctx != NULL);
 
 	block_size = EVP_CIPHER_CTX_block_size(c->cipher_ctx);
@@ -320,8 +317,7 @@ static int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len,
 	} else {
 		*output_len = block_size;
 	}
-	if (*output_len == 0)
-		return YACA_ERROR_INTERNAL;
+	assert(*output_len != 0);
 
 	return YACA_ERROR_NONE;
 }
@@ -331,8 +327,7 @@ static int get_wrap_output_length(const yaca_context_h ctx, size_t input_len, si
 	assert(output_len != NULL);
 
 	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
-	if (c == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
+	assert(c != NULL);
 	assert(c->cipher_ctx != NULL);
 
 	bool encryption = is_encryption_op(c->op_type);
@@ -509,13 +504,11 @@ static int encrypt_ctx_setup(struct yaca_encrypt_context_s *c,
 	assert(key != YACA_KEY_NULL);
 
 	const EVP_CIPHER *cipher = EVP_CIPHER_CTX_cipher(c->cipher_ctx);
-
 	if (cipher == NULL)
 		return YACA_ERROR_INTERNAL;
 
 	lkey = key_get_simple(key);
-	if (lkey == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
+	assert(lkey != NULL);
 
 	liv = key_get_simple(iv);
 
@@ -687,13 +680,14 @@ static int set_encrypt_property(yaca_context_h ctx,
                                 const void *value,
                                 size_t value_len)
 {
-	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
 	int len;
 	int ret = YACA_ERROR_NONE;
-
-	if (c == NULL || value == NULL || value_len == 0)
-		return YACA_ERROR_INVALID_PARAMETER;
+	struct yaca_encrypt_context_s *c = get_encrypt_context(ctx);
+	assert(c != NULL);
 	assert(c->cipher_ctx != NULL);
+
+	if (value == NULL || value_len == 0)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	int mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
 	int nid = EVP_CIPHER_CTX_nid(c->cipher_ctx);
@@ -963,8 +957,7 @@ int encrypt_initialize(yaca_context_h *ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	lsym_key = key_get_simple(sym_key);
-	if (lsym_key == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
+	assert(lsym_key != NULL);
 
 	if (lsym_key->key.type != YACA_KEY_TYPE_DES &&
 	    lsym_key->key.type != YACA_KEY_TYPE_SYMMETRIC)

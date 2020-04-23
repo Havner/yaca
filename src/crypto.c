@@ -62,8 +62,7 @@ static int getrandom_wrapper(unsigned char *buf, int num)
 	size_t remaining = num;
 
 #ifndef SYS_getrandom
-	if (urandom_fd == -2)
-		return 0;
+	assert(urandom_fd != -2);
 #endif /* SYS_getrandom */
 
 	while (remaining > 0) {

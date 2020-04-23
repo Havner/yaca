@@ -429,13 +429,10 @@ static int import_evp(yaca_key_h *key,
 
 	/* Neither PEM nor DER will ever be shorter then 4 bytes (12 seems
 	 * to be minimum for DER, much more for PEM). This is just to make
-	 * sure we have at least 4 bytes for strncmp() below.
-	 */
-	if (data_len < 4)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	/* This is because of BIO_new_mem_buf() having its length param typed int */
-	if (data_len > INT_MAX)
+	 * sure we have at least 4 bytes for strncmp() below. INT_MAX is
+	 * because of BIO_new_mem_buf() having its length param typed
+	 * int */
+	if (data_len < 4 || data_len > INT_MAX)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	src = BIO_new_mem_buf(data, data_len);
@@ -750,7 +747,8 @@ static int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 			break;
 
 		default:
-			return YACA_ERROR_INVALID_PARAMETER;
+			assert(false);
+			return YACA_ERROR_INTERNAL;
 		}
 
 		break;
@@ -790,7 +788,8 @@ static int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 		}
 
 		default:
-			return YACA_ERROR_INVALID_PARAMETER;
+			assert(false);
+			return YACA_ERROR_INTERNAL;
 		}
 
 		break;
@@ -1083,7 +1082,6 @@ static int generate_evp_pkey_params(int evp_id, size_t key_bit_len, EVP_PKEY **p
 
 		break;
 	default:
-		/* We shouldn't be here */
 		assert(false);
 		return YACA_ERROR_INTERNAL;
 	}
@@ -1225,7 +1223,7 @@ static int generate_evp(yaca_key_type_e out_type, size_t key_bit_len,
 	assert(key_bit_len > 0 || params != NULL);
 
 	int ret;
-	int evp_id;
+	int evp_id = -1;
 	EVP_PKEY *pkey_out = NULL;
 	EVP_PKEY *pkey_params = NULL;
 
@@ -1234,11 +1232,8 @@ static int generate_evp(yaca_key_type_e out_type, size_t key_bit_len,
 		yaca_key_type_e params_type = params->key.type;
 
 		ret = convert_params_to_priv(params_type, &key_type);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
-
-		if (out_type != key_type)
-			return YACA_ERROR_INVALID_PARAMETER;
+		assert(ret == YACA_ERROR_NONE);
+		assert(out_type == key_type);
 
 		pkey_params = params->evp;
 	}
@@ -1249,8 +1244,7 @@ static int generate_evp(yaca_key_type_e out_type, size_t key_bit_len,
 	case YACA_KEY_TYPE_EC_PARAMS:
 		assert(params == NULL);
 		ret = convert_params_to_evp_id(out_type, &evp_id);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
+		assert(ret == YACA_ERROR_NONE);
 
 		ret = generate_evp_pkey_params(evp_id, key_bit_len, &pkey_out);
 		break;
@@ -1259,13 +1253,13 @@ static int generate_evp(yaca_key_type_e out_type, size_t key_bit_len,
 	case YACA_KEY_TYPE_DH_PRIV:
 	case YACA_KEY_TYPE_EC_PRIV:
 		ret = convert_priv_to_evp_id(out_type, &evp_id);
-		if (ret != YACA_ERROR_NONE)
-			return ret;
+		assert(ret == YACA_ERROR_NONE);
 
 		ret = generate_evp_pkey_key(evp_id, key_bit_len, pkey_params, &pkey_out);
 		break;
 	default:
-		return YACA_ERROR_INVALID_PARAMETER;
+		assert(false);
+		return YACA_ERROR_INTERNAL;
 	}
 	if (ret != YACA_ERROR_NONE)
 		return ret;
@@ -1449,7 +1443,6 @@ API int yaca_key_get_bit_length(const yaca_key_h key, size_t *key_bit_len)
 			return convert_nid_to_ec(nid, key_bit_len);
 		}
 		default:
-			/* We shouldn't be here */
 			assert(false);
 			return YACA_ERROR_INTERNAL;
 		}
@@ -1575,6 +1568,7 @@ API int yaca_key_generate(yaca_key_type_e key_type,
 		*key = (yaca_key_h)nk_evp;
 	} else {
 		assert(false);
+		return YACA_ERROR_INTERNAL;
 	}
 
 	return YACA_ERROR_NONE;
@@ -1591,9 +1585,7 @@ API int yaca_key_generate_from_parameters(const yaca_key_h params, yaca_key_h *p
 	if (evp_params == NULL || prv_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_key_get_type(params, &params_type);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
+	params_type = evp_params->key.type;
 
 	ret = convert_params_to_priv(params_type, &key_type);
 	if (ret != YACA_ERROR_NONE)
@@ -1624,9 +1616,7 @@ API int yaca_key_extract_public(const yaca_key_h prv_key, yaca_key_h *pub_key)
 	if (evp_key == NULL || pub_key == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_key_get_type(prv_key, &prv_type);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
+	prv_type = evp_key->key.type;
 
 	ret = convert_priv_to_pub(prv_type, &pub_type);
 	if (ret != YACA_ERROR_NONE)
@@ -1688,9 +1678,7 @@ API int yaca_key_extract_parameters(const yaca_key_h key, yaca_key_h *params)
 	if (evp_key == NULL || params == NULL)
 		return YACA_ERROR_INVALID_PARAMETER;
 
-	ret = yaca_key_get_type(key, &key_type);
-	if (ret != YACA_ERROR_NONE)
-		return ret;
+	key_type = evp_key->key.type;
 
 	ret = convert_priv_to_params(key_type, &params_type);
 	if (ret != YACA_ERROR_NONE)

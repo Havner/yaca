@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -84,13 +84,13 @@ static int get_sign_output_length(const yaca_context_h ctx,
 {
 	assert(output_len != NULL);
 
-	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	EVP_PKEY_CTX *pctx;
-
-	if (c == NULL || input_len != 0)
-		return YACA_ERROR_INVALID_PARAMETER;
-
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
+	assert(c != NULL);
 	assert(c->md_ctx != NULL);
+
+	if (input_len != 0)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
 	if (pctx == NULL)
@@ -115,9 +115,7 @@ static int get_sign_output_length(const yaca_context_h ctx,
 static void destroy_sign_context(yaca_context_h ctx)
 {
 	struct yaca_sign_context_s *c = get_sign_context(ctx);
-
-	if (c == NULL)
-		return;
+	assert(c != NULL);
 
 	EVP_MD_CTX_destroy(c->md_ctx);
 	c->md_ctx = NULL;
@@ -129,16 +127,16 @@ int set_sign_property(yaca_context_h ctx,
                       size_t value_len)
 {
 	int ret;
-	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	yaca_padding_e padding;
 	int pad;
 	EVP_PKEY *pkey;
 	EVP_PKEY_CTX *pctx;
-
-	if (c == NULL || value == NULL || c->state == CTX_FINALIZED)
-		return YACA_ERROR_INVALID_PARAMETER;
-
+	struct yaca_sign_context_s *c = get_sign_context(ctx);
+	assert(c != NULL);
 	assert(c->md_ctx != NULL);
+
+	if (value == NULL || c->state == CTX_FINALIZED)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
 	if (pctx == NULL)
@@ -160,7 +158,6 @@ int set_sign_property(yaca_context_h ctx,
 	}
 
 	pad = rsa_padding2openssl(padding);
-	assert(pad != -1);
 
 	pkey = EVP_PKEY_CTX_get0_pkey(pctx);
 	if (pkey == NULL) {

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -50,6 +50,7 @@ int rsa_padding2openssl(yaca_padding_e padding)
 	case YACA_PADDING_PKCS1_SSLV23:
 		return RSA_SSLV23_PADDING;
 	default:
+		assert(false);
 		return -1;
 	}
 }
@@ -75,7 +76,6 @@ static int encrypt_decrypt(yaca_padding_e padding,
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	lpadding = rsa_padding2openssl(padding);
-	assert(lpadding != -1);
 
 	lasym_key = key_get_evp(key);
 	assert(lasym_key != NULL);

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -86,8 +86,10 @@ static int get_digest_output_length(const yaca_context_h ctx,
 	assert(output_len != NULL);
 
 	struct yaca_digest_context_s *c = get_digest_context(ctx);
+	assert(c != NULL);
+	assert(c->md_ctx != NULL);
 
-	if (c == NULL || input_len != 0)
+	if (input_len != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	int md_size = EVP_MD_CTX_size(c->md_ctx);
@@ -102,9 +104,7 @@ static int get_digest_output_length(const yaca_context_h ctx,
 static void destroy_digest_context(yaca_context_h ctx)
 {
 	struct yaca_digest_context_s *c = get_digest_context(ctx);
-
-	if (c == NULL)
-		return;
+	assert(c != NULL);
 
 	EVP_MD_CTX_destroy(c->md_ctx);
 	c->md_ctx = NULL;
