@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -90,41 +90,12 @@ struct yaca_context_s {
 	                    void **value, size_t *value_len);
 };
 
-struct yaca_backup_context_s {
-	const EVP_CIPHER *cipher;
-	yaca_key_h sym_key;
-	yaca_key_h iv;
-	yaca_padding_e padding;
-};
-
-enum encrypt_context_state_e {
-	ENC_CTX_INITIALIZED = 0,
-	ENC_CTX_MSG_LENGTH_UPDATED,
-	ENC_CTX_AAD_UPDATED,
-	ENC_CTX_MSG_UPDATED,
-	ENC_CTX_TAG_SET,
-	ENC_CTX_TAG_LENGTH_SET,
-	ENC_CTX_FINALIZED,
-
-	ENC_CTX_COUNT,
-};
-
 enum context_state_e {
 	CTX_INITIALIZED = 0,
 	CTX_MSG_UPDATED,
 	CTX_FINALIZED,
 
 	CTX_COUNT,
-};
-
-struct yaca_encrypt_context_s {
-	struct yaca_context_s ctx;
-	struct yaca_backup_context_s *backup_ctx;
-
-	EVP_CIPHER_CTX *cipher_ctx;
-	enum encrypt_op_type_e op_type; /* Operation context was created for */
-	size_t tag_len;
-	enum encrypt_context_state_e state;
 };
 
 /* Base structure for crypto keys - to be inherited */
@@ -164,18 +135,6 @@ struct yaca_key_evp_s {
 };
 
 int digest_get_algorithm(yaca_digest_algorithm_e algo, const EVP_MD **md);
-
-struct yaca_encrypt_context_s *get_encrypt_context(const yaca_context_h ctx);
-
-void destroy_encrypt_context(const yaca_context_h ctx);
-
-int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len, size_t *output_len);
-
-int set_encrypt_property(yaca_context_h ctx, yaca_property_e property,
-                         const void *value, size_t value_len);
-
-int get_encrypt_property(const yaca_context_h ctx, yaca_property_e property,
-                         void **value, size_t *value_len);
 
 int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
                           yaca_block_cipher_mode_e bcm,
