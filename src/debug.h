@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -24,9 +24,18 @@
 #ifndef YACA_DEBUG_H
 #define YACA_DEBUG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 typedef void (*yaca_error_cb)(const char*);
 
 void yaca_debug_set_error_cb(yaca_error_cb cb);
 
+
+#ifdef __cplusplus
+} /* extern */
+#endif
 
 #endif /* YACA_DEBUG_H */
