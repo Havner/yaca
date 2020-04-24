@@ -1805,7 +1805,7 @@ API int yaca_key_derive_dh(const yaca_key_h prv_key,
 	}
 
 	if (data_len == 0 || data_len > SIZE_MAX / 8) {
-		ret = YACA_ERROR_INVALID_PARAMETER;
+		ret = YACA_ERROR_INTERNAL;
 		goto exit;
 	}
 
