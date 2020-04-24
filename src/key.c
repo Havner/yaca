@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -50,6 +50,8 @@ static int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 {
 	struct openssl_password_data *cb_data = u;
 
+	if (cb_data == NULL)
+		return 0;
 	if (cb_data->password == NULL)
 		return 0;
 
@@ -62,11 +64,6 @@ static int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 	cb_data->password_requested = true;
 
 	return pass_len;
-}
-
-static int openssl_password_cb_error(UNUSED char *buf, UNUSED int size, UNUSED int rwflag, UNUSED void *u)
-{
-	return 0;
 }
 
 static const struct {
@@ -462,7 +459,7 @@ static int import_evp(yaca_key_h *key,
 
 		if (pkey == NULL) {
 			BIO_reset(src);
-			pkey = PEM_read_bio_PUBKEY(src, NULL, openssl_password_cb_error, NULL);
+			pkey = PEM_read_bio_PUBKEY(src, NULL, cb, NULL);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PUBLIC;
 			password_supported = false;
@@ -478,7 +475,7 @@ static int import_evp(yaca_key_h *key,
 
 		if (pkey == NULL) {
 			BIO_reset(src);
-			X509 *x509 = PEM_read_bio_X509(src, NULL, openssl_password_cb_error, NULL);
+			X509 *x509 = PEM_read_bio_X509(src, NULL, cb, NULL);
 			if (x509 != NULL) {
 				pkey = X509_get_pubkey(x509);
 				X509_free(x509);
