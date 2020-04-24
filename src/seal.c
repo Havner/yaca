@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -84,15 +84,14 @@ static int seal_encrypt_decrypt_key(const yaca_key_h asym_key,
 	size_t output_len;
 
 	lin_key = key_get_simple(in_key);
-	if (lin_key == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
-
-	if (asym_key->type != YACA_KEY_TYPE_RSA_PRIV && asym_key->type != YACA_KEY_TYPE_RSA_PUB)
-		return YACA_ERROR_INVALID_PARAMETER;
+	assert(lin_key != NULL);
+	assert(lin_key->key.type == YACA_KEY_TYPE_SYMMETRIC ||
+		   lin_key->key.type == YACA_KEY_TYPE_DES);
 
 	lasym_key = key_get_evp(asym_key);
-	if (lasym_key == NULL)
-		return YACA_ERROR_INVALID_PARAMETER;
+	assert(lasym_key != NULL);
+	assert(lasym_key->key.type == YACA_KEY_TYPE_RSA_PRIV ||
+		   lasym_key->key.type == YACA_KEY_TYPE_RSA_PUB);
 
 	ret = EVP_PKEY_size(lasym_key->evp);
 	if (ret <= 0) {
@@ -110,7 +109,7 @@ static int seal_encrypt_decrypt_key(const yaca_key_h asym_key,
 	lout_key->key.type = YACA_KEY_TYPE_SYMMETRIC;
 	lout_key->bit_len = output_len * 8;
 
-	if (asym_key->type == YACA_KEY_TYPE_RSA_PRIV)
+	if (lasym_key->key.type == YACA_KEY_TYPE_RSA_PRIV)
 		ret = EVP_PKEY_decrypt_old((unsigned char*)lout_key->d,
 		                           (unsigned char*)lin_key->d,
 		                           lin_key->bit_len / 8,
@@ -233,7 +232,8 @@ API int yaca_open_initialize(yaca_context_h *ctx,
 	yaca_key_h lsym_key = YACA_KEY_NULL;
 
 	if (prv_key == YACA_KEY_NULL || prv_key->type != YACA_KEY_TYPE_RSA_PRIV ||
-	    sym_key == YACA_KEY_NULL || bcm == YACA_BCM_WRAP || sym_key_bit_len % 8 != 0)
+	    sym_key == YACA_KEY_NULL || bcm == YACA_BCM_WRAP || sym_key_bit_len % 8 != 0 ||
+	    (sym_key->type != YACA_KEY_TYPE_SYMMETRIC && sym_key->type != YACA_KEY_TYPE_DES))
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = encrypt_get_algorithm(algo, bcm, sym_key_bit_len, &cipher);
