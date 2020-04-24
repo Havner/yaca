@@ -582,6 +582,7 @@ static int import_evp(yaca_key_h *key,
 		ret = YACA_ERROR_INTERNAL;
 		goto exit;
 	}
+	/* The imported key ID is of an YACA unsupported type */
 	if (ret != YACA_ERROR_NONE)
 		goto exit;
 
