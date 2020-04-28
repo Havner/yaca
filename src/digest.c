@@ -93,8 +93,11 @@ static int get_digest_output_length(const yaca_context_h ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	int md_size = EVP_MD_CTX_size(c->md_ctx);
-	if (md_size <= 0)
-		return YACA_ERROR_INTERNAL;
+	if (md_size <= 0) {
+		const int ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	*output_len = md_size;
 
@@ -130,6 +133,7 @@ int digest_get_algorithm(yaca_digest_algorithm_e algo, const EVP_MD **md)
 	if (ret == YACA_ERROR_NONE && *md == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	return ret;

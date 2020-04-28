@@ -84,6 +84,7 @@ static int get_sign_output_length(const yaca_context_h ctx,
 {
 	assert(output_len != NULL);
 
+	int ret;
 	EVP_PKEY_CTX *pctx;
 	struct yaca_sign_context_s *c = get_sign_context(ctx);
 	assert(c != NULL);
@@ -93,19 +94,24 @@ static int get_sign_output_length(const yaca_context_h ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
-	if (pctx == NULL)
-		return YACA_ERROR_INTERNAL;
+	if (pctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	EVP_PKEY *pkey = EVP_PKEY_CTX_get0_pkey(pctx);
 	if (pkey == NULL) {
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
-		return YACA_ERROR_INTERNAL;
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	int len = EVP_PKEY_size(pkey);
 	if (len <= 0) {
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
-		return YACA_ERROR_INTERNAL;
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	*output_len = len;
@@ -139,8 +145,11 @@ int set_sign_property(yaca_context_h ctx,
 		return YACA_ERROR_INVALID_PARAMETER;
 
 	pctx = EVP_MD_CTX_pkey_ctx(c->md_ctx);
-	if (pctx == NULL)
-		return YACA_ERROR_INTERNAL;
+	if (pctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	/* this function only supports padding */
 	if (property != YACA_PROPERTY_PADDING || value_len != sizeof(yaca_padding_e))

@@ -320,18 +320,18 @@ static EVP_PKEY *d2i_DSAparams_bio_helper(BIO *src)
 
 	dsa = d2i_DSAparams_bio(src, NULL);
 	if (dsa == NULL)
-		return NULL;
+		goto err;
 
 	pkey = EVP_PKEY_new();
 	if (pkey == NULL)
-		goto exit;
+		goto err;
 
 	if (EVP_PKEY_assign_DSA(pkey, dsa) != 1)
-		goto exit;
+		goto err;
 
 	return pkey;
 
-exit:
+err:
 	EVP_PKEY_free(pkey);
 	DSA_free(dsa);
 	return NULL;
@@ -346,18 +346,18 @@ static EVP_PKEY *d2i_DHparams_bio_helper(BIO *src)
 
 	dh = d2i_DHparams_bio(src, NULL);
 	if (dh == NULL)
-		return NULL;
+		goto err;
 
 	pkey = EVP_PKEY_new();
 	if (pkey == NULL)
-		goto exit;
+		goto err;
 
 	if (EVP_PKEY_assign_DH(pkey, dh) != 1)
-		goto exit;
+		goto err;
 
 	return pkey;
 
-exit:
+err:
 	EVP_PKEY_free(pkey);
 	DH_free(dh);
 	return NULL;
@@ -373,28 +373,28 @@ static EVP_PKEY *d2i_ECPKParameters_bio_helper(BIO *src)
 
 	ecg = d2i_ECPKParameters_bio(src, NULL);
 	if (ecg == NULL)
-		return NULL;
+		goto err;
 
 	eck = EC_KEY_new();
 	if (eck == NULL)
-		goto exit;
+		goto err;
 
 	if (EC_KEY_set_group(eck, ecg) != 1)
-		goto exit;
+		goto err;
 
 	EC_GROUP_free(ecg);
 	ecg = NULL;
 
 	pkey = EVP_PKEY_new();
 	if (pkey == NULL)
-		goto exit;
+		goto err;
 
 	if (EVP_PKEY_assign_EC_KEY(pkey, eck) != 1)
-		goto exit;
+		goto err;
 
 	return pkey;
 
-exit:
+err:
 	EVP_PKEY_free(pkey);
 	EC_KEY_free(eck);
 	EC_GROUP_free(ecg);
@@ -437,8 +437,9 @@ static int import_evp(yaca_key_h *key,
 
 	src = BIO_new_mem_buf(data, data_len);
 	if (src == NULL) {
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
-		return YACA_ERROR_INTERNAL;
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	/* Possible PEM */

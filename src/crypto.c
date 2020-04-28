@@ -331,8 +331,9 @@ API int yaca_malloc(size_t size, void **memory)
 
 	*memory = OPENSSL_malloc(size);
 	if (*memory == NULL) {
-		ERROR_DUMP(YACA_ERROR_OUT_OF_MEMORY);
-		return YACA_ERROR_OUT_OF_MEMORY;
+		const int ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	return YACA_ERROR_NONE;
@@ -356,8 +357,9 @@ API int yaca_realloc(size_t size, void **memory)
 
 	void *tmp = OPENSSL_realloc(*memory, size);
 	if (tmp == NULL) {
-		ERROR_DUMP(YACA_ERROR_OUT_OF_MEMORY);
-		return YACA_ERROR_OUT_OF_MEMORY;
+		const int ret = YACA_ERROR_OUT_OF_MEMORY;
+		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	*memory = tmp;

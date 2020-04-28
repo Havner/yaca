@@ -305,8 +305,9 @@ static int get_encrypt_output_length(const yaca_context_h ctx, size_t input_len,
 
 	block_size = EVP_CIPHER_CTX_block_size(c->cipher_ctx);
 	if (block_size <= 0) {
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
-		return YACA_ERROR_INTERNAL;
+		const int ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	if (input_len > 0) {
@@ -504,8 +505,11 @@ static int encrypt_ctx_setup(struct yaca_encrypt_context_s *c,
 	assert(key != YACA_KEY_NULL);
 
 	const EVP_CIPHER *cipher = EVP_CIPHER_CTX_cipher(c->cipher_ctx);
-	if (cipher == NULL)
-		return YACA_ERROR_INTERNAL;
+	if (cipher == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	lkey = key_get_simple(key);
 	assert(lkey != NULL);
@@ -699,8 +703,9 @@ static int set_encrypt_property(yaca_context_h ctx,
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
 		}
 		c->state = ENC_CTX_AAD_UPDATED;
 		break;
@@ -710,8 +715,9 @@ static int set_encrypt_property(yaca_context_h ctx,
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CipherUpdate(c->cipher_ctx, NULL, &len, value, value_len) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
 		}
 		c->state = ENC_CTX_AAD_UPDATED;
 		break;
@@ -722,8 +728,9 @@ static int set_encrypt_property(yaca_context_h ctx,
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		if (EVP_CIPHER_CTX_ctrl(c->cipher_ctx, EVP_CTRL_GCM_SET_TAG, value_len, (void*)value) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
 		}
 		c->state = ENC_CTX_TAG_SET;
 		break;
@@ -772,8 +779,9 @@ static int set_encrypt_property(yaca_context_h ctx,
 
 		int padding = *(yaca_padding_e*)value == YACA_PADDING_NONE ? 0 : 1;
 		if (EVP_CIPHER_CTX_set_padding(c->cipher_ctx, padding) != 1) {
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
 		}
 		if (c->backup_ctx != NULL)
 			c->backup_ctx->padding = padding;
@@ -825,9 +833,9 @@ static int get_encrypt_property(const yaca_context_h ctx, yaca_property_e proper
 		                        EVP_CTRL_GCM_GET_TAG,
 		                        c->tag_len,
 		                        tag) != 1) {
-			yaca_free(tag);
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto err;
 		}
 		*value = tag;
 		*value_len = c->tag_len;
@@ -849,9 +857,9 @@ static int get_encrypt_property(const yaca_context_h ctx, yaca_property_e proper
 		                        EVP_CTRL_CCM_GET_TAG,
 		                        c->tag_len,
 		                        tag) != 1) {
-			yaca_free(tag);
-			ERROR_DUMP(YACA_ERROR_INTERNAL);
-			return YACA_ERROR_INTERNAL;
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			goto err;
 		}
 		*value = tag;
 		*value_len = c->tag_len;
@@ -862,6 +870,10 @@ static int get_encrypt_property(const yaca_context_h ctx, yaca_property_e proper
 	}
 
 	return YACA_ERROR_NONE;
+
+err:
+	yaca_free(tag);
+	return ret;
 }
 
 static int check_key_bit_length_for_algo(yaca_encrypt_algorithm_e algo, size_t key_bit_len)
@@ -938,6 +950,7 @@ int encrypt_get_algorithm(yaca_encrypt_algorithm_e algo,
 	if (ret == YACA_ERROR_NONE && *cipher == NULL) {
 		ret = YACA_ERROR_INTERNAL;
 		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	return ret;
@@ -1070,12 +1083,12 @@ int encrypt_update(yaca_context_h ctx,
 			 * It does not necessarily indicate a more serious error.
 			 * There is no call to EVP_CipherFinal.
 			 */
-			ret = YACA_ERROR_INVALID_PARAMETER;
+			return YACA_ERROR_INVALID_PARAMETER;
 		} else {
 			ret = YACA_ERROR_INTERNAL;
 			ERROR_DUMP(ret);
+			return ret;
 		}
-		return ret;
 	}
 
 	*output_len = loutput_len;
@@ -1134,8 +1147,8 @@ API int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
                                        size_t key_bit_len,
                                        size_t *iv_bit_len)
 {
-	const EVP_CIPHER *cipher;
 	int ret;
+	const EVP_CIPHER *cipher;
 
 	if (iv_bit_len == NULL || key_bit_len % 8 != 0)
 		return YACA_ERROR_INVALID_PARAMETER;
@@ -1146,8 +1159,9 @@ API int yaca_encrypt_get_iv_bit_length(yaca_encrypt_algorithm_e algo,
 
 	ret = EVP_CIPHER_iv_length(cipher);
 	if (ret < 0) {
-		ERROR_DUMP(YACA_ERROR_INTERNAL);
-		return YACA_ERROR_INTERNAL;
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
 	}
 
 	*iv_bit_len = ret * 8;
