@@ -34,6 +34,7 @@
 #include "internal.h"
 #include "debug.h"
 
+
 // TODO any better idea than to use __thread?
 static __thread yaca_error_cb error_cb = NULL;
 static bool error_strings_loaded = false;

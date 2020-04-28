@@ -24,16 +24,19 @@
 #ifndef YACA_INTERNAL_H
 #define YACA_INTERNAL_H
 
+
 #include <stddef.h>
 #include <stdbool.h>
 
 #include <openssl/ossl_typ.h>
-#include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/opensslv.h>
 #include <openssl/rand.h>
 
 #include <yaca_types.h>
+
+#include "debug.h"
+
 
 #define API __attribute__ ((visibility("default")))
 #define UNUSED __attribute__((unused))
@@ -161,24 +164,7 @@ struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);
 
 yaca_key_h key_copy(const yaca_key_h key);
 
-void error_dump(const char *file, int line, const char *function, int code);
-#define ERROR_DUMP(code) error_dump(__FILE__, __LINE__, __func__, (code))
-#define ERROR_CLEAR() ERR_clear_error()
-
-/**
- * Function responsible for translating the openssl error to yaca error and
- * clearing/dumping the openssl error queue. Use only after openssl function
- * failure.
- *
- * The function checks only first error in the queue. If the function doesn't
- * find any error in openssl queue or is not able to translate it, it will
- * return YACA_ERROR_INTERNAL and dump openssl errors if any. If the
- * translation succeeds the function will clear the error queue and return the
- * result of translation.
- */
-int error_handle(const char *file, int line, const char *function);
-#define ERROR_HANDLE() error_handle(__FILE__, __LINE__, __func__)
-
 int rsa_padding2openssl(yaca_padding_e padding);
+
 
 #endif /* YACA_INTERNAL_H */
