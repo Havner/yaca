@@ -1064,7 +1064,7 @@ int encrypt_update(yaca_context_h ctx,
 
 	ret = EVP_CipherUpdate(c->cipher_ctx, output, &loutput_len, input, input_len);
 	if (ret != 1 || loutput_len < 0) {
-		if (mode == EVP_CIPH_CCM_MODE && op_type == OP_DECRYPT) {
+		if (mode == EVP_CIPH_CCM_MODE && (op_type == OP_DECRYPT || op_type == OP_OPEN)) {
 			/* A non positive return value from EVP_CipherUpdate should be considered as
 			 * a failure to authenticate ciphertext and/or AAD.
 			 * It does not necessarily indicate a more serious error.
@@ -1108,7 +1108,7 @@ int encrypt_finalize(yaca_context_h ctx,
 	if (mode != EVP_CIPH_WRAP_MODE && mode != EVP_CIPH_CCM_MODE) {
 		ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
 		if (ret != 1 || loutput_len < 0) {
-			if (mode == EVP_CIPH_GCM_MODE && op_type == OP_DECRYPT)
+			if (mode == EVP_CIPH_GCM_MODE && (op_type == OP_DECRYPT || op_type == OP_OPEN))
 			/* A non positive return value from EVP_CipherFinal should be considered as
 			 * a failure to authenticate ciphertext and/or AAD.
 			 * It does not necessarily indicate a more serious error.
