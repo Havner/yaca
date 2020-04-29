@@ -104,13 +104,16 @@ void error_dump(const char *file, int line, const char *function, int code)
 		}
 	}
 
+	/* In case the while broke early due to the BUF_SIZE, write
+	 * ellipsis and clear remaining errors that might have not been
+	 * read by ERR_get_error() */
 	if (written >= BUF_SIZE - 1) {
 		strncpy(buf + BUF_SIZE - ELLIPSIS_SIZE, ELLIPSIS, ELLIPSIS_SIZE);
 		written = BUF_SIZE - 1;
 		ERR_clear_error();
 	}
-	buf[written] = '\0';
 
+	buf[written] = '\0';
 	(*error_cb)(buf);
 }
 
