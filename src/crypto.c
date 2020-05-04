@@ -44,6 +44,11 @@
 
 #include "internal.h"
 
+#ifdef OPENSSL_MOCKUP_TESTS
+#include "../tests/openssl_mock_redefine.h"
+#endif
+
+
 static __thread bool current_thread_initialized = false;
 static size_t threads_cnt = 0;
 static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;

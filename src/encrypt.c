@@ -36,6 +36,11 @@
 
 #include "internal.h"
 
+#ifdef OPENSSL_MOCKUP_TESTS
+#include "../tests/openssl_mock_redefine.h"
+#endif
+
+
 static int set_encrypt_property(yaca_context_h ctx, yaca_property_e property,
                                 const void *value, size_t value_len);
 

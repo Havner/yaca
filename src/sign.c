@@ -35,6 +35,11 @@
 
 #include "internal.h"
 
+#ifdef OPENSSL_MOCKUP_TESTS
+#include "../tests/openssl_mock_redefine.h"
+#endif
+
+
 /* Operation type saved in context to recognize what
  * type of operation is performed and how to perform it.
  */

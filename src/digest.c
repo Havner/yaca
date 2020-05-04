@@ -31,6 +31,11 @@
 
 #include "internal.h"
 
+#ifdef OPENSSL_MOCKUP_TESTS
+#include "../tests/openssl_mock_redefine.h"
+#endif
+
+
 static const struct {
 	yaca_digest_algorithm_e algo;
 	const EVP_MD *(*digest)(void);

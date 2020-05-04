@@ -41,6 +41,11 @@
 
 #include "internal.h"
 
+#ifdef OPENSSL_MOCKUP_TESTS
+#include "../tests/openssl_mock_redefine.h"
+#endif
+
+
 struct openssl_password_data {
 	bool password_requested;
 	const char *password;

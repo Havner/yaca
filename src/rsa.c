@@ -34,6 +34,11 @@
 
 #include "internal.h"
 
+#ifdef OPENSSL_MOCKUP_TESTS
+#include "../tests/openssl_mock_redefine.h"
+#endif
+
+
 int rsa_padding2openssl(yaca_padding_e padding)
 {
 	switch (padding) {

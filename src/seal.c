@@ -34,6 +34,11 @@
 
 #include "internal.h"
 
+#ifdef OPENSSL_MOCKUP_TESTS
+#include "../tests/openssl_mock_redefine.h"
+#endif
+
+
 static int seal_generate_sym_key(yaca_encrypt_algorithm_e algo,
                                  size_t sym_key_bit_len,
                                  yaca_key_h *sym_key)
