@@ -200,6 +200,8 @@ static int base64_decode(const char *data, size_t data_len, BIO **output)
 
 	/* Try to decode */
 	for (;;) {
+		int read = 0;
+
 		ret = BIO_read(b64, tmpbuf, TMP_BUF_LEN);
 		if (ret < 0) {
 			ret = YACA_ERROR_INTERNAL;
@@ -207,17 +209,24 @@ static int base64_decode(const char *data, size_t data_len, BIO **output)
 			goto exit;
 		}
 
-		if (ret == YACA_ERROR_NONE)
+		if (ret == 0)
 			break;
+		read = ret;
 
-		if (BIO_write(dst, tmpbuf, ret) != ret) {
+		ret = BIO_write(dst, tmpbuf, ret);
+		if (ret != read) {
 			ret = YACA_ERROR_INTERNAL;
 			ERROR_DUMP(ret);
 			goto exit;
 		}
 	}
 
-	BIO_flush(dst);
+	ret = BIO_flush(dst);
+	if (ret <= 0) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
 
 	/* Check wether the length of the decoded data is what we expected */
 	out_len = BIO_get_mem_data(dst, &out);
@@ -445,7 +454,12 @@ static int import_evp(yaca_key_h *key,
 	/* Possible PEM */
 	if (strncmp("----", data, 4) == 0) {
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = PEM_read_bio_PrivateKey(src, NULL, cb, (void*)&cb_data);
 			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD) {
 				ret = YACA_ERROR_INVALID_PASSWORD;
@@ -456,7 +470,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = PEM_read_bio_PUBKEY(src, NULL, cb, NULL);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PUBLIC;
@@ -464,7 +483,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = PEM_read_bio_Parameters(src, NULL);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
@@ -472,7 +496,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			X509 *x509 = PEM_read_bio_X509(src, NULL, cb, NULL);
 			if (x509 != NULL) {
 				pkey = X509_get_pubkey(x509);
@@ -486,7 +515,12 @@ static int import_evp(yaca_key_h *key,
 	/* Possible DER */
 	else {
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = d2i_PKCS8PrivateKey_bio(src, NULL, cb, (void*)&cb_data);
 			if (ERROR_HANDLE() == YACA_ERROR_INVALID_PASSWORD) {
 				ret = YACA_ERROR_INVALID_PASSWORD;
@@ -497,7 +531,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = d2i_PrivateKey_bio(src, NULL);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PRIVATE;
@@ -505,7 +544,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = d2i_PUBKEY_bio(src, NULL);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PUBLIC;
@@ -513,7 +557,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = d2i_DSAparams_bio_helper(src);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
@@ -521,7 +570,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = d2i_DHparams_bio_helper(src);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
@@ -529,7 +583,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			pkey = d2i_ECPKParameters_bio_helper(src);
 			ERROR_CLEAR();
 			imported_key_category = IMPORTED_KEY_CATEGORY_PARAMETERS;
@@ -537,7 +596,12 @@ static int import_evp(yaca_key_h *key,
 		}
 
 		if (pkey == NULL) {
-			BIO_reset(src);
+			ret = BIO_reset(src);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				goto exit;
+			}
 			X509 *x509 = d2i_X509_bio(src, NULL);
 			if (x509 != NULL) {
 				pkey = X509_get_pubkey(x509);
@@ -714,8 +778,14 @@ static int export_evp_default_bio(struct yaca_key_evp_s *evp_key,
 	int ret;
 	const EVP_CIPHER *enc = NULL;
 
-	if (password != NULL)
+	if (password != NULL) {
 		enc = EVP_aes_256_cbc();
+		if (enc == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
+		}
+	}
 
 	switch (key_file_fmt) {
 
@@ -818,7 +888,12 @@ static int export_evp_pkcs8_bio(struct yaca_key_evp_s *evp_key,
 	assert(mem != NULL);
 
 	int ret;
-	const EVP_CIPHER *enc = EVP_aes_256_cbc();;
+	const EVP_CIPHER *enc = EVP_aes_256_cbc();
+	if (enc == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
 
 	/* PKCS8 export requires a password */
 	if (password == NULL)
@@ -1166,7 +1241,12 @@ static int generate_evp_pkey_key(int evp_id, size_t key_bit_len, EVP_PKEY *param
 			if (ret != YACA_ERROR_NONE)
 				return ret;
 		} else {
-			EVP_PKEY_up_ref(params);
+			ret = EVP_PKEY_up_ref(params);
+			if (ret <= 0) {
+				ret = YACA_ERROR_INTERNAL;
+				ERROR_DUMP(ret);
+				return ret;
+			}
 		}
 
 		kctx = EVP_PKEY_CTX_new(params, NULL);
