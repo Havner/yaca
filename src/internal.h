@@ -162,8 +162,6 @@ int encrypt_finalize(yaca_context_h ctx,
 struct yaca_key_simple_s *key_get_simple(const yaca_key_h key);
 struct yaca_key_evp_s *key_get_evp(const yaca_key_h key);
 
-yaca_key_h key_copy(const yaca_key_h key);
-
 int rsa_padding2openssl(yaca_padding_e padding);
 
 

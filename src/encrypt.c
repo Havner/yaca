@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <string.h>
 
 #include <openssl/evp.h>
 
@@ -545,6 +546,27 @@ static int encrypt_ctx_setup(struct yaca_encrypt_context_s *c,
 	return YACA_ERROR_NONE;
 }
 
+static int key_copy_simple(const yaca_key_h key, yaca_key_h *out)
+{
+	assert(key != YACA_KEY_NULL);
+	assert(out != NULL);
+
+	int ret;
+	struct yaca_key_simple_s *simple = key_get_simple(key);
+	assert(simple != NULL);
+
+	struct yaca_key_simple_s *copy;
+	size_t size = sizeof(struct yaca_key_simple_s) + simple->bit_len / 8;
+
+	ret = yaca_zalloc(size, (void**)&copy);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	memcpy(copy, key, size);
+	*out = (yaca_key_h)copy;
+	return YACA_ERROR_NONE;
+}
+
 static int encrypt_ctx_backup(struct yaca_encrypt_context_s *c,
                               const EVP_CIPHER *cipher,
                               const yaca_key_h sym_key,
@@ -562,14 +584,26 @@ static int encrypt_ctx_backup(struct yaca_encrypt_context_s *c,
 	if (ret != YACA_ERROR_NONE)
 		return ret;
 
+	ret = key_copy_simple(sym_key, &bc->sym_key);
+	if (ret != YACA_ERROR_NONE)
+		goto err;
+	if (iv != YACA_KEY_NULL) {
+		ret = key_copy_simple(iv, &bc->iv);
+		if (ret != YACA_ERROR_NONE)
+			goto err;
+	}
 	bc->cipher = cipher;
-	bc->sym_key = key_copy(sym_key);
-	bc->iv = key_copy(iv);
 	bc->padding = YACA_PADDING_PKCS7;
 
 	c->backup_ctx = bc;
 
 	return YACA_ERROR_NONE;
+
+err:
+	yaca_key_destroy(bc->iv);
+	yaca_key_destroy(bc->sym_key);
+	yaca_free(bc);
+	return ret;
 }
 
 static int encrypt_ctx_restore(struct yaca_encrypt_context_s *c)
