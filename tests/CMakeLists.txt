@@ -34,6 +34,14 @@ SET(TESTS_SOURCES
 	test_seal.cpp
 	test_sign.cpp
 	openssl_mock_impl.c
+	mock_test_crypto.cpp
+	mock_test_key.cpp
+	mock_test_simple.cpp
+	mock_test_rsa.cpp
+	mock_test_digest.cpp
+	mock_test_encrypt.cpp
+	mock_test_seal.cpp
+	mock_test_sign.cpp
 	)
 
 FIND_PACKAGE(Boost REQUIRED unit_test_framework)

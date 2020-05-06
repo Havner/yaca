@@ -31,6 +31,12 @@
 #include <yaca_error.h>
 #include "../src/debug.h"
 
+#include "openssl_mock_impl.h"
+
+#include <yaca_crypto.h>
+#include <yaca_error.h>
+#include "../src/debug.h"
+
 
 constexpr size_t INPUT_DATA_SIZE = 4096;
 constexpr char INPUT_DATA[INPUT_DATA_SIZE] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus congue semper ipsum, ac convallis magna rhoncus sit amet. Donec pellentesque maximus convallis. Mauris ut egestas sem. Maecenas efficitur suscipit auctor. Nunc malesuada laoreet porttitor. Donec gravida tortor nisi, in mattis lectus porta ut. Integer vehicula eros et tellus placerat, nec fermentum justo aliquet.\
@@ -88,5 +94,47 @@ using update_fun_5_t = int(yaca_context_h ctx, const char *plaintext, size_t pla
 void call_update_loop(yaca_context_h ctx, const char *input, size_t input_len,
 					  char *output, size_t &output_len, size_t split,
 					  update_fun_5_t *fun);
+
+/* This function automates using mockup infrastructure with the
+ * designated test (passed in the argument). The test is called in a
+ * loop starting with MOCK_fail_nth == 1 increasing it by 1 on every
+ * call. The idea is to fail all mocked up OpenSSL functions that the
+ * test uses one by one. In such cases the test is expected to fail.
+ *
+ * When the value of MOCK_fail_nth surpasses the number of used
+ * OpenSSL functions that are mocked up the test is expected to
+ * succeed and the function quits with a success.
+ *
+ * Every other outcome is considered a failure.
+ *
+ * See HANDLE_FUNCTION() in openssl_mock_impl.c
+ */
+template<typename func>
+void call_mock_test(func F)
+{
+	for (int n = 1; ; ++n) {
+		MOCK_fail_nth = n;
+
+		int ret = F();
+
+		if (MOCK_fail_nth == 0) {
+			/* The nth OpenSSL function failed. The test is expected
+			 * to fail. Increase the value and carry on.
+			 */
+			BOOST_REQUIRE_MESSAGE(ret != YACA_ERROR_NONE,
+								  "The code should've failed\n");
+		} else /* if (MOCK_fail_nth > 0) */ {
+			/* The n seems to be higher than the number of mocked up
+			 * OpenSSL calls. The test is expected to succeed as no
+			 * OpenSSL functions failed in the end. Quit the loop.
+			 */
+			BOOST_REQUIRE_MESSAGE(ret == YACA_ERROR_NONE,
+								  "The code should've succeeded\n");
+			MOCK_fail_nth = 0;
+			break;
+		}
+	}
+}
+
 
 #endif /* COMMON_H */
