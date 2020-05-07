@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2016 Samsung Electronics Co., Ltd All Rights Reserved
+#  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
 #
 #  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
 #
@@ -21,6 +21,7 @@
 #
 
 INCLUDE_DIRECTORIES(${API_FOLDER})
+INCLUDE_DIRECTORIES(SYSTEM ${YACA_DEPS_INCLUDE_DIRS})
 
 SET(COMMON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/misc.c)
 
