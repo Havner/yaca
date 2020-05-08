@@ -431,11 +431,8 @@ static int encrypt_ctx_init(struct yaca_encrypt_context_s *c,
 
 	/* Handling of algorithms with variable key length */
 	ret = EVP_CIPHER_CTX_set_key_length(c->cipher_ctx, key_bit_len / 8);
-	if (ret != 1) {
-		ret = YACA_ERROR_INVALID_PARAMETER;
-		ERROR_CLEAR();
-		return ret;
-	}
+	if (ret != 1)
+		return ERROR_HANDLE();
 
 	return YACA_ERROR_NONE;
 }
@@ -473,20 +470,28 @@ static int encrypt_ctx_setup_iv(struct yaca_encrypt_context_s *c,
 
 		/* IV length doesn't match cipher (GCM & CCM supports variable IV length) */
 		if (default_iv_bit_len != iv->bit_len) {
+			size_t iv_len = iv->bit_len / 8;
 			int mode = EVP_CIPHER_CTX_mode(c->cipher_ctx);
 
 			if (mode == EVP_CIPH_GCM_MODE) {
 				ret = EVP_CIPHER_CTX_ctrl(c->cipher_ctx, EVP_CTRL_GCM_SET_IVLEN,
-				                          iv->bit_len / 8, NULL);
+				                          iv_len, NULL);
 			} else if (mode == EVP_CIPH_CCM_MODE) {
+				/* OpenSSL does not return a specific error code when
+				 * wrong IVLEN is passed. It just returns 0. So there
+				 * is no way to distinguish this error from ENOMEM for
+				 * example. Handle this in our code then.
+				 */
+				if (iv_len < 7 || iv_len > 13)
+					return YACA_ERROR_INVALID_PARAMETER;
 				ret = EVP_CIPHER_CTX_ctrl(c->cipher_ctx, EVP_CTRL_CCM_SET_IVLEN,
-				                          iv->bit_len / 8, NULL);
+				                          iv_len, NULL);
 			} else {
 				return YACA_ERROR_INVALID_PARAMETER;
 			}
 
 			if (ret != 1)
-				return YACA_ERROR_INVALID_PARAMETER;
+				return ERROR_HANDLE();
 		}
 	}
 
@@ -626,6 +631,8 @@ static int encrypt_ctx_restore(struct yaca_encrypt_context_s *c)
 
 	ret = encrypt_ctx_init(c, c->backup_ctx->cipher, key->bit_len);
 	assert(ret != YACA_ERROR_INVALID_PARAMETER);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
 
 	if (c->backup_ctx->padding == YACA_PADDING_NONE &&
 	    EVP_CIPHER_CTX_set_padding(c->cipher_ctx, 0) != 1) {
