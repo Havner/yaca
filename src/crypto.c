@@ -44,10 +44,6 @@
 
 #include "internal.h"
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-static pthread_mutex_t *mutexes = NULL;
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L */
-
 static __thread bool current_thread_initialized = false;
 static size_t threads_cnt = 0;
 static pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -82,8 +78,6 @@ static int getrandom_wrapper(unsigned char *buf, int num)
 	return 1;
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-
 static int RAND_METHOD_seed(UNUSED const void *buf, UNUSED int num)
 {
 	return 1;
@@ -93,18 +87,6 @@ static int RAND_METHOD_add(UNUSED const void *buf, UNUSED int num, UNUSED double
 {
 	return 1;
 }
-
-#else /* OPENSSL_VERSION_NUMBER >= 0x10100000L */
-
-static void RAND_METHOD_seed(UNUSED const void *buf, UNUSED int num)
-{
-}
-
-static void RAND_METHOD_add(UNUSED const void *buf, UNUSED int num, UNUSED double entropy)
-{
-}
-
-#endif /* OPENSSL_VERSION_NUMBER >= 0x10100000L */
 
 static int RAND_METHOD_bytes(unsigned char *buf, int num)
 {
@@ -140,41 +122,6 @@ static const RAND_METHOD new_rand_method = {
 	RAND_METHOD_pseudorand,
 	RAND_METHOD_status,
 };
-
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-
-static void locking_callback(int mode, int type, UNUSED const char *file, UNUSED int line)
-{
-	/* Ignore NULL mutexes and lock/unlock error codes as we can't do anything
-	 * about them. */
-
-	if (mutexes == NULL)
-		return;
-
-	if (mode & CRYPTO_LOCK)
-		pthread_mutex_lock(&mutexes[type]);
-	else if (mode & CRYPTO_UNLOCK)
-		pthread_mutex_unlock(&mutexes[type]);
-}
-
-static unsigned long thread_id_callback()
-{
-	return pthread_self();
-}
-
-static void destroy_mutexes(int count)
-{
-	if (mutexes != NULL) {
-		for (int i = 0; i < count; i++) {
-			/* Ignore returned value as we can't do anything about it */
-			pthread_mutex_destroy(&mutexes[i]);
-		}
-		yaca_free(mutexes);
-		mutexes = NULL;
-	}
-}
-
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L */
 
 API int yaca_initialize(void)
 {
@@ -225,42 +172,6 @@ API int yaca_initialize(void)
 			OpenSSL_add_all_digests();
 			OpenSSL_add_all_ciphers();
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-			/* enable threads support */
-			assert(mutexes == NULL);
-
-			if (CRYPTO_num_locks() > 0) {
-				ret = yaca_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t),
-				                  (void**)&mutexes);
-
-				if (ret != YACA_ERROR_NONE)
-					goto exit;
-
-				for (int i = 0; i < CRYPTO_num_locks(); i++) {
-					if (pthread_mutex_init(&mutexes[i], NULL) != 0) {
-						ret = YACA_ERROR_NONE;
-						switch (errno) {
-						case ENOMEM:
-							ret = YACA_ERROR_OUT_OF_MEMORY;
-							break;
-						case EAGAIN:
-						case EPERM:
-						case EBUSY:
-						case EINVAL:
-						default:
-							ret = YACA_ERROR_INTERNAL;
-						}
-						destroy_mutexes(i);
-
-						goto exit;
-					}
-				}
-
-				CRYPTO_set_id_callback(thread_id_callback);
-				CRYPTO_set_locking_callback(locking_callback);
-			}
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L */
-
 			/*
 			 * TODO:
 			 * - We should also decide on OpenSSL config.
@@ -272,9 +183,9 @@ API int yaca_initialize(void)
 		current_thread_initialized = true;
 	}
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || !defined SYS_getrandom
+#if !defined SYS_getrandom
 exit:
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L || !defined SYS_getrandom */
+#endif /* !defined SYS_getrandom */
 
 	pthread_mutex_unlock(&init_mutex);
 
@@ -288,9 +199,6 @@ API void yaca_cleanup(void)
 		return;
 
 	/* per thread cleanup */
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-	ERR_remove_thread_state(NULL);
-#endif  /* OPENSSL_VERSION_NUMBER < 0x10100000L */
 	CRYPTO_cleanup_all_ex_data();
 
 	pthread_mutex_lock(&init_mutex);
@@ -307,13 +215,6 @@ API void yaca_cleanup(void)
 			urandom_fd = -2;
 #endif /* SYS_getrandom */
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-			/* threads support cleanup */
-			CRYPTO_set_id_callback(NULL);
-			CRYPTO_set_locking_callback(NULL);
-
-			destroy_mutexes(CRYPTO_num_locks());
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L */
 		}
 
 		assert(threads_cnt > 0);

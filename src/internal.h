@@ -41,31 +41,6 @@
 #define API __attribute__ ((visibility("default")))
 #define UNUSED __attribute__((unused))
 
-/* Functions that handle the hidden nature of internal
- * OpenSSL structures that don't exist in OpenSSL < 1.1.0
- */
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-
-static inline EVP_PKEY_CTX *EVP_MD_CTX_pkey_ctx(const EVP_MD_CTX *ctx)
-{
-	return ctx->pctx;
-}
-
-static inline int EVP_PKEY_up_ref(EVP_PKEY *pkey)
-{
-	if (CRYPTO_add(&pkey->references, 1, CRYPTO_LOCK_EVP_PKEY) <= 0)
-		return 0;
-	return 1;
-}
-
-static inline RSA *EVP_PKEY_get0_RSA(EVP_PKEY *pkey)
-{
-	if (pkey->type != EVP_PKEY_RSA)
-		return NULL;
-	return pkey->pkey.rsa;
-}
-
-#endif /* OPENSSL_VERSION_NUMBER < 0x10100000L */
 
 enum yaca_context_type_e {
 	YACA_CONTEXT_INVALID = 0,
