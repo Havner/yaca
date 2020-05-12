@@ -78,26 +78,7 @@ static int getrandom_wrapper(unsigned char *buf, int num)
 	return 1;
 }
 
-static int RAND_METHOD_seed(UNUSED const void *buf, UNUSED int num)
-{
-	return 1;
-}
-
-static int RAND_METHOD_add(UNUSED const void *buf, UNUSED int num, UNUSED double entropy)
-{
-	return 1;
-}
-
 static int RAND_METHOD_bytes(unsigned char *buf, int num)
-{
-	return getrandom_wrapper(buf, num);
-}
-
-static void RAND_METHOD_cleanup(void)
-{
-}
-
-static int RAND_METHOD_pseudorand(UNUSED unsigned char *buf, UNUSED int num)
 {
 	return getrandom_wrapper(buf, num);
 }
@@ -115,11 +96,11 @@ static int RAND_METHOD_status(void)
 }
 
 static const RAND_METHOD new_rand_method = {
-	RAND_METHOD_seed,
+	NULL,
 	RAND_METHOD_bytes,
-	RAND_METHOD_cleanup,
-	RAND_METHOD_add,
-	RAND_METHOD_pseudorand,
+	NULL,
+	NULL,
+	NULL,
 	RAND_METHOD_status,
 };
 
