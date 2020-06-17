@@ -1201,8 +1201,7 @@ static int generate_evp_pkey_params(int evp_id, size_t key_bit_len, EVP_PKEY **p
 		break;
 	}
 	if (ret != 1) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
+		ret = ERROR_HANDLE();
 		goto exit;
 	}
 
