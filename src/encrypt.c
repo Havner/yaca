@@ -808,7 +808,8 @@ static int set_encrypt_property(yaca_context_h ctx,
 		    value_len != sizeof(yaca_padding_e) ||
 		    (*(yaca_padding_e*)value != YACA_PADDING_NONE &&
 		    *(yaca_padding_e*)value != YACA_PADDING_PKCS7) ||
-		    c->state == ENC_CTX_FINALIZED)
+		    ((is_encryption_op(c->op_type)) && c->state == ENC_CTX_FINALIZED) ||
+		    (!(is_encryption_op(c->op_type)) && c->state != ENC_CTX_INITIALIZED))
 			return YACA_ERROR_INVALID_PARAMETER;
 
 		int padding = *(yaca_padding_e*)value == YACA_PADDING_NONE ? 0 : 1;

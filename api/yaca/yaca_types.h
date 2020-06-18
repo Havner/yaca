@@ -455,7 +455,9 @@ typedef enum {
 	 * Padding can be disabled using yaca_context_set_property() and
 	 * #YACA_PROPERTY_PADDING,#YACA_PADDING_NONE,
 	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
-	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
+	 * In case of encrypt/seal #YACA_PROPERTY_PADDING can be set at the
+	 * latest before the *_finalize() call. In case of decrypt/open
+	 * it can be set at the latest before the *_update() call.
 	 */
 	YACA_BCM_ECB,
 
@@ -475,7 +477,9 @@ typedef enum {
 	 * Padding can be disabled using yaca_context_set_property() and
 	 * #YACA_PROPERTY_PADDING, #YACA_PADDING_NONE,
 	 * then the total length of data passed until *_finalize() MUST be a multiple of block size.
-	 * #YACA_PROPERTY_PADDING can be set at the latest before the *_finalize() call.
+	 * In case of encrypt/seal #YACA_PROPERTY_PADDING can be set at the
+	 * latest before the *_finalize() call. In case of decrypt/open
+	 * it can be set at the latest before the *_update() call.
 	 */
 	YACA_BCM_CBC,
 
