@@ -508,9 +508,9 @@ typedef enum {
 	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
-	 *   @see yaca_context_set_property()
-	 *   @see yaca_context_get_property()
-	 *
+	 * .
+	 * @see yaca_context_set_property()
+	 * @see yaca_context_get_property()
 	 */
 	YACA_BCM_GCM,
 
@@ -567,19 +567,20 @@ typedef enum {
 	 *   if AAD is used.\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
 	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.\n
-	 *   You can only call yaca_encrypt_update() / yaca_seal_update() once for AAD
-	 *   and once for the plaintext.\n\n
 	 *
 	 *   The total encrypted text length must be passed to yaca_decrypt_update() /
 	 *   yaca_open_update() if AAD is used.\n
 	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n
-	 *   You can only call yaca_decrypt_update() / yaca_open_update() once for AAD
-	 *   and once for the encrypted text.\n\n
+	 * .
+	 * You can only call yaca_encrypt_update() / yaca_seal_update() once for AAD (if used)
+	 * and once for the plaintext.\n\n
 	 *
-	 *   @see yaca_context_set_property()
-	 *   @see yaca_context_get_property()
+	 * You can only call yaca_decrypt_update() / yaca_open_update() once for AAD (if used)
+	 * and once for the encrypted text.\n\n
 	 *
+	 * @see yaca_context_set_property()
+	 * @see yaca_context_get_property()
 	 */
 	YACA_BCM_CCM,
 
