@@ -1144,14 +1144,23 @@ int encrypt_finalize(yaca_context_h ctx,
 	if (mode != EVP_CIPH_WRAP_MODE && mode != EVP_CIPH_CCM_MODE) {
 		ret = EVP_CipherFinal(c->cipher_ctx, output, &loutput_len);
 		if (ret != 1 || loutput_len < 0) {
-			if (mode == EVP_CIPH_GCM_MODE && (op_type == OP_DECRYPT || op_type == OP_OPEN))
-			/* A non positive return value from EVP_CipherFinal should be considered as
-			 * a failure to authenticate ciphertext and/or AAD.
-			 * It does not necessarily indicate a more serious error.
-			 */
+			if (mode == EVP_CIPH_GCM_MODE && (op_type == OP_DECRYPT || op_type == OP_OPEN)) {
+				/* A non positive return value from EVP_CipherFinal should be
+				 * considered as a failure to authenticate ciphertext and/or
+				 * AAD. It does not necessarily indicate a more serious error.
+				 */
 				return YACA_ERROR_INVALID_PARAMETER;
-			else
-				return ERROR_HANDLE();
+			} else {
+				/* The same error code is used if trying to import a key with a
+				 * wrong password and in case of a decrypt error due to wrong
+				 * BCM or a key. Finalize cannot return INVALID_PASS so handle
+				 * this here.
+				 */
+				ret = ERROR_HANDLE();
+				if (ret == YACA_ERROR_INVALID_PASSWORD)
+					ret = YACA_ERROR_INVALID_PARAMETER;
+				return ret;
+			}
 		}
 	}
 
