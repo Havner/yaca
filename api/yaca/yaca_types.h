@@ -502,6 +502,7 @@ typedef enum {
 	 *   yaca_decrypt_finalize() / yaca_open_finalize() in decryption / open operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_GCM_AAD = additional authentication data (optional)\n
+	 *   AAD length can have any positive value.\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
 	 *   yaca_encrypt_update() / yaca_seal_update() in encryption / seal operation.\n
 	 *   Set after yaca_decrypt_initialize() / yaca_open_initialize() and before
@@ -561,6 +562,7 @@ typedef enum {
 	 *   yaca_decrypt_update() / yaca_open_update() in decryption / open operation.\n\n
 	 *
 	 * - #YACA_PROPERTY_CCM_AAD = additional authentication data (optional)\n
+	 *   AAD length can have any positive value.\n
 	 *   The total plaintext length must be passed to yaca_encrypt_update() / yaca_seal_update()
 	 *   if AAD is used.\n
 	 *   Set after yaca_encrypt_initialize() / yaca_seal_initialize() and before
