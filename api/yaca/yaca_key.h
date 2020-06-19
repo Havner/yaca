@@ -216,11 +216,13 @@ int yaca_key_export(const yaca_key_h key,
  *           or key generation parameters for key types that support them (DSA, DH and EC).
  *
  * @remarks  Supported key lengths:
+ *           - SYMMETRIC/IV: >= 8bits
+ *           - DES: 64, 128 or 192bits
  *           - RSA: length >= 512bits
  *           - DSA: length >= 512bits, multiple of 64
  *           - DH: a value taken from #yaca_key_bit_length_dh_rfc_e or
  *                 (YACA_KEY_LENGTH_DH_GENERATOR_* | prime_length_in_bits),
- *                 where prime_length_in_bits can be any positive number
+ *                 where prime_length_in_bits has to be >= 256
  *           - EC: a value taken from #yaca_key_bit_length_ec_e
  *
  * @remarks  The @a key should be released using yaca_key_destroy().
