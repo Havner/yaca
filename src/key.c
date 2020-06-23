@@ -1123,10 +1123,9 @@ static int generate_evp_pkey_params(int evp_id, size_t key_bit_len, EVP_PKEY **p
 			size_t gen_block = key_bit_len & YACA_KEYLEN_COMPONENT_DH_GEN_MASK;
 			size_t prime_len_block = key_bit_len & YACA_KEYLEN_COMPONENT_DH_PRIME_MASK;
 
-			/* This is impossible now as we take only 16 bits,
-			 * but for the sake of type safety */
-			if (prime_len_block > INT_MAX)
-				return YACA_ERROR_INVALID_PARAMETER;
+			/* This is impossible for now as we take only 16 bits
+			 * but just to be sure for the future */
+			assert(prime_len_block <= INT_MAX);
 			dh_prime_len = prime_len_block;
 
 			if (gen_block == YACA_KEYLEN_COMPONENT_DH_GEN_2)
