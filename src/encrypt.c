@@ -511,11 +511,7 @@ static int encrypt_ctx_setup(struct yaca_encrypt_context_s *c,
 	assert(key != YACA_KEY_NULL);
 
 	const EVP_CIPHER *cipher = EVP_CIPHER_CTX_cipher(c->cipher_ctx);
-	if (cipher == NULL) {
-		ret = YACA_ERROR_INTERNAL;
-		ERROR_DUMP(ret);
-		return ret;
-	}
+	assert(cipher != NULL);
 
 	lkey = key_get_simple(key);
 	assert(lkey != NULL);
