@@ -62,10 +62,11 @@ static int openssl_password_cb(char *buf, int size, UNUSED int rwflag, void *u)
 
 	size_t pass_len = strlen(cb_data->password);
 
-	if (pass_len > INT_MAX || (int)pass_len > size)
+	if (pass_len + 1 > INT_MAX || (int)pass_len + 1 > size)
 		return 0;
 
 	memcpy(buf, cb_data->password, pass_len);
+	buf[pass_len] = 0;
 	cb_data->password_requested = true;
 
 	return pass_len;
