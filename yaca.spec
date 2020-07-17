@@ -1,5 +1,5 @@
 Name:               yaca
-Version:            0.0.5
+Version:            0.0.6
 Release:            0
 Source0:            %{name}-%{version}.tar.gz
 License:            Apache-2.0
