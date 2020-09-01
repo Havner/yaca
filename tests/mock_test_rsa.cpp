@@ -63,11 +63,11 @@ BOOST_FIXTURE_TEST_CASE(T1401__mock__negative__private_encrypt, InitFixture)
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_rsa_private_encrypt(ra.pad, rsa_prv, INPUT_DATA, input_len,
-											   &encrypted, &encrypted_len);
+				                               &encrypted, &encrypted_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_rsa_public_decrypt(ra.pad, rsa_pub, encrypted, encrypted_len,
-											  &decrypted, &decrypted_len);
+				                              &decrypted, &decrypted_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:
@@ -111,11 +111,11 @@ BOOST_FIXTURE_TEST_CASE(T1402__mock__negative__public_encrypt, InitFixture)
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_rsa_public_encrypt(ra.pad, rsa_pub, INPUT_DATA, input_len,
-											  &encrypted, &encrypted_len);
+				                              &encrypted, &encrypted_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_rsa_private_decrypt(ra.pad, rsa_prv, encrypted, encrypted_len,
-											   &decrypted, &decrypted_len);
+				                               &decrypted, &decrypted_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:

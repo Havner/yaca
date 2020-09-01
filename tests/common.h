@@ -49,7 +49,7 @@ Nunc ac purus vel sem laoreet interdum quis eget ligula. Aenean id nisl ut quam 
 
 constexpr size_t IGNORE = static_cast<size_t>(-1);
 
-#define DEFINE_INVALID(type, name) \
+#define DEFINE_INVALID(type, name)								\
 	constexpr type YACA_INVALID_##name = static_cast<type>(-1)
 
 DEFINE_INVALID(yaca_error_e,                 ERROR);
@@ -83,17 +83,17 @@ struct InitDebugFixture {
 };
 
 void generate_asymmetric_keys(yaca_key_type_e type_prv, size_t key_bit_len,
-							  yaca_key_h *key_prv,
-							  yaca_key_h *key_pub = NULL, yaca_key_h *key_params = NULL);
+                              yaca_key_h *key_prv,
+                              yaca_key_h *key_pub = NULL, yaca_key_h *key_params = NULL);
 
 size_t allocate_output(yaca_context_h ctx, size_t input_len, size_t split, char *&output);
 
 using update_fun_5_t = int(yaca_context_h ctx, const char *plaintext, size_t plaintext_len,
-						   char *ciphertext, size_t *ciphertext_len);
+                           char *ciphertext, size_t *ciphertext_len);
 
 void call_update_loop(yaca_context_h ctx, const char *input, size_t input_len,
-					  char *output, size_t &output_len, size_t split,
-					  update_fun_5_t *fun);
+                      char *output, size_t &output_len, size_t split,
+                      update_fun_5_t *fun);
 
 /* This function automates using mockup infrastructure with the
  * designated test (passed in the argument). The test is called in a
@@ -122,14 +122,14 @@ void call_mock_test(func F)
 			 * to fail. Increase the value and carry on.
 			 */
 			BOOST_REQUIRE_MESSAGE(ret != YACA_ERROR_NONE,
-								  "The code should've failed\n");
+			                      "The code should've failed\n");
 		} else /* if (MOCK_fail_nth > 0) */ {
 			/* The n seems to be higher than the number of mocked up
 			 * OpenSSL calls. The test is expected to succeed as no
 			 * OpenSSL functions failed in the end. Quit the loop.
 			 */
 			BOOST_REQUIRE_MESSAGE(ret == YACA_ERROR_NONE,
-								  "The code should've succeeded\n");
+			                      "The code should've succeeded\n");
 			MOCK_fail_nth = 0;
 			break;
 		}

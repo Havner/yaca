@@ -39,7 +39,7 @@
 namespace {
 
 yaca_key_h generate_iv(yaca_encrypt_algorithm_e algo, yaca_block_cipher_mode_e bcm,
-					   size_t key_bit_len, size_t iv_bit_len = IGNORE)
+                       size_t key_bit_len, size_t iv_bit_len = IGNORE)
 {
 	int ret;
 	yaca_key_h iv = YACA_KEY_NULL;
@@ -155,51 +155,51 @@ BOOST_FIXTURE_TEST_CASE(T602__negative__get_iv_bit_length, InitDebugFixture)
 	size_t iv_bit_len;
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_INVALID_ENCRYPT_ALGORITHM, YACA_BCM_CBC,
-										 YACA_KEY_LENGTH_256BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_256BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES, YACA_INVALID_BLOCK_CIPHER_MODE,
-										 YACA_KEY_LENGTH_256BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_256BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES, YACA_BCM_CBC,
-										 0, &iv_bit_len);
+	                                     0, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES, YACA_BCM_CBC,
-										 1, &iv_bit_len);
+	                                     1, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES, YACA_BCM_CBC,
-										 8, &iv_bit_len);
+	                                     8, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES, YACA_BCM_CBC,
-										 YACA_KEY_LENGTH_256BIT, NULL);
+	                                     YACA_KEY_LENGTH_256BIT, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_AES, YACA_BCM_CBC,
-										 YACA_KEY_LENGTH_UNSAFE_64BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_UNSAFE_64BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_UNSAFE_DES, YACA_BCM_CBC,
-										 YACA_KEY_LENGTH_192BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_192BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_UNSAFE_3DES_2TDEA, YACA_BCM_CBC,
-										 YACA_KEY_LENGTH_192BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_192BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_UNSAFE_RC2, YACA_BCM_CBC,
-										 YACA_KEY_LENGTH_2048BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_2048BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_UNSAFE_RC4, YACA_BCM_NONE,
-										 YACA_KEY_LENGTH_4096BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_4096BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_encrypt_get_iv_bit_length(YACA_ENCRYPT_CAST5, YACA_BCM_CBC,
-										 YACA_KEY_LENGTH_UNSAFE_8BIT, &iv_bit_len);
+	                                     YACA_KEY_LENGTH_UNSAFE_8BIT, &iv_bit_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 }
 
@@ -315,12 +315,12 @@ BOOST_FIXTURE_TEST_CASE(T603__positive__encrypt_decrypt, InitDebugFixture)
 			size_t written;
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 encrypted, encrypted_len, ea.split,
-							 &yaca_encrypt_update);
+			                 encrypted, encrypted_len, ea.split,
+			                 &yaca_encrypt_update);
 
 			if (ea.padding != YACA_INVALID_PADDING) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &ea.padding,
-												sizeof(yaca_padding_e));
+				                                sizeof(yaca_padding_e));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
@@ -343,7 +343,7 @@ BOOST_FIXTURE_TEST_CASE(T603__positive__encrypt_decrypt, InitDebugFixture)
 
 			if (ea.padding != YACA_INVALID_PADDING) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &ea.padding,
-												sizeof(yaca_padding_e));
+				                                sizeof(yaca_padding_e));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
@@ -351,8 +351,8 @@ BOOST_FIXTURE_TEST_CASE(T603__positive__encrypt_decrypt, InitDebugFixture)
 			size_t written;
 
 			call_update_loop(ctx, encrypted, encrypted_len,
-							 decrypted, decrypted_len, ea.split,
-							 &yaca_decrypt_update);
+			                 decrypted, decrypted_len, ea.split,
+			                 &yaca_decrypt_update);
 
 			ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -480,43 +480,43 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		encrypted_len = written;
 
 		ret = yaca_context_set_property(ctx, YACA_INVALID_PROPERTY,
-										&pad_pkcs7, sizeof(yaca_padding_e));
+		                                &pad_pkcs7, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, 0);
+		                                &pad_pkcs7, 0);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, 1);
+		                                &pad_pkcs7, 1);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&key_bits_len, sizeof(size_t));
+		                                &key_bits_len, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(yaca_padding_e));
+		                                &pad_invalid, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, sizeof(yaca_padding_e));
+		                                &pad_pkcs7, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_get_property(ctx, YACA_INVALID_PROPERTY,
-										(void**)&pad_get, &pad_get_len);
+		                                (void**)&pad_get, &pad_get_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_PADDING,
-										NULL, &pad_get_len);
+		                                NULL, &pad_get_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_PADDING,
-										(void**)&pad_get, NULL);
+		                                (void**)&pad_get, NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_PADDING,
-										(void**)&pad_get, &pad_get_len);
+		                                (void**)&pad_get, &pad_get_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_finalize(YACA_CONTEXT_NULL, encrypted + encrypted_len, &written);
@@ -539,7 +539,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, sizeof(yaca_padding_e));
+		                                &pad_pkcs7, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written);
@@ -594,49 +594,49 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_INVALID_PROPERTY,
-										&pad_pkcs7, sizeof(yaca_padding_e));
+		                                &pad_pkcs7, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, 0);
+		                                &pad_pkcs7, 0);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, 1);
+		                                &pad_pkcs7, 1);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&key_bits_len, sizeof(size_t));
+		                                &key_bits_len, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(yaca_padding_e));
+		                                &pad_invalid, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, sizeof(yaca_padding_e));
+		                                &pad_pkcs7, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_get_property(ctx, YACA_INVALID_PROPERTY,
-										(void**)&pad_get, &pad_get_len);
+		                                (void**)&pad_get, &pad_get_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_PADDING,
-										NULL, &pad_get_len);
+		                                NULL, &pad_get_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_PADDING,
-										(void**)&pad_get, NULL);
+		                                (void**)&pad_get, NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_PADDING,
-										(void**)&pad_get, &pad_get_len);
+		                                (void**)&pad_get, &pad_get_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_output_length(ctx, encrypted_len, NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
- 		allocate_output(ctx, encrypted_len, 1, decrypted);
+		allocate_output(ctx, encrypted_len, 1, decrypted);
 		size_t written;
 
 		ret = yaca_decrypt_update(YACA_CONTEXT_NULL, encrypted, encrypted_len, decrypted, &written);
@@ -662,7 +662,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		decrypted_len = written;
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_pkcs7, sizeof(yaca_padding_e));
+		                                &pad_pkcs7, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_finalize(YACA_CONTEXT_NULL, decrypted + decrypted_len, &written);
@@ -699,7 +699,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &pad_pkcs7,
-										sizeof(yaca_padding_e));
+		                                sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		allocate_output(ctx, encrypted_len, 1, decrypted);
@@ -724,7 +724,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &pad_pkcs7,
-										sizeof(yaca_padding_e));
+		                                sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		allocate_output(ctx, encrypted_len, 1, decrypted);
@@ -752,7 +752,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &pad_pkcs7,
-										sizeof(yaca_padding_e));
+		                                sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		allocate_output(ctx, encrypted_len, 1, decrypted);
@@ -824,7 +824,7 @@ BOOST_FIXTURE_TEST_CASE(T605__positive__encrypt_decrypt_wrap, InitDebugFixture)
 			size_t written;
 
 			ret = yaca_encrypt_update(ctx, key_material, ea.key_material_len,
-									  encrypted, &written);
+			                          encrypted, &written);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			encrypted_len = written;
 
@@ -915,39 +915,39 @@ BOOST_FIXTURE_TEST_CASE(T606__negative__encrypt_decrypt_wrap, InitDebugFixture)
 	/* ENCRYPT AES */
 	{
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_UNSAFE_DES,
-									  YACA_BCM_WRAP, key_sym, iv);
+		                              YACA_BCM_WRAP, key_sym, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_CAST5,
-									  YACA_BCM_WRAP, key_sym, iv);
+		                              YACA_BCM_WRAP, key_sym, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_AES,
-									  YACA_BCM_WRAP, key_des1, iv);
+		                              YACA_BCM_WRAP, key_des1, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_AES,
-									  YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_AES,
-									  YACA_BCM_WRAP, key_sym, iv);
+		                              YACA_BCM_WRAP, key_sym, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		size_t total = allocate_output(ctx, len192, 1, encrypted);
 		size_t written;
 
 		ret = yaca_encrypt_update(ctx, key_material_64, len64,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_update(ctx, key_material_192, len192,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 		encrypted_len = written;
 
 		ret = yaca_encrypt_update(ctx, key_material_192, len192,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_finalize(ctx, encrypted + encrypted_len, &written);
@@ -958,7 +958,7 @@ BOOST_FIXTURE_TEST_CASE(T606__negative__encrypt_decrypt_wrap, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_encrypt_update(ctx, key_material_192, len192,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_finalize(ctx, encrypted + encrypted_len, &written);
@@ -971,19 +971,19 @@ BOOST_FIXTURE_TEST_CASE(T606__negative__encrypt_decrypt_wrap, InitDebugFixture)
 	/* DECRYPT AES */
 	{
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_UNSAFE_DES,
-									  YACA_BCM_WRAP, key_sym, iv);
+		                              YACA_BCM_WRAP, key_sym, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_CAST5,
-									  YACA_BCM_WRAP, key_sym, iv);
+		                              YACA_BCM_WRAP, key_sym, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_AES,
-									  YACA_BCM_WRAP, key_des1, iv);
+		                              YACA_BCM_WRAP, key_des1, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_AES,
-									  YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_AES, YACA_BCM_WRAP, key_sym, iv);
@@ -1021,39 +1021,39 @@ BOOST_FIXTURE_TEST_CASE(T606__negative__encrypt_decrypt_wrap, InitDebugFixture)
 	/* ENCRYPT 3DES */
 	{
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_des1, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_des1, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_des2, iv);
+		                              YACA_BCM_WRAP, key_des2, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_des2, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_des2, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		size_t total = allocate_output(ctx, len192, 1, encrypted);
 		size_t written;
 
 		ret = yaca_encrypt_update(ctx, key_material_64, len64,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_update(ctx, key_material_256, len256,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_update(ctx, key_material_192, len192,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 		encrypted_len = written;
 
 		ret = yaca_encrypt_update(ctx, key_material_192, len192,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_finalize(ctx, encrypted + encrypted_len, &written);
@@ -1064,7 +1064,7 @@ BOOST_FIXTURE_TEST_CASE(T606__negative__encrypt_decrypt_wrap, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_encrypt_update(ctx, key_material_192, len192,
-								  encrypted, &written);
+		                          encrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_finalize(ctx, encrypted + encrypted_len, &written);
@@ -1077,19 +1077,19 @@ BOOST_FIXTURE_TEST_CASE(T606__negative__encrypt_decrypt_wrap, InitDebugFixture)
 	/* DECRYPT 3DES */
 	{
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_sym, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_des1, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_des1, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_des2, iv);
+		                              YACA_BCM_WRAP, key_des2, iv);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_decrypt_initialize(&ctx, YACA_ENCRYPT_3DES_3TDEA,
-									  YACA_BCM_WRAP, key_des2, YACA_KEY_NULL);
+		                              YACA_BCM_WRAP, key_des2, YACA_KEY_NULL);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		allocate_output(ctx, encrypted_len, 1, decrypted);
@@ -1178,13 +1178,13 @@ BOOST_FIXTURE_TEST_CASE(T607__positive__encrypt_decrypt_rc2, InitDebugFixture)
 
 			if (ea.padding != YACA_INVALID_PADDING) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-												&ea.padding, sizeof(yaca_padding_e));
+				                                &ea.padding, sizeof(yaca_padding_e));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
 			if (ea.effective_key_bits != IGNORE) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-												&ea.effective_key_bits, sizeof(size_t));
+				                                &ea.effective_key_bits, sizeof(size_t));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
@@ -1192,8 +1192,8 @@ BOOST_FIXTURE_TEST_CASE(T607__positive__encrypt_decrypt_rc2, InitDebugFixture)
 			size_t written;
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 encrypted, encrypted_len, ea.split,
-							 &yaca_encrypt_update);
+			                 encrypted, encrypted_len, ea.split,
+			                 &yaca_encrypt_update);
 
 			ret = yaca_encrypt_finalize(ctx, encrypted + encrypted_len, &written);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -1214,13 +1214,13 @@ BOOST_FIXTURE_TEST_CASE(T607__positive__encrypt_decrypt_rc2, InitDebugFixture)
 
 			if (ea.padding != YACA_INVALID_PADDING) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-												&ea.padding, sizeof(yaca_padding_e));
+				                                &ea.padding, sizeof(yaca_padding_e));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
 			if (ea.effective_key_bits != IGNORE) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-												&ea.effective_key_bits, sizeof(size_t));
+				                                &ea.effective_key_bits, sizeof(size_t));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
@@ -1228,8 +1228,8 @@ BOOST_FIXTURE_TEST_CASE(T607__positive__encrypt_decrypt_rc2, InitDebugFixture)
 			size_t written;
 
 			call_update_loop(ctx, encrypted, encrypted_len,
-							 decrypted, decrypted_len, ea.split,
-							 &yaca_decrypt_update);
+			                 decrypted, decrypted_len, ea.split,
+			                 &yaca_decrypt_update);
 
 			ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -1285,15 +1285,15 @@ BOOST_FIXTURE_TEST_CASE(T608__negative__encrypt_decrypt_rc2, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(yaca_padding_e));
+		                                &pad_invalid, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&effective_bits_invalid1, sizeof(size_t));
+		                                &effective_bits_invalid1, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&effective_bits_invalid2, sizeof(size_t));
+		                                &effective_bits_invalid2, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		yaca_context_destroy(ctx);
@@ -1318,15 +1318,15 @@ BOOST_FIXTURE_TEST_CASE(T608__negative__encrypt_decrypt_rc2, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(yaca_padding_e));
+		                                &pad_invalid, sizeof(yaca_padding_e));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&effective_bits_invalid1, sizeof(size_t));
+		                                &effective_bits_invalid1, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&effective_bits_invalid2, sizeof(size_t));
+		                                &effective_bits_invalid2, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		yaca_context_destroy(ctx);
@@ -1397,7 +1397,7 @@ BOOST_FIXTURE_TEST_CASE(T609__positive__encrypt_decrypt_ccm, InitDebugFixture)
 				tag_len = ea.ccm_tag_len;
 
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_TAG_LEN,
-												&tag_len, sizeof(tag_len));
+				                                &tag_len, sizeof(tag_len));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
@@ -1409,11 +1409,11 @@ BOOST_FIXTURE_TEST_CASE(T609__positive__encrypt_decrypt_ccm, InitDebugFixture)
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 				ret = yaca_encrypt_update(ctx, NULL, INPUT_DATA_SIZE,
-										  NULL, &written);
+				                          NULL, &written);
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD,
-												aad, ea.aad_len);
+				                                aad, ea.aad_len);
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
@@ -1449,11 +1449,11 @@ BOOST_FIXTURE_TEST_CASE(T609__positive__encrypt_decrypt_ccm, InitDebugFixture)
 
 			if (ea.aad_len != IGNORE) {
 				ret = yaca_decrypt_update(ctx, NULL, encrypted_len,
-										  NULL, &written);
+				                          NULL, &written);
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD,
-												aad, ea.aad_len);
+				                                aad, ea.aad_len);
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
@@ -1563,7 +1563,7 @@ BOOST_FIXTURE_TEST_CASE(T610__negative__encrypt_decrypt_ccm, InitDebugFixture)
 		size_t written;
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_TAG_LEN,
-										&tag_len_invalid, sizeof(tag_len_invalid));
+		                                &tag_len_invalid, sizeof(tag_len_invalid));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_update(ctx, NULL, INPUT_DATA_SIZE, encrypted, &written);
@@ -1981,13 +1981,13 @@ BOOST_FIXTURE_TEST_CASE(T611__positive__encrypt_decrypt_gcm, InitDebugFixture)
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD,
-												aad, ea.aad_len);
+				                                aad, ea.aad_len);
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 encrypted, encrypted_len, ea.split,
-							 yaca_encrypt_update);
+			                 encrypted, encrypted_len, ea.split,
+			                 yaca_encrypt_update);
 
 			ret = yaca_encrypt_finalize(ctx, encrypted + encrypted_len, &written);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -2001,12 +2001,12 @@ BOOST_FIXTURE_TEST_CASE(T611__positive__encrypt_decrypt_gcm, InitDebugFixture)
 				tag_len = ea.gcm_tag_len;
 
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN,
-												&tag_len, sizeof(tag_len));
+				                                &tag_len, sizeof(tag_len));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
 			ret = yaca_context_get_property(ctx, YACA_PROPERTY_GCM_TAG,
-											(void**)&tag, &tag_len);
+			                                (void**)&tag, &tag_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 			yaca_context_destroy(ctx);
@@ -2023,16 +2023,16 @@ BOOST_FIXTURE_TEST_CASE(T611__positive__encrypt_decrypt_gcm, InitDebugFixture)
 
 			if (ea.aad_len != IGNORE) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD,
-												aad, ea.aad_len);
+				                                aad, ea.aad_len);
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
 			call_update_loop(ctx, encrypted, encrypted_len,
-							 decrypted, decrypted_len, ea.split,
-							 yaca_decrypt_update);
+			                 decrypted, decrypted_len, ea.split,
+			                 yaca_decrypt_update);
 
 			ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG,
-											tag, tag_len);
+			                                tag, tag_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 			ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
@@ -2108,7 +2108,7 @@ BOOST_FIXTURE_TEST_CASE(T612__negative__encrypt_decrypt_gcm, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_GCM_TAG,
-										(void**)&tag, &tag_len);
+		                                (void**)&tag, &tag_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_encrypt_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written);
@@ -2132,11 +2132,11 @@ BOOST_FIXTURE_TEST_CASE(T612__negative__encrypt_decrypt_gcm, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN,
-										&tag_len_invalid, sizeof(tag_len_invalid));
+		                                &tag_len_invalid, sizeof(tag_len_invalid));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_get_property(ctx, YACA_PROPERTY_GCM_TAG,
-										(void**)&tag, &tag_len);
+		                                (void**)&tag, &tag_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		yaca_context_destroy(ctx);

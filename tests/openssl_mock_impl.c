@@ -39,24 +39,24 @@ static void reset_conditions()
 	BIO_reset_just_called = 0;
 }
 
-#define HANDLE_FUNCTION(FNAME, VALUE, COND)				\
-	do {												\
-		if (GET_BOOL_NAME(FNAME)) {						\
-			GET_BOOL_NAME(FNAME) = 0;					\
-			return VALUE;								\
-		}												\
-		if (COND) {										\
-			reset_conditions();							\
-			break;										\
-		}												\
-		reset_conditions();								\
-		if (MOCK_fail_nth == 0) {						\
-			break;										\
-		}												\
-		--MOCK_fail_nth;								\
-		if (MOCK_fail_nth == 0) {						\
-			return VALUE;								\
-		}												\
+#define HANDLE_FUNCTION(FNAME, VALUE, COND)		\
+	do {										\
+		if (GET_BOOL_NAME(FNAME)) {				\
+			GET_BOOL_NAME(FNAME) = 0;			\
+			return VALUE;						\
+		}										\
+		if (COND) {								\
+			reset_conditions();					\
+			break;								\
+		}										\
+		reset_conditions();						\
+		if (MOCK_fail_nth == 0) {				\
+			break;								\
+		}										\
+		--MOCK_fail_nth;						\
+		if (MOCK_fail_nth == 0) {				\
+			return VALUE;						\
+		}										\
 	} while(0)
 
 

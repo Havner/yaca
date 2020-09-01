@@ -60,11 +60,11 @@ BOOST_FIXTURE_TEST_CASE(T401__positive__private_encrypt, InitDebugFixture)
 		generate_asymmetric_keys(YACA_KEY_TYPE_RSA_PRIV, ra.bit_len, &rsa_prv, &rsa_pub);
 
 		ret = yaca_rsa_private_encrypt(ra.pad, rsa_prv, INPUT_DATA, input_len,
-									   &encrypted, &encrypted_len);
+		                               &encrypted, &encrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_rsa_public_decrypt(ra.pad, rsa_pub, encrypted, encrypted_len,
-									  &decrypted, &decrypted_len);
+		                              &decrypted, &decrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		BOOST_REQUIRE(decrypted_len == input_len);
@@ -90,11 +90,11 @@ BOOST_FIXTURE_TEST_CASE(T401__positive__private_encrypt, InitDebugFixture)
 		generate_asymmetric_keys(YACA_KEY_TYPE_RSA_PRIV, ra.bit_len, &rsa_prv, &rsa_pub);
 
 		ret = yaca_rsa_private_encrypt(ra.pad, rsa_prv, NULL, 0,
-									   &encrypted, &encrypted_len);
+		                               &encrypted, &encrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_rsa_public_decrypt(ra.pad, rsa_pub, encrypted, encrypted_len,
-									  &decrypted, &decrypted_len);
+		                              &decrypted, &decrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		BOOST_REQUIRE(decrypted == NULL);
@@ -125,167 +125,167 @@ BOOST_FIXTURE_TEST_CASE(T402__negative__private_encrypt, InitDebugFixture)
 	generate_asymmetric_keys(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_LENGTH_EC_PRIME256V1, &key_ec);
 
 	ret = yaca_rsa_private_encrypt(YACA_INVALID_PADDING, key_prv,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_X931, key_prv,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_PKCS1_OAEP, key_prv,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, YACA_KEY_NULL,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_pub,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_ec,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_dsa,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   NULL, input_len,
-								   &encrypted, &encrypted_len);
+	                               NULL, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   INPUT_DATA, 0,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, 0,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   INPUT_DATA, input_len + 1,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len + 1,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   INPUT_DATA, input_len - 1,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len - 1,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   INPUT_DATA, input_len - 8,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len - 8,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   INPUT_DATA, input_len,
-								   NULL, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               NULL, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   INPUT_DATA, input_len,
-								   &encrypted, NULL);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_PKCS1, key_prv,
-								   INPUT_DATA, input_len_pkcs1 + 1,
-								   &encrypted_pkcs1, &encrypted_pkcs1_len);
+	                               INPUT_DATA, input_len_pkcs1 + 1,
+	                               &encrypted_pkcs1, &encrypted_pkcs1_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_NONE, key_prv,
-								   INPUT_DATA, input_len,
-								   &encrypted, &encrypted_len);
+	                               INPUT_DATA, input_len,
+	                               &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_rsa_private_encrypt(YACA_PADDING_PKCS1, key_prv,
-								   INPUT_DATA, input_len_pkcs1,
-								   &encrypted_pkcs1, &encrypted_pkcs1_len);
+	                               INPUT_DATA, input_len_pkcs1,
+	                               &encrypted_pkcs1, &encrypted_pkcs1_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_rsa_public_decrypt(YACA_INVALID_PADDING, key_pub,
-								  encrypted, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_PKCS1_SSLV23, key_pub,
-								  encrypted, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_PKCS1, key_pub,
-								  encrypted, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, YACA_KEY_NULL,
-								  encrypted, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, key_prv,
-								  encrypted, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, key_ec,
-								  encrypted, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, key_dsa,
-								  encrypted, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, key_pub,
-								  NULL, encrypted_len,
-								  &decrypted, &decrypted_len);
+	                              NULL, encrypted_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, key_pub,
-								  encrypted, 0,
-								  &decrypted, &decrypted_len);
+	                              encrypted, 0,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, key_pub,
-								  encrypted, encrypted_len,
-								  NULL, &decrypted_len);
+	                              encrypted, encrypted_len,
+	                              NULL, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_NONE, key_pub,
-								  encrypted, encrypted_len,
-								  &decrypted, NULL);
+	                              encrypted, encrypted_len,
+	                              &decrypted, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_PKCS1_PSS, key_pub,
-								  encrypted_pkcs1, encrypted_pkcs1_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted_pkcs1, encrypted_pkcs1_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_X931, key_pub,
-								  encrypted_pkcs1, encrypted_pkcs1_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted_pkcs1, encrypted_pkcs1_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_PKCS1, key_pub2,
-								  encrypted_pkcs1, encrypted_pkcs1_len,
-								  &decrypted, &decrypted_len);
+	                              encrypted_pkcs1, encrypted_pkcs1_len,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_PKCS1, key_pub,
-								  encrypted_pkcs1, encrypted_pkcs1_len - 1,
-								  &decrypted, &decrypted_len);
+	                              encrypted_pkcs1, encrypted_pkcs1_len - 1,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_decrypt(YACA_PADDING_PKCS1, key_pub,
-								  encrypted_pkcs1 + 1, encrypted_pkcs1_len - 1,
-								  &decrypted, &decrypted_len);
+	                              encrypted_pkcs1 + 1, encrypted_pkcs1_len - 1,
+	                              &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	yaca_key_destroy(key_prv);
@@ -322,11 +322,11 @@ BOOST_FIXTURE_TEST_CASE(T403__positive__public_encrypt, InitDebugFixture)
 		generate_asymmetric_keys(YACA_KEY_TYPE_RSA_PRIV, ra.bit_len, &rsa_prv, &rsa_pub);
 
 		ret = yaca_rsa_public_encrypt(ra.pad, rsa_pub, INPUT_DATA, input_len,
-									  &encrypted, &encrypted_len);
+		                              &encrypted, &encrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_rsa_private_decrypt(ra.pad, rsa_prv, encrypted, encrypted_len,
-									   &decrypted, &decrypted_len);
+		                               &decrypted, &decrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		BOOST_REQUIRE(decrypted_len == input_len);
@@ -352,11 +352,11 @@ BOOST_FIXTURE_TEST_CASE(T403__positive__public_encrypt, InitDebugFixture)
 		generate_asymmetric_keys(YACA_KEY_TYPE_RSA_PRIV, ra.bit_len, &rsa_prv, &rsa_pub);
 
 		ret = yaca_rsa_public_encrypt(ra.pad, rsa_pub, NULL, 0,
-									  &encrypted, &encrypted_len);
+		                              &encrypted, &encrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_rsa_private_decrypt(ra.pad, rsa_prv, encrypted, encrypted_len,
-									   &decrypted, &decrypted_len);
+		                               &decrypted, &decrypted_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		BOOST_REQUIRE(decrypted_len == 0);
@@ -392,195 +392,195 @@ BOOST_FIXTURE_TEST_CASE(T404__negative__public_encrypt, InitDebugFixture)
 	generate_asymmetric_keys(YACA_KEY_TYPE_EC_PRIV, YACA_KEY_LENGTH_EC_PRIME256V1, &key_ec);
 
 	ret = yaca_rsa_public_encrypt(YACA_INVALID_PADDING, key_pub,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_X931, key_pub,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1_PSS, key_pub,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, YACA_KEY_NULL,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_prv,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_ec,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_dsa,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  NULL, input_len,
-								  &encrypted, &encrypted_len);
+	                              NULL, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  INPUT_DATA, 0,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, 0,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  INPUT_DATA, input_len + 1,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len + 1,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  INPUT_DATA, input_len - 1,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len - 1,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  INPUT_DATA, input_len - 8,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len - 8,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  INPUT_DATA, input_len,
-								  NULL, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              NULL, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  INPUT_DATA, input_len,
-								  &encrypted, NULL);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1, key_pub,
-								  INPUT_DATA, input_len_pkcs1 + 1,
-								  &encrypted_pkcs1, &encrypted_pkcs1_len);
+	                              INPUT_DATA, input_len_pkcs1 + 1,
+	                              &encrypted_pkcs1, &encrypted_pkcs1_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1_OAEP, key_pub,
-								  INPUT_DATA, input_len_pkcs1_oaep + 1,
-								  &encrypted_pkcs1_oaep, &encrypted_pkcs1_oaep_len);
+	                              INPUT_DATA, input_len_pkcs1_oaep + 1,
+	                              &encrypted_pkcs1_oaep, &encrypted_pkcs1_oaep_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1_SSLV23, key_pub,
-								  INPUT_DATA, input_len_pkcs1_sslv23 + 1,
-								  &encrypted_pkcs1_sslv23, &encrypted_pkcs1_sslv23_len);
+	                              INPUT_DATA, input_len_pkcs1_sslv23 + 1,
+	                              &encrypted_pkcs1_sslv23, &encrypted_pkcs1_sslv23_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
-								  INPUT_DATA, input_len,
-								  &encrypted, &encrypted_len);
+	                              INPUT_DATA, input_len,
+	                              &encrypted, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1, key_pub,
-								  INPUT_DATA, input_len_pkcs1,
-								  &encrypted_pkcs1, &encrypted_pkcs1_len);
+	                              INPUT_DATA, input_len_pkcs1,
+	                              &encrypted_pkcs1, &encrypted_pkcs1_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1_OAEP, key_pub,
-								  INPUT_DATA, input_len_pkcs1_oaep,
-								  &encrypted_pkcs1_oaep, &encrypted_pkcs1_oaep_len);
+	                              INPUT_DATA, input_len_pkcs1_oaep,
+	                              &encrypted_pkcs1_oaep, &encrypted_pkcs1_oaep_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1_SSLV23, key_pub,
-								  INPUT_DATA, input_len_pkcs1_sslv23,
-								  &encrypted_pkcs1_sslv23, &encrypted_pkcs1_sslv23_len);
+	                              INPUT_DATA, input_len_pkcs1_sslv23,
+	                              &encrypted_pkcs1_sslv23, &encrypted_pkcs1_sslv23_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_rsa_private_decrypt(YACA_INVALID_PADDING, key_prv,
-								   encrypted, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_X931, key_prv,
-								   encrypted, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1, key_prv,
-								   encrypted, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, YACA_KEY_NULL,
-								   encrypted, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, key_pub,
-								   encrypted, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, key_ec,
-								   encrypted, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, key_dsa,
-								   encrypted, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, key_prv,
-								   NULL, encrypted_len,
-								   &decrypted, &decrypted_len);
+	                               NULL, encrypted_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, key_prv,
-								   encrypted, 0,
-								   &decrypted, &decrypted_len);
+	                               encrypted, 0,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, key_prv,
-								   encrypted, encrypted_len,
-								   NULL, &decrypted_len);
+	                               encrypted, encrypted_len,
+	                               NULL, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_NONE, key_prv,
-								   encrypted, encrypted_len,
-								   &decrypted, NULL);
+	                               encrypted, encrypted_len,
+	                               &decrypted, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1_PSS, key_prv,
-								   encrypted_pkcs1, encrypted_pkcs1_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted_pkcs1, encrypted_pkcs1_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1, key_prv,
-								   encrypted_pkcs1, encrypted_pkcs1_len - 1,
-								   &decrypted, &decrypted_len);
+	                               encrypted_pkcs1, encrypted_pkcs1_len - 1,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1, key_prv,
-								   encrypted_pkcs1_oaep, encrypted_pkcs1_oaep_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted_pkcs1_oaep, encrypted_pkcs1_oaep_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1_SSLV23, key_prv,
-								   encrypted_pkcs1_oaep, encrypted_pkcs1_oaep_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted_pkcs1_oaep, encrypted_pkcs1_oaep_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1_OAEP, key_prv,
-								   encrypted_pkcs1_oaep, encrypted_pkcs1_oaep_len - 1,
-								   &decrypted, &decrypted_len);
+	                               encrypted_pkcs1_oaep, encrypted_pkcs1_oaep_len - 1,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1_OAEP, key_prv,
-								   encrypted_pkcs1_sslv23, encrypted_pkcs1_sslv23_len,
-								   &decrypted, &decrypted_len);
+	                               encrypted_pkcs1_sslv23, encrypted_pkcs1_sslv23_len,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_private_decrypt(YACA_PADDING_PKCS1_SSLV23, key_prv,
-								   encrypted_pkcs1_sslv23, encrypted_pkcs1_sslv23_len - 1,
-								   &decrypted, &decrypted_len);
+	                               encrypted_pkcs1_sslv23, encrypted_pkcs1_sslv23_len - 1,
+	                               &decrypted, &decrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	yaca_key_destroy(key_prv);

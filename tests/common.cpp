@@ -109,7 +109,7 @@ const std::map<yaca_key_type_e, key_types> KEY_TYPES = {
 } // namespace
 
 void generate_asymmetric_keys(yaca_key_type_e type_prv, size_t key_bit_len,
-							  yaca_key_h *key_prv, yaca_key_h *key_pub, yaca_key_h *key_params)
+                              yaca_key_h *key_prv, yaca_key_h *key_pub, yaca_key_h *key_params)
 {
 	int ret;
 	yaca_key_type_e type_pub, type_params;
@@ -174,8 +174,8 @@ size_t allocate_output(yaca_context_h ctx, size_t input_len, size_t split, char 
 }
 
 void call_update_loop(yaca_context_h ctx, const char *input, size_t input_len,
-					  char *output, size_t &output_len, size_t split,
-					  update_fun_5_t *fun)
+                      char *output, size_t &output_len, size_t split,
+                      update_fun_5_t *fun)
 {
 	BOOST_REQUIRE_MESSAGE(split >= 1, "Fix your test");
 

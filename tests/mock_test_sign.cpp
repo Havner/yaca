@@ -78,7 +78,7 @@ BOOST_FIXTURE_TEST_CASE(T1801__mock__negative__sign_verify, InitFixture)
 
 					if (sa.pad != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-														&sa.pad, sizeof(sa.pad));
+						                                &sa.pad, sizeof(sa.pad));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 
@@ -105,7 +105,7 @@ BOOST_FIXTURE_TEST_CASE(T1801__mock__negative__sign_verify, InitFixture)
 
 					if (sa.pad != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-														&sa.pad, sizeof(sa.pad));
+						                                &sa.pad, sizeof(sa.pad));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 

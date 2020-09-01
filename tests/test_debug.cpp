@@ -200,11 +200,11 @@ BOOST_FIXTURE_TEST_CASE(T004__neutral__error_handle, CallbackCleanup)
 
 		if (ea.err1 != -1) {
 			ERR_PUT_error(ERR_GET_LIB(ea.err1), ERR_GET_FUNC(ea.err1),
-						  ERR_GET_REASON(ea.err1), OPENSSL_FILE, OPENSSL_LINE);
+			              ERR_GET_REASON(ea.err1), OPENSSL_FILE, OPENSSL_LINE);
 		}
 		if (ea.err2 != -1) {
 			ERR_PUT_error(ERR_GET_LIB(ea.err2), ERR_GET_FUNC(ea.err2),
-						  ERR_GET_REASON(ea.err2), OPENSSL_FILE, OPENSSL_LINE);
+			              ERR_GET_REASON(ea.err2), OPENSSL_FILE, OPENSSL_LINE);
 		}
 
 		int ret = ERROR_HANDLE();

@@ -119,15 +119,15 @@ BOOST_FIXTURE_TEST_CASE(T502__negative__yaca_digest, InitDebugFixture)
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &key_sym);
 	ret = yaca_encrypt_initialize(&ctx_encrypt, YACA_ENCRYPT_AES,
-								  YACA_BCM_ECB, key_sym, YACA_KEY_NULL);
+	                              YACA_BCM_ECB, key_sym, YACA_KEY_NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-									&pad, sizeof(yaca_padding_e));
+	                                &pad, sizeof(yaca_padding_e));
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-									&bit_len, sizeof(size_t));
+	                                &bit_len, sizeof(size_t));
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_digest_update(NULL, INPUT_DATA, INPUT_DATA_SIZE);

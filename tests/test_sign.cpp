@@ -39,7 +39,7 @@ namespace {
 using update_fun_3_t = int(yaca_context_h ctx, const char *input, size_t input_len);
 
 void call_update_loop(yaca_context_h &ctx, const char *input, size_t input_len,
-					  size_t split, update_fun_3_t *fun)
+                      size_t split, update_fun_3_t *fun)
 {
 	BOOST_REQUIRE_MESSAGE(split >= 1, "Fix your test");
 
@@ -136,12 +136,12 @@ BOOST_FIXTURE_TEST_CASE(T801__positive__sign_verify, InitDebugFixture)
 
 			if (sa.pad != YACA_INVALID_PADDING) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-												&sa.pad, sizeof(sa.pad));
+				                                &sa.pad, sizeof(sa.pad));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 sa.split, &yaca_sign_update);
+			                 sa.split, &yaca_sign_update);
 
 			ret = yaca_context_get_output_length(ctx, 0, &signature_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -163,12 +163,12 @@ BOOST_FIXTURE_TEST_CASE(T801__positive__sign_verify, InitDebugFixture)
 
 			if (sa.pad != YACA_INVALID_PADDING) {
 				ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-												&sa.pad, sizeof(sa.pad));
+				                                &sa.pad, sizeof(sa.pad));
 				BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 			}
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 sa.split + 3, &yaca_verify_update);
+			                 sa.split + 3, &yaca_verify_update);
 
 			ret = yaca_verify_finalize(ctx, signature, signature_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -233,31 +233,31 @@ BOOST_FIXTURE_TEST_CASE(T802__negative__sign_verify, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_INVALID_PROPERTY,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										NULL, sizeof(pad));
+		                                NULL, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, 1);
+		                                &pad, 1);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&len, sizeof(size_t));
+		                                &len, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_none, sizeof(pad_none));
+		                                &pad_none, sizeof(pad_none));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(pad_invalid));
+		                                &pad_invalid, sizeof(pad_invalid));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_sign_update(YACA_CONTEXT_NULL, INPUT_DATA, INPUT_DATA_SIZE);
@@ -333,31 +333,31 @@ BOOST_FIXTURE_TEST_CASE(T802__negative__sign_verify, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_INVALID_PROPERTY,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										NULL, sizeof(pad));
+		                                NULL, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, 1);
+		                                &pad, 1);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-										&len, sizeof(size_t));
+		                                &len, sizeof(size_t));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_none, sizeof(pad_none));
+		                                &pad_none, sizeof(pad_none));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(pad_invalid));
+		                                &pad_invalid, sizeof(pad_invalid));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_verify_update(YACA_CONTEXT_NULL, INPUT_DATA, INPUT_DATA_SIZE);
@@ -412,7 +412,7 @@ BOOST_FIXTURE_TEST_CASE(T802__negative__sign_verify, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_verify_update(ctx, INPUT_DATA, INPUT_DATA_SIZE);
@@ -431,7 +431,7 @@ BOOST_FIXTURE_TEST_CASE(T802__negative__sign_verify, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_verify_update(ctx, INPUT_DATA, INPUT_DATA_SIZE);
@@ -450,7 +450,7 @@ BOOST_FIXTURE_TEST_CASE(T802__negative__sign_verify, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad2, sizeof(pad2));
+		                                &pad2, sizeof(pad2));
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_verify_update(ctx, INPUT_DATA, INPUT_DATA_SIZE);
@@ -469,19 +469,19 @@ BOOST_FIXTURE_TEST_CASE(T802__negative__sign_verify, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad2, sizeof(pad2));
+		                                &pad2, sizeof(pad2));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(pad_invalid));
+		                                &pad_invalid, sizeof(pad_invalid));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_none, sizeof(pad_none));
+		                                &pad_none, sizeof(pad_none));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		yaca_context_destroy(ctx);
@@ -494,19 +494,19 @@ BOOST_FIXTURE_TEST_CASE(T802__negative__sign_verify, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad, sizeof(pad));
+		                                &pad, sizeof(pad));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad2, sizeof(pad2));
+		                                &pad2, sizeof(pad2));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_invalid, sizeof(pad_invalid));
+		                                &pad_invalid, sizeof(pad_invalid));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-										&pad_none, sizeof(pad_none));
+		                                &pad_none, sizeof(pad_none));
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 		yaca_context_destroy(ctx);
@@ -575,7 +575,7 @@ BOOST_FIXTURE_TEST_CASE(T803__positive__sign_cmac, InitDebugFixture)
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 ca.split, yaca_sign_update);
+			                 ca.split, yaca_sign_update);
 
 			ret = yaca_context_get_output_length(ctx, 0, &signature_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -596,7 +596,7 @@ BOOST_FIXTURE_TEST_CASE(T803__positive__sign_cmac, InitDebugFixture)
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 ca.split + 3, yaca_sign_update);
+			                 ca.split + 3, yaca_sign_update);
 
 			ret = yaca_context_get_output_length(ctx, 0, &signature2_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -786,7 +786,7 @@ BOOST_FIXTURE_TEST_CASE(T805__positive__sign_hmac, InitDebugFixture)
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 ha.split, yaca_sign_update);
+			                 ha.split, yaca_sign_update);
 
 			ret = yaca_context_get_output_length(ctx, 0, &signature_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -807,7 +807,7 @@ BOOST_FIXTURE_TEST_CASE(T805__positive__sign_hmac, InitDebugFixture)
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 			call_update_loop(ctx, INPUT_DATA, INPUT_DATA_SIZE,
-							 ha.split + 3, yaca_sign_update);
+			                 ha.split + 3, yaca_sign_update);
 
 			ret = yaca_context_get_output_length(ctx, 0, &signature2_len);
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);

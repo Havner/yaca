@@ -71,11 +71,11 @@ BOOST_FIXTURE_TEST_CASE(T1301__mock__negative__positive__simple_encrypt_decrypt,
 				}
 
 				ret = yaca_simple_encrypt(ea.algo, ea.bcm, sym, iv, INPUT_DATA, INPUT_DATA_SIZE,
-										  &encrypted, &encrypted_len);
+				                          &encrypted, &encrypted_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_simple_decrypt(ea.algo, ea.bcm, sym, iv, encrypted, encrypted_len,
-										  &decrypted, &decrypted_len);
+				                          &decrypted, &decrypted_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:
@@ -109,7 +109,7 @@ BOOST_FIXTURE_TEST_CASE(T1302__mock__negative__simple_calculate_digest, InitFixt
 				size_t digest_len;
 
 				ret = yaca_simple_calculate_digest(da.algo, INPUT_DATA, INPUT_DATA_SIZE,
-												   &digest, &digest_len);
+				                                   &digest, &digest_len);
 				yaca_free(digest);
 				return ret;
 			};
@@ -150,13 +150,13 @@ BOOST_FIXTURE_TEST_CASE(T1303__mock__negative__simple_calculate_verify_signature
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_simple_calculate_signature(sa.algo, key_priv,
-													  INPUT_DATA, INPUT_DATA_SIZE,
-													  &signature, &signature_len);
+				                                      INPUT_DATA, INPUT_DATA_SIZE,
+				                                      &signature, &signature_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_simple_verify_signature(sa.algo, key_pub,
-												   INPUT_DATA, INPUT_DATA_SIZE,
-												   signature, signature_len);
+				                                   INPUT_DATA, INPUT_DATA_SIZE,
+				                                   signature, signature_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:
@@ -195,8 +195,8 @@ BOOST_FIXTURE_TEST_CASE(T1304__mock__negative__simple_calculate_hmac, InitFixtur
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_simple_calculate_hmac(ha.algo, key,
-												 INPUT_DATA, INPUT_DATA_SIZE,
-												 &mac, &mac_len);
+				                                 INPUT_DATA, INPUT_DATA_SIZE,
+				                                 &mac, &mac_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:
@@ -234,8 +234,8 @@ BOOST_FIXTURE_TEST_CASE(T1305__mock__negative__simple_calculate_cmac, InitFixtur
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_simple_calculate_cmac(ca.algo, key,
-												 INPUT_DATA, INPUT_DATA_SIZE,
-												 &mac, &mac_len);
+				                                 INPUT_DATA, INPUT_DATA_SIZE,
+				                                 &mac, &mac_len);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:

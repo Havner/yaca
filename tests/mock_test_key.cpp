@@ -37,7 +37,7 @@
 namespace {
 
 int import_export(yaca_key_h key, yaca_key_type_e type, const char *password,
-				  yaca_key_format_e format, yaca_key_file_format_e file_format)
+                  yaca_key_format_e format, yaca_key_file_format_e file_format)
 {
 	int ret;
 	yaca_key_h imported = YACA_KEY_NULL;
@@ -48,7 +48,7 @@ int import_export(yaca_key_h key, yaca_key_type_e type, const char *password,
 	size_t key_length;
 
 	ret = yaca_key_export(key, format, file_format,
-						  password, &data, &data_len);
+	                      password, &data, &data_len);
 	if (ret != YACA_ERROR_NONE) goto exit;
 
 	ret = yaca_key_import(type, password, data, data_len, &imported);
@@ -93,13 +93,13 @@ BOOST_FIXTURE_TEST_CASE(T1201__mock__negative__key_symmetric_all, InitFixture)
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key, ka.type, "",
-									YACA_KEY_FORMAT_DEFAULT,
-									YACA_KEY_FILE_FORMAT_RAW);
+				                    YACA_KEY_FORMAT_DEFAULT,
+				                    YACA_KEY_FILE_FORMAT_RAW);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key, ka.type, "",
-									YACA_KEY_FORMAT_DEFAULT,
-									YACA_KEY_FILE_FORMAT_BASE64);
+				                    YACA_KEY_FORMAT_DEFAULT,
+				                    YACA_KEY_FILE_FORMAT_BASE64);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:
@@ -219,26 +219,26 @@ BOOST_FIXTURE_TEST_CASE(T1204__mock__negative__key_asymmetric_import_export, Ini
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key_priv, ka.type_priv, NULL,
-									YACA_KEY_FORMAT_DEFAULT,
-									YACA_KEY_FILE_FORMAT_DER);
+				                    YACA_KEY_FORMAT_DEFAULT,
+				                    YACA_KEY_FILE_FORMAT_DER);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key_priv, ka.type_priv, NULL,
-									YACA_KEY_FORMAT_DEFAULT,
-									YACA_KEY_FILE_FORMAT_PEM);
+				                    YACA_KEY_FORMAT_DEFAULT,
+				                    YACA_KEY_FILE_FORMAT_PEM);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = yaca_key_extract_public(key_priv, &key_pub);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key_pub, ka.type_pub, "",
-									YACA_KEY_FORMAT_DEFAULT,
-									YACA_KEY_FILE_FORMAT_DER);
+				                    YACA_KEY_FORMAT_DEFAULT,
+				                    YACA_KEY_FILE_FORMAT_DER);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key_pub, ka.type_pub, "",
-									YACA_KEY_FORMAT_DEFAULT,
-									YACA_KEY_FILE_FORMAT_PEM);
+				                    YACA_KEY_FORMAT_DEFAULT,
+				                    YACA_KEY_FILE_FORMAT_PEM);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				if (ka.type_params != YACA_INVALID_KEY_TYPE) {
@@ -246,13 +246,13 @@ BOOST_FIXTURE_TEST_CASE(T1204__mock__negative__key_asymmetric_import_export, Ini
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = import_export(key_params, ka.type_params, NULL,
-										YACA_KEY_FORMAT_DEFAULT,
-										YACA_KEY_FILE_FORMAT_DER);
+					                    YACA_KEY_FORMAT_DEFAULT,
+					                    YACA_KEY_FILE_FORMAT_DER);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = import_export(key_params, ka.type_params, NULL,
-										YACA_KEY_FORMAT_DEFAULT,
-										YACA_KEY_FILE_FORMAT_PEM);
+					                    YACA_KEY_FORMAT_DEFAULT,
+					                    YACA_KEY_FILE_FORMAT_PEM);
 					if (ret != YACA_ERROR_NONE) goto exit;
 				}
 
@@ -291,8 +291,8 @@ BOOST_FIXTURE_TEST_CASE(T1205__mock__negative__key_encrypted_import_export, Init
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key, da.type, PASSWORD,
-									YACA_KEY_FORMAT_DEFAULT,
-									YACA_KEY_FILE_FORMAT_PEM);
+				                    YACA_KEY_FORMAT_DEFAULT,
+				                    YACA_KEY_FILE_FORMAT_PEM);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:
@@ -329,13 +329,13 @@ BOOST_FIXTURE_TEST_CASE(T1205__mock__negative__key_encrypted_import_export, Init
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key, pa.type, PASSWORD,
-									YACA_KEY_FORMAT_PKCS8,
-									YACA_KEY_FILE_FORMAT_DER);
+				                    YACA_KEY_FORMAT_PKCS8,
+				                    YACA_KEY_FILE_FORMAT_DER);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 				ret = import_export(key, pa.type, PASSWORD,
-									YACA_KEY_FORMAT_PKCS8,
-									YACA_KEY_FILE_FORMAT_PEM);
+				                    YACA_KEY_FORMAT_PKCS8,
+				                    YACA_KEY_FILE_FORMAT_PEM);
 				if (ret != YACA_ERROR_NONE) goto exit;
 
 			exit:
@@ -426,7 +426,7 @@ BOOST_FIXTURE_TEST_CASE(T1207__mock__negative__key_derive_kdf, InitFixture)
 				char *key_material = NULL;;
 
 				ret = yaca_key_derive_kdf(ka.kdf, ka.digest, secret, SECRET_LEN,
-										  NULL, 0, MATERIAL_LEN, &key_material);
+				                          NULL, 0, MATERIAL_LEN, &key_material);
 
 				yaca_free(key_material);
 				return ret;
@@ -465,7 +465,7 @@ BOOST_FIXTURE_TEST_CASE(T1208__mock__negative__key_derive_pbkdf2, InitFixture)
 				yaca_key_h key = YACA_KEY_NULL;
 
 				ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, pa.iter,
-											 pa.digest, pa.bit_len, &key);
+				                             pa.digest, pa.bit_len, &key);
 
 				yaca_key_destroy(key);
 				return ret;
@@ -554,11 +554,11 @@ hajHIasdGWcAfj+Cyuk1KcTIEkBfdYR6a8C4g04Vbg6M0qEjFl5UTMwm\n\
 			yaca_key_h key_pem = YACA_KEY_NULL, key_der = YACA_KEY_NULL;
 
 			ret = yaca_key_import(YACA_KEY_TYPE_RSA_PUB, NULL, data_pem,
-								  sizeof(data_pem), &key_pem);
+			                      sizeof(data_pem), &key_pem);
 			if (ret != YACA_ERROR_NONE) goto exit;
 
 			ret = yaca_key_import(YACA_KEY_TYPE_RSA_PUB, NULL, (char*)data_der,
-								  sizeof(data_der), &key_der);
+			                      sizeof(data_der), &key_der);
 			if (ret != YACA_ERROR_NONE) goto exit;
 
 		exit:

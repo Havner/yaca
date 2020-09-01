@@ -100,7 +100,7 @@ BOOST_FIXTURE_TEST_CASE(T1601__mock__negative__encrypt_decrypt, InitFixture)
 
 					if (ea.padding != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &ea.padding,
-														sizeof(yaca_padding_e));
+						                                sizeof(yaca_padding_e));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 
@@ -122,7 +122,7 @@ BOOST_FIXTURE_TEST_CASE(T1601__mock__negative__encrypt_decrypt, InitFixture)
 
 					if (ea.padding != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &ea.padding,
-														sizeof(yaca_padding_e));
+						                                sizeof(yaca_padding_e));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE(T1602__mock__negative__encrypt_decrypt_wrap, InitFixture
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_encrypt_update(ctx, key_material, ea.key_material_len,
-											  encrypted, &written);
+					                          encrypted, &written);
 					if (ret != YACA_ERROR_NONE) goto exit;
 					encrypted_len = written;
 
@@ -321,12 +321,12 @@ BOOST_FIXTURE_TEST_CASE(T1603__mock__negative__encrypt_decrypt_rc2, InitFixture)
 
 					if (ea.padding != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-														&ea.padding, sizeof(yaca_padding_e));
+						                                &ea.padding, sizeof(yaca_padding_e));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-													&ea.effective_key_bits, sizeof(size_t));
+					                                &ea.effective_key_bits, sizeof(size_t));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, INPUT_DATA_SIZE, &len1);
@@ -362,12 +362,12 @@ BOOST_FIXTURE_TEST_CASE(T1603__mock__negative__encrypt_decrypt_rc2, InitFixture)
 
 					if (ea.padding != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING,
-														&ea.padding, sizeof(yaca_padding_e));
+						                                &ea.padding, sizeof(yaca_padding_e));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-													&ea.effective_key_bits, sizeof(size_t));
+					                                &ea.effective_key_bits, sizeof(size_t));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, encrypted_len, &len1);
@@ -458,7 +458,7 @@ BOOST_FIXTURE_TEST_CASE(T1604__mock__negative__encrypt_decrypt_ccm, InitFixture)
 
 					tag_len = ea.ccm_tag_len;
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_TAG_LEN,
-													&tag_len, sizeof(tag_len));
+					                                &tag_len, sizeof(tag_len));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_malloc(ea.aad_len, (void**)&aad);
@@ -468,11 +468,11 @@ BOOST_FIXTURE_TEST_CASE(T1604__mock__negative__encrypt_decrypt_ccm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_encrypt_update(ctx, NULL, INPUT_DATA_SIZE,
-											  NULL, &written);
+					                          NULL, &written);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD,
-													aad, ea.aad_len);
+					                                aad, ea.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_encrypt_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written);
@@ -513,11 +513,11 @@ BOOST_FIXTURE_TEST_CASE(T1604__mock__negative__encrypt_decrypt_ccm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_decrypt_update(ctx, NULL, encrypted_len,
-											  NULL, &written);
+					                          NULL, &written);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD,
-													aad, ea.aad_len);
+					                                aad, ea.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_decrypt_update(ctx, encrypted, encrypted_len, decrypted, &written);
@@ -604,7 +604,7 @@ BOOST_FIXTURE_TEST_CASE(T1605__mock__negative__encrypt_decrypt_gcm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD,
-													aad, ea.aad_len);
+					                                aad, ea.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_encrypt_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written);
@@ -620,11 +620,11 @@ BOOST_FIXTURE_TEST_CASE(T1605__mock__negative__encrypt_decrypt_gcm, InitFixture)
 
 					tag_len = ea.gcm_tag_len;
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN,
-													&tag_len, sizeof(tag_len));
+					                                &tag_len, sizeof(tag_len));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_property(ctx, YACA_PROPERTY_GCM_TAG,
-													(void**)&tag, &tag_len);
+					                                (void**)&tag, &tag_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					yaca_context_destroy(ctx);
@@ -648,7 +648,7 @@ BOOST_FIXTURE_TEST_CASE(T1605__mock__negative__encrypt_decrypt_gcm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD,
-													aad, ea.aad_len);
+					                                aad, ea.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_decrypt_update(ctx, encrypted, encrypted_len, decrypted, &written);
@@ -656,7 +656,7 @@ BOOST_FIXTURE_TEST_CASE(T1605__mock__negative__encrypt_decrypt_gcm, InitFixture)
 					decrypted_len = written;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG,
-													tag, tag_len);
+					                                tag, tag_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);

@@ -24,12 +24,12 @@
 /* This file is to be included in the source files that want to mockup
  * OpenSSL and libc. After OpenSSL and libc headers. E.g.
 
-#include <openssl/...>
-#include <unistd.h>
+ #include <openssl/...>
+ #include <unistd.h>
 
-#ifdef OPENSSL_MOCKUP
-#include "../tests/openssl_mock_redefine.h"
-#endif
+ #ifdef OPENSSL_MOCKUP
+ #include "../tests/openssl_mock_redefine.h"
+ #endif
 
 */
 

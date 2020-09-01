@@ -75,7 +75,7 @@ BOOST_FIXTURE_TEST_CASE(T1701__mock__negative__seal_open, InitFixture)
 				/* SEAL */
 				{
 					ret = yaca_seal_initialize(&ctx, key_pub, sa.algo, sa.bcm,
-											   sa.key_bit_len, &key_sym, &iv);
+					                           sa.key_bit_len, &key_sym, &iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, INPUT_DATA_SIZE, &len1);
@@ -95,7 +95,7 @@ BOOST_FIXTURE_TEST_CASE(T1701__mock__negative__seal_open, InitFixture)
 
 					if (sa.padding != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &sa.padding,
-														sizeof(yaca_padding_e));
+						                                sizeof(yaca_padding_e));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 
@@ -113,12 +113,12 @@ BOOST_FIXTURE_TEST_CASE(T1701__mock__negative__seal_open, InitFixture)
 				/* OPEN */
 				{
 					ret = yaca_open_initialize(&ctx, key_prv, sa.algo, sa.bcm,
-											   sa.key_bit_len, key_sym, iv);
+					                           sa.key_bit_len, key_sym, iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					if (sa.padding != YACA_INVALID_PADDING) {
 						ret = yaca_context_set_property(ctx, YACA_PROPERTY_PADDING, &sa.padding,
-														sizeof(yaca_padding_e));
+						                                sizeof(yaca_padding_e));
 						if (ret != YACA_ERROR_NONE) goto exit;
 					}
 
@@ -193,11 +193,11 @@ BOOST_FIXTURE_TEST_CASE(T1702__mock__negative__seal_open_rc2, InitFixture)
 				/* SEAL */
 				{
 					ret = yaca_seal_initialize(&ctx, key_pub, YACA_ENCRYPT_UNSAFE_RC2, sa.bcm,
-											   sa.key_bit_len, &key_sym, &iv);
+					                           sa.key_bit_len, &key_sym, &iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-													&sa.effective_key_bits, sizeof(size_t));
+					                                &sa.effective_key_bits, sizeof(size_t));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, INPUT_DATA_SIZE, &len1);
@@ -229,11 +229,11 @@ BOOST_FIXTURE_TEST_CASE(T1702__mock__negative__seal_open_rc2, InitFixture)
 				/* OPEN */
 				{
 					ret = yaca_open_initialize(&ctx, key_prv, YACA_ENCRYPT_UNSAFE_RC2, sa.bcm,
-											   sa.key_bit_len, key_sym, iv);
+					                           sa.key_bit_len, key_sym, iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_RC2_EFFECTIVE_KEY_BITS,
-													&sa.effective_key_bits, sizeof(size_t));
+					                                &sa.effective_key_bits, sizeof(size_t));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, encrypted_len, &len1);
@@ -310,7 +310,7 @@ BOOST_FIXTURE_TEST_CASE(T1703__mock__negative__open_seal_ccm, InitFixture)
 				/* SEAL */
 				{
 					ret = yaca_seal_initialize(&ctx, key_pub, YACA_ENCRYPT_AES, YACA_BCM_CCM,
-											   sa.key_bit_len, &key_sym, &iv);
+					                           sa.key_bit_len, &key_sym, &iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, INPUT_DATA_SIZE, &len1);
@@ -326,7 +326,7 @@ BOOST_FIXTURE_TEST_CASE(T1703__mock__negative__open_seal_ccm, InitFixture)
 
 					tag_len = sa.ccm_tag_len;
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_TAG_LEN,
-													&tag_len, sizeof(tag_len));
+					                                &tag_len, sizeof(tag_len));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_malloc(sa.aad_len, (void**)&aad);
@@ -336,11 +336,11 @@ BOOST_FIXTURE_TEST_CASE(T1703__mock__negative__open_seal_ccm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_seal_update(ctx, NULL, INPUT_DATA_SIZE,
-										   NULL, &written);
+					                       NULL, &written);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD,
-													aad, sa.aad_len);
+					                                aad, sa.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_seal_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written);
@@ -364,7 +364,7 @@ BOOST_FIXTURE_TEST_CASE(T1703__mock__negative__open_seal_ccm, InitFixture)
 				/* OPEN */
 				{
 					ret = yaca_open_initialize(&ctx, key_prv, YACA_ENCRYPT_AES, YACA_BCM_CCM,
-											   sa.key_bit_len, key_sym, iv);
+					                           sa.key_bit_len, key_sym, iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, encrypted_len, &len1);
@@ -382,11 +382,11 @@ BOOST_FIXTURE_TEST_CASE(T1703__mock__negative__open_seal_ccm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_open_update(ctx, NULL, encrypted_len,
-										   NULL, &written);
+					                       NULL, &written);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD,
-													aad, sa.aad_len);
+					                                aad, sa.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_open_update(ctx, encrypted, encrypted_len, decrypted, &written);
@@ -454,7 +454,7 @@ BOOST_FIXTURE_TEST_CASE(T1704__mock__negative__seal_open_gcm, InitFixture)
 				/* SEAL */
 				{
 					ret = yaca_seal_initialize(&ctx, key_pub, YACA_ENCRYPT_AES, YACA_BCM_GCM,
-											   sa.key_bit_len, &key_sym, &iv);
+					                           sa.key_bit_len, &key_sym, &iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, INPUT_DATA_SIZE, &len1);
@@ -475,7 +475,7 @@ BOOST_FIXTURE_TEST_CASE(T1704__mock__negative__seal_open_gcm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD,
-													aad, sa.aad_len);
+					                                aad, sa.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_seal_update(ctx, INPUT_DATA, INPUT_DATA_SIZE, encrypted, &written);
@@ -491,11 +491,11 @@ BOOST_FIXTURE_TEST_CASE(T1704__mock__negative__seal_open_gcm, InitFixture)
 
 					tag_len = sa.gcm_tag_len;
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG_LEN,
-													&tag_len, sizeof(tag_len));
+					                                &tag_len, sizeof(tag_len));
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_property(ctx, YACA_PROPERTY_GCM_TAG,
-													(void**)&tag, &tag_len);
+					                                (void**)&tag, &tag_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					yaca_context_destroy(ctx);
@@ -505,7 +505,7 @@ BOOST_FIXTURE_TEST_CASE(T1704__mock__negative__seal_open_gcm, InitFixture)
 				/* OPEN */
 				{
 					ret = yaca_open_initialize(&ctx, key_prv, YACA_ENCRYPT_AES, YACA_BCM_GCM,
-											   sa.key_bit_len, key_sym, iv);
+					                           sa.key_bit_len, key_sym, iv);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_get_output_length(ctx, encrypted_len, &len1);
@@ -520,7 +520,7 @@ BOOST_FIXTURE_TEST_CASE(T1704__mock__negative__seal_open_gcm, InitFixture)
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_AAD,
-													aad, sa.aad_len);
+					                                aad, sa.aad_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_open_update(ctx, encrypted, encrypted_len, decrypted, &written);
@@ -528,7 +528,7 @@ BOOST_FIXTURE_TEST_CASE(T1704__mock__negative__seal_open_gcm, InitFixture)
 					decrypted_len = written;
 
 					ret = yaca_context_set_property(ctx, YACA_PROPERTY_GCM_TAG,
-													tag, tag_len);
+					                                tag, tag_len);
 					if (ret != YACA_ERROR_NONE) goto exit;
 
 					ret = yaca_open_finalize(ctx, decrypted + decrypted_len, &written);

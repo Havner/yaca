@@ -37,8 +37,8 @@
 namespace {
 
 void import_export(yaca_key_h key, yaca_key_type_e expected_type,
-				   yaca_key_bit_length_e expected_len, const char *password,
-				   yaca_key_format_e format, yaca_key_file_format_e file_format)
+                   yaca_key_bit_length_e expected_len, const char *password,
+                   yaca_key_format_e format, yaca_key_file_format_e file_format)
 {
 	int ret;
 	yaca_key_h imported = YACA_KEY_NULL;
@@ -49,7 +49,7 @@ void import_export(yaca_key_h key, yaca_key_type_e expected_type,
 	size_t key_length;
 
 	ret = yaca_key_export(key, format, file_format,
-						  password, &data1, &data1_len);
+	                      password, &data1, &data1_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	BOOST_REQUIRE(data1 != NULL);
 	BOOST_REQUIRE(data1_len > 0);
@@ -66,7 +66,7 @@ void import_export(yaca_key_h key, yaca_key_type_e expected_type,
 	BOOST_REQUIRE(key_length == expected_len);
 
 	ret = yaca_key_export(imported, format, file_format,
-						  password, &data2, &data2_len);
+	                      password, &data2, &data2_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	BOOST_REQUIRE(data2 != NULL);
 	BOOST_REQUIRE(data2_len > 0);
@@ -116,10 +116,10 @@ void assert_keys_identical(const yaca_key_h key1, const yaca_key_h key2)
 	}
 
 	ret = yaca_key_export(key1, YACA_KEY_FORMAT_DEFAULT, format,
-						  NULL, &data1, &data1_len);
+	                      NULL, &data1, &data1_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_key_export(key2, YACA_KEY_FORMAT_DEFAULT, format,
-						  NULL, &data2, &data2_len);
+	                      NULL, &data2, &data2_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	BOOST_REQUIRE(data1_len == data2_len);
@@ -243,15 +243,15 @@ BOOST_FIXTURE_TEST_CASE(T202__negative__key_generate, InitDebugFixture)
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV,
-							YACA_KEY_LENGTH_DH_GENERATOR_2 | 192U, &key);
+	                        YACA_KEY_LENGTH_DH_GENERATOR_2 | 192U, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEYLEN_COMPONENT_TYPE_DH |
-							YACA_KEYLEN_COMPONENT_DH_GEN_MASK | 1024U, &key);
+	                        YACA_KEYLEN_COMPONENT_DH_GEN_MASK | 1024U, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEYLEN_COMPONENT_TYPE_MASK |
-							YACA_KEYLEN_COMPONENT_DH_GEN_2 | 1024U, &key);
+	                        YACA_KEYLEN_COMPONENT_DH_GEN_2 | 1024U, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_DH_PRIV, YACA_KEYLEN_COMPONENT_TYPE_DH_RFC, &key);
@@ -336,7 +336,7 @@ BOOST_FIXTURE_TEST_CASE(T204__negative__key_generate_from_parameters, InitDebugF
 	yaca_key_h key = YACA_KEY_NULL;
 
 	generate_asymmetric_keys(YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_LENGTH_512BIT,
-							  &key_prv, &key_pub, &key_params);
+	                         &key_prv, &key_pub, &key_params);
 
 	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_UNSAFE_128BIT, &key_sym);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
@@ -524,10 +524,10 @@ BOOST_FIXTURE_TEST_CASE(T207__positive__key_import_export_symmetric, InitDebugFi
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		import_export(key, ka.type, ka.len, "",
-					  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW);
+		              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_RAW);
 
 		import_export(key, ka.type, ka.len, "",
-					  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64);
+		              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_BASE64);
 
 		yaca_key_destroy(key);
 	}
@@ -547,39 +547,39 @@ BOOST_FIXTURE_TEST_CASE(T208__negative__key_import_export_symmetric, InitDebugFi
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_export(YACA_KEY_NULL, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
+	                      YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_INVALID_KEY_FORMAT,
-						  YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
+	                      YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_PKCS8,
-						  YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
+	                      YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_INVALID_KEY_FILE_FORMAT, NULL, &data, &data_len);
+	                      YACA_INVALID_KEY_FILE_FORMAT, NULL, &data, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_PEM, NULL, &data, &data_len);
+	                      YACA_KEY_FILE_FORMAT_PEM, NULL, &data, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_BASE64, "password", &data, &data_len);
+	                      YACA_KEY_FILE_FORMAT_BASE64, "password", &data, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_BASE64, NULL, NULL, &data_len);
+	                      YACA_KEY_FILE_FORMAT_BASE64, NULL, NULL, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, NULL);
+	                      YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
+	                      YACA_KEY_FILE_FORMAT_BASE64, NULL, &data, &data_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_import(YACA_INVALID_KEY_TYPE, "", data, data_len, &key_import);
@@ -694,19 +694,19 @@ BOOST_FIXTURE_TEST_CASE(T209__positive__key_import_export_asymmetric, InitDebugF
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		import_export(key_priv, ka.type_priv, ka.expected, NULL,
-					  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER);
+		              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER);
 
 		import_export(key_priv, ka.type_priv, ka.expected, NULL,
-					  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM);
+		              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM);
 
 		ret = yaca_key_extract_public(key_priv, &key_pub);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		import_export(key_pub, ka.type_pub, ka.expected, "",
-					  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER);
+		              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER);
 
 		import_export(key_pub, ka.type_pub, ka.expected, "",
-					  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM);
+		              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM);
 
 		if (ka.type_params != YACA_INVALID_KEY_TYPE) {
 			yaca_key_h key_params = YACA_KEY_NULL;
@@ -715,10 +715,10 @@ BOOST_FIXTURE_TEST_CASE(T209__positive__key_import_export_asymmetric, InitDebugF
 			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 			import_export(key_params, ka.type_params, ka.expected, NULL,
-						  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER);
+			              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_DER);
 
 			import_export(key_params, ka.type_params, ka.expected, NULL,
-						  YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM);
+			              YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM);
 
 			yaca_key_destroy(key_params);
 		}
@@ -741,42 +741,42 @@ BOOST_FIXTURE_TEST_CASE(T210__negative__key_import_export_asymmetric, InitDebugF
 	generate_asymmetric_keys(YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_LENGTH_1024BIT, &key_prv, &key_pub, &key_params);
 
 	ret = yaca_key_export(YACA_KEY_NULL, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
+	                      YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_INVALID_KEY_FORMAT,
-						  YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
+	                      YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_PKCS8,
-						  YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
+	                      YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_INVALID_KEY_FILE_FORMAT, "", &data_pem, &data_pem_len);
+	                      YACA_INVALID_KEY_FILE_FORMAT, "", &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_BASE64, "", &data_pem, &data_pem_len);
+	                      YACA_KEY_FILE_FORMAT_BASE64, "", &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_DER, "password", &data_der, &data_der_len);
+	                      YACA_KEY_FILE_FORMAT_DER, "password", &data_der, &data_der_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_PEM, "", NULL, &data_pem_len);
+	                      YACA_KEY_FILE_FORMAT_PEM, "", NULL, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, NULL);
+	                      YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
+	                      YACA_KEY_FILE_FORMAT_PEM, "", &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT,
-						  YACA_KEY_FILE_FORMAT_DER, "", &data_der, &data_der_len);
+	                      YACA_KEY_FILE_FORMAT_DER, "", &data_der, &data_der_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_import(YACA_INVALID_KEY_TYPE, "", data_pem, data_pem_len, &key_import);
@@ -860,8 +860,8 @@ BOOST_FIXTURE_TEST_CASE(T211__positive__key_import_export_encrypted, InitDebugFi
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		import_export(key, da.type, da.len, PASSWORD,
-					  YACA_KEY_FORMAT_DEFAULT,
-					  YACA_KEY_FILE_FORMAT_PEM);
+		              YACA_KEY_FORMAT_DEFAULT,
+		              YACA_KEY_FILE_FORMAT_PEM);
 
 		yaca_key_destroy(key);
 	}
@@ -895,10 +895,10 @@ BOOST_FIXTURE_TEST_CASE(T211__positive__key_import_export_encrypted, InitDebugFi
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		import_export(key, pa.type, pa.expected, PASSWORD,
-					  YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_DER);
+		              YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_DER);
 
 		import_export(key, pa.type, pa.expected, PASSWORD,
-					  YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_PEM);
+		              YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_PEM);
 
 		yaca_key_destroy(key);
 	}
@@ -919,113 +919,113 @@ BOOST_FIXTURE_TEST_CASE(T212__negative__key_import_export_encrypted, InitDebugFi
 	generate_asymmetric_keys(YACA_KEY_TYPE_DSA_PRIV, YACA_KEY_LENGTH_1024BIT, &key_prv, &key_pub, &key_params);
 
 	ret = yaca_key_export(key_pub, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM,
-						  PASSWORD, &data_pem, &data_pem_len);
+	                      PASSWORD, &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_params, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM,
-						  PASSWORD, &data_pem, &data_pem_len);
+	                      PASSWORD, &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_pub, YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_PEM,
-						  PASSWORD, &data_pkcs8_pem, &data_pkcs8_pem_len);
+	                      PASSWORD, &data_pkcs8_pem, &data_pkcs8_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_params, YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_DER,
-						  PASSWORD, &data_pkcs8_der, &data_pkcs8_der_len);
+	                      PASSWORD, &data_pkcs8_der, &data_pkcs8_der_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_PEM,
-						  NULL, &data_pkcs8_pem, &data_pkcs8_pem_len);
+	                      NULL, &data_pkcs8_pem, &data_pkcs8_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_PKCS8, YACA_INVALID_KEY_FILE_FORMAT,
-						  PASSWORD, &data_pkcs8_pem, &data_pkcs8_pem_len);
+	                      PASSWORD, &data_pkcs8_pem, &data_pkcs8_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_DEFAULT, YACA_KEY_FILE_FORMAT_PEM,
-						  PASSWORD, &data_pem, &data_pem_len);
+	                      PASSWORD, &data_pem, &data_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_PEM,
-						  PASSWORD, &data_pkcs8_pem, &data_pkcs8_pem_len);
+	                      PASSWORD, &data_pkcs8_pem, &data_pkcs8_pem_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 	ret = yaca_key_export(key_prv, YACA_KEY_FORMAT_PKCS8, YACA_KEY_FILE_FORMAT_DER,
-						  PASSWORD, &data_pkcs8_der, &data_pkcs8_der_len);
+	                      PASSWORD, &data_pkcs8_der, &data_pkcs8_der_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PUB, PASSWORD,
-						  data_pem, data_pem_len, &key_import);
+	                      data_pem, data_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, NULL,
-						  data_pem, data_pem_len, &key_import);
+	                      data_pem, data_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PASSWORD);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, WRONG_PASSWORD,
-						  data_pem, data_pem_len, &key_import);
+	                      data_pem, data_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PASSWORD);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pem, data_pem_len - 2, &key_import);
+	                      data_pem, data_pem_len - 2, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pem + 1, data_pem_len - 1, &key_import);
+	                      data_pem + 1, data_pem_len - 1, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	data_pem[30] = (data_pem[30] == 'a' ? 'z' : 'a');
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pem, data_pem_len, &key_import);
+	                      data_pem, data_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PUB, PASSWORD,
-						  data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
+	                      data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, NULL,
-						  data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
+	                      data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PASSWORD);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, WRONG_PASSWORD,
-						  data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
+	                      data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PASSWORD);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pkcs8_pem, data_pkcs8_pem_len - 2, &key_import);
+	                      data_pkcs8_pem, data_pkcs8_pem_len - 2, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pkcs8_pem + 1, data_pkcs8_pem_len - 1, &key_import);
+	                      data_pkcs8_pem + 1, data_pkcs8_pem_len - 1, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	data_pkcs8_pem[30] = (data_pkcs8_pem[30] == 'a' ? 'z' : 'a');
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
+	                      data_pkcs8_pem, data_pkcs8_pem_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PARAMS, PASSWORD,
-						  data_pkcs8_der, data_pkcs8_der_len, &key_import);
+	                      data_pkcs8_der, data_pkcs8_der_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, NULL,
-						  data_pkcs8_der, data_pkcs8_der_len, &key_import);
+	                      data_pkcs8_der, data_pkcs8_der_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PASSWORD);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, WRONG_PASSWORD,
-						  data_pkcs8_der, data_pkcs8_der_len, &key_import);
+	                      data_pkcs8_der, data_pkcs8_der_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PASSWORD);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pkcs8_der, data_pkcs8_der_len - 1, &key_import);
+	                      data_pkcs8_der, data_pkcs8_der_len - 1, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pkcs8_der+ 1, data_pkcs8_der_len - 1, &key_import);
+	                      data_pkcs8_der+ 1, data_pkcs8_der_len - 1, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	data_pkcs8_der[0] = ~data_pkcs8_der[0];
 	data_pkcs8_der[1] = ~data_pkcs8_der[1];
 	ret = yaca_key_import(YACA_KEY_TYPE_DSA_PRIV, PASSWORD,
-						  data_pkcs8_der, data_pkcs8_der_len, &key_import);
+	                      data_pkcs8_der, data_pkcs8_der_len, &key_import);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	yaca_key_destroy(key_prv);
@@ -1142,10 +1142,10 @@ BOOST_FIXTURE_TEST_CASE(T215__positive__key_derive_kdf, InitDebugFixture)
 		char *key_material1 = NULL, *key_material2 = NULL;
 
 		ret = yaca_key_derive_kdf(ka.kdf, ka.digest, secret, SECRET_LEN,
-								  NULL, 0, MATERIAL_LEN, &key_material1);
+		                          NULL, 0, MATERIAL_LEN, &key_material1);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 		ret = yaca_key_derive_kdf(ka.kdf, ka.digest, secret, SECRET_LEN,
-								  NULL, 0, MATERIAL_LEN, &key_material2);
+		                          NULL, 0, MATERIAL_LEN, &key_material2);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_memcmp(key_material1, key_material2, MATERIAL_LEN);
@@ -1169,35 +1169,35 @@ BOOST_FIXTURE_TEST_CASE(T216__negative__key_derive_kdf, InitDebugFixture)
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_derive_kdf(YACA_INVALID_KDF, YACA_DIGEST_MD5, secret, SECRET_LEN,
-							  NULL, 0, MATERIAL_LEN, &key_material);
+	                          NULL, 0, MATERIAL_LEN, &key_material);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_kdf(YACA_KDF_X942, YACA_INVALID_DIGEST_ALGORITHM, secret, SECRET_LEN,
-							  NULL, 0, MATERIAL_LEN, &key_material);
+	                          NULL, 0, MATERIAL_LEN, &key_material);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_kdf(YACA_KDF_X942, YACA_DIGEST_MD5, NULL, SECRET_LEN,
-							  NULL, 0, MATERIAL_LEN, &key_material);
+	                          NULL, 0, MATERIAL_LEN, &key_material);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_kdf(YACA_KDF_X942, YACA_DIGEST_MD5, secret, 0,
-							  NULL, 0, MATERIAL_LEN, &key_material);
+	                          NULL, 0, MATERIAL_LEN, &key_material);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_kdf(YACA_KDF_X942, YACA_DIGEST_MD5, secret, SECRET_LEN,
-							  "test", 0, MATERIAL_LEN, &key_material);
+	                          "test", 0, MATERIAL_LEN, &key_material);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_kdf(YACA_KDF_X942, YACA_DIGEST_MD5, secret, SECRET_LEN,
-							  NULL, 10, MATERIAL_LEN, &key_material);
+	                          NULL, 10, MATERIAL_LEN, &key_material);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_kdf(YACA_KDF_X942, YACA_DIGEST_MD5, secret, SECRET_LEN,
-							  NULL, 0, 0, &key_material);
+	                          NULL, 0, 0, &key_material);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_kdf(YACA_KDF_X942, YACA_DIGEST_MD5, secret, SECRET_LEN,
-							  NULL, 0, MATERIAL_LEN, NULL);
+	                          NULL, 0, MATERIAL_LEN, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 }
 
@@ -1232,10 +1232,10 @@ BOOST_FIXTURE_TEST_CASE(T217__positive__key_derive_pbkdf2, InitDebugFixture)
 		size_t len;
 
 		ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, pa.iter,
-									 pa.digest, pa.bit_len, &key1);
+		                             pa.digest, pa.bit_len, &key1);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 		ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, pa.iter,
-									 pa.digest, pa.bit_len, &key2);
+		                             pa.digest, pa.bit_len, &key2);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_key_get_type(key1, &type);
@@ -1272,43 +1272,43 @@ BOOST_FIXTURE_TEST_CASE(T218__negative__key_derive_pbkdf2, InitDebugFixture)
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_derive_pbkdf2(NULL, salt, SALT_LEN, 10,
-								 YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
+	                             YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, NULL, SALT_LEN, 10,
-								 YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
+	                             YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, 0, 10,
-								 YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
+	                             YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, 0,
-								 YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
+	                             YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, INT_MAX + 1UL,
-								 YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
+	                             YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, 10,
-								 YACA_INVALID_DIGEST_ALGORITHM, YACA_KEY_LENGTH_256BIT, &key);
+	                             YACA_INVALID_DIGEST_ALGORITHM, YACA_KEY_LENGTH_256BIT, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, 10,
-								 YACA_DIGEST_SHA1, 0, &key);
+	                             YACA_DIGEST_SHA1, 0, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, 10,
-								 YACA_DIGEST_SHA1, 1, &key);
+	                             YACA_DIGEST_SHA1, 1, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, 10,
-								 YACA_DIGEST_SHA1, 127, &key);
+	                             YACA_DIGEST_SHA1, 127, &key);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_key_derive_pbkdf2(PASSWORD, salt, SALT_LEN, 10,
-								 YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, NULL);
+	                             YACA_DIGEST_SHA1, YACA_KEY_LENGTH_256BIT, NULL);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 }
 
@@ -1391,7 +1391,7 @@ hajHIasdGWcAfj+Cyuk1KcTIEkBfdYR6a8C4g04Vbg6M0qEjFl5UTMwm\n\
 	size_t len;
 
 	ret = yaca_key_import(YACA_KEY_TYPE_RSA_PUB, NULL, data_pem,
-						  sizeof(data_pem), &key_pem);
+	                      sizeof(data_pem), &key_pem);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_get_type(key_pem, &type);
@@ -1403,7 +1403,7 @@ hajHIasdGWcAfj+Cyuk1KcTIEkBfdYR6a8C4g04Vbg6M0qEjFl5UTMwm\n\
 	BOOST_REQUIRE(len == YACA_KEY_LENGTH_1024BIT);
 
 	ret = yaca_key_import(YACA_KEY_TYPE_RSA_PUB, NULL, (char*)data_der,
-						  sizeof(data_der), &key_der);
+	                      sizeof(data_der), &key_der);
 	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 	ret = yaca_key_get_type(key_der, &type);
