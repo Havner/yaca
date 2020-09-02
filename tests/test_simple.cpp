@@ -105,7 +105,34 @@ BOOST_FIXTURE_TEST_CASE(T301__positive__simple_encrypt_decrypt, InitDebugFixture
 	}
 }
 
-BOOST_FIXTURE_TEST_CASE(T302__negative__simple_encrypt_decrypt, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T302__positive__simple_encrypt_decrypt_empty, InitDebugFixture)
+{
+	int ret;
+	yaca_key_h sym = YACA_KEY_NULL;
+	char *encrypted = NULL, *decrypted = NULL;
+	size_t encrypted_len, decrypted_len;
+
+	ret = yaca_key_generate(YACA_KEY_TYPE_SYMMETRIC, YACA_KEY_LENGTH_256BIT, &sym);
+	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
+
+	ret = yaca_simple_encrypt(YACA_ENCRYPT_UNSAFE_RC4, YACA_BCM_NONE, sym, NULL,
+	                          NULL, 0, &encrypted, &encrypted_len);
+	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
+
+	BOOST_REQUIRE(encrypted_len == 0);
+	BOOST_REQUIRE(encrypted == NULL);
+
+	ret = yaca_simple_decrypt(YACA_ENCRYPT_UNSAFE_RC4, YACA_BCM_NONE, sym, NULL,
+	                          NULL, 0, &decrypted, &decrypted_len);
+	BOOST_REQUIRE(ret == YACA_ERROR_NONE);
+
+	BOOST_REQUIRE(decrypted_len == 0);
+	BOOST_REQUIRE(decrypted == NULL);
+
+	yaca_key_destroy(sym);
+}
+
+BOOST_FIXTURE_TEST_CASE(T303__negative__simple_encrypt_decrypt, InitDebugFixture)
 {
 	int ret;
 	yaca_key_h sym = YACA_KEY_NULL, iv = YACA_KEY_NULL;
@@ -256,7 +283,7 @@ BOOST_FIXTURE_TEST_CASE(T302__negative__simple_encrypt_decrypt, InitDebugFixture
 	yaca_free(decrypted);
 }
 
-BOOST_FIXTURE_TEST_CASE(T303__positive__simple_calculate_digest, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T304__positive__simple_calculate_digest, InitDebugFixture)
 {
 	struct digest_args {
 		yaca_digest_algorithm_e algo = YACA_DIGEST_SHA256;
@@ -287,7 +314,7 @@ BOOST_FIXTURE_TEST_CASE(T303__positive__simple_calculate_digest, InitDebugFixtur
 	}
 }
 
-BOOST_FIXTURE_TEST_CASE(T304__negative__simple_calculate_digest, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T305__negative__simple_calculate_digest, InitDebugFixture)
 {
 	int ret;
 	char *digest = NULL;
@@ -314,7 +341,7 @@ BOOST_FIXTURE_TEST_CASE(T304__negative__simple_calculate_digest, InitDebugFixtur
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 }
 
-BOOST_FIXTURE_TEST_CASE(T305__positive__simple_calculate_verify_signature, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T306__positive__simple_calculate_verify_signature, InitDebugFixture)
 {
 	struct signature_args {
 		yaca_key_type_e type;
@@ -374,7 +401,7 @@ BOOST_FIXTURE_TEST_CASE(T305__positive__simple_calculate_verify_signature, InitD
 	}
 }
 
-BOOST_FIXTURE_TEST_CASE(T306__negative__simple_calculate_verify_signature, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T307__negative__simple_calculate_verify_signature, InitDebugFixture)
 {
 	int ret;
 	yaca_key_h key_priv = YACA_KEY_NULL, key_pub = YACA_KEY_NULL;
@@ -541,7 +568,7 @@ BOOST_FIXTURE_TEST_CASE(T306__negative__simple_calculate_verify_signature, InitD
 	yaca_free(signature);
 }
 
-BOOST_FIXTURE_TEST_CASE(T307__positive__simple_calculate_hmac, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T308__positive__simple_calculate_hmac, InitDebugFixture)
 {
 	struct hmac_args {
 		yaca_key_type_e type;
@@ -596,7 +623,7 @@ BOOST_FIXTURE_TEST_CASE(T307__positive__simple_calculate_hmac, InitDebugFixture)
 	}
 }
 
-BOOST_FIXTURE_TEST_CASE(T308__negative__simple_calculate_hmac, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T309__negative__simple_calculate_hmac, InitDebugFixture)
 {
 	int ret;
 	yaca_key_h key = YACA_KEY_NULL, key_prv = YACA_KEY_NULL;
@@ -647,7 +674,7 @@ BOOST_FIXTURE_TEST_CASE(T308__negative__simple_calculate_hmac, InitDebugFixture)
 	yaca_key_destroy(key_prv);
 }
 
-BOOST_FIXTURE_TEST_CASE(T309__positive__simple_calculate_cmac, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T310__positive__simple_calculate_cmac, InitDebugFixture)
 {
 	struct cmac_args {
 		yaca_key_type_e type;
@@ -701,7 +728,7 @@ BOOST_FIXTURE_TEST_CASE(T309__positive__simple_calculate_cmac, InitDebugFixture)
 	}
 }
 
-BOOST_FIXTURE_TEST_CASE(T3010__negative__simple_calculate_cmac, InitDebugFixture)
+BOOST_FIXTURE_TEST_CASE(T3011__negative__simple_calculate_cmac, InitDebugFixture)
 {
 	int ret;
 	yaca_key_h key = YACA_KEY_NULL, key_prv = YACA_KEY_NULL;
