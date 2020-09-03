@@ -261,7 +261,7 @@ int yaca_key_generate(yaca_key_type_e key_type,
  * @remarks  This function does not support RSA keys, as it's not possible
  *           to extract parameters from them.
  *
- * @remarks  The @a key should be released using yaca_key_destroy().
+ * @remarks  The @a prv_key should be released using yaca_key_destroy().
  *
  * @param[in]  params   Pre-generated parameters
  * @param[out] prv_key  Newly generated private key

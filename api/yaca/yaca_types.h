@@ -280,12 +280,16 @@ typedef enum {
  * @brief A value indicating generator equal 2 for DH parameters.
  *        To be or'ed with safe prime length in bits. Prime length is recommended
  *        to be 2048 bits or higher.
+ *
+ * @since_tizen 3.0
  */
 #define YACA_KEY_LENGTH_DH_GENERATOR_2 (YACA_KEYLEN_COMPONENT_TYPE_DH | YACA_KEYLEN_COMPONENT_DH_GEN_2)
 /**
  * @brief A value indicating generator equal 5 for DH parameters.
  *        To be or'ed with safe prime length in bits. Prime length is recommended
  *        to be 2048 bits or higher.
+ *
+ * @since_tizen 3.0
  */
 #define YACA_KEY_LENGTH_DH_GENERATOR_5 (YACA_KEYLEN_COMPONENT_TYPE_DH | YACA_KEYLEN_COMPONENT_DH_GEN_5)
 
