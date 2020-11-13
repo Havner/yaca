@@ -43,6 +43,9 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED ${SRCS} ${HEADERS})
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
                       SOVERSION  ${_LIB_SOVERSION_}
                       VERSION    ${_LIB_VERSION_})
+ADD_LIBRARY(${PROJECT_NAME}-static STATIC ${SRCS} ${HEADERS})
+SET_TARGET_PROPERTIES(${PROJECT_NAME}-static PROPERTIES
+                      OUTPUT_NAME ${PROJECT_NAME})
 
 ## Link libraries ##############################################################
 PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl)
@@ -65,6 +68,9 @@ INSTALL(FILES       ${CMAKE_CURRENT_BINARY_DIR}/${PC_FILE}
 INSTALL(TARGETS     ${PROJECT_NAME}
         DESTINATION ${LIB_INSTALL_DIR}
         COMPONENT   RuntimeLibraries)
+INSTALL(TARGETS     ${PROJECT_NAME}-static
+        DESTINATION ${LIB_INSTALL_DIR}
+        COMPONENT   DevelopmentLibraries)
 
 INSTALL(FILES       ${HEADERS}
         DESTINATION ${INCLUDE_INSTALL_DIR}/yaca)
