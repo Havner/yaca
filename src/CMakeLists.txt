@@ -48,7 +48,7 @@ SET_TARGET_PROPERTIES(${PROJECT_NAME}-static PROPERTIES
                       OUTPUT_NAME ${PROJECT_NAME})
 
 ## Link libraries ##############################################################
-PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl)
+PKG_CHECK_MODULES(YACA_DEPS REQUIRED openssl>=1.1)
 
 FIND_PACKAGE (Threads)
 
