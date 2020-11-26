@@ -24,6 +24,7 @@ SET(TESTS_NAME yaca-unit-tests)
 FILE(GLOB YACA_SOURCES ${SRC_FOLDER}/*.c)
 SET(TESTS_SOURCES
 	common.cpp
+	colour_log_formatter.cpp
 	test_debug.cpp
 	test_crypto.cpp
 	test_key.cpp
