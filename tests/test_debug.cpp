@@ -73,7 +73,7 @@ struct CallbackCleanup
 
 BOOST_AUTO_TEST_SUITE(TESTS_DEBUG)
 
-BOOST_AUTO_TEST_CASE(T001__neutral__translate_error)
+BOOST_AUTO_TEST_CASE(T001__positive__translate_error)
 {
 	struct error_args {
 		yaca_error_e err;
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(T001__neutral__translate_error)
 	}
 }
 
-BOOST_FIXTURE_TEST_CASE(T002__neutral__debug_set_error_cb, CallbackCleanup)
+BOOST_FIXTURE_TEST_CASE(T002__positive__debug_set_error_cb, CallbackCleanup)
 {
 	ERROR_DUMP(YACA_ERROR_INTERNAL);
 	BOOST_REQUIRE(error_cb_called == 0);
@@ -114,7 +114,7 @@ BOOST_FIXTURE_TEST_CASE(T002__neutral__debug_set_error_cb, CallbackCleanup)
 	BOOST_REQUIRE(error_cb_called == 2);
 }
 
-BOOST_FIXTURE_TEST_CASE(T003__neutral__error_dump, CallbackCleanup)
+BOOST_FIXTURE_TEST_CASE(T003__positive__error_dump, CallbackCleanup)
 {
 	yaca_debug_set_error_cb(&debug_error_cb);
 
@@ -146,7 +146,7 @@ BOOST_FIXTURE_TEST_CASE(T003__neutral__error_dump, CallbackCleanup)
 	BOOST_REQUIRE(ellipsis == ELLIPSIS);
 }
 
-BOOST_FIXTURE_TEST_CASE(T004__neutral__error_handle, CallbackCleanup)
+BOOST_FIXTURE_TEST_CASE(T004__positive__error_handle, CallbackCleanup)
 {
 	struct error_args {
 		long err1;
