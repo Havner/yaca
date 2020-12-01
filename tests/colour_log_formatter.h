@@ -24,7 +24,11 @@ public:
 		std::ostream &,
 		boost::unit_test::counter_t test_cases_amount);
 	void    log_finish(std::ostream &);
-	void    log_build_info(std::ostream &output, bool log_build_info = true);
+#if BOOST_VERSION >= 107000
+	void    log_build_info(std::ostream &, bool);
+#else
+	void    log_build_info(std::ostream &);
+#endif
 
 	void    test_unit_start(
 		std::ostream &,

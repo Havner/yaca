@@ -115,12 +115,15 @@ colour_log_formatter::log_finish(std::ostream &ostr)
 //____________________________________________________________________________//
 
 void
-colour_log_formatter::log_build_info(std::ostream &output, bool log_build_info)
+#if BOOST_VERSION >= 107000
+colour_log_formatter::log_build_info(std::ostream &output, bool)
+#else
+colour_log_formatter::log_build_info(std::ostream &output)
+#endif
 {
-	if (log_build_info)
-		output  << "Platform: " << BOOST_PLATFORM            << '\n'
-				<< "Compiler: " << BOOST_COMPILER            << '\n'
-				<< "STL     : " << BOOST_STDLIB              << '\n';
+	output  << "Platform: " << BOOST_PLATFORM            << '\n'
+			<< "Compiler: " << BOOST_COMPILER            << '\n'
+			<< "STL     : " << BOOST_STDLIB              << '\n';
 	output  << "Boost   : " << BOOST_VERSION / 100000      << '.'
 			<< BOOST_VERSION / 100 % 1000  << '.'
 			<< BOOST_VERSION % 100       << std::endl;
