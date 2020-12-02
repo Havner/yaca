@@ -735,7 +735,16 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		decrypted_len = written;
 
 		ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		if (ret != YACA_ERROR_INVALID_PARAMETER) {
+			/*
+			 * There's a quite high (over 1/256) chance that the decryption with key2 will create
+			 * a correctly padded buffer (e.g. last byte equal to 0x01). In such case we expect that
+			 * the length of the decrypted buffer will not match the original one.
+			 */
+
+			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
+			BOOST_REQUIRE(decrypted_len + written != INPUT_DATA_SIZE);
+		}
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
@@ -1776,9 +1785,6 @@ BOOST_FIXTURE_TEST_CASE(T610__negative__encrypt_decrypt_ccm, InitDebugFixture)
 		ret = yaca_context_set_property(ctx, YACA_PROPERTY_CCM_AAD, aad, aad_len);
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
-		/* In case of AES/CBC wrong key returned INVALID_PASS
-		 * Why this inconsistency?
-		 */
 		ret = yaca_decrypt_update(ctx, encrypted, encrypted_len, decrypted, &written);
 		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
