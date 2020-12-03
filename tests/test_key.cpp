@@ -188,8 +188,20 @@ BOOST_FIXTURE_TEST_CASE(T201__positive__key_generate, InitDebugFixture)
 		 (yaca_key_bit_length_e)(YACA_KEY_LENGTH_DH_GENERATOR_5 | 376),
 		 376},
 		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_PRIME192V3,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_PRIME192V3},
+		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_C2PNB368W1,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_C2PNB368W1},
+		{YACA_KEY_TYPE_EC_PRIV,
 		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECP384R1,
-		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECP384R1}
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECP384R1},
+		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECT571K1,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECT571K1},
+		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_BRAINPOOLP256T1,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_BRAINPOOLP256T1}
 	};
 
 	for (const auto &ka: kargs) {
@@ -1047,7 +1059,15 @@ BOOST_FIXTURE_TEST_CASE(T213__positive__key_derive_dh, InitDebugFixture)
 		{YACA_KEY_TYPE_DH_PRIV,
 		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_DH_RFC_1024_160},
 		{YACA_KEY_TYPE_EC_PRIV,
-		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECP384R1}
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_PRIME239V1},
+		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_C2PNB272W1},
+		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECP384R1},
+		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_SECT163R2},
+		{YACA_KEY_TYPE_EC_PRIV,
+		 (yaca_key_bit_length_e)YACA_KEY_LENGTH_EC_BRAINPOOLP256T1}
 	};
 
 	for (const auto &ka: kargs) {
