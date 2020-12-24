@@ -189,6 +189,20 @@ int set_sign_property(yaca_context_h ctx,
 		ret = ERROR_HANDLE();
 		return ret;
 	}
+	if (padding == YACA_PADDING_PKCS1_PSS) {
+		const EVP_MD *md = EVP_MD_CTX_md(c->md_ctx);
+		if (md == NULL) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
+		}
+		ret = EVP_PKEY_CTX_set_rsa_pss_saltlen(pctx, EVP_MD_size(md));
+		if (ret <= 0) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
+		}
+	}
 
 	return YACA_ERROR_NONE;
 }
