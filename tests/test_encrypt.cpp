@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2020 - 2021 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
  *
@@ -710,7 +710,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		decrypted_len = written;
 
 		ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		decrypt_check(ret, decrypted_len + written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
@@ -735,16 +735,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		decrypted_len = written;
 
 		ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
-		if (ret != YACA_ERROR_INVALID_PARAMETER) {
-			/*
-			 * There's a quite high (over 1/256) chance that the decryption with key2 will create
-			 * a correctly padded buffer (e.g. last byte equal to 0x01). In such case we expect that
-			 * the length of the decrypted buffer will not match the original one.
-			 */
-
-			BOOST_REQUIRE(ret == YACA_ERROR_NONE);
-			BOOST_REQUIRE(decrypted_len + written != INPUT_DATA_SIZE);
-		}
+		decrypt_check(ret, decrypted_len + written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
@@ -772,7 +763,7 @@ BOOST_FIXTURE_TEST_CASE(T604__negative__encrypt_decrypt, InitDebugFixture)
 		decrypted_len = written;
 
 		ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		decrypt_check(ret, decrypted_len + written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;

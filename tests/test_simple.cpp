@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2020 - 2021 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
  *
@@ -251,7 +251,7 @@ BOOST_FIXTURE_TEST_CASE(T303__negative__simple_encrypt_decrypt, InitDebugFixture
 	ret = yaca_simple_decrypt(YACA_ENCRYPT_AES, YACA_BCM_CBC, sym2, iv,
 	                          encrypted, encrypted_len,
 	                          &decrypted, &decrypted_len);
-	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+	decrypt_check(ret, decrypted_len, INPUT_DATA_SIZE);
 
 	ret = yaca_simple_decrypt(YACA_ENCRYPT_AES, YACA_BCM_CBC, sym, iv2,
 	                          encrypted, encrypted_len,
@@ -273,7 +273,7 @@ BOOST_FIXTURE_TEST_CASE(T303__negative__simple_encrypt_decrypt, InitDebugFixture
 	ret = yaca_simple_decrypt(YACA_ENCRYPT_AES, YACA_BCM_CBC, sym, iv,
 	                          encrypted, encrypted_len,
 	                          &decrypted, &decrypted_len);
-	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+	decrypt_check(ret, decrypted_len, INPUT_DATA_SIZE);
 
 	yaca_key_destroy(sym);
 	yaca_key_destroy(sym2);

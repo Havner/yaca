@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2020 - 2021 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
  *
@@ -203,5 +203,13 @@ void call_update_loop(yaca_context_h ctx, const char *input, size_t input_len,
 
 		if (left < part)
 			part = left;
+	}
+}
+
+void decrypt_check(int ret, size_t actual_len, size_t expected_len)
+{
+	if (ret != YACA_ERROR_INVALID_PARAMETER) {
+		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
+		BOOST_REQUIRE(actual_len != expected_len);
 	}
 }

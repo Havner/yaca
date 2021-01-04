@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2020 - 2021 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
  *
@@ -136,5 +136,11 @@ void call_mock_test(func F)
 	}
 }
 
+/*
+ * There's a quite high (over 1/256) chance that the decryption with wrong key, bcm, iv or
+ * ciphertext will create a correctly padded buffer (e.g. last byte equal to 0x01). In such case we
+ * expect that the length of the decrypted buffer will not match the original one.
+ */
+void decrypt_check(int ret, size_t actual_len, size_t expected_len);
 
 #endif /* COMMON_H */
