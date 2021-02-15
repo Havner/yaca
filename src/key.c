@@ -2038,3 +2038,120 @@ exit:
 
 	return ret;
 }
+
+
+/* UNSUPPORTED */
+
+static const uint64_t MIN_PUBLIC_EXPONENT = 3;
+
+API int yaca_key_rsa_generate(size_t key_bit_len, uint64_t key_pub_exp, yaca_key_h *key)
+{
+	int ret;
+	struct yaca_key_evp_s *nk_evp = NULL;
+
+	BIGNUM* bn = NULL;
+	RSA* rsa = NULL;
+	EVP_PKEY* pkey = NULL;
+
+	if ((key_bit_len & YACA_KEYLEN_COMPONENT_TYPE_MASK) != YACA_KEYLEN_COMPONENT_TYPE_BITS ||
+	    key_bit_len > INT_MAX || key_bit_len < 512 || key_bit_len % 8 != 0)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	if (key_pub_exp < MIN_PUBLIC_EXPONENT || key_pub_exp % 2 != 1)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	if (key == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	bn = BN_new();
+	if (bn == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	rsa = RSA_new();
+	if (rsa == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	pkey = EVP_PKEY_new();
+	if (pkey == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	if (BN_set_word(bn, key_pub_exp) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	if (RSA_generate_key_ex(rsa, key_bit_len, bn, NULL) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	if (EVP_PKEY_set1_RSA(pkey, rsa) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	ret = yaca_zalloc(sizeof(struct yaca_key_evp_s), (void**)&nk_evp);
+	if (ret != YACA_ERROR_NONE)
+		goto exit;
+
+	nk_evp->evp = pkey;
+	pkey = NULL;
+	nk_evp->key.type = YACA_KEY_TYPE_RSA_PRIV;
+	*key = (yaca_key_h)nk_evp;
+
+exit:
+	EVP_PKEY_free(pkey);
+	RSA_free(rsa);
+	BN_free(bn);
+	return ret;
+}
+
+API int yaca_key_rsa_get_public_exponent(const yaca_key_h key, uint64_t *key_pub_exp)
+{
+	int ret;
+	struct yaca_key_evp_s *evp_key = key_get_evp(key);
+	uint64_t pub_exp;
+	RSA* rsa = NULL;
+	const BIGNUM *bn = NULL;
+
+	if (key_pub_exp == NULL || evp_key == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	if (evp_key->key.type != YACA_KEY_TYPE_RSA_PRIV && evp_key->key.type != YACA_KEY_TYPE_RSA_PUB)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	rsa = EVP_PKEY_get1_RSA(evp_key->evp);
+	if (rsa == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	bn = RSA_get0_e(rsa);  // should not fail
+
+	pub_exp = BN_get_word(bn);
+	if (pub_exp == 0xffffffffL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		goto exit;
+	}
+
+	*key_pub_exp = pub_exp;
+	ret = YACA_ERROR_NONE;
+
+exit:
+	RSA_free(rsa);
+	return ret;
+}

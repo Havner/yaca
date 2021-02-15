@@ -239,3 +239,178 @@ API int yaca_rsa_public_decrypt(yaca_padding_e padding,
 	                       plaintext_len,
 	                       RSA_public_decrypt);
 }
+
+
+/* UNSUPPORTED */
+
+static const yaca_digest_algorithm_e YACA_DIGEST_NONE = (yaca_digest_algorithm_e)-1;
+
+typedef int (*encrypt_decrypt_evp_init_fn)(EVP_PKEY_CTX*);
+typedef int (*encrypt_decrypt_evp_fn)(EVP_PKEY_CTX*, unsigned char*, size_t*, const unsigned char*, size_t);
+
+static int encrypt_decrypt_evp(yaca_padding_e padding,
+                               yaca_digest_algorithm_e digest,
+                               const yaca_key_h key,
+                               const char *input,
+                               size_t input_len,
+                               char **output,
+                               size_t *output_len,
+                               encrypt_decrypt_evp_init_fn fn_init,
+                               encrypt_decrypt_evp_fn fn)
+{
+	int ret;
+	char *loutput = NULL;
+	size_t loutput_len;
+	struct yaca_key_evp_s *lasym_key;
+	EVP_PKEY_CTX* ctx = NULL;
+	int lpadding;
+	const EVP_MD *md = NULL;
+
+	if ((input == NULL && input_len > 0) || (input != NULL && input_len == 0) ||
+	    output == NULL || output_len == NULL)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	if (padding == YACA_PADDING_PKCS1_OAEP && digest == YACA_DIGEST_NONE)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	lpadding = rsa_padding2openssl(padding);
+
+	lasym_key = key_get_evp(key);
+	assert(lasym_key != NULL);
+
+	ctx = EVP_PKEY_CTX_new(lasym_key->evp, NULL);
+	if (ctx == NULL) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	if (fn_init(ctx) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	if (EVP_PKEY_CTX_set_rsa_padding(ctx, lpadding) != 1) {
+		ret = YACA_ERROR_INTERNAL;
+		ERROR_DUMP(ret);
+		return ret;
+	}
+
+	if (padding == YACA_PADDING_PKCS1_OAEP) {
+		ret = digest_get_algorithm(digest, &md);
+		if (ret != YACA_ERROR_NONE)
+			return ret;
+
+		if (EVP_PKEY_CTX_set_rsa_oaep_md(ctx, md) != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
+		}
+
+		if (EVP_PKEY_CTX_set_rsa_mgf1_md(ctx, EVP_sha1()) != 1) {
+			ret = YACA_ERROR_INTERNAL;
+			ERROR_DUMP(ret);
+			return ret;
+		}
+	}
+
+	if (fn(ctx, NULL, &loutput_len, (const unsigned char*)input, input_len) != 1) {
+		ret = ERROR_HANDLE();
+		goto exit;
+	}
+
+	ret = yaca_zalloc(loutput_len, (void**)&loutput);
+	if (ret != YACA_ERROR_NONE)
+		return ret;
+
+	if (fn(ctx, (unsigned char*)loutput, &loutput_len, (const unsigned char*)input, input_len) != 1) {
+		ret = ERROR_HANDLE();
+		goto exit;
+	}
+
+	if (loutput_len == 0) {
+		yaca_free(loutput);
+		loutput = NULL;
+	}
+
+	*output_len = loutput_len;
+	*output = loutput;
+	loutput = NULL;
+	ret = YACA_ERROR_NONE;
+
+exit:
+	EVP_PKEY_CTX_free(ctx);
+	yaca_free(loutput);
+	return ret;
+}
+
+API int yaca_rsa_public_encrypt_2(yaca_padding_e padding,
+                                  yaca_digest_algorithm_e digest,
+                                  const yaca_key_h pub_key,
+                                  const char *plaintext,
+                                  size_t plaintext_len,
+                                  char **ciphertext,
+                                  size_t *ciphertext_len)
+{
+	if (pub_key == YACA_KEY_NULL || pub_key->type != YACA_KEY_TYPE_RSA_PUB)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	switch (padding) {
+	case YACA_PADDING_NONE:
+	case YACA_PADDING_PKCS1:
+	case YACA_PADDING_PKCS1_SSLV23:
+		break;
+	case YACA_PADDING_PKCS1_OAEP:
+		if (digest == YACA_DIGEST_NONE)
+			return YACA_ERROR_INVALID_PARAMETER;
+		break;
+	default:
+		return YACA_ERROR_INVALID_PARAMETER;
+	}
+
+	return encrypt_decrypt_evp(padding,
+	                           digest,
+	                           pub_key,
+	                           plaintext,
+	                           plaintext_len,
+	                           ciphertext,
+	                           ciphertext_len,
+	                           &EVP_PKEY_encrypt_init,
+	                           &EVP_PKEY_encrypt);
+}
+
+API int yaca_rsa_private_decrypt_2(yaca_padding_e padding,
+                                   yaca_digest_algorithm_e digest,
+                                   const yaca_key_h prv_key,
+                                   const char *ciphertext,
+                                   size_t ciphertext_len,
+                                   char **plaintext,
+                                   size_t *plaintext_len)
+{
+	if (prv_key == YACA_KEY_NULL || prv_key->type != YACA_KEY_TYPE_RSA_PRIV)
+		return YACA_ERROR_INVALID_PARAMETER;
+
+	switch (padding) {
+	case YACA_PADDING_NONE:
+	case YACA_PADDING_PKCS1:
+	case YACA_PADDING_PKCS1_SSLV23:
+		break;
+	case YACA_PADDING_PKCS1_OAEP:
+		if (digest == YACA_DIGEST_NONE)
+			return YACA_ERROR_INVALID_PARAMETER;
+		break;
+	default:
+		return YACA_ERROR_INVALID_PARAMETER;
+	}
+
+	return encrypt_decrypt_evp(padding,
+	                           digest,
+	                           prv_key,
+	                           ciphertext,
+	                           ciphertext_len,
+	                           plaintext,
+	                           plaintext_len,
+	                           &EVP_PKEY_decrypt_init,
+	                           &EVP_PKEY_decrypt);
+}
