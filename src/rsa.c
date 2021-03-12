@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2016-2020 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2016-2021 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Krzysztof Jackiewicz <k.jackiewicz@samsung.com>
  *
@@ -93,6 +93,9 @@ static int encrypt_decrypt(yaca_padding_e padding,
 	}
 
 	max_len = ret;
+
+	if (input_len > max_len)
+		return YACA_ERROR_INVALID_PARAMETER;
 
 	ret = yaca_zalloc(max_len, (void**)&loutput);
 	if (ret != YACA_ERROR_NONE)

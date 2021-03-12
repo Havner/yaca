@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2020-2021 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
  *
@@ -24,6 +24,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <vector>
+#include <limits>
 
 #include <yaca_crypto.h>
 #include <yaca_rsa.h>
@@ -452,6 +453,11 @@ BOOST_FIXTURE_TEST_CASE(T404__negative__public_encrypt, InitDebugFixture)
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
+	                              INPUT_DATA, UINT_MAX,
+	                              &encrypted, &encrypted_len);
+	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+
+	ret = yaca_rsa_public_encrypt(YACA_PADDING_NONE, key_pub,
 	                              INPUT_DATA, input_len,
 	                              NULL, &encrypted_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
@@ -464,6 +470,11 @@ BOOST_FIXTURE_TEST_CASE(T404__negative__public_encrypt, InitDebugFixture)
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1, key_pub,
 	                              INPUT_DATA, input_len_pkcs1 + 1,
 	                              &encrypted_pkcs1, &encrypted_pkcs1_len);
+	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+
+	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1, key_pub,
+								  INPUT_DATA, UINT_MAX,
+								  &encrypted_pkcs1, &encrypted_pkcs1_len);
 	BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
 
 	ret = yaca_rsa_public_encrypt(YACA_PADDING_PKCS1_OAEP, key_pub,
