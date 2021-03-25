@@ -1896,7 +1896,7 @@ BOOST_FIXTURE_TEST_CASE(T610__negative__encrypt_decrypt_ccm, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_decrypt_update(ctx, encrypted, encrypted_len, decrypted, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		decrypt_check(ret, written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
@@ -2379,7 +2379,7 @@ BOOST_FIXTURE_TEST_CASE(T612__negative__encrypt_decrypt_gcm, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_decrypt_finalize(ctx, decrypted + decrypted_len, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		decrypt_check(ret, decrypted_len + written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;

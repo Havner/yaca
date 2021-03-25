@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020 Samsung Electronics Co., Ltd All Rights Reserved
+ *  Copyright (c) 2020 - 2021 Samsung Electronics Co., Ltd All Rights Reserved
  *
  *  Contact: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
  *
@@ -575,7 +575,7 @@ BOOST_FIXTURE_TEST_CASE(T702__negative__seal_open, InitDebugFixture)
 		decrypted_len = written;
 
 		ret = yaca_open_finalize(ctx, decrypted + decrypted_len, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		decrypt_check(ret, decrypted_len + written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
@@ -1254,7 +1254,7 @@ BOOST_FIXTURE_TEST_CASE(T706__negative__open_seal_ccm, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_open_update(ctx, encrypted, encrypted_len, decrypted, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		decrypt_check(ret, written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
@@ -1663,7 +1663,7 @@ BOOST_FIXTURE_TEST_CASE(T708__negative__seal_open_gcm, InitDebugFixture)
 		BOOST_REQUIRE(ret == YACA_ERROR_NONE);
 
 		ret = yaca_open_finalize(ctx, decrypted + decrypted_len, &written);
-		BOOST_REQUIRE(ret == YACA_ERROR_INVALID_PARAMETER);
+		decrypt_check(ret, decrypted_len + written, INPUT_DATA_SIZE);
 
 		yaca_context_destroy(ctx);
 		ctx = YACA_CONTEXT_NULL;
