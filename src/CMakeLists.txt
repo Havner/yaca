@@ -25,8 +25,8 @@ PROJECT(yaca)
 MESSAGE(STATUS "")
 MESSAGE(STATUS "Generating makefile for the yaca...")
 
-FILE(GLOB HEADERS   ${API_FOLDER}/*.h)
-FILE(GLOB SRCS      *.c *.h)
+FILE(GLOB HEADERS   ${API_FOLDER}/*.h ${API_FOLDER}/*.hpp)
+FILE(GLOB SRCS      *.c *.h keymaster/*.cpp keymaster/*.hpp)
 
 SET(_LIB_VERSION_ "${VERSION}")
 SET(_LIB_SOVERSION_ "0")
