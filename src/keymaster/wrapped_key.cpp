@@ -17,7 +17,9 @@
 #include <openssl/asn1t.h>
 #include <memory>
 #include <vector>
+#include <keymaster.h>
 #include <keymaster.hpp>
+#include <yaca_crypto.h>
 
 #include "yaca_custom.hpp"
 #include "wrapped_key.hpp"
@@ -145,4 +147,116 @@ API keymaster_error_t parse_wrapped_key(const Data& wrapped_key, Data* iv,
 
 	*auth_data = auth_list.data;
 	return KM_ERROR_OK;
+}
+
+API keymaster_error_t build_wrapped_key(const uint8_t *transit_key, const size_t transit_key_size,
+                                        const uint8_t *iv, const size_t iv_size,
+                                        const keymaster_key_format_t key_format,
+                                        const uint8_t *secure_key, const size_t secure_key_size,
+                                        const uint8_t *tag, const size_t tag_size,
+                                        const keymaster_key_param_t *auth_data, const size_t auth_data_size,
+                                        uint8_t **der, size_t *der_size)
+{
+	if (transit_key == nullptr || transit_key_size == 0 || iv == nullptr || iv_size == 0 ||
+	    secure_key == nullptr || secure_key_size == 0 || tag == nullptr || tag_size == 0 ||
+	    auth_data == nullptr || auth_data == 0 || auth_data_size == 0 ||
+	    der == nullptr || der_size == nullptr)
+		return KM_ERROR_INVALID_ARGUMENT;
+
+	keymaster_error_t km_ret;
+	int ret;
+
+	const Data v_transit_key(transit_key, transit_key + transit_key_size);
+	const Data v_iv(iv, iv + iv_size);
+	const Data v_secure_key(secure_key, secure_key + secure_key_size);
+	const Data v_tag(tag, tag + tag_size);
+	const AuthData v_auth_data(auth_data, auth_data + auth_data_size);
+	Data v_der;
+
+	km_ret = build_wrapped_key(v_transit_key, v_iv, key_format, v_secure_key,
+	                           v_tag, v_auth_data, &v_der);
+	if (km_ret != KM_ERROR_OK)
+		return km_ret;
+
+	ret = yaca_malloc(v_der.size(), (void**)der);
+	if (ret != YACA_ERROR_NONE)
+		return KM_ERROR_MEMORY_ALLOCATION_FAILED;
+	*der_size = v_der.size();
+	memcpy(*der, v_der.data(), v_der.size());
+
+	return KM_ERROR_OK;
+
+}
+
+API keymaster_error_t parse_wrapped_key(const uint8_t *der, const size_t der_size,
+                                        uint8_t **iv, size_t *iv_size,
+                                        uint8_t **transit_key, size_t *transit_key_size,
+                                        uint8_t **secure_key, size_t *secure_key_size,
+                                        uint8_t **tag, size_t *tag_size,
+                                        keymaster_key_param_t **auth_data, size_t *auth_data_size,
+                                        keymaster_key_format_t *key_format,
+                                        uint8_t **der_desc, size_t *der_desc_size)
+{
+	if (der == nullptr || der_size == 0 || iv == nullptr || iv_size == nullptr ||
+	    transit_key == nullptr || transit_key_size == nullptr ||
+	    secure_key == nullptr || secure_key_size == nullptr ||
+	    tag == nullptr || tag_size == nullptr || auth_data == nullptr || auth_data_size == nullptr ||
+	    key_format == nullptr || der_desc == nullptr || der_desc_size == nullptr)
+		return KM_ERROR_INVALID_ARGUMENT;
+
+	keymaster_error_t km_ret;
+	int ret;
+
+	const Data v_der(der, der + der_size);
+	Data v_iv, v_transit_key, v_secure_key, v_tag, v_der_desc;
+	AuthData v_auth_data;
+
+	km_ret = parse_wrapped_key(v_der, &v_iv, &v_transit_key, &v_secure_key, &v_tag,
+	                           &v_auth_data, key_format, &v_der_desc);
+	if (km_ret != KM_ERROR_OK)
+		return km_ret;
+
+	*iv = *transit_key = *secure_key = *tag = *der_desc = nullptr;
+	*auth_data = nullptr;
+
+	km_ret = KM_ERROR_MEMORY_ALLOCATION_FAILED;
+
+	ret = yaca_malloc(v_iv.size(), (void**)iv);
+	if (ret != YACA_ERROR_NONE) goto err;
+	ret = yaca_malloc(v_transit_key.size(), (void**)transit_key);
+	if (ret != YACA_ERROR_NONE) goto err;
+	ret = yaca_malloc(v_secure_key.size(), (void**)secure_key);
+	if (ret != YACA_ERROR_NONE) goto err;
+	ret = yaca_malloc(v_tag.size(), (void**)tag);
+	if (ret != YACA_ERROR_NONE) goto err;
+	ret = yaca_malloc(v_der_desc.size(), (void**)der_desc);
+	if (ret != YACA_ERROR_NONE) goto err;
+	ret = yaca_malloc(v_auth_data.size() * sizeof(keymaster_key_param_t), (void**)auth_data);
+	if (ret != YACA_ERROR_NONE) goto err;
+
+	*iv_size = v_iv.size();
+	*transit_key_size = v_transit_key.size();
+	*secure_key_size = v_secure_key.size();
+	*tag_size = v_tag.size();
+	*der_desc_size = v_der_desc.size();
+	*auth_data_size = v_auth_data.size();
+
+	memcpy(*iv, v_iv.data(), v_iv.size());
+	memcpy(*transit_key, v_transit_key.data(), v_transit_key.size());
+	memcpy(*secure_key, v_secure_key.data(), v_secure_key.size());
+	memcpy(*tag, v_tag.data(), v_tag.size());
+	memcpy(*der_desc, v_der_desc.data(), v_der_desc.size());
+	memcpy(*auth_data, v_auth_data.data(), v_auth_data.size() * sizeof(keymaster_key_param_t));
+
+	return KM_ERROR_OK;
+
+err:
+	yaca_free(*iv);
+	yaca_free(*transit_key);
+	yaca_free(*secure_key);
+	yaca_free(*tag);
+	yaca_free(*auth_data);
+	yaca_free(*der_desc);
+
+	return km_ret;
 }
