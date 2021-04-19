@@ -79,7 +79,7 @@ API keymaster_error_t build_wrapped_key(const Data& transit_key, const Data& iv,
 	}
 	try {
 		der_wrapped_key->resize(len);
-	} catch (std::exception) {
+	} catch (std::exception &) {
 		return KM_ERROR_MEMORY_ALLOCATION_FAILED;
 	}
 
@@ -130,7 +130,7 @@ API keymaster_error_t parse_wrapped_key(const Data& wrapped_key, Data* iv,
 			return TranslateLastOpenSslError();
 		}
 		wrapped_key_description->resize(len);
-	} catch (std::exception) {
+	} catch (std::exception &) {
 		return KM_ERROR_MEMORY_ALLOCATION_FAILED;
 	}
 

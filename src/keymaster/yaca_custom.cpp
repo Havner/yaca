@@ -74,7 +74,7 @@ bool AuthSet::push_back(keymaster_key_param_t elem)
 {
 	try {
 		data.push_back(elem);
-	} catch (std::exception) {
+	} catch (std::exception &) {
 		return false;
 	}
 
